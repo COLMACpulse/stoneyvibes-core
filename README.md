@@ -77,3 +77,12 @@ The word “bullshit” is used intentionally and sparingly.
 Clarity beats novelty.  
 Signal beats story.  
 Grounded beats hype.
+# stoneyvibes-core
+
+Core experiments, logic, and vibe research.
+
+This repo contains:
+- index.html — first live prototype
+- README.md — project context
+
+Built mobile-first. More coming.
