@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StoneyVibes v0</title>
+  <style>
+    body { font-family: -apple-system, system-ui, Arial, sans-serif; margin: 0; padding: 18px; line-height: 1.25; }
+    h1 { margin: 0 0 6px; }
+    .sub { opacity: 0.75; margin: 0 0 16px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 14px; margin: 12px 0; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    label { display: block; font-weight: 600; margin: 10px 0 6px; }
+    select, input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 10px; font-size: 16px; }
+    textarea { min-height: 70px; }
+    button { padding: 12px 14px; border: 0; border-radius: 10px; font-size: 16px; cursor: pointer; }
+    .btn { background: #111; color: #fff; }
+    .btn2 { background: #f1f1f1; }
+    .pill { display:inline-block; padding: 5px 10px; border-radius: 999px; border:1px solid #ddd; font-size: 12px; opacity: 0.8; }
+    .small { font-size: 12px; opacity: 0.75; }
+    .sep { height: 1px; background:#eee; margin: 14px 0; }
+    .k { font-family: ui-monospace, Menlo, monospace; font-size: 12px; background:#f6f6f6; padding:2px 6px; border-radius:6px;}
+    .muted { opacity: 0.7; }
+    .danger { color: #b00020; }
+    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <h1>StoneyVibes v0</h1>
+  <p class="sub">Private, local-only logging. Signal > story. No shame, paranoia, or bullshit.</p>
+
+  <div class="card">
+    <div class="row" style="align-items:center; justify-content:space-between;">
+      <div>
+        <div class="pill">Local storage only</div>
+        <div class="pill">No accounts</div>
+        <div class="pill">v0</div>
+      </div>
+      <div class="small muted">Kernel: signal must repeat across independent branches.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin:0 0 8px;">New Session</h2>
+
+    <label>Mode</label>
+    <select id="mode">
+      <option>AM</option>
+      <option>NOON</option>
+      <option>PM</option>
+      <option>SLEEP</option>
+      <option>HEAVY SLEEP</option>
+      <option>DONT CARE</option>
+      <option>SAFELY REALLY BAKED</option>
+    </select>
+
+    <div class="grid2">
+      <div>
+        <label>Strain # (optional)</label>
+        <select id="strain">
+          <option value="">—</option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+          <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+        </select>
+        <div class="small muted">Your list stays private. Just numbers here.</div>
+      </div>
+      <div>
+        <label>Add-ons (optional)</label>
+        <select id="addons">
+          <option value="">—</option>
+          <option value="kief">Kief</option>
+          <option value="lavender">Lavender</option>
+          <option value="horehound">Horehound</option>
+          <option value="chamomile">Chamomile</option>
+          <option value="mint">Mint</option>
+          <option value="mix">Mixed Herbs</option>
+        </select>
+        <div class="small muted">“Weed + friends” is allowed. No health claims.</div>
+      </div>
+    </div>
+
+    <label>Notes (optional)</label>
+    <textarea id="notes" placeholder="Anything relevant: first of day, rain sounds, stress level, etc."></textarea>
+
+    <div class="sep"></div>
+
+    <h3 style="margin:0 0 8px;">12-Question Blind Hit Test</h3>
+
+    <div class="grid2">
+      <div>
+        <label>1. BODY SIGNAL</label>
+        <select id="q1">
+          <option>A. Forehead</option><option>B. Behind eyes</option><option>C. Chest / heart</option>
+          <option>D. Arms / hands</option><option>E. Legs / feet</option><option>F. Stomach / gut</option><option>G. Nowhere</option>
+        </select>
+
+        <label>2. HEAD SPEED</label>
+        <select id="q2">
+          <option>A. Faster</option><option>B. Slower</option><option>C. Same</option><option>D. Wave-like / pulsing</option>
+        </select>
+
+        <label>3. EYE RESPONSE</label>
+        <select id="q3">
+          <option>A. Stay open</option><option>B. Half-mast</option><option>C. Close</option><option>D. Wide awake</option>
+        </select>
+
+        <label>4. MOUTH FEEL</label>
+        <select id="q4">
+          <option>A. Dry</option><option>B. Normal</option><option>C. Electric</option><option>D. Thick / lazy</option>
+        </select>
+
+        <label>5. HUMOR SWITCH</label>
+        <select id="q5">
+          <option>Yes</option><option>No</option><option>Maybe later</option>
+        </select>
+
+        <label>6. SOCIAL MODE</label>
+        <select id="q6">
+          <option>A. Company</option><option>B. Silence</option><option>C. Nature</option><option>D. A task</option>
+        </select>
+      </div>
+
+      <div>
+        <label>7. THREAT SCAN</label>
+        <select id="q7">
+          <option>A. Ignore</option><option>B. Observe</option><option>C. Investigate</option><option>D. Arm</option>
+        </select>
+
+        <label>8. MEMORY TAG</label>
+        <select id="q8">
+          <option>Yes</option><option>No</option><option>Fragment only</option>
+        </select>
+
+        <label>9. FACE SIGNAL</label>
+        <select id="q9">
+          <option>A. Forehead</option><option>B. Jaw</option><option>C. Cheeks</option><option>D. Lips</option><option>E. None</option>
+        </select>
+
+        <label>10. COORDINATION</label>
+        <select id="q10">
+          <option>A. 100%</option><option>B. 80%</option><option>C. 50%</option><option>D. 20%</option>
+        </select>
+
+        <label>11. EMOTIONAL DRIVER</label>
+        <select id="q11">
+          <option>A. Calm</option><option>B. Curious</option><option>C. Energized</option><option>D. Sentimental</option>
+          <option>E. Distracted</option><option>F. Detached</option>
+        </select>
+
+        <label>12. PERFORMANCE IMPULSE</label>
+        <select id="q12">
+          <option>A. Get something done</option><option>B. Daydream</option><option>C. Lie down</option>
+          <option>D. Talk to someone</option><option>E. Eat</option><option>F. Smoke again</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <h3 style="margin:0 0 8px;">3 Follow-ups (10–15 min later)</h3>
+    <div class="grid2">
+      <div>
+        <label>F1. Confidence</label>
+        <select id="f1">
+          <option>Up</option><option>Down</option><option>Stabilize</option>
+        </select>
+
+        <label>F2. Brain</label>
+        <select id="f2">
+          <option>Sharper</option><option>Foggier</option><option>Softer</option>
+        </select>
+
+        <label>F3. Repeat?</label>
+        <select id="f3">
+          <option>Now</option><option>Later</option><option>Never</option>
+        </select>
+      </div>
+      <div>
+        <label>Follow-up notes (optional)</label>
+        <textarea id="fnotes" placeholder="Any changes after 10–15 minutes?"></textarea>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="btn" id="saveBtn">Save session</button>
+      <button class="btn2" id="clearBtn">Reset form</button>
+    </div>
+    <p class="small muted">Tip: You can add GitHub Pages later to make this open as a real web app link.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin:0 0 8px;">Saved Sessions</h2>
+    <div class="row" style="margin-bottom:10px;">
+      <button class="btn2" id="exportBtn">Export JSON</button>
+      <button class="btn2 danger" id="wipeBtn">Wipe all local data</button>
+    </div>
+    <div id="list"></div>
+    <p class="small muted">Everything here is stored in <span class="k">localStorage</span> on this device.</p>
+  </div>
+
+<script>
+  const KEY = "stoneyvibes_sessions_v0";
+
+  function nowISO() { return new Date().toISOString(); }
+
+  function loadSessions() {
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+    catch { return []; }
+  }
+
+  function saveSessions(items) {
+    localStorage.setItem(KEY, JSON.stringify(items));
+  }
+
+  function getVal(id) { return document.getElementById(id).value; }
+
+  function resetForm() {
+    ["mode","strain","addons","notes",
+     "q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11","q12",
+     "f1","f2","f3","fnotes"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el.tagName === "TEXTAREA") el.value = "";
+      else el.selectedIndex = 0;
+    });
+    document.getElementById("strain").value = "";
+    document.getElementById("addons").value = "";
+  }
+
+  function render() {
+    const list = document.getElementById("list");
+    const items = loadSessions().slice().reverse();
+    if (!items.length) {
+      list.innerHTML = "<p class='muted'>No sessions yet. Save one above.</p>";
+      return;
+    }
+    list.innerHTML = items.map((s, idx) => {
+      const when = new Date(s.ts).toLocaleString();
+      const tag = `${s.mode}${s.strain ? " · #"+s.strain : ""}${s.addons ? " · "+s.addons : ""}`;
+      return `
+        <div class="card" style="margin:10px 0;">
+          <div class="row" style="justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div><strong>${tag}</strong></div>
+              <div class="small muted">${when}</div>
+            </div>
+            <button class="btn2" onclick="delOne('${s.id}')">Delete</button>
+          </div>
+          <div class="small" style="margin-top:8px;">
+            <div><strong>Hit:</strong> ${s.q1} | ${s.q2} | ${s.q3} | ${s.q11} | ${s.q12}</div>
+            <div><strong>Follow:</strong> ${s.f1} / ${s.f2} / ${s.f3}</div>
+            ${s.notes ? `<div class="sep"></div><div><strong>Notes:</strong> ${escapeHtml(s.notes)}</div>` : ""}
+            ${s.fnotes ? `<div class="sep"></div><div><strong>F-notes:</strong> ${escapeHtml(s.fnotes)}</div>` : ""}
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
+  window.delOne = function(id) {
+    const items = loadSessions().filter(s => s.id !== id);
+    saveSessions(items);
+    render();
+  };
+
+  document.getElementById("saveBtn").addEventListener("click", () => {
+    const session = {
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2),
+      ts: nowISO(),
+      mode: getVal("mode"),
+      strain: getVal("strain"),
+      addons: getVal("addons"),
+      notes: getVal("notes"),
+      q1: getVal("q1"), q2: getVal("q2"), q3: getVal("q3"), q4: getVal("q4"),
+      q5: getVal("q5"), q6: getVal("q6"), q7: getVal("q7"), q8: getVal("q8"),
+      q9: getVal("q9"), q10: getVal("q10"), q11: getVal("q11"), q12: getVal("q12"),
+      f1: getVal("f1"), f2: getVal("f2"), f3: getVal("f3"),
+      fnotes: getVal("fnotes")
+    };
+    const items = loadSessions();
+    items.push(session);
+    saveSessions(items);
+    render();
+    alert("Saved. (Local only)");
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", resetForm);
+
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const data = JSON.stringify(loadSessions(), null, 2);
+    const blob = new Blob([data], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "stoneyvibes_sessions_v0.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("wipeBtn").addEventListener("click", () => {
+    if (confirm("Wipe all local sessions from this device?")) {
+      localStorage.removeItem(KEY);
+      render();
+    }
+  });
+
+  render();
+</script>
+</body>
+</html>
