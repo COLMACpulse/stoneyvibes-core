@@ -3,372 +3,958 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StoneyVibes v0</title>
+  <title>StoneyVibes v0.1</title>
   <style>
-    body { font-family: -apple-system, system-ui, Arial, sans-serif; margin: 0; padding: 18px; line-height: 1.25; }
-    h1 { margin: 0 0 6px; }
-    .sub { opacity: 0.75; margin: 0 0 16px; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 14px; margin: 12px 0; }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; }
-    label { display: block; font-weight: 600; margin: 10px 0 6px; }
-    select, input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 10px; font-size: 16px; }
-    textarea { min-height: 70px; }
-    button { padding: 12px 14px; border: 0; border-radius: 10px; font-size: 16px; cursor: pointer; }
-    .btn { background: #111; color: #fff; }
-    .btn2 { background: #f1f1f1; }
-    .pill { display:inline-block; padding: 5px 10px; border-radius: 999px; border:1px solid #ddd; font-size: 12px; opacity: 0.8; }
-    .small { font-size: 12px; opacity: 0.75; }
-    .sep { height: 1px; background:#eee; margin: 14px 0; }
-    .k { font-family: ui-monospace, Menlo, monospace; font-size: 12px; background:#f6f6f6; padding:2px 6px; border-radius:6px;}
-    .muted { opacity: 0.7; }
-    .danger { color: #b00020; }
-    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+    :root{
+      --bg:#0b0f14;
+      --panel:#0f1620;
+      --card:#101a26;
+      --text:#e6edf3;
+      --muted:#9aa6b2;
+      --line:#243244;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --chip:#162235;
+      --chipOn:#203553;
+      --btn:#1f2a3a;
+      --btnOn:#2a3c54;
+      --shadow: rgba(0,0,0,.25);
+      --radius:14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background: radial-gradient(1200px 800px at 20% 0%, #0c1420 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height:1.35;
+    }
+    a{ color:#8ab4ff; text-decoration:none; }
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+    .top{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom: 14px;
+    }
+    .brand{
+      padding: 14px 14px 10px 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px var(--shadow);
+      flex: 1 1 520px;
+    }
+    h1{
+      font-size: 20px;
+      margin: 0 0 6px 0;
+      letter-spacing:.2px;
+    }
+    .sub{
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0;
+    }
+    .pillrow{
+      margin-top:10px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .pill{
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+
+    .actions{
+      flex: 0 1 380px;
+      display:flex;
+      gap:10px;
+      align-items:stretch;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    button{
+      background: var(--btn);
+      border: 1px solid rgba(255,255,255,.10);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 10px 20px rgba(0,0,0,.18);
+    }
+    button:hover{ background: var(--btnOn); }
+    button.danger{ border-color: rgba(239,68,68,.35); }
+    button.danger:hover{ background: rgba(239,68,68,.15); }
+    button.small{ padding: 8px 10px; font-size: 12px; }
+    button.ghost{ background: transparent; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .actions{ justify-content:flex-start; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.22);
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size: 14px;
+      letter-spacing:.2px;
+      color: #dfe7ef;
+      text-transform: uppercase;
+    }
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0 0 10px 0;
+    }
+    label{
+      display:block;
+      font-size: 12px;
+      color: #cbd5e1;
+      margin: 12px 0 6px 0;
+      font-weight: 700;
+      letter-spacing:.2px;
+      text-transform: uppercase;
+    }
+    select,input,textarea{
+      width: 100%;
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      outline: none;
+      font-family: var(--sans);
+    }
+    textarea{ min-height: 80px; resize: vertical; }
+    .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .row > .col{
+      flex: 1 1 160px;
+      min-width: 160px;
+    }
+
+    .chips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 6px;
+    }
+    .chip{
+      background: var(--chip);
+      border:1px solid rgba(255,255,255,.10);
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .chip.on{
+      background: var(--chipOn);
+      border-color: rgba(138,180,255,.35);
+    }
+
+    .progress{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin: 6px 0 10px 0;
+    }
+    .bar{
+      flex: 1;
+      height: 10px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(138,180,255,.75), rgba(34,197,94,.65));
+      transition: width .25s ease;
+    }
+    .progtext{
+      font-size: 12px;
+      color: var(--muted);
+      white-space:nowrap;
+      font-family: var(--mono);
+    }
+
+    .sectionTabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin: 8px 0 10px 0;
+    }
+    .tab{
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      cursor:pointer;
+    }
+    .tab.on{
+      color: var(--text);
+      background: rgba(138,180,255,.12);
+      border-color: rgba(138,180,255,.35);
+    }
+
+    .q{
+      padding: 10px 10px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      background: rgba(0,0,0,.18);
+      margin: 8px 0;
+    }
+    .qtitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .qtitle span{
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .scale{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .scale .chip{
+      padding: 7px 10px;
+    }
+
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.10);
+      margin: 12px 0;
+    }
+
+    .sessionCard{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .sessionTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .stamp{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .kvs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 8px;
+    }
+    .kv{
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color: #dce6f2;
+    }
+    .kv b{ color: var(--muted); font-weight:600; }
+    .miniBtnRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .muted{ color: var(--muted); }
+    .mono{ font-family: var(--mono); }
+
+    .toast{
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      background: rgba(0,0,0,.75);
+      border:1px solid rgba(255,255,255,.12);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      display:none;
+      max-width: min(720px, calc(100vw - 36px));
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      z-index: 9999;
+      font-size: 13px;
+    }
+    .toast.on{ display:block; }
+
+    .smallNote{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    details{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(0,0,0,.18);
+      margin-top: 10px;
+    }
+    summary{
+      cursor:pointer;
+      color: #dfe7ef;
+      font-weight:700;
+      font-size: 13px;
+    }
+    .codebox{
+      white-space: pre-wrap;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #dfe7ef;
+      margin-top: 8px;
+    }
   </style>
 </head>
+
 <body>
-  <h1>StoneyVibes v0</h1>
-  <p class="sub">Private, local-only logging. Signal > story. No shame, paranoia, or bullshit.</p>
-
-  <div class="card">
-    <div class="row" style="align-items:center; justify-content:space-between;">
-      <div>
-        <div class="pill">Local storage only</div>
-        <div class="pill">No accounts</div>
-        <div class="pill">v0</div>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <h1>StoneyVibes <span class="muted">v0.1</span></h1>
+        <p class="sub">
+          Private, local-only logging. Signal &gt; story. No shame, paranoia, or bullshit.
+          <br/>No accounts. No cloud. Data lives in <span class="mono">localStorage</span> on this device.
+        </p>
+        <div class="pillrow">
+          <span class="pill">Local-only</span>
+          <span class="pill">Non-claim</span>
+          <span class="pill">User-defined meaning</span>
+          <span class="pill">Export JSON</span>
+        </div>
       </div>
-      <div class="small muted">Kernel: signal must repeat across independent branches.</div>
-    </div>
-  </div>
 
-  <div class="card">
-    <h2 style="margin:0 0 8px;">New Session</h2>
-
-    <label>Mode</label>
-    <select id="mode">
-      <option>AM</option>
-      <option>NOON</option>
-      <option>PM</option>
-      <option>SLEEP</option>
-      <option>HEAVY SLEEP</option>
-      <option>DONT CARE</option>
-      <option>SAFELY REALLY BAKED</option>
-    </select>
-
-    <div class="grid2">
-      <div>
-        <label>Strain # (optional)</label>
-        <select id="strain">
-          <option value="">—</option>
-          <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-          <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
-        </select>
-        <div class="small muted">Your list stays private. Just numbers here.</div>
-      </div>
-      <div>
-        <label>Add-ons (optional)</label>
-        <select id="addons">
-          <option value="">—</option>
-          <option value="kief">Kief</option>
-          <option value="lavender">Lavender</option>
-          <option value="horehound">Horehound</option>
-          <option value="chamomile">Chamomile</option>
-          <option value="mint">Mint</option>
-          <option value="mix">Mixed Herbs</option>
-        </select>
-        <div class="small muted">“Weed + friends” is allowed. No health claims.</div>
+      <div class="actions">
+        <button class="small" id="exportBtn">Export JSON</button>
+        <button class="small danger" id="wipeBtn">Wipe local data</button>
+        <button class="small ghost" id="aboutBtn">About</button>
       </div>
     </div>
 
-    <label>Notes (optional)</label>
-    <textarea id="notes" placeholder="Anything relevant: first of day, rain sounds, stress level, etc."></textarea>
+    <div class="grid">
+      <!-- LEFT: NEW SESSION -->
+      <div class="card">
+        <h2>New Session</h2>
+        <p class="hint">Keep it simple. One clean log beats five noisy ones.</p>
 
-    <div class="sep"></div>
+        <div class="row">
+          <div class="col">
+            <label for="timeSlot">Time</label>
+            <select id="timeSlot">
+              <option value="AM">AM</option>
+              <option value="NOON">NOON</option>
+              <option value="PM">PM</option>
+              <option value="NIGHT">NIGHT</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="intensity">Intensity (self-label)</label>
+            <select id="intensity">
+              <option value="LIGHT">LIGHT</option>
+              <option value="MEDIUM" selected>MEDIUM</option>
+              <option value="HEAVY">HEAVY</option>
+              <option value="COOKED">COOKED</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="strainNum">Strain # (optional)</label>
+            <input id="strainNum" placeholder="e.g., 12" inputmode="numeric" />
+          </div>
+        </div>
 
-    <h3 style="margin:0 0 8px;">12-Question Blind Hit Test</h3>
+        <label>Add-ons</label>
+        <div class="chips" id="addonChips"></div>
+        <div class="row" style="margin-top:8px;">
+          <div class="col">
+            <input id="customAddon" placeholder="Add a custom add-on (optional)"/>
+          </div>
+          <div class="col" style="flex:0 0 auto; min-width:auto;">
+            <button class="small" id="addCustomAddonBtn">Add</button>
+          </div>
+        </div>
 
-    <div class="grid2">
-      <div>
-        <label>1. BODY SIGNAL</label>
-        <select id="q1">
-          <option>A. Forehead</option><option>B. Behind eyes</option><option>C. Chest / heart</option>
-          <option>D. Arms / hands</option><option>E. Legs / feet</option><option>F. Stomach / gut</option><option>G. Nowhere</option>
-        </select>
+        <label for="notes">Notes</label>
+        <textarea id="notes" placeholder="Observations only. No need to be poetic unless you want to."></textarea>
 
-        <label>2. HEAD SPEED</label>
-        <select id="q2">
-          <option>A. Faster</option><option>B. Slower</option><option>C. Same</option><option>D. Wave-like / pulsing</option>
-        </select>
+        <div class="divider"></div>
 
-        <label>3. EYE RESPONSE</label>
-        <select id="q3">
-          <option>A. Stay open</option><option>B. Half-mast</option><option>C. Close</option><option>D. Wide awake</option>
-        </select>
+        <h2>12-Question Blind Hit Test</h2>
+        <p class="hint">Answer fast. Don’t overthink. This is a mirror, not a judge.</p>
 
-        <label>4. MOUTH FEEL</label>
-        <select id="q4">
-          <option>A. Dry</option><option>B. Normal</option><option>C. Electric</option><option>D. Thick / lazy</option>
-        </select>
+        <div class="progress">
+          <div class="bar"><div id="progFill"></div></div>
+          <div class="progtext" id="progText">0/12</div>
+        </div>
 
-        <label>5. HUMOR SWITCH</label>
-        <select id="q5">
-          <option>Yes</option><option>No</option><option>Maybe later</option>
-        </select>
+        <div class="sectionTabs" id="sectionTabs"></div>
 
-        <label>6. SOCIAL MODE</label>
-        <select id="q6">
-          <option>A. Company</option><option>B. Silence</option><option>C. Nature</option><option>D. A task</option>
-        </select>
+        <div id="questions"></div>
+
+        <label>Follow-ups (optional)</label>
+        <div class="q">
+          <div class="qtitle">Most noticeable change? <span>free text</span></div>
+          <textarea id="fu1" placeholder="Short is fine."></textarea>
+        </div>
+        <div class="q">
+          <div class="qtitle">If this was a “repeat signal,” what was it? <span>free text</span></div>
+          <textarea id="fu2" placeholder="What pattern did you recognize?"></textarea>
+        </div>
+        <div class="q">
+          <div class="qtitle">Anything weird / edge-case? <span>free text</span></div>
+          <textarea id="fu3" placeholder="If something felt off, log it."></textarea>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div class="col">
+            <button id="saveBtn">Save Session</button>
+          </div>
+          <div class="col">
+            <button class="ghost" id="resetBtn">Reset Form</button>
+          </div>
+        </div>
+
+        <p class="smallNote">
+          Guardrails: No strain/effect/potency claims. This is personal observation + pattern tracking.
+        </p>
       </div>
 
-      <div>
-        <label>7. THREAT SCAN</label>
-        <select id="q7">
-          <option>A. Ignore</option><option>B. Observe</option><option>C. Investigate</option><option>D. Arm</option>
-        </select>
+      <!-- RIGHT: SAVED SESSIONS -->
+      <div class="card">
+        <h2>Saved Sessions</h2>
+        <p class="hint">Local timeline. No cloud. Your device, your data.</p>
 
-        <label>8. MEMORY TAG</label>
-        <select id="q8">
-          <option>Yes</option><option>No</option><option>Fragment only</option>
-        </select>
+        <div id="sessions"></div>
 
-        <label>9. FACE SIGNAL</label>
-        <select id="q9">
-          <option>A. Forehead</option><option>B. Jaw</option><option>C. Cheeks</option><option>D. Lips</option><option>E. None</option>
-        </select>
-
-        <label>10. COORDINATION</label>
-        <select id="q10">
-          <option>A. 100%</option><option>B. 80%</option><option>C. 50%</option><option>D. 20%</option>
-        </select>
-
-        <label>11. EMOTIONAL DRIVER</label>
-        <select id="q11">
-          <option>A. Calm</option><option>B. Curious</option><option>C. Energized</option><option>D. Sentimental</option>
-          <option>E. Distracted</option><option>F. Detached</option>
-        </select>
-
-        <label>12. PERFORMANCE IMPULSE</label>
-        <select id="q12">
-          <option>A. Get something done</option><option>B. Daydream</option><option>C. Lie down</option>
-          <option>D. Talk to someone</option><option>E. Eat</option><option>F. Smoke again</option>
-        </select>
+        <details>
+          <summary>Reference-only “Anchor Compare” (safe mode)</summary>
+          <div class="codebox" id="anchorInfo">
+This is a placeholder for future BSTASH bindings.
+It will never claim strain, effects, potency, or outcomes.
+It will only display “visual similarity” and “structural deltas”
+when you later add leaf logs (Taxonomy + Anchors are frozen).
+          </div>
+        </details>
       </div>
     </div>
 
-    <div class="sep"></div>
-
-    <h3 style="margin:0 0 8px;">3 Follow-ups (10–15 min later)</h3>
-    <div class="grid2">
-      <div>
-        <label>F1. Confidence</label>
-        <select id="f1">
-          <option>Up</option><option>Down</option><option>Stabilize</option>
-        </select>
-
-        <label>F2. Brain</label>
-        <select id="f2">
-          <option>Sharper</option><option>Foggier</option><option>Softer</option>
-        </select>
-
-        <label>F3. Repeat?</label>
-        <select id="f3">
-          <option>Now</option><option>Later</option><option>Never</option>
-        </select>
-      </div>
-      <div>
-        <label>Follow-up notes (optional)</label>
-        <textarea id="fnotes" placeholder="Any changes after 10–15 minutes?"></textarea>
-      </div>
-    </div>
-
-    <div class="row" style="margin-top:12px;">
-      <button class="btn" id="saveBtn">Save session</button>
-      <button class="btn2" id="clearBtn">Reset form</button>
-    </div>
-    <p class="small muted">Tip: You can add GitHub Pages later to make this open as a real web app link.</p>
-  </div>
-
-  <div class="card">
-    <h2 style="margin:0 0 8px;">Saved Sessions</h2>
-    <div class="row" style="margin-bottom:10px;">
-      <button class="btn2" id="exportBtn">Export JSON</button>
-      <button class="btn2 danger" id="wipeBtn">Wipe all local data</button>
-    </div>
-    <div id="list"></div>
-    <p class="small muted">Everything here is stored in <span class="k">localStorage</span> on this device.</p>
+    <div class="toast" id="toast"></div>
   </div>
 
 <script>
-  const KEY = "stoneyvibes_sessions_v0";
+/**
+ * StoneyVibes v0.1
+ * Local-only. No accounts. No external calls.
+ * Data schema intentionally simple.
+ */
 
-  function nowISO() { return new Date().toISOString(); }
+const STORAGE_KEY = "stoneyvibes.sessions.v01";
 
-  function loadSessions() {
-    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
-    catch { return []; }
+const ADDON_DEFAULTS = [
+  "Kief",
+  "Lavender",
+  "Horehound",
+  "Mullein",
+  "Mint",
+  "CBD",
+  "Hash",
+  "No Add-ons"
+];
+
+const SECTIONS = [
+  { id: "body", name: "Body" },
+  { id: "head", name: "Head / Senses" },
+  { id: "mind", name: "Mind / Social" },
+  { id: "drive", name: "Drive / Impulse" }
+];
+
+// Each question is scored 0..3 (None, Low, Med, High) but we keep it observational.
+// No recommendations. No outcome claims.
+const QUESTIONS = [
+  // Body (3)
+  { id:"q1", section:"body", text:"Body warmth / temperature shift?" },
+  { id:"q2", section:"body", text:"Chest / breath sensation noticeable?" },
+  { id:"q3", section:"body", text:"Body heaviness / lightness shift?" },
+
+  // Head / Senses (3)
+  { id:"q4", section:"head", text:"Head pressure or floatiness?" },
+  { id:"q5", section:"head", text:"Eyes / vision change noticeable?" },
+  { id:"q6", section:"head", text:"Mouth / throat dryness noticeable?" },
+
+  // Mind / Social (3)
+  { id:"q7", section:"mind", text:"Focus / attention shift?" },
+  { id:"q8", section:"mind", text:"Anxiety / threat sense change?" },
+  { id:"q9", section:"mind", text:"Social openness shift?" },
+
+  // Drive / Impulse (3)
+  { id:"q10", section:"drive", text:"Motivation / action drive shift?" },
+  { id:"q11", section:"drive", text:"Restlessness / urge-to-move?" },
+  { id:"q12", section:"drive", text:"Impulse to snack / chase stimulation?" },
+];
+
+const SCALE = [
+  { label:"None", value:0 },
+  { label:"Low", value:1 },
+  { label:"Med", value:2 },
+  { label:"High", value:3 },
+];
+
+const $ = (sel) => document.querySelector(sel);
+const elAddonChips = $("#addonChips");
+const elSectionTabs = $("#sectionTabs");
+const elQuestions = $("#questions");
+const elProgFill = $("#progFill");
+const elProgText = $("#progText");
+const elSessions = $("#sessions");
+const elToast = $("#toast");
+
+// State
+let activeSection = "body";
+let selectedAddons = new Set();
+let answers = {}; // qid -> value
+
+function toast(msg){
+  elToast.textContent = msg;
+  elToast.classList.add("on");
+  setTimeout(() => elToast.classList.remove("on"), 2400);
+}
+
+function loadSessions(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return [];
+    const parsed = JSON.parse(raw);
+    if(Array.isArray(parsed)) return parsed;
+    return [];
+  }catch(e){
+    return [];
   }
+}
 
-  function saveSessions(items) {
-    localStorage.setItem(KEY, JSON.stringify(items));
-  }
+function saveSessions(list){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
 
-  function getVal(id) { return document.getElementById(id).value; }
+function clampStrainNum(s){
+  const t = (s || "").trim();
+  if(!t) return "";
+  // keep only digits
+  const digits = t.replace(/[^\d]/g, "");
+  return digits.slice(0, 6);
+}
 
-  function resetForm() {
-    ["mode","strain","addons","notes",
-     "q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11","q12",
-     "f1","f2","f3","fnotes"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el.tagName === "TEXTAREA") el.value = "";
-      else el.selectedIndex = 0;
+function renderAddons(){
+  elAddonChips.innerHTML = "";
+  ADDON_DEFAULTS.forEach(name => {
+    const div = document.createElement("div");
+    div.className = "chip" + (selectedAddons.has(name) ? " on" : "");
+    div.textContent = name;
+    div.onclick = () => {
+      // special behavior: "No Add-ons" clears others
+      if(name === "No Add-ons"){
+        selectedAddons.clear();
+        selectedAddons.add("No Add-ons");
+      }else{
+        selectedAddons.delete("No Add-ons");
+        if(selectedAddons.has(name)) selectedAddons.delete(name);
+        else selectedAddons.add(name);
+      }
+      renderAddons();
+    };
+    elAddonChips.appendChild(div);
+  });
+}
+
+function renderSectionTabs(){
+  elSectionTabs.innerHTML = "";
+  SECTIONS.forEach(s => {
+    const b = document.createElement("div");
+    b.className = "tab" + (activeSection === s.id ? " on" : "");
+    b.textContent = s.name;
+    b.onclick = () => {
+      activeSection = s.id;
+      renderSectionTabs();
+      renderQuestions();
+    };
+    elSectionTabs.appendChild(b);
+  });
+}
+
+function setAnswer(qid, val){
+  answers[qid] = val;
+  updateProgress();
+  renderQuestions(); // keep chips state in sync
+}
+
+function renderQuestions(){
+  elQuestions.innerHTML = "";
+  const list = QUESTIONS.filter(q => q.section === activeSection);
+  list.forEach((q, idx) => {
+    const box = document.createElement("div");
+    box.className = "q";
+
+    const head = document.createElement("div");
+    head.className = "qtitle";
+    head.innerHTML = `<div>${q.text}</div><span>${q.id.toUpperCase()}</span>`;
+
+    const scale = document.createElement("div");
+    scale.className = "scale";
+    SCALE.forEach(s => {
+      const c = document.createElement("div");
+      const on = (answers[q.id] === s.value);
+      c.className = "chip" + (on ? " on" : "");
+      c.textContent = s.label;
+      c.onclick = () => setAnswer(q.id, s.value);
+      scale.appendChild(c);
     });
-    document.getElementById("strain").value = "";
-    document.getElementById("addons").value = "";
-  }
 
-  function render() {
-    const list = document.getElementById("list");
-    const items = loadSessions().slice().reverse();
-    if (!items.length) {
-      list.innerHTML = "<p class='muted'>No sessions yet. Save one above.</p>";
-      return;
-    }
-    list.innerHTML = items.map((s, idx) => {
-      const when = new Date(s.ts).toLocaleString();
-      const tag = `${s.mode}${s.strain ? " · #"+s.strain : ""}${s.addons ? " · "+s.addons : ""}`;
-      return `
-        <div class="card" style="margin:10px 0;">
-          <div class="row" style="justify-content:space-between; align-items:flex-start;">
-            <div>
-              <div><strong>${tag}</strong></div>
-              <div class="small muted">${when}</div>
-            </div>
-            <button class="btn2" onclick="delOne('${s.id}')">Delete</button>
-          </div>
-          <div class="small" style="margin-top:8px;">
-            <div><strong>Hit:</strong> ${s.q1} | ${s.q2} | ${s.q3} | ${s.q11} | ${s.q12}</div>
-            <div><strong>Follow:</strong> ${s.f1} / ${s.f2} / ${s.f3}</div>
-            ${s.notes ? `<div class="sep"></div><div><strong>Notes:</strong> ${escapeHtml(s.notes)}</div>` : ""}
-            ${s.fnotes ? `<div class="sep"></div><div><strong>F-notes:</strong> ${escapeHtml(s.fnotes)}</div>` : ""}
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
+    box.appendChild(head);
+    box.appendChild(scale);
+    elQuestions.appendChild(box);
+  });
+}
 
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, m => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[m]));
-  }
+function updateProgress(){
+  const answered = Object.keys(answers).filter(k => typeof answers[k] === "number").length;
+  elProgText.textContent = `${answered}/12`;
+  const pct = Math.round((answered/12)*100);
+  elProgFill.style.width = `${pct}%`;
+}
 
-  window.delOne = function(id) {
-    const items = loadSessions().filter(s => s.id !== id);
-    saveSessions(items);
-    render();
+function resetForm(){
+  $("#timeSlot").value = "AM";
+  $("#intensity").value = "MEDIUM";
+  $("#strainNum").value = "";
+  $("#notes").value = "";
+  $("#fu1").value = "";
+  $("#fu2").value = "";
+  $("#fu3").value = "";
+  $("#customAddon").value = "";
+  selectedAddons = new Set();
+  answers = {};
+  activeSection = "body";
+  renderAddons();
+  renderSectionTabs();
+  renderQuestions();
+  updateProgress();
+  toast("Form reset.");
+}
+
+function buildSessionObject(){
+  const timeSlot = $("#timeSlot").value;
+  const intensity = $("#intensity").value;
+  const strainNum = clampStrainNum($("#strainNum").value);
+  const notes = ($("#notes").value || "").trim();
+  const followUps = {
+    mostNoticeable: ($("#fu1").value || "").trim(),
+    repeatSignal: ($("#fu2").value || "").trim(),
+    edgeCase: ($("#fu3").value || "").trim(),
   };
 
-  document.getElementById("saveBtn").addEventListener("click", () => {
-    const session = {
-      id: crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2),
-      ts: nowISO(),
-      mode: getVal("mode"),
-      strain: getVal("strain"),
-      addons: getVal("addons"),
-      notes: getVal("notes"),
-      q1: getVal("q1"), q2: getVal("q2"), q3: getVal("q3"), q4: getVal("q4"),
-      q5: getVal("q5"), q6: getVal("q6"), q7: getVal("q7"), q8: getVal("q8"),
-      q9: getVal("q9"), q10: getVal("q10"), q11: getVal("q11"), q12: getVal("q12"),
-      f1: getVal("f1"), f2: getVal("f2"), f3: getVal("f3"),
-      fnotes: getVal("fnotes")
+  // Ensure an addon state
+  const addons = Array.from(selectedAddons);
+  const custom = ($("#customAddon").value || "").trim();
+  if(custom){
+    addons.push(custom);
+  }
+  const finalAddons = addons.length ? addons : ["No Add-ons"];
+
+  // Answers default to null if not answered
+  const test = {};
+  QUESTIONS.forEach(q => {
+    test[q.id] = (typeof answers[q.id] === "number") ? answers[q.id] : null;
+  });
+
+  const now = new Date();
+  return {
+    id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random().toString(16).slice(2),
+    createdAt: now.toISOString(),
+    timeSlot,
+    intensity,
+    strainNum: strainNum || "",
+    addons: finalAddons,
+    notes,
+    blindTest: test,
+    followUps,
+    // v0.1 reserved: place for future reference-only compare outputs
+    compare: null
+  };
+}
+
+function scoreSummary(blindTest){
+  // Not a "severity score" for effects. Just a quick count of answered intensity.
+  // We keep it minimal: total points and answered count.
+  let total = 0;
+  let answered = 0;
+  Object.values(blindTest).forEach(v => {
+    if(typeof v === "number"){
+      answered++;
+      total += v;
+    }
+  });
+  return { total, answered };
+}
+
+function renderSessions(){
+  const sessions = loadSessions().sort((a,b) => (b.createdAt||"").localeCompare(a.createdAt||""));
+  if(!sessions.length){
+    elSessions.innerHTML = `<p class="muted">No sessions saved yet.</p>`;
+    return;
+  }
+
+  elSessions.innerHTML = "";
+  sessions.forEach(s => {
+    const d = new Date(s.createdAt);
+    const stamp = isNaN(d.getTime()) ? s.createdAt : d.toLocaleString();
+
+    const { total, answered } = scoreSummary(s.blindTest || {});
+    const intensityTag = `${s.intensity || "MEDIUM"}`;
+    const timeTag = `${s.timeSlot || "AM"}`;
+    const strainTag = s.strainNum ? `#${s.strainNum}` : "—";
+    const addonShort = (s.addons || []).slice(0,4).join(", ") + ((s.addons||[]).length > 4 ? "…" : "");
+
+    const wrap = document.createElement("div");
+    wrap.className = "sessionCard";
+
+    wrap.innerHTML = `
+      <div class="sessionTop">
+        <div>
+          <div class="stamp">${stamp}</div>
+          <div class="kvs">
+            <span class="kv"><b>Time</b> ${timeTag}</span>
+            <span class="kv"><b>Intensity</b> ${intensityTag}</span>
+            <span class="kv"><b>Strain#</b> ${strainTag}</span>
+            <span class="kv"><b>12Q</b> ${answered}/12</span>
+            <span class="kv"><b>Sum</b> ${total}</span>
+          </div>
+          <div class="smallNote"><b class="muted">Add-ons:</b> ${escapeHtml(addonShort || "—")}</div>
+        </div>
+        <div class="miniBtnRow">
+          <button class="small" data-act="view" data-id="${s.id}">View</button>
+          <button class="small" data-act="delete" data-id="${s.id}">Delete</button>
+        </div>
+      </div>
+    `;
+
+    elSessions.appendChild(wrap);
+  });
+
+  // Bind buttons
+  elSessions.querySelectorAll("button[data-act]").forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.getAttribute("data-id");
+      const act = btn.getAttribute("data-act");
+      if(act === "delete") deleteSession(id);
+      if(act === "view") viewSession(id);
     };
-    const items = loadSessions();
-    items.push(session);
-    saveSessions(items);
-    render();
-    alert("Saved. (Local only)");
   });
+}
 
-  document.getElementById("clearBtn").addEventListener("click", resetForm);
+function escapeHtml(s){
+  return String(s || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
 
-  document.getElementById("exportBtn").addEventListener("click", () => {
-    const data = JSON.stringify(loadSessions(), null, 2);
-    const blob = new Blob([data], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "stoneyvibes_sessions_v0.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  });
+function deleteSession(id){
+  const list = loadSessions().filter(x => x.id !== id);
+  saveSessions(list);
+  renderSessions();
+  toast("Deleted.");
+}
 
-  document.getElementById("wipeBtn").addEventListener("click", () => {
-    if (confirm("Wipe all local sessions from this device?")) {
-      localStorage.removeItem(KEY);
-      render();
+function viewSession(id){
+  const s = loadSessions().find(x => x.id === id);
+  if(!s){ toast("Not found."); return; }
+
+  // Build a compact view
+  const d = new Date(s.createdAt);
+  const stamp = isNaN(d.getTime()) ? s.createdAt : d.toLocaleString();
+
+  // show per-section totals (still observational)
+  const perSection = {};
+  SECTIONS.forEach(sec => perSection[sec.id] = { sum:0, answered:0 });
+  QUESTIONS.forEach(q => {
+    const v = (s.blindTest||{})[q.id];
+    if(typeof v === "number"){
+      perSection[q.section].answered++;
+      perSection[q.section].sum += v;
     }
   });
 
-  render();
+  const lines = [];
+  lines.push(`STAMP: ${stamp}`);
+  lines.push(`TIME: ${s.timeSlot || ""} | INTENSITY: ${s.intensity || ""} | STRAIN#: ${s.strainNum || "—"}`);
+  lines.push(`ADD-ONS: ${(s.addons||[]).join(", ")}`);
+  lines.push(`--- 12Q SECTION SUMS (reference-only) ---`);
+  SECTIONS.forEach(sec => {
+    lines.push(`${sec.name.toUpperCase()}: ${perSection[sec.id].sum} (answered ${perSection[sec.id].answered}/3)`);
+  });
+  lines.push(`--- NOTES ---`);
+  lines.push(s.notes || "—");
+  lines.push(`--- FOLLOW-UPS ---`);
+  lines.push(`Most noticeable: ${s.followUps?.mostNoticeable || "—"}`);
+  lines.push(`Repeat signal: ${s.followUps?.repeatSignal || "—"}`);
+  lines.push(`Edge-case: ${s.followUps?.edgeCase || "—"}`);
+
+  alert(lines.join("\n"));
+}
+
+function exportJSON(){
+  const list = loadSessions();
+  const payload = {
+    app: "stoneyvibes",
+    version: "v0.1",
+    exportedAt: new Date().toISOString(),
+    sessions: list
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `stoneyvibes_export_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast("Exported JSON.");
+}
+
+function wipeAll(){
+  const ok = confirm("Wipe ALL local StoneyVibes data on this device?\n\nThis cannot be undone.");
+  if(!ok) return;
+  localStorage.removeItem(STORAGE_KEY);
+  resetForm();
+  renderSessions();
+  toast("Wiped local data.");
+}
+
+function addCustomAddon(){
+  const v = ($("#customAddon").value || "").trim();
+  if(!v){ toast("No custom add-on entered."); return; }
+  // Store as selected (but don’t add to defaults list)
+  // If "No Add-ons" is active, remove it.
+  selectedAddons.delete("No Add-ons");
+  selectedAddons.add(v);
+  $("#customAddon").value = "";
+  renderAddons();
+  toast("Custom add-on added.");
+}
+
+function saveSession(){
+  const session = buildSessionObject();
+
+  // Minimal validation: encourage completion, but never block.
+  const answered = Object.values(session.blindTest).filter(v => typeof v === "number").length;
+  if(answered < 6){
+    const ok = confirm(`Only ${answered}/12 answered. Save anyway?`);
+    if(!ok) return;
+  }
+
+  const list = loadSessions();
+  list.push(session);
+  saveSessions(list);
+  renderSessions();
+  toast("Saved.");
+
+  // gentle reset for next entry
+  // (keep Time + Intensity, wipe the rest)
+  $("#strainNum").value = "";
+  $("#notes").value = "";
+  $("#fu1").value = "";
+  $("#fu2").value = "";
+  $("#fu3").value = "";
+  $("#customAddon").value = "";
+  selectedAddons = new Set();
+  answers = {};
+  renderAddons();
+  renderQuestions();
+  updateProgress();
+}
+
+function about(){
+  alert(
+`StoneyVibes v0.1
+
+- Local-only logging (no accounts, no cloud)
+- Observational, non-claim posture
+- You decide meaning. App stores structure.
+
+Guardrails:
+- No strain/effect/potency claims
+- No predictions
+- No advice engine
+
+Export JSON anytime.
+Wipe local data anytime.`
+  );
+}
+
+// Wire up
+$("#exportBtn").onclick = exportJSON;
+$("#wipeBtn").onclick = wipeAll;
+$("#aboutBtn").onclick = about;
+$("#saveBtn").onclick = saveSession;
+$("#resetBtn").onclick = resetForm;
+$("#addCustomAddonBtn").onclick = addCustomAddon;
+
+// Init
+renderAddons();
+renderSectionTabs();
+renderQuestions();
+updateProgress();
+renderSessions();
 </script>
 </body>
 </html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>StoneyVibes Core</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0f0f0f;
-      color: #eaeaea;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .card {
-      max-width: 600px;
-      padding: 32px;
-      border-radius: 12px;
-      background: #1a1a1a;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
-    h1 {
-      margin-top: 0;
-      font-size: 2rem;
-    }
-    p {
-      line-height: 1.6;
-      opacity: 0.9;
-    }
-    button {
-      margin-top: 24px;
-      padding: 12px 18px;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      background: #7cffb2;
-      color: #000;
-      font-weight: 600;
-    }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>StoneyVibes 🌿</h1>
-    <p>
-      This is the core sandbox.<br />
-      Calm signals only. No bullshit.
-    </p>
-    <button onclick="alert('Signal logged.')">
-      Log Signal
-    </button>
-  </div>
-</body>
-</html> 
