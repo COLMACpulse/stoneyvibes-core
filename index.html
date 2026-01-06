@@ -3,958 +3,664 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StoneyVibes v0.1</title>
+  <title>StoneyVibes v0.2 — Session Riff</title>
   <style>
     :root{
-      --bg:#0b0f14;
-      --panel:#0f1620;
-      --card:#101a26;
-      --text:#e6edf3;
-      --muted:#9aa6b2;
-      --line:#243244;
-      --good:#22c55e;
-      --warn:#f59e0b;
-      --bad:#ef4444;
-      --chip:#162235;
-      --chipOn:#203553;
-      --btn:#1f2a3a;
-      --btnOn:#2a3c54;
-      --shadow: rgba(0,0,0,.25);
-      --radius:14px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    }
-    * { box-sizing: border-box; }
-    body{
-      margin:0;
-      font-family: var(--sans);
-      background: radial-gradient(1200px 800px at 20% 0%, #0c1420 0%, var(--bg) 55%);
-      color: var(--text);
-      line-height:1.35;
-    }
-    a{ color:#8ab4ff; text-decoration:none; }
-    .wrap{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 18px;
-    }
-    .top{
-      display:flex;
-      gap:12px;
-      align-items:flex-start;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      margin-bottom: 14px;
-    }
-    .brand{
-      padding: 14px 14px 10px 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      border:1px solid rgba(255,255,255,.08);
-      border-radius: var(--radius);
-      box-shadow: 0 10px 30px var(--shadow);
-      flex: 1 1 520px;
-    }
-    h1{
-      font-size: 20px;
-      margin: 0 0 6px 0;
-      letter-spacing:.2px;
-    }
-    .sub{
-      color: var(--muted);
-      font-size: 13px;
-      margin: 0;
-    }
-    .pillrow{
-      margin-top:10px;
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .pill{
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      padding:6px 10px;
-      border-radius:999px;
+      --bg:#0b0d10;
+      --card:#12161c;
+      --card2:#0f1319;
+      --text:#e9eef5;
+      --muted:rgba(233,238,245,0.72);
+      --border:rgba(233,238,245,0.12);
+      --border2:rgba(233,238,245,0.18);
+      --accent:rgba(255,255,255,0.08);
+      --danger:rgba(255,90,90,0.18);
+      --dangerB:rgba(255,90,90,0.32);
+      --ok:rgba(90,255,170,0.16);
+      --okB:rgba(90,255,170,0.28);
+      --shadow:0 10px 30px rgba(0,0,0,0.35);
+      --radius:16px;
     }
 
-    .actions{
-      flex: 0 1 380px;
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1000px 600px at 30% 0%, rgba(255,255,255,0.06), transparent 60%),
+                  radial-gradient(900px 700px at 80% 10%, rgba(90,255,170,0.06), transparent 55%),
+                  radial-gradient(900px 700px at 40% 80%, rgba(255,180,90,0.05), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      padding:16px;
+    }
+
+    .wrap{
+      max-width:960px;
+      margin:0 auto;
+    }
+
+    header{
+      padding:10px 0 6px 0;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size:24px;
+      letter-spacing:0.02em;
+    }
+
+    .sub{
+      margin:0 0 12px 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.4;
+    }
+
+    .pillrow{
       display:flex;
-      gap:10px;
-      align-items:stretch;
-      justify-content:flex-end;
       flex-wrap:wrap;
+      gap:8px;
+      margin:10px 0 18px 0;
     }
-    button{
-      background: var(--btn);
-      border: 1px solid rgba(255,255,255,.10);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 12px;
-      cursor:pointer;
-      font-weight:600;
-      box-shadow: 0 10px 20px rgba(0,0,0,.18);
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:13px;
     }
-    button:hover{ background: var(--btnOn); }
-    button.danger{ border-color: rgba(239,68,68,.35); }
-    button.danger:hover{ background: rgba(239,68,68,.15); }
-    button.small{ padding: 8px 10px; font-size: 12px; }
-    button.ghost{ background: transparent; }
 
     .grid{
       display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 14px;
-      align-items:start;
+      grid-template-columns: 1fr;
+      gap:14px;
     }
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; }
-      .actions{ justify-content:flex-start; }
+    @media (min-width: 860px){
+      .grid{
+        grid-template-columns: 1.2fr 0.8fr;
+        align-items:start;
+      }
     }
 
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: var(--radius);
-      padding: 14px;
-      box-shadow: 0 12px 30px rgba(0,0,0,.22);
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow:var(--shadow);
     }
+
     .card h2{
-      margin:0 0 10px 0;
-      font-size: 14px;
-      letter-spacing:.2px;
-      color: #dfe7ef;
-      text-transform: uppercase;
+      margin:0 0 6px 0;
+      font-size:15px;
+      letter-spacing:0.08em;
     }
-    .hint{
-      color: var(--muted);
-      font-size: 12px;
-      margin: 0 0 10px 0;
-    }
-    label{
-      display:block;
-      font-size: 12px;
-      color: #cbd5e1;
-      margin: 12px 0 6px 0;
-      font-weight: 700;
-      letter-spacing:.2px;
-      text-transform: uppercase;
-    }
-    select,input,textarea{
-      width: 100%;
-      background: rgba(0,0,0,.22);
-      border:1px solid rgba(255,255,255,.10);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 12px;
-      outline: none;
-      font-family: var(--sans);
-    }
-    textarea{ min-height: 80px; resize: vertical; }
+
+    .muted{ color:var(--muted); }
+
     .row{
       display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .row > .col{
-      flex: 1 1 160px;
-      min-width: 160px;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:10px;
     }
 
-    .chips{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top: 6px;
-    }
-    .chip{
-      background: var(--chip);
-      border:1px solid rgba(255,255,255,.10);
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size: 12px;
+    .topgap{ margin-top:10px; }
+    .between{ justify-content:space-between; }
+
+    .btn{
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+      border-radius:14px;
+      padding:10px 12px;
       cursor:pointer;
+      font-size:14px;
+      transition: transform 0.05s ease, background 0.12s ease, border-color 0.12s ease;
       user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .chip.on{
-      background: var(--chipOn);
-      border-color: rgba(138,180,255,.35);
+    .btn:active{ transform: translateY(1px); }
+    .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+    .btnPrimary{
+      border-color:rgba(255,255,255,0.28);
+      background:rgba(255,255,255,0.10);
+    }
+    .btnDanger{
+      border-color:var(--dangerB);
+      background:var(--danger);
+    }
+    .btnOk{
+      border-color:var(--okB);
+      background:var(--ok);
     }
 
-    .progress{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin: 6px 0 10px 0;
-    }
-    .bar{
-      flex: 1;
-      height: 10px;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
+    .pillStatus{
+      padding:8px 10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
       border-radius:999px;
-      overflow:hidden;
-    }
-    .bar > div{
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, rgba(138,180,255,.75), rgba(34,197,94,.65));
-      transition: width .25s ease;
-    }
-    .progtext{
-      font-size: 12px;
-      color: var(--muted);
-      white-space:nowrap;
-      font-family: var(--mono);
-    }
-
-    .sectionTabs{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin: 8px 0 10px 0;
-    }
-    .tab{
-      font-size: 12px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      color: var(--muted);
-      cursor:pointer;
-    }
-    .tab.on{
-      color: var(--text);
-      background: rgba(138,180,255,.12);
-      border-color: rgba(138,180,255,.35);
-    }
-
-    .q{
-      padding: 10px 10px;
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 12px;
-      background: rgba(0,0,0,.18);
-      margin: 8px 0;
-    }
-    .qtitle{
-      display:flex;
+      color:var(--muted);
+      font-size:13px;
+      display:inline-flex;
       align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-    .qtitle span{
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 12px;
-    }
-    .scale{
-      display:flex;
       gap:8px;
-      flex-wrap:wrap;
     }
-    .scale .chip{
-      padding: 7px 10px;
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 240px;
+      flex:1;
+    }
+    .label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.04em;
+    }
+    .input{
+      width:100%;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.25);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      outline:none;
+    }
+    .input:focus{
+      border-color:rgba(255,255,255,0.28);
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .item{
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.18);
+      border-radius:14px;
+      padding:10px 10px;
+    }
+    .itemHead{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .itemTitle{
+      font-weight:600;
+      font-size:14px;
+      margin:0;
+      line-height:1.25;
+    }
+    .itemMeta{
+      font-size:12px;
+      color:var(--muted);
+      margin:2px 0 0 0;
+      line-height:1.35;
+    }
+    .itemBtns{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:flex-end;
+    }
+    audio{ width:100%; }
+
+    .tiny{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
     }
 
     .divider{
       height:1px;
-      background: rgba(255,255,255,.10);
-      margin: 12px 0;
+      background:var(--border);
+      margin:12px 0;
     }
 
-    .sessionCard{
-      background: rgba(0,0,0,.22);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: var(--radius);
-      padding: 12px;
-      margin: 10px 0;
-    }
-    .sessionTop{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .stamp{
-      font-family: var(--mono);
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 12px;
+      padding: 2px 6px;
+      border:1px solid var(--border);
+      border-bottom-color: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
       color: var(--muted);
     }
-    .kvs{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top: 8px;
-    }
-    .kv{
-      font-size: 12px;
-      padding: 6px 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      color: #dce6f2;
-    }
-    .kv b{ color: var(--muted); font-weight:600; }
-    .miniBtnRow{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:10px;
-    }
-    .muted{ color: var(--muted); }
-    .mono{ font-family: var(--mono); }
 
-    .toast{
-      position: fixed;
-      left: 18px;
-      bottom: 18px;
-      background: rgba(0,0,0,.75);
-      border:1px solid rgba(255,255,255,.12);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 12px;
-      display:none;
-      max-width: min(720px, calc(100vw - 36px));
-      box-shadow: 0 14px 40px rgba(0,0,0,.35);
-      z-index: 9999;
-      font-size: 13px;
-    }
-    .toast.on{ display:block; }
-
-    .smallNote{
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 10px;
+    .notice{
+      border:1px dashed var(--border2);
+      background:rgba(255,255,255,0.04);
+      border-radius:14px;
+      padding:10px 12px;
     }
 
-    details{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius: 12px;
-      padding: 10px 12px;
-      background: rgba(0,0,0,.18);
-      margin-top: 10px;
+    .okDot, .recDot{
+      width:8px; height:8px; border-radius:50%;
+      display:inline-block;
+      background:rgba(233,238,245,0.35);
     }
-    summary{
-      cursor:pointer;
-      color: #dfe7ef;
-      font-weight:700;
-      font-size: 13px;
-    }
-    .codebox{
-      white-space: pre-wrap;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: #dfe7ef;
-      margin-top: 8px;
+    .recDot{
+      background:rgba(255,90,90,0.85);
+      box-shadow:0 0 0 3px rgba(255,90,90,0.18);
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="top">
-      <div class="brand">
-        <h1>StoneyVibes <span class="muted">v0.1</span></h1>
-        <p class="sub">
-          Private, local-only logging. Signal &gt; story. No shame, paranoia, or bullshit.
-          <br/>No accounts. No cloud. Data lives in <span class="mono">localStorage</span> on this device.
-        </p>
-        <div class="pillrow">
-          <span class="pill">Local-only</span>
-          <span class="pill">Non-claim</span>
-          <span class="pill">User-defined meaning</span>
-          <span class="pill">Export JSON</span>
-        </div>
+    <header>
+      <h1>StoneyVibes v0.2</h1>
+      <p class="sub">
+        Private, local-only logging. Signal &gt; story. No shame, no pressure.
+        Audio-first. You’re the operator.
+      </p>
+      <div class="pillrow">
+        <div class="pill">🔒 Local-first</div>
+        <div class="pill">🎙️ Session Riff</div>
+        <div class="pill">🧠 Memory & vibe</div>
+        <div class="pill">🚫 No accounts</div>
       </div>
-
-      <div class="actions">
-        <button class="small" id="exportBtn">Export JSON</button>
-        <button class="small danger" id="wipeBtn">Wipe local data</button>
-        <button class="small ghost" id="aboutBtn">About</button>
-      </div>
-    </div>
+    </header>
 
     <div class="grid">
-      <!-- LEFT: NEW SESSION -->
-      <div class="card">
-        <h2>New Session</h2>
-        <p class="hint">Keep it simple. One clean log beats five noisy ones.</p>
+      <!-- LEFT: SESSION RIFF -->
+      <section class="card" aria-label="Session Riff">
+        <h2>SESSION RIFF</h2>
+        <p class="muted" style="margin:0 0 10px 0;">
+          Record as many sessions as you want. Stored on this device.
+        </p>
 
         <div class="row">
-          <div class="col">
-            <label for="timeSlot">Time</label>
-            <select id="timeSlot">
-              <option value="AM">AM</option>
-              <option value="NOON">NOON</option>
-              <option value="PM">PM</option>
-              <option value="NIGHT">NIGHT</option>
-            </select>
-          </div>
-          <div class="col">
-            <label for="intensity">Intensity (self-label)</label>
-            <select id="intensity">
-              <option value="LIGHT">LIGHT</option>
-              <option value="MEDIUM" selected>MEDIUM</option>
-              <option value="HEAVY">HEAVY</option>
-              <option value="COOKED">COOKED</option>
-            </select>
-          </div>
-          <div class="col">
-            <label for="strainNum">Strain # (optional)</label>
-            <input id="strainNum" placeholder="e.g., 12" inputmode="numeric" />
-          </div>
+          <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Start Session</button>
+          <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
+          <span id="statusPill" class="pillStatus"><span class="okDot"></span><span id="statusText">Idle</span></span>
         </div>
 
-        <label>Add-ons</label>
-        <div class="chips" id="addonChips"></div>
-        <div class="row" style="margin-top:8px;">
-          <div class="col">
-            <input id="customAddon" placeholder="Add a custom add-on (optional)"/>
-          </div>
-          <div class="col" style="flex:0 0 auto; min-width:auto;">
-            <button class="small" id="addCustomAddonBtn">Add</button>
-          </div>
+        <div class="row topgap">
+          <label class="field">
+            <span class="label">Label (optional)</span>
+            <input id="labelInput" class="input" type="text" placeholder="e.g., Lemon Tree / DD / Unknown" />
+          </label>
+
+          <label class="field">
+            <span class="label">Notes (optional)</span>
+            <input id="notesInput" class="input" type="text" placeholder="One line. Keep it human." />
+          </label>
         </div>
 
-        <label for="notes">Notes</label>
-        <textarea id="notes" placeholder="Observations only. No need to be poetic unless you want to."></textarea>
+        <div class="row topgap">
+          <audio id="preview" controls style="display:none;"></audio>
+        </div>
 
         <div class="divider"></div>
 
-        <h2>12-Question Blind Hit Test</h2>
-        <p class="hint">Answer fast. Don’t overthink. This is a mirror, not a judge.</p>
-
-        <div class="progress">
-          <div class="bar"><div id="progFill"></div></div>
-          <div class="progtext" id="progText">0/12</div>
+        <div class="row between">
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.08em;">RECENT SESSIONS</h2>
+          <button id="clearAllBtn" class="btn btnDanger" type="button" title="Deletes all sessions from this device">
+            Clear All
+          </button>
         </div>
 
-        <div class="sectionTabs" id="sectionTabs"></div>
-
-        <div id="questions"></div>
-
-        <label>Follow-ups (optional)</label>
-        <div class="q">
-          <div class="qtitle">Most noticeable change? <span>free text</span></div>
-          <textarea id="fu1" placeholder="Short is fine."></textarea>
-        </div>
-        <div class="q">
-          <div class="qtitle">If this was a “repeat signal,” what was it? <span>free text</span></div>
-          <textarea id="fu2" placeholder="What pattern did you recognize?"></textarea>
-        </div>
-        <div class="q">
-          <div class="qtitle">Anything weird / edge-case? <span>free text</span></div>
-          <textarea id="fu3" placeholder="If something felt off, log it."></textarea>
+        <div id="list" class="list">
+          <div class="muted">No sessions yet. Hit <span class="kbd">Start Session</span>.</div>
         </div>
 
-        <div class="row" style="margin-top:10px;">
-          <div class="col">
-            <button id="saveBtn">Save Session</button>
-          </div>
-          <div class="col">
-            <button class="ghost" id="resetBtn">Reset Form</button>
-          </div>
-        </div>
+        <div class="divider"></div>
 
-        <p class="smallNote">
-          Guardrails: No strain/effect/potency claims. This is personal observation + pattern tracking.
+        <div class="notice tiny">
+          <strong>Note:</strong> This is local-only storage using IndexedDB.
+          If you clear browser data for this site, your sessions will be removed.
+        </div>
+      </section>
+
+      <!-- RIGHT: ABOUT / DOCTRINE -->
+      <aside class="card" aria-label="Doctrine">
+        <h2>DOCTRINE</h2>
+        <p class="tiny" style="margin-top:0;">
+          This is not a coach. It’s a memory amplifier.
         </p>
-      </div>
-
-      <!-- RIGHT: SAVED SESSIONS -->
-      <div class="card">
-        <h2>Saved Sessions</h2>
-        <p class="hint">Local timeline. No cloud. Your device, your data.</p>
-
-        <div id="sessions"></div>
-
-        <details>
-          <summary>Reference-only “Anchor Compare” (safe mode)</summary>
-          <div class="codebox" id="anchorInfo">
-This is a placeholder for future BSTASH bindings.
-It will never claim strain, effects, potency, or outcomes.
-It will only display “visual similarity” and “structural deltas”
-when you later add leaf logs (Taxonomy + Anchors are frozen).
-          </div>
-        </details>
-      </div>
+        <div class="divider"></div>
+        <p class="tiny">
+          ✅ Capture truth<br>
+          ✅ Let you find patterns<br>
+          ✅ Keep it artful, not sterile<br>
+          ❌ No medical claims<br>
+          ❌ No “people like you…” advice<br>
+          ❌ No feed. No algorithm. No bullshit.
+        </p>
+        <div class="divider"></div>
+        <p class="tiny">
+          <strong>Next modules (later):</strong><br>
+          • Photo anchors<br>
+          • Optional transcription<br>
+          • Outward “Send Session” (30s/day ritual)
+        </p>
+      </aside>
     </div>
-
-    <div class="toast" id="toast"></div>
   </div>
 
-<script>
-/**
- * StoneyVibes v0.1
- * Local-only. No accounts. No external calls.
- * Data schema intentionally simple.
- */
+  <script>
+    /************************************************************
+     * StoneyVibes v0.2 — Session Riff (Audio) — Local-only
+     * - Records microphone audio using MediaRecorder
+     * - Persists sessions in IndexedDB (no cloud)
+     * - Lists sessions w/ play, rename, delete, clear all
+     ************************************************************/
 
-const STORAGE_KEY = "stoneyvibes.sessions.v01";
+    // ---- IndexedDB helper (simple + reliable) ----
+    const DB_NAME = "stoneyvibes_db";
+    const DB_VERSION = 1;
+    const STORE = "sessions";
 
-const ADDON_DEFAULTS = [
-  "Kief",
-  "Lavender",
-  "Horehound",
-  "Mullein",
-  "Mint",
-  "CBD",
-  "Hash",
-  "No Add-ons"
-];
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(STORE)) {
+            const store = db.createObjectStore(STORE, { keyPath: "id" });
+            store.createIndex("createdAt", "createdAt", { unique: false });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
 
-const SECTIONS = [
-  { id: "body", name: "Body" },
-  { id: "head", name: "Head / Senses" },
-  { id: "mind", name: "Mind / Social" },
-  { id: "drive", name: "Drive / Impulse" }
-];
+    async function dbPut(session) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).put(session);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
 
-// Each question is scored 0..3 (None, Low, Med, High) but we keep it observational.
-// No recommendations. No outcome claims.
-const QUESTIONS = [
-  // Body (3)
-  { id:"q1", section:"body", text:"Body warmth / temperature shift?" },
-  { id:"q2", section:"body", text:"Chest / breath sensation noticeable?" },
-  { id:"q3", section:"body", text:"Body heaviness / lightness shift?" },
+    async function dbGetAll() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readonly");
+        const store = tx.objectStore(STORE);
+        const idx = store.index("createdAt");
+        const req = idx.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
 
-  // Head / Senses (3)
-  { id:"q4", section:"head", text:"Head pressure or floatiness?" },
-  { id:"q5", section:"head", text:"Eyes / vision change noticeable?" },
-  { id:"q6", section:"head", text:"Mouth / throat dryness noticeable?" },
+    async function dbDelete(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).delete(id);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
 
-  // Mind / Social (3)
-  { id:"q7", section:"mind", text:"Focus / attention shift?" },
-  { id:"q8", section:"mind", text:"Anxiety / threat sense change?" },
-  { id:"q9", section:"mind", text:"Social openness shift?" },
+    async function dbClear() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).clear();
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
 
-  // Drive / Impulse (3)
-  { id:"q10", section:"drive", text:"Motivation / action drive shift?" },
-  { id:"q11", section:"drive", text:"Restlessness / urge-to-move?" },
-  { id:"q12", section:"drive", text:"Impulse to snack / chase stimulation?" },
-];
+    // ---- UI elements ----
+    const recBtn = document.getElementById("recBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const statusPill = document.getElementById("statusPill");
+    const statusText = document.getElementById("statusText");
+    const labelInput = document.getElementById("labelInput");
+    const notesInput = document.getElementById("notesInput");
+    const preview = document.getElementById("preview");
+    const list = document.getElementById("list");
+    const clearAllBtn = document.getElementById("clearAllBtn");
 
-const SCALE = [
-  { label:"None", value:0 },
-  { label:"Low", value:1 },
-  { label:"Med", value:2 },
-  { label:"High", value:3 },
-];
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let chunks = [];
+    let isRecording = false;
 
-const $ = (sel) => document.querySelector(sel);
-const elAddonChips = $("#addonChips");
-const elSectionTabs = $("#sectionTabs");
-const elQuestions = $("#questions");
-const elProgFill = $("#progFill");
-const elProgText = $("#progText");
-const elSessions = $("#sessions");
-const elToast = $("#toast");
+    function setStatus(mode, text) {
+      statusText.textContent = text;
+      const dot = statusPill.querySelector("span");
+      dot.className = (mode === "rec") ? "recDot" : "okDot";
+    }
 
-// State
-let activeSection = "body";
-let selectedAddons = new Set();
-let answers = {}; // qid -> value
+    function fmtTime(ts) {
+      const d = new Date(ts);
+      return d.toLocaleString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
 
-function toast(msg){
-  elToast.textContent = msg;
-  elToast.classList.add("on");
-  setTimeout(() => elToast.classList.remove("on"), 2400);
-}
+    function safeText(s) {
+      return (s || "").toString().trim();
+    }
 
-function loadSessions(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return [];
-    const parsed = JSON.parse(raw);
-    if(Array.isArray(parsed)) return parsed;
-    return [];
-  }catch(e){
-    return [];
-  }
-}
+    function uid() {
+      return "sv_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+    }
 
-function saveSessions(list){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
-
-function clampStrainNum(s){
-  const t = (s || "").trim();
-  if(!t) return "";
-  // keep only digits
-  const digits = t.replace(/[^\d]/g, "");
-  return digits.slice(0, 6);
-}
-
-function renderAddons(){
-  elAddonChips.innerHTML = "";
-  ADDON_DEFAULTS.forEach(name => {
-    const div = document.createElement("div");
-    div.className = "chip" + (selectedAddons.has(name) ? " on" : "");
-    div.textContent = name;
-    div.onclick = () => {
-      // special behavior: "No Add-ons" clears others
-      if(name === "No Add-ons"){
-        selectedAddons.clear();
-        selectedAddons.add("No Add-ons");
-      }else{
-        selectedAddons.delete("No Add-ons");
-        if(selectedAddons.has(name)) selectedAddons.delete(name);
-        else selectedAddons.add(name);
+    function mimeChoice() {
+      // Prefer webm/opus if supported; else fall back
+      const candidates = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/ogg;codecs=opus",
+        "audio/ogg"
+      ];
+      for (const m of candidates) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
       }
-      renderAddons();
-    };
-    elAddonChips.appendChild(div);
-  });
-}
+      return "";
+    }
 
-function renderSectionTabs(){
-  elSectionTabs.innerHTML = "";
-  SECTIONS.forEach(s => {
-    const b = document.createElement("div");
-    b.className = "tab" + (activeSection === s.id ? " on" : "");
-    b.textContent = s.name;
-    b.onclick = () => {
-      activeSection = s.id;
-      renderSectionTabs();
-      renderQuestions();
-    };
-    elSectionTabs.appendChild(b);
-  });
-}
+    async function renderList() {
+      const sessions = await dbGetAll();
+      // newest first
+      sessions.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-function setAnswer(qid, val){
-  answers[qid] = val;
-  updateProgress();
-  renderQuestions(); // keep chips state in sync
-}
+      if (!sessions.length) {
+        list.innerHTML = '<div class="muted">No sessions yet. Hit <span class="kbd">Start Session</span>.</div>';
+        return;
+      }
 
-function renderQuestions(){
-  elQuestions.innerHTML = "";
-  const list = QUESTIONS.filter(q => q.section === activeSection);
-  list.forEach((q, idx) => {
-    const box = document.createElement("div");
-    box.className = "q";
+      list.innerHTML = "";
+      for (const s of sessions) {
+        const el = document.createElement("div");
+        el.className = "item";
 
-    const head = document.createElement("div");
-    head.className = "qtitle";
-    head.innerHTML = `<div>${q.text}</div><span>${q.id.toUpperCase()}</span>`;
+        const title = safeText(s.label) || "Session (Unlabeled)";
+        const notes = safeText(s.notes);
+        const when = fmtTime(s.createdAt);
 
-    const scale = document.createElement("div");
-    scale.className = "scale";
-    SCALE.forEach(s => {
-      const c = document.createElement("div");
-      const on = (answers[q.id] === s.value);
-      c.className = "chip" + (on ? " on" : "");
-      c.textContent = s.label;
-      c.onclick = () => setAnswer(q.id, s.value);
-      scale.appendChild(c);
+        // Create audio URL
+        const blob = s.audioBlob;
+        const url = URL.createObjectURL(blob);
+
+        el.innerHTML = `
+          <div class="itemHead">
+            <div style="min-width:0; flex:1;">
+              <p class="itemTitle">${escapeHtml(title)}</p>
+              <p class="itemMeta">${escapeHtml(when)}${notes ? " — " + escapeHtml(notes) : ""}</p>
+            </div>
+            <div class="itemBtns">
+              <button class="btn btnOk" data-act="play">Play</button>
+              <button class="btn" data-act="rename">Rename</button>
+              <button class="btn btnDanger" data-act="delete">Delete</button>
+            </div>
+          </div>
+          <div class="topgap">
+            <audio controls preload="none" src="${url}"></audio>
+          </div>
+        `;
+
+        // Wire actions
+        el.querySelector('[data-act="play"]').onclick = () => {
+          const a = el.querySelector("audio");
+          a.play().catch(() => {});
+        };
+
+        el.querySelector('[data-act="rename"]').onclick = async () => {
+          const newLabel = prompt("Rename session label:", title);
+          if (newLabel === null) return;
+          s.label = safeText(newLabel);
+          await dbPut(s);
+          await renderList();
+        };
+
+        el.querySelector('[data-act="delete"]').onclick = async () => {
+          const ok = confirm("Delete this session from this device?");
+          if (!ok) return;
+          await dbDelete(s.id);
+          await renderList();
+        };
+
+        list.appendChild(el);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function startRecording() {
+      if (isRecording) return;
+
+      // Request mic permission
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err) {
+        alert("Microphone access blocked. Please allow mic permissions for this site.");
+        return;
+      }
+
+      chunks = [];
+      const mime = mimeChoice();
+      try {
+        mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType: mime } : undefined);
+      } catch (err) {
+        alert("Recording not supported in this browser/device.");
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        try {
+          const blob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
+          const label = safeText(labelInput.value);
+          const notes = safeText(notesInput.value);
+
+          // Preview last recording
+          const url = URL.createObjectURL(blob);
+          preview.src = url;
+          preview.style.display = "block";
+
+          const session = {
+            id: uid(),
+            createdAt: Date.now(),
+            label,
+            notes,
+            mimeType: blob.type,
+            audioBlob: blob
+          };
+
+          await dbPut(session);
+          await renderList();
+
+          // Reset inputs lightly (keep if you want; I clear for clean next session)
+          labelInput.value = "";
+          notesInput.value = "";
+        } finally {
+          // Cleanup stream
+          if (mediaStream) {
+            mediaStream.getTracks().forEach(t => t.stop());
+            mediaStream = null;
+          }
+          mediaRecorder = null;
+          chunks = [];
+        }
+      };
+
+      mediaRecorder.start();
+      isRecording = true;
+      recBtn.disabled = true;
+      stopBtn.disabled = false;
+      setStatus("rec", "Recording…");
+    }
+
+    function stopRecording() {
+      if (!isRecording || !mediaRecorder) return;
+      try {
+        mediaRecorder.stop();
+      } catch (e) {}
+      isRecording = false;
+      recBtn.disabled = false;
+      stopBtn.disabled = true;
+      setStatus("idle", "Saving…");
+      // After onstop completes, status flips to idle in a moment
+      setTimeout(() => {
+        if (!isRecording) setStatus("idle", "Idle");
+      }, 600);
+    }
+
+    // ---- Wire buttons ----
+    recBtn.addEventListener("click", startRecording);
+    stopBtn.addEventListener("click", stopRecording);
+
+    clearAllBtn.addEventListener("click", async () => {
+      const ok = confirm("Clear ALL sessions from this device?");
+      if (!ok) return;
+      await dbClear();
+      preview.style.display = "none";
+      preview.removeAttribute("src");
+      await renderList();
+      setStatus("idle", "Idle");
     });
 
-    box.appendChild(head);
-    box.appendChild(scale);
-    elQuestions.appendChild(box);
-  });
-}
-
-function updateProgress(){
-  const answered = Object.keys(answers).filter(k => typeof answers[k] === "number").length;
-  elProgText.textContent = `${answered}/12`;
-  const pct = Math.round((answered/12)*100);
-  elProgFill.style.width = `${pct}%`;
-}
-
-function resetForm(){
-  $("#timeSlot").value = "AM";
-  $("#intensity").value = "MEDIUM";
-  $("#strainNum").value = "";
-  $("#notes").value = "";
-  $("#fu1").value = "";
-  $("#fu2").value = "";
-  $("#fu3").value = "";
-  $("#customAddon").value = "";
-  selectedAddons = new Set();
-  answers = {};
-  activeSection = "body";
-  renderAddons();
-  renderSectionTabs();
-  renderQuestions();
-  updateProgress();
-  toast("Form reset.");
-}
-
-function buildSessionObject(){
-  const timeSlot = $("#timeSlot").value;
-  const intensity = $("#intensity").value;
-  const strainNum = clampStrainNum($("#strainNum").value);
-  const notes = ($("#notes").value || "").trim();
-  const followUps = {
-    mostNoticeable: ($("#fu1").value || "").trim(),
-    repeatSignal: ($("#fu2").value || "").trim(),
-    edgeCase: ($("#fu3").value || "").trim(),
-  };
-
-  // Ensure an addon state
-  const addons = Array.from(selectedAddons);
-  const custom = ($("#customAddon").value || "").trim();
-  if(custom){
-    addons.push(custom);
-  }
-  const finalAddons = addons.length ? addons : ["No Add-ons"];
-
-  // Answers default to null if not answered
-  const test = {};
-  QUESTIONS.forEach(q => {
-    test[q.id] = (typeof answers[q.id] === "number") ? answers[q.id] : null;
-  });
-
-  const now = new Date();
-  return {
-    id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random().toString(16).slice(2),
-    createdAt: now.toISOString(),
-    timeSlot,
-    intensity,
-    strainNum: strainNum || "",
-    addons: finalAddons,
-    notes,
-    blindTest: test,
-    followUps,
-    // v0.1 reserved: place for future reference-only compare outputs
-    compare: null
-  };
-}
-
-function scoreSummary(blindTest){
-  // Not a "severity score" for effects. Just a quick count of answered intensity.
-  // We keep it minimal: total points and answered count.
-  let total = 0;
-  let answered = 0;
-  Object.values(blindTest).forEach(v => {
-    if(typeof v === "number"){
-      answered++;
-      total += v;
-    }
-  });
-  return { total, answered };
-}
-
-function renderSessions(){
-  const sessions = loadSessions().sort((a,b) => (b.createdAt||"").localeCompare(a.createdAt||""));
-  if(!sessions.length){
-    elSessions.innerHTML = `<p class="muted">No sessions saved yet.</p>`;
-    return;
-  }
-
-  elSessions.innerHTML = "";
-  sessions.forEach(s => {
-    const d = new Date(s.createdAt);
-    const stamp = isNaN(d.getTime()) ? s.createdAt : d.toLocaleString();
-
-    const { total, answered } = scoreSummary(s.blindTest || {});
-    const intensityTag = `${s.intensity || "MEDIUM"}`;
-    const timeTag = `${s.timeSlot || "AM"}`;
-    const strainTag = s.strainNum ? `#${s.strainNum}` : "—";
-    const addonShort = (s.addons || []).slice(0,4).join(", ") + ((s.addons||[]).length > 4 ? "…" : "");
-
-    const wrap = document.createElement("div");
-    wrap.className = "sessionCard";
-
-    wrap.innerHTML = `
-      <div class="sessionTop">
-        <div>
-          <div class="stamp">${stamp}</div>
-          <div class="kvs">
-            <span class="kv"><b>Time</b> ${timeTag}</span>
-            <span class="kv"><b>Intensity</b> ${intensityTag}</span>
-            <span class="kv"><b>Strain#</b> ${strainTag}</span>
-            <span class="kv"><b>12Q</b> ${answered}/12</span>
-            <span class="kv"><b>Sum</b> ${total}</span>
-          </div>
-          <div class="smallNote"><b class="muted">Add-ons:</b> ${escapeHtml(addonShort || "—")}</div>
-        </div>
-        <div class="miniBtnRow">
-          <button class="small" data-act="view" data-id="${s.id}">View</button>
-          <button class="small" data-act="delete" data-id="${s.id}">Delete</button>
-        </div>
-      </div>
-    `;
-
-    elSessions.appendChild(wrap);
-  });
-
-  // Bind buttons
-  elSessions.querySelectorAll("button[data-act]").forEach(btn => {
-    btn.onclick = () => {
-      const id = btn.getAttribute("data-id");
-      const act = btn.getAttribute("data-act");
-      if(act === "delete") deleteSession(id);
-      if(act === "view") viewSession(id);
-    };
-  });
-}
-
-function escapeHtml(s){
-  return String(s || "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-function deleteSession(id){
-  const list = loadSessions().filter(x => x.id !== id);
-  saveSessions(list);
-  renderSessions();
-  toast("Deleted.");
-}
-
-function viewSession(id){
-  const s = loadSessions().find(x => x.id === id);
-  if(!s){ toast("Not found."); return; }
-
-  // Build a compact view
-  const d = new Date(s.createdAt);
-  const stamp = isNaN(d.getTime()) ? s.createdAt : d.toLocaleString();
-
-  // show per-section totals (still observational)
-  const perSection = {};
-  SECTIONS.forEach(sec => perSection[sec.id] = { sum:0, answered:0 });
-  QUESTIONS.forEach(q => {
-    const v = (s.blindTest||{})[q.id];
-    if(typeof v === "number"){
-      perSection[q.section].answered++;
-      perSection[q.section].sum += v;
-    }
-  });
-
-  const lines = [];
-  lines.push(`STAMP: ${stamp}`);
-  lines.push(`TIME: ${s.timeSlot || ""} | INTENSITY: ${s.intensity || ""} | STRAIN#: ${s.strainNum || "—"}`);
-  lines.push(`ADD-ONS: ${(s.addons||[]).join(", ")}`);
-  lines.push(`--- 12Q SECTION SUMS (reference-only) ---`);
-  SECTIONS.forEach(sec => {
-    lines.push(`${sec.name.toUpperCase()}: ${perSection[sec.id].sum} (answered ${perSection[sec.id].answered}/3)`);
-  });
-  lines.push(`--- NOTES ---`);
-  lines.push(s.notes || "—");
-  lines.push(`--- FOLLOW-UPS ---`);
-  lines.push(`Most noticeable: ${s.followUps?.mostNoticeable || "—"}`);
-  lines.push(`Repeat signal: ${s.followUps?.repeatSignal || "—"}`);
-  lines.push(`Edge-case: ${s.followUps?.edgeCase || "—"}`);
-
-  alert(lines.join("\n"));
-}
-
-function exportJSON(){
-  const list = loadSessions();
-  const payload = {
-    app: "stoneyvibes",
-    version: "v0.1",
-    exportedAt: new Date().toISOString(),
-    sessions: list
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `stoneyvibes_export_${Date.now()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  toast("Exported JSON.");
-}
-
-function wipeAll(){
-  const ok = confirm("Wipe ALL local StoneyVibes data on this device?\n\nThis cannot be undone.");
-  if(!ok) return;
-  localStorage.removeItem(STORAGE_KEY);
-  resetForm();
-  renderSessions();
-  toast("Wiped local data.");
-}
-
-function addCustomAddon(){
-  const v = ($("#customAddon").value || "").trim();
-  if(!v){ toast("No custom add-on entered."); return; }
-  // Store as selected (but don’t add to defaults list)
-  // If "No Add-ons" is active, remove it.
-  selectedAddons.delete("No Add-ons");
-  selectedAddons.add(v);
-  $("#customAddon").value = "";
-  renderAddons();
-  toast("Custom add-on added.");
-}
-
-function saveSession(){
-  const session = buildSessionObject();
-
-  // Minimal validation: encourage completion, but never block.
-  const answered = Object.values(session.blindTest).filter(v => typeof v === "number").length;
-  if(answered < 6){
-    const ok = confirm(`Only ${answered}/12 answered. Save anyway?`);
-    if(!ok) return;
-  }
-
-  const list = loadSessions();
-  list.push(session);
-  saveSessions(list);
-  renderSessions();
-  toast("Saved.");
-
-  // gentle reset for next entry
-  // (keep Time + Intensity, wipe the rest)
-  $("#strainNum").value = "";
-  $("#notes").value = "";
-  $("#fu1").value = "";
-  $("#fu2").value = "";
-  $("#fu3").value = "";
-  $("#customAddon").value = "";
-  selectedAddons = new Set();
-  answers = {};
-  renderAddons();
-  renderQuestions();
-  updateProgress();
-}
-
-function about(){
-  alert(
-`StoneyVibes v0.1
-
-- Local-only logging (no accounts, no cloud)
-- Observational, non-claim posture
-- You decide meaning. App stores structure.
-
-Guardrails:
-- No strain/effect/potency claims
-- No predictions
-- No advice engine
-
-Export JSON anytime.
-Wipe local data anytime.`
-  );
-}
-
-// Wire up
-$("#exportBtn").onclick = exportJSON;
-$("#wipeBtn").onclick = wipeAll;
-$("#aboutBtn").onclick = about;
-$("#saveBtn").onclick = saveSession;
-$("#resetBtn").onclick = resetForm;
-$("#addCustomAddonBtn").onclick = addCustomAddon;
-
-// Init
-renderAddons();
-renderSectionTabs();
-renderQuestions();
-updateProgress();
-renderSessions();
-</script>
+    // ---- Boot ----
+    (async function init() {
+      if (!("indexedDB" in window)) {
+        alert("IndexedDB not supported in this browser. Sessions cannot be saved locally.");
+      }
+      if (!("MediaRecorder" in window)) {
+        // Still render list, but recording won't work
+        setStatus("idle", "Recording unavailable");
+        recBtn.disabled = true;
+      } else {
+        setStatus("idle", "Idle");
+      }
+      await renderList();
+    })();
+  </script>
 </body>
 </html>
