@@ -2,659 +2,1532 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>STONEYVIBES — CORE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StoneyVibes v0.3.0 — STASH + CAPTURE + Sessions</title>
   <style>
     :root{
-      --bg:#0b0f14; --panel:#111826; --panel2:#0f1724;
-      --text:#e8eef7; --muted:#9fb0c8; --line:#223044;
-      --accent:#7dd3fc; --accent2:#a78bfa; --good:#34d399; --warn:#fbbf24;
-      --danger:#fb7185;
+      --bg:#0b0d10;
+      --text:#e9eef5;
+      --muted:rgba(233,238,245,0.72);
+      --border:rgba(233,238,245,0.12);
+      --border2:rgba(233,238,245,0.18);
+      --card:rgba(255,255,255,0.04);
+      --card2:rgba(0,0,0,0.22);
+      --shadow:0 10px 30px rgba(0,0,0,0.35);
       --radius:16px;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --danger:rgba(255,90,90,0.18);
+      --dangerB:rgba(255,90,90,0.32);
+      --ok:rgba(90,255,170,0.16);
+      --okB:rgba(90,255,170,0.28);
+      --accent:rgba(125,211,252,0.18);
+      --accentB:rgba(125,211,252,0.30);
+      --purple:rgba(167,139,250,0.16);
+      --purpleB:rgba(167,139,250,0.30);
     }
-    *{box-sizing:border-box}
+
+    *{ box-sizing:border-box; }
     body{
-      margin:0; background: radial-gradient(1000px 600px at 20% -10%, rgba(167,139,250,.18), transparent 60%),
-                       radial-gradient(900px 550px at 90% 0%, rgba(125,211,252,.16), transparent 60%),
-                       var(--bg);
-      color:var(--text); font-family:var(--sans);
+      margin:0;
+      font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1000px 600px at 30% 0%, rgba(255,255,255,0.06), transparent 60%),
+        radial-gradient(900px 700px at 80% 10%, rgba(90,255,170,0.06), transparent 55%),
+        radial-gradient(900px 700px at 40% 80%, rgba(255,180,90,0.05), transparent 60%),
+        radial-gradient(800px 500px at 90% 0%, rgba(167,139,250,0.08), transparent 55%),
+        radial-gradient(800px 500px at 10% 10%, rgba(125,211,252,0.08), transparent 55%),
+        var(--bg);
+      color:var(--text);
     }
+
+    /* ----- swipe shell ----- */
+    .shell{
+      height:100svh;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+
     header{
-      position:sticky; top:0; z-index:10;
-      backdrop-filter: blur(10px);
-      background: rgba(11,15,20,.75);
-      border-bottom:1px solid rgba(34,48,68,.6);
+      padding:14px 16px 10px 16px;
+      border-bottom:1px solid var(--border);
+      background:rgba(0,0,0,0.18);
+      backdrop-filter: blur(8px);
     }
-    .wrap{max-width:980px; margin:0 auto; padding:16px}
-    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between}
-    .brand{
-      display:flex; gap:10px; align-items:center;
-      font-weight:900; letter-spacing:.08em;
-    }
-    .badge{
-      font-family:var(--mono);
-      font-size:12px; color:var(--muted);
-      border:1px solid rgba(34,48,68,.8); border-radius:999px;
-      padding:6px 10px; background:rgba(17,24,38,.5);
-    }
-    .stars{
-      width:28px; height:28px; border-radius:10px;
-      border:1px solid rgba(167,139,250,.5);
-      background: linear-gradient(135deg, rgba(167,139,250,.18), rgba(125,211,252,.12));
-      box-shadow: var(--shadow);
-      display:grid; place-items:center;
-      font-family:var(--mono); color:var(--accent2);
-    }
-    h1{margin:0; font-size:16px}
-    main{padding:18px 0 40px}
-    .grid{display:grid; gap:14px}
-    @media(min-width:860px){ .grid{grid-template-columns: 1.05fr .95fr} }
 
-    .card{
-      background: linear-gradient(180deg, rgba(17,24,38,.92), rgba(15,23,36,.86));
-      border:1px solid rgba(34,48,68,.9);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding:14px;
+    .title{
+      margin:0;
+      font-size:20px;
+      letter-spacing:0.02em;
     }
-    .card h2{
-      margin:0 0 10px 0; font-size:14px; letter-spacing:.06em; text-transform:uppercase;
-      color: rgba(232,238,247,.92);
-    }
-    .sub{color:var(--muted); font-size:13px; line-height:1.35}
-    .hr{height:1px; background:rgba(34,48,68,.8); margin:12px 0}
-    .btnbar{display:flex; gap:10px; flex-wrap:wrap}
-    button, .btn{
-      cursor:pointer;
-      border:1px solid rgba(34,48,68,.9);
-      background: rgba(17,24,38,.7);
-      color: var(--text);
-      border-radius: 12px;
-      padding:10px 12px;
-      font-weight:700;
-      letter-spacing:.02em;
-    }
-    button:hover{border-color: rgba(125,211,252,.7)}
-    button.primary{
-      border-color: rgba(125,211,252,.7);
-      background: rgba(125,211,252,.12);
-    }
-    button.purple{
-      border-color: rgba(167,139,250,.7);
-      background: rgba(167,139,250,.12);
-    }
-    button.good{
-      border-color: rgba(52,211,153,.7);
-      background: rgba(52,211,153,.10);
-    }
-    button.warn{
-      border-color: rgba(251,191,36,.7);
-      background: rgba(251,191,36,.10);
-      color:#fff;
-    }
-    button.danger{
-      border-color: rgba(251,113,133,.7);
-      background: rgba(251,113,133,.10);
-    }
-    textarea, input[type="text"], select{
-      width:100%;
-      border:1px solid rgba(34,48,68,.9);
-      background: rgba(11,15,20,.55);
-      color: var(--text);
-      border-radius: 12px;
-      padding:10px 12px;
-      outline:none;
-      font-family: var(--sans);
-      font-size:14px;
-    }
-    textarea{min-height:92px; resize:vertical}
-    label{font-size:12px; color:var(--muted); display:block; margin:10px 0 6px}
-    .pill{
-      font-family:var(--mono);
-      font-size:12px;
-      border:1px solid rgba(34,48,68,.85);
-      border-radius:999px;
-      padding:6px 10px;
-      color: var(--muted);
-      background: rgba(11,15,20,.35);
-      display:inline-flex; gap:8px; align-items:center;
-    }
-    .pill strong{color:var(--text); font-family:var(--mono)}
-    .two{display:grid; gap:10px}
-    @media(min-width:560px){ .two{grid-template-columns:1fr 1fr} }
 
-    .timeline{display:flex; flex-direction:column; gap:10px}
-    .item{
-      border:1px solid rgba(34,48,68,.85);
-      background: rgba(11,15,20,.35);
-      border-radius: 14px;
-      padding:12px;
-    }
-    .itemhead{display:flex; gap:10px; justify-content:space-between; align-items:flex-start; flex-wrap:wrap}
-    .type{
-      font-family:var(--mono); font-size:12px; color:var(--accent);
-      letter-spacing:.06em;
-    }
-    .meta{font-family:var(--mono); font-size:12px; color:var(--muted)}
-    .content{margin-top:8px; font-size:14px; line-height:1.35; color: rgba(232,238,247,.92)}
-    .thumb{
-      margin-top:10px;
-      border-radius:14px;
-      border:1px solid rgba(34,48,68,.9);
-      max-width:100%;
-    }
-    details{border:1px solid rgba(34,48,68,.7); border-radius:14px; padding:10px; background: rgba(15,23,36,.35)}
-    summary{cursor:pointer; font-weight:800; color:rgba(232,238,247,.92)}
-    .muted{color:var(--muted)}
-    .small{font-size:12px}
-    .kicker{
-      font-family:var(--mono); font-size:12px; color:rgba(232,238,247,.88);
-      padding:10px 12px; border-radius:14px;
-      border:1px dashed rgba(167,139,250,.55);
-      background: rgba(167,139,250,.08);
+    .sub{
+      margin:6px 0 0 0;
+      font-size:13px;
+      color:var(--muted);
       line-height:1.35;
     }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      align-items:center;
+    }
+
+    .tab{
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      white-space:nowrap;
+    }
+    .tab.active{
+      background:rgba(255,255,255,0.12);
+      border-color:rgba(255,255,255,0.28);
+    }
+
+    .hint{
+      margin-left:auto;
+      font-size:12px;
+      color:var(--muted);
+      opacity:0.85;
+      white-space:nowrap;
+    }
+
+    .pages{
+      flex:1;
+      display:flex;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      scroll-behavior:smooth;
+      -webkit-overflow-scrolling:touch;
+    }
+    .page{
+      scroll-snap-align:start;
+      min-width:100%;
+      height:100%;
+      overflow-y:auto;
+      padding:14px 16px 24px 16px;
+    }
+
+    /* ----- cards + controls ----- */
+    .card{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow:var(--shadow);
+      margin:12px 0;
+    }
+    .card h2{
+      margin:0 0 6px 0;
+      font-size:14px;
+      letter-spacing:0.10em;
+    }
+    .muted{ color:var(--muted); }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    .between{ justify-content:space-between; }
+    .topgap{ margin-top:10px; }
+
+    .btn{
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+      border-radius:14px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-size:14px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+    .btnPrimary{
+      border-color:rgba(255,255,255,0.28);
+      background:rgba(255,255,255,0.10);
+    }
+    .btnDanger{
+      border-color:var(--dangerB);
+      background:var(--danger);
+    }
+    .btnOk{
+      border-color:var(--okB);
+      background:var(--ok);
+    }
+    .btnBlue{
+      border-color:var(--accentB);
+      background:var(--accent);
+    }
+    .btnPurple{
+      border-color:var(--purpleB);
+      background:var(--purple);
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      flex:1;
+      min-width:220px;
+    }
+    .label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.04em;
+    }
+    .input, .select, .textarea{
+      width:100%;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.25);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      outline:none;
+    }
+    .textarea{ min-height:90px; resize:vertical; }
+    .input:focus, .select:focus, .textarea:focus{
+      border-color:rgba(255,255,255,0.28);
+    }
+
+    .pillStatus{
+      padding:8px 10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:13px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .okDot, .recDot{
+      width:8px; height:8px; border-radius:50%;
+      display:inline-block;
+      background:rgba(233,238,245,0.35);
+    }
+    .recDot{
+      background:rgba(255,90,90,0.85);
+      box-shadow:0 0 0 3px rgba(255,90,90,0.18);
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+    .item{
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.18);
+      border-radius:14px;
+      padding:10px;
+    }
+    .itemHead{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .itemTitle{
+      font-weight:600;
+      font-size:14px;
+      margin:0;
+      line-height:1.25;
+    }
+    .itemMeta{
+      font-size:12px;
+      color:var(--muted);
+      margin:2px 0 0 0;
+      line-height:1.35;
+    }
+    .itemBtns{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:flex-end;
+    }
+
+    .divider{ height:1px; background:var(--border); margin:12px 0; }
+
+    .notice{
+      border:1px dashed var(--border2);
+      background:rgba(255,255,255,0.04);
+      border-radius:14px;
+      padding:10px 12px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      color: var(--muted);
+    }
+
+    audio{ width:100%; }
+    img.thumb{
+      width:100%;
+      border-radius:14px;
+      border:1px solid var(--border);
+      margin-top:10px;
+      display:block;
+    }
+
+    details{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      background:rgba(0,0,0,0.18);
+    }
+    summary{ cursor:pointer; user-select:none; font-weight:600; }
+    .small{ font-size:12px; }
   </style>
 </head>
+
 <body>
-<header>
-  <div class="wrap">
-    <div class="row">
-      <div class="brand">
-        <div class="stars">✶</div>
-        <div>
-          <h1>STONEYVIBES — CORE</h1>
-          <div class="muted small">Equal expression. Meaning optional. Baseline-safe.</div>
-        </div>
+  <div class="shell">
+    <header>
+      <h1 class="title">StoneyVibes v0.3.0</h1>
+      <p class="sub">Private, local-first. Equal expression. Meaning optional. Swipe left/right to move.</p>
+
+      <div class="nav">
+        <button class="tab active" id="tabStash" type="button">STASH</button>
+        <button class="tab" id="tabCapture" type="button">CAPTURE</button>
+        <button class="tab" id="tabSessions" type="button">SESSIONS</button>
+        <button class="tab" id="tabAbout" type="button">ABOUT</button>
+        <div class="hint">← swipe →</div>
       </div>
-      <div class="row">
-        <span class="badge">vNext • single-file • export/import • no persistence</span>
-      </div>
-    </div>
-  </div>
-</header>
+    </header>
 
-<main class="wrap">
-  <div class="grid">
+    <main class="pages" id="pages">
 
-    <!-- LEFT: Capture -->
-    <section class="card">
-      <h2>THE PLAY</h2>
-      <div class="kicker">
-        Create 3 Expressions. No thinking.<br>
-        • Audio (30–60s) • Image (anything) • Symbol/Text (5–10 words or more)<br>
-        No tags. No notes. No cleanup. Just capture → done.
-      </div>
+      <!-- PAGE 1: STASH -->
+      <section class="page" id="pageStash">
+        <div class="card">
+          <h2>STASH</h2>
+          <p class="muted" style="margin:0;">Keep it simple. This is your inventory spine.</p>
 
-      <div class="hr"></div>
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Name</span>
+              <input id="stashName" class="input" type="text" placeholder="e.g., Lemon Tree / Zookie / DD (blend)" />
+            </label>
 
-      <div class="two">
-        <div>
-          <span class="pill"><strong>SESSION</strong> <span id="sessionLabel">Unset</span></span>
-        </div>
-        <div>
-          <label for="sessionSelect">Session tag (optional)</label>
-          <select id="sessionSelect">
-            <option value="">—</option>
-            <option>Morning</option>
-            <option>Afternoon</option>
-            <option>Evening</option>
-            <option>Bedtime</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <!-- Text / Symbol -->
-      <h2>Expression: Symbol / Text</h2>
-      <label for="textInput">Type your signal (meaning optional)</label>
-      <textarea id="textInput" placeholder="Example: “10 pushups = unfakeable win.”"></textarea>
-      <div class="btnbar">
-        <button class="primary" id="addTextBtn">Add Text</button>
-        <button id="clearTextBtn">Clear</button>
-      </div>
-
-      <div class="hr"></div>
-
-      <!-- Image -->
-      <h2>Expression: Image</h2>
-      <label for="imageInput">Pick an image (camera roll / photo)</label>
-      <input id="imageInput" type="file" accept="image/*" />
-      <div class="btnbar">
-        <button class="primary" id="addImageBtn">Add Image</button>
-      </div>
-      <div class="muted small">Tip: a rainbow, a floor pattern, a sketch—anything counts.</div>
-
-      <div class="hr"></div>
-
-      <!-- Audio -->
-      <h2>Expression: Audio</h2>
-      <div class="btnbar">
-        <button class="good" id="recStart">Record</button>
-        <button class="warn" id="recStop" disabled>Stop</button>
-        <button id="recDiscard" disabled>Discard</button>
-      </div>
-      <div class="muted small" id="recStatus">Idle.</div>
-      <audio id="recPreview" controls style="width:100%; margin-top:10px; display:none;"></audio>
-      <div class="btnbar" style="margin-top:10px;">
-        <button class="primary" id="addAudioBtn" disabled>Add Audio</button>
-      </div>
-
-      <div class="hr"></div>
-
-      <!-- Optional add-ons (collapsed) -->
-      <details>
-        <summary>Optional: Tags / Notes (not required)</summary>
-        <div class="two" style="margin-top:10px;">
-          <div>
-            <label for="tagInput">Tags (comma separated)</label>
-            <input id="tagInput" type="text" placeholder="focus, calm, creative" />
+            <label class="field">
+              <span class="label">Category</span>
+              <select id="stashCategory" class="select">
+                <option value="FLOWER">FLOWER</option>
+                <option value="KIEF">KIEF</option>
+                <option value="HASH">HASH</option>
+                <option value="WAX">WAX</option>
+                <option value="OTHER_CONCENTRATE">OTHER CONCENTRATE</option>
+                <option value="HERBAL">HERBAL</option>
+              </select>
+            </label>
           </div>
-          <div>
-            <label for="noteInput">Note (short)</label>
-            <input id="noteInput" type="text" placeholder="Context you don’t want lost" />
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Notes (optional)</span>
+              <input id="stashNotes" class="input" type="text" placeholder="Color/scent/etc. Keep it human." />
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Familiarity (optional)</span>
+              <select id="stashFamiliarity" class="select">
+                <option value="KNOWN_BY_USE">KNOWN (by use)</option>
+                <option value="KNOWN_BY_KNOWLEDGE">KNOWN (by knowledge)</option>
+                <option value="UNKNOWN">UNKNOWN</option>
+                <option value="RELIABLE">RELIABLE</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <button id="addStashBtn" class="btn btnPrimary" type="button">Add to STASH</button>
+            <button id="clearStashBtn" class="btn btnDanger" type="button">Clear STASH</button>
+          </div>
+
+          <div class="divider"></div>
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH LIST</h2>
+          <div id="stashList" class="list">
+            <div class="muted">No stash items yet.</div>
           </div>
         </div>
-        <div class="muted small" style="margin-top:8px;">
-          These apply to your next capture only. Leave blank forever if you want.
+
+        <div class="notice">
+          <strong>Scope lock:</strong> Category stays limited to your set:
+          <span class="kbd">KIEF</span> <span class="kbd">HASH</span> <span class="kbd">WAX</span>
+          <span class="kbd">OTHER CONCENTRATE</span> <span class="kbd">HERBAL</span> (+ <span class="kbd">FLOWER</span>).
         </div>
-      </details>
+      </section>
 
-    </section>
+      <!-- PAGE 2: CAPTURE (THE PLAY) -->
+      <section class="page" id="pageCapture">
+        <div class="card">
+          <h2>THE PLAY</h2>
+          <div class="notice">
+            <strong>Create 3 Expressions. No thinking.</strong><br/>
+            • Text/Symbol • Image • Audio<br/>
+            Meaning optional. Notes optional. Tags optional. Just capture → done.
+          </div>
 
-    <!-- RIGHT: Timeline / Export -->
-    <section class="card">
-      <h2>Timeline</h2>
-      <div class="sub">Everything captured this session (in-memory). Export if you want to keep it.</div>
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Session (optional)</span>
+              <select id="capSession" class="select">
+                <option value="">—</option>
+                <option>Morning</option>
+                <option>Afternoon</option>
+                <option>Evening</option>
+                <option>Bedtime</option>
+              </select>
+            </label>
 
-      <div class="hr"></div>
+            <label class="field">
+              <span class="label">Link to STASH (optional)</span>
+              <select id="capStashLink" class="select">
+                <option value="">— none —</option>
+              </select>
+            </label>
+          </div>
 
-      <div class="btnbar">
-        <button class="purple" id="exportBtn">Export JSON</button>
-        <label class="btn" for="importFile">Import JSON</label>
-        <input id="importFile" type="file" accept="application/json" style="display:none" />
-        <button class="danger" id="wipeBtn">Wipe Session</button>
-      </div>
+          <details class="topgap">
+            <summary>Optional: Tags / Note (applies to your next capture only)</summary>
+            <div class="row topgap">
+              <label class="field">
+                <span class="label">Tags (comma separated)</span>
+                <input id="capTags" class="input" type="text" placeholder="calm, focus, creative" />
+              </label>
+              <label class="field">
+                <span class="label">Note (short)</span>
+                <input id="capNote" class="input" type="text" placeholder="Context you don’t want lost" />
+              </label>
+            </div>
+          </details>
 
-      <div class="hr"></div>
+          <div class="divider"></div>
 
-      <div class="pill">
-        <strong>Count</strong>
-        <span id="countLabel">0</span>
-      </div>
+          <h2>Expression: Text / Symbol</h2>
+          <label class="field">
+            <span class="label">Your signal</span>
+            <textarea id="capText" class="textarea" placeholder="Example: “10 pushups = unfakeable win.”"></textarea>
+          </label>
+          <div class="row topgap">
+            <button id="addTextEntry" class="btn btnBlue" type="button">Add Text</button>
+            <button id="clearCapText" class="btn" type="button">Clear</button>
+          </div>
 
-      <div class="hr"></div>
+          <div class="divider"></div>
 
-      <div id="timeline" class="timeline"></div>
+          <h2>Expression: Image</h2>
+          <div class="row topgap">
+            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+              📷 Choose / Take Image
+              <input id="capImageFile" type="file" accept="image/*" capture style="display:none;" />
+            </label>
+            <button id="addImageEntry" class="btn btnBlue" type="button">Add Image</button>
+          </div>
+          <img id="capImagePreview" class="thumb" alt="Preview" style="display:none;" />
 
-      <div class="hr"></div>
+          <div class="divider"></div>
 
-      <div class="muted small">
-        Note: persistence (save-between-builds) is intentionally off right now. Export is your safety net.
-      </div>
-    </section>
+          <h2>Expression: Audio</h2>
+          <p class="muted" style="margin:0;">Browser recording if possible. If not, use iPhone Mode.</p>
 
+          <div class="row topgap">
+            <button id="capRecBtn" class="btn btnPrimary" type="button">🎙️ Record</button>
+            <button id="capStopBtn" class="btn" type="button" disabled>Stop</button>
+            <span id="capStatusPill" class="pillStatus"><span class="okDot"></span><span id="capStatusText">Idle</span></span>
+          </div>
+
+          <div class="row topgap" id="capIphoneFallback" style="display:none;">
+            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+              🎧 Add Audio (iPhone Mode)
+              <input id="capFileAudio" type="file" accept="audio/*" capture style="display:none;" />
+            </label>
+            <span class="muted small">Uses device recorder, then stores locally.</span>
+          </div>
+
+          <div class="row topgap">
+            <audio id="capAudioPreview" controls style="display:none;"></audio>
+          </div>
+
+          <div class="row topgap">
+            <button id="addAudioEntry" class="btn btnBlue" type="button" disabled>Add Audio Entry</button>
+            <button id="discardAudioEntry" class="btn btnDanger" type="button" disabled>Discard</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row between">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">CAPTURED ENTRIES</h2>
+            <button id="refreshEntriesBtn" class="btn" type="button">Refresh</button>
+          </div>
+
+          <div id="entryList" class="list">
+            <div class="muted">No entries yet.</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row between">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">DATA</h2>
+            <div class="row">
+              <button id="exportBtn" class="btn btnPurple" type="button">Export JSON</button>
+              <label class="btn btnPurple" style="display:inline-flex; align-items:center; gap:10px;">
+                Import JSON
+                <input id="importFile" type="file" accept="application/json" style="display:none;" />
+              </label>
+            </div>
+          </div>
+
+          <div class="notice">
+            Export/Import is your “save between builds” safety net.<br/>
+            No DevTools needed. No drama.
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 3: SESSIONS -->
+      <section class="page" id="pageSessions">
+        <div class="card">
+          <h2>SESSION RIFF</h2>
+          <p class="muted" style="margin:0;">
+            Record as many sessions as you want. Audio-first. Stored on this device.
+          </p>
+
+          <div class="row topgap">
+            <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Start Session</button>
+            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
+            <span id="statusPill" class="pillStatus"><span class="okDot"></span><span id="statusText">Idle</span></span>
+          </div>
+
+          <!-- iPhone fallback button (shown only when needed) -->
+          <div class="row topgap" id="iphoneFallback" style="display:none;">
+            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+              🎧 Record Audio (iPhone Mode)
+              <input id="fileAudio" type="file" accept="audio/*" capture style="display:none;" />
+            </label>
+            <span class="muted" style="font-size:12px;">Uses your device recorder, then saves locally.</span>
+          </div>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Session Tag (optional)</span>
+              <input id="sessionTag" class="input" type="text" placeholder="e.g., Lemon Tree / DD / Unknown" />
+            </label>
+
+            <label class="field">
+              <span class="label">Link to STASH (optional)</span>
+              <select id="sessionStashLink" class="select">
+                <option value="">— none —</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Notes (optional)</span>
+              <input id="sessionNotes" class="input" type="text" placeholder="One line. Keep it human." />
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <audio id="preview" controls style="display:none;"></audio>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row between">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">RECENT SESSIONS</h2>
+            <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear Sessions</button>
+          </div>
+
+          <div id="sessionList" class="list">
+            <div class="muted">No sessions yet.</div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="notice">
+            <strong>iPhone reality:</strong> some iPhones don’t support in-browser recording well.
+            This build falls back to “iPhone Mode” when needed.
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 4: ABOUT -->
+      <section class="page" id="pageAbout">
+        <div class="card">
+          <h2>DOCTRINE</h2>
+          <p class="muted" style="margin:0;">
+            Personal-first weedologist: supportive, nerd-smart, not sterile.
+          </p>
+
+          <div class="divider"></div>
+
+          <div class="notice">
+            <strong>Frozen principle:</strong><br/>
+            All forms of expression are equal first-class citizens. Meaning is always optional.
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="notice">
+            <strong>Core loop:</strong><br/>
+            Expression → Memory → Pattern → Better mornings (without shame).
+          </div>
+
+          <div class="divider"></div>
+
+          <p class="muted" style="margin:0; font-size:13px; line-height:1.5;">
+            Transcription is currently <em>manual</em> (verbatim + clean fields). That preserves integrity now,
+            and keeps the door open for later upgrades.
+          </p>
+        </div>
+      </section>
+
+    </main>
   </div>
-</main>
 
-<script>
-(() => {
-  // ---------- Helpers ----------
-  const $ = (id) => document.getElementById(id);
-  const nowISO = () => new Date().toISOString();
-  const niceTime = (iso) => {
-    const d = new Date(iso);
-    return d.toLocaleString();
-  };
-  const uuid = () => (crypto?.randomUUID ? crypto.randomUUID() : ("id_" + Math.random().toString(16).slice(2)));
+  <script>
+    /************************************************************
+     * StoneyVibes v0.3.0
+     * - Swipe pages left/right (scroll-snap)
+     * - STASH (localStorage)
+     * - SESSIONS (IndexedDB) with iPhone-friendly fallback
+     * - CAPTURE (Entries: text/image/audio) in IndexedDB
+     * - Manual transcript fields for audio entries (VERBATIM + CLEAN)
+     * - Export/Import JSON (stash + sessions + entries; media as dataURL)
+     ************************************************************/
 
-  // ---------- In-memory session DB ----------
-  const DB = {
-    schema_version: 1,
-    created_at: nowISO(),
-    updated_at: nowISO(),
-    entries: [] // {id,type,created_at,session,tags[],note,text,imageDataUrl,audioDataUrl}
-  };
+    // ------------------ Swipe nav helpers ------------------
+    const pages = document.getElementById("pages");
+    const tabStash = document.getElementById("tabStash");
+    const tabCapture = document.getElementById("tabCapture");
+    const tabSessions = document.getElementById("tabSessions");
+    const tabAbout = document.getElementById("tabAbout");
 
-  function readNextMeta() {
-    const session = $("sessionSelect").value || "";
-    $("sessionLabel").textContent = session || "—";
-    const tags = $("tagInput").value.trim()
-      ? $("tagInput").value.split(",").map(s => s.trim()).filter(Boolean)
-      : [];
-    const note = $("noteInput").value.trim() || "";
-    return { session, tags, note };
-  }
-  function clearNextMeta() {
-    $("tagInput").value = "";
-    $("noteInput").value = "";
-  }
-
-  function addEntry(entry) {
-    DB.entries.unshift(entry);
-    DB.updated_at = nowISO();
-    render();
-  }
-
-  function render() {
-    $("countLabel").textContent = String(DB.entries.length);
-    const tl = $("timeline");
-    tl.innerHTML = "";
-    if (DB.entries.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "item";
-      empty.innerHTML = `
-        <div class="muted">No captures yet.</div>
-        <div class="muted small">Run THE PLAY: add 3 expressions, then walk away.</div>
-      `;
-      tl.appendChild(empty);
-      return;
+    function setActiveTab(which){
+      [tabStash, tabCapture, tabSessions, tabAbout].forEach(t => t.classList.remove("active"));
+      if (which === "stash") tabStash.classList.add("active");
+      if (which === "capture") tabCapture.classList.add("active");
+      if (which === "sessions") tabSessions.classList.add("active");
+      if (which === "about") tabAbout.classList.add("active");
     }
 
-    for (const e of DB.entries) {
-      const card = document.createElement("div");
-      card.className = "item";
+    function scrollToPage(idx){
+      pages.scrollTo({ left: idx * pages.clientWidth, behavior: "smooth" });
+    }
 
-      const tags = (e.tags && e.tags.length) ? e.tags.map(t => `<span class="pill" style="margin-right:6px;"><strong>#</strong>${escapeHtml(t)}</span>`).join("") : "";
-      const note = e.note ? `<div class="muted small" style="margin-top:6px;"><strong>Note:</strong> ${escapeHtml(e.note)}</div>` : "";
-      const sess = e.session ? `<span class="pill"><strong>SESSION</strong>${escapeHtml(e.session)}</span>` : "";
+    tabStash.onclick = () => scrollToPage(0);
+    tabCapture.onclick = () => scrollToPage(1);
+    tabSessions.onclick = () => scrollToPage(2);
+    tabAbout.onclick = () => scrollToPage(3);
 
-      let content = "";
-      if (e.type === "text") {
-        content = `<div class="content">${escapeHtml(e.text || "")}</div>`;
-      } else if (e.type === "image") {
-        content = `
-          <div class="content muted small">Image captured.</div>
-          <img class="thumb" src="${e.imageDataUrl}" alt="Captured image" />
-        `;
-      } else if (e.type === "audio") {
-        content = `
-          <div class="content muted small">Audio captured.</div>
-          <audio controls style="width:100%; margin-top:8px;">
-            <source src="${e.audioDataUrl}" />
-          </audio>
-        `;
-      } else {
-        content = `<div class="content muted">Unknown type.</div>`;
+    pages.addEventListener("scroll", () => {
+      const idx = Math.round(pages.scrollLeft / pages.clientWidth);
+      if (idx === 0) setActiveTab("stash");
+      if (idx === 1) setActiveTab("capture");
+      if (idx === 2) setActiveTab("sessions");
+      if (idx === 3) setActiveTab("about");
+    });
+
+    // ------------------ Shared helpers ------------------
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function fmtTime(ts){
+      const d = new Date(ts);
+      return d.toLocaleString(undefined, {
+        year:"numeric", month:"short", day:"2-digit",
+        hour:"2-digit", minute:"2-digit"
+      });
+    }
+
+    function uid(prefix){
+      return (prefix || "id") + "_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+    }
+
+    function setStatus(pillEl, textEl, mode, text){
+      textEl.textContent = text;
+      const dot = pillEl.querySelector("span");
+      dot.className = (mode === "rec") ? "recDot" : "okDot";
+    }
+
+    async function blobToDataURL(blob){
+      return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(fr.result);
+        fr.onerror = reject;
+        fr.readAsDataURL(blob);
+      });
+    }
+
+    async function dataURLToBlob(dataUrl){
+      const res = await fetch(dataUrl);
+      return await res.blob();
+    }
+
+    // ------------------ STASH (localStorage) ------------------
+    const STASH_KEY = "sv_stash_v1";
+    const stashName = document.getElementById("stashName");
+    const stashCategory = document.getElementById("stashCategory");
+    const stashNotes = document.getElementById("stashNotes");
+    const stashFamiliarity = document.getElementById("stashFamiliarity");
+    const addStashBtn = document.getElementById("addStashBtn");
+    const clearStashBtn = document.getElementById("clearStashBtn");
+    const stashList = document.getElementById("stashList");
+
+    const sessionStashLink = document.getElementById("sessionStashLink");
+    const capStashLink = document.getElementById("capStashLink");
+
+    function loadStash(){
+      try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); }
+      catch { return []; }
+    }
+
+    function saveStash(items){
+      localStorage.setItem(STASH_KEY, JSON.stringify(items));
+      renderStash();
+      renderStashLinkDropdowns();
+    }
+
+    function renderStash(){
+      const items = loadStash();
+      if (!items.length){
+        stashList.innerHTML = '<div class="muted">No stash items yet.</div>';
+        return;
       }
-
-      card.innerHTML = `
-        <div class="itemhead">
-          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-            <span class="type">${e.type.toUpperCase()}</span>
-            ${sess}
+      stashList.innerHTML = "";
+      items.forEach((it, i) => {
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="itemHead">
+            <div style="min-width:0; flex:1;">
+              <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
+              <p class="itemMeta">
+                ${escapeHtml(it.category || "FLOWER")}
+                ${it.familiarity ? " — " + escapeHtml(it.familiarity) : ""}
+                ${it.notes ? " — " + escapeHtml(it.notes) : ""}
+              </p>
+            </div>
+            <div class="itemBtns">
+              <button class="btn btnDanger" data-i="${i}">Delete</button>
+            </div>
           </div>
-          <div class="meta">${niceTime(e.created_at)}</div>
-        </div>
-        ${tags ? `<div style="margin-top:10px;">${tags}</div>` : ""}
-        ${note}
-        ${content}
-        <div class="btnbar" style="margin-top:10px;">
-          <button class="danger" data-del="${e.id}">Delete</button>
-          <button data-copy="${e.id}">Copy JSON</button>
-        </div>
-      `;
-      tl.appendChild(card);
+        `;
+        el.querySelector("button").onclick = () => {
+          const ok = confirm("Delete this stash item?");
+          if (!ok) return;
+          const updated = loadStash();
+          updated.splice(i,1);
+          saveStash(updated);
+        };
+        stashList.appendChild(el);
+      });
     }
 
-    // Attach handlers
-    tl.querySelectorAll("button[data-del]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-del");
-        DB.entries = DB.entries.filter(x => x.id !== id);
-        DB.updated_at = nowISO();
-        render();
+    function renderStashLinkDropdowns(){
+      const items = loadStash();
+
+      const keep1 = sessionStashLink.value || "";
+      sessionStashLink.innerHTML = '<option value="">— none —</option>';
+      items.forEach(it => {
+        const opt = document.createElement("option");
+        opt.value = it.id;
+        opt.textContent = `${it.name} (${it.category})`;
+        sessionStashLink.appendChild(opt);
       });
-    });
+      sessionStashLink.value = keep1;
 
-    tl.querySelectorAll("button[data-copy]").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const id = btn.getAttribute("data-copy");
-        const entry = DB.entries.find(x => x.id === id);
-        if (!entry) return;
-        const text = JSON.stringify(entry, null, 2);
-        try {
-          await navigator.clipboard.writeText(text);
-          btn.textContent = "Copied";
-          setTimeout(()=> btn.textContent = "Copy JSON", 800);
-        } catch {
-          // clipboard may fail; fallback prompt
-          prompt("Copy this JSON:", text);
-        }
+      const keep2 = capStashLink.value || "";
+      capStashLink.innerHTML = '<option value="">— none —</option>';
+      items.forEach(it => {
+        const opt = document.createElement("option");
+        opt.value = it.id;
+        opt.textContent = `${it.name} (${it.category})`;
+        capStashLink.appendChild(opt);
       });
-    });
-  }
-
-  function escapeHtml(s) {
-    return String(s)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#39;");
-  }
-
-  // ---------- Session select ----------
-  $("sessionSelect").addEventListener("change", () => {
-    $("sessionLabel").textContent = $("sessionSelect").value || "—";
-  });
-
-  // ---------- Text capture ----------
-  $("addTextBtn").addEventListener("click", () => {
-    const txt = $("textInput").value.trim();
-    if (!txt) return;
-    const meta = readNextMeta();
-    addEntry({
-      id: uuid(),
-      type: "text",
-      created_at: nowISO(),
-      session: meta.session,
-      tags: meta.tags,
-      note: meta.note,
-      text: txt
-    });
-    $("textInput").value = "";
-    clearNextMeta();
-  });
-  $("clearTextBtn").addEventListener("click", () => $("textInput").value = "");
-
-  // ---------- Image capture ----------
-  $("addImageBtn").addEventListener("click", async () => {
-    const file = $("imageInput").files?.[0];
-    if (!file) return;
-    const meta = readNextMeta();
-
-    const dataUrl = await fileToDataURL(file);
-    addEntry({
-      id: uuid(),
-      type: "image",
-      created_at: nowISO(),
-      session: meta.session,
-      tags: meta.tags,
-      note: meta.note,
-      imageDataUrl: dataUrl
-    });
-    $("imageInput").value = "";
-    clearNextMeta();
-  });
-
-  function fileToDataURL(file) {
-    return new Promise((res, rej) => {
-      const fr = new FileReader();
-      fr.onload = () => res(fr.result);
-      fr.onerror = rej;
-      fr.readAsDataURL(file);
-    });
-  }
-
-  // ---------- Audio capture via MediaRecorder ----------
-  let mediaStream = null;
-  let mediaRecorder = null;
-  let audioChunks = [];
-  let audioDataUrl = null;
-
-  function setRecStatus(msg) {
-    $("recStatus").textContent = msg;
-  }
-
-  $("recStart").addEventListener("click", async () => {
-    try {
-      audioChunks = [];
-      audioDataUrl = null;
-      $("recPreview").style.display = "none";
-      $("addAudioBtn").disabled = true;
-
-      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(mediaStream);
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) audioChunks.push(e.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        const blob = new Blob(audioChunks, { type: "audio/webm" });
-        audioDataUrl = await blobToDataURL(blob);
-
-        $("recPreview").src = audioDataUrl;
-        $("recPreview").style.display = "block";
-        $("addAudioBtn").disabled = false;
-        $("recDiscard").disabled = false;
-
-        setRecStatus("Ready (preview below).");
-        // stop mic
-        if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
-        mediaStream = null;
-      };
-
-      mediaRecorder.start();
-      $("recStart").disabled = true;
-      $("recStop").disabled = false;
-      $("recDiscard").disabled = true;
-      setRecStatus("Recording… (30–60s is plenty).");
-    } catch (err) {
-      setRecStatus("Mic permission blocked or unavailable.");
-      console.error(err);
+      capStashLink.value = keep2;
     }
-  });
 
-  $("recStop").addEventListener("click", () => {
-    if (!mediaRecorder) return;
-    try {
-      mediaRecorder.stop();
-    } catch {}
-    $("recStart").disabled = false;
-    $("recStop").disabled = true;
-  });
-
-  $("recDiscard").addEventListener("click", () => {
-    audioChunks = [];
-    audioDataUrl = null;
-    $("recPreview").style.display = "none";
-    $("recPreview").src = "";
-    $("addAudioBtn").disabled = true;
-    $("recDiscard").disabled = true;
-    setRecStatus("Idle.");
-  });
-
-  $("addAudioBtn").addEventListener("click", () => {
-    if (!audioDataUrl) return;
-    const meta = readNextMeta();
-    addEntry({
-      id: uuid(),
-      type: "audio",
-      created_at: nowISO(),
-      session: meta.session,
-      tags: meta.tags,
-      note: meta.note,
-      audioDataUrl
-    });
-    // reset
-    audioChunks = [];
-    audioDataUrl = null;
-    $("recPreview").style.display = "none";
-    $("recPreview").src = "";
-    $("addAudioBtn").disabled = true;
-    $("recDiscard").disabled = true;
-    setRecStatus("Idle.");
-    clearNextMeta();
-  });
-
-  function blobToDataURL(blob) {
-    return new Promise((res, rej) => {
-      const fr = new FileReader();
-      fr.onload = () => res(fr.result);
-      fr.onerror = rej;
-      fr.readAsDataURL(blob);
-    });
-  }
-
-  // ---------- Export / Import ----------
-  $("exportBtn").addEventListener("click", () => {
-    const payload = {
-      stoneyvibes_export: true,
-      schema_version: DB.schema_version,
-      exported_at: nowISO(),
-      data: DB
+    addStashBtn.onclick = () => {
+      const name = (stashName.value || "").trim();
+      if (!name){
+        alert("Give it a name (even 'Unknown').");
+        return;
+      }
+      const item = {
+        id: uid("stash"),
+        name,
+        category: stashCategory.value,
+        notes: (stashNotes.value || "").trim(),
+        familiarity: stashFamiliarity.value,
+        createdAt: Date.now()
+      };
+      const items = loadStash();
+      items.unshift(item);
+      saveStash(items);
+      stashName.value = "";
+      stashNotes.value = "";
+      stashFamiliarity.value = "KNOWN_BY_USE";
     };
-    downloadJSON(payload, `STONEYVIBES_export_${new Date().toISOString().replace(/[:.]/g,"-")}.json`);
-  });
 
-  $("importFile").addEventListener("change", async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const text = await file.text();
-      const payload = JSON.parse(text);
-      const incoming = payload?.data?.entries ? payload.data : payload;
+    clearStashBtn.onclick = () => {
+      const ok = confirm("Clear entire STASH on this device?");
+      if (!ok) return;
+      saveStash([]);
+    };
 
-      if (!incoming?.entries || !Array.isArray(incoming.entries)) {
-        alert("Import failed: no entries found.");
+    // ------------------ IndexedDB (Sessions + Entries) ------------------
+    const DB_NAME = "stoneyvibes_db";
+    const DB_VERSION = 2; // upgraded from 1 → 2 to add entries store
+    const STORE_SESSIONS = "sessions";
+    const STORE_ENTRIES = "entries";
+
+    function openDB(){
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+
+          // sessions store (keep)
+          if (!db.objectStoreNames.contains(STORE_SESSIONS)){
+            const store = db.createObjectStore(STORE_SESSIONS, { keyPath: "id" });
+            store.createIndex("createdAt", "createdAt", { unique:false });
+          } else {
+            // ensure index exists
+            const tx = req.transaction;
+            const st = tx.objectStore(STORE_SESSIONS);
+            if (!st.indexNames.contains("createdAt")){
+              st.createIndex("createdAt","createdAt",{unique:false});
+            }
+          }
+
+          // entries store (new)
+          if (!db.objectStoreNames.contains(STORE_ENTRIES)){
+            const storeE = db.createObjectStore(STORE_ENTRIES, { keyPath: "id" });
+            storeE.createIndex("createdAt", "createdAt", { unique:false });
+            storeE.createIndex("type", "type", { unique:false });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function dbPut(storeName, obj){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).put(obj);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function dbGetAll(storeName){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readonly");
+        const store = tx.objectStore(storeName);
+        const idx = store.index("createdAt");
+        const req = idx.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function dbDelete(storeName, id){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).delete(id);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function dbClear(storeName){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).clear();
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    // ------------------ SESSIONS UI ------------------
+    const recBtn = document.getElementById("recBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const statusPill = document.getElementById("statusPill");
+    const statusText = document.getElementById("statusText");
+    const sessionTag = document.getElementById("sessionTag");
+    const sessionNotes = document.getElementById("sessionNotes");
+    const preview = document.getElementById("preview");
+    const sessionList = document.getElementById("sessionList");
+    const clearSessionsBtn = document.getElementById("clearSessionsBtn");
+    const iphoneFallback = document.getElementById("iphoneFallback");
+    const fileAudio = document.getElementById("fileAudio");
+
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let chunks = [];
+    let isRecording = false;
+
+    function mimeChoice(){
+      const candidates = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4"
+      ];
+      for (const m of candidates){
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
+      }
+      return "";
+    }
+
+    async function renderSessions(){
+      const sessions = await dbGetAll(STORE_SESSIONS);
+      sessions.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+      if (!sessions.length){
+        sessionList.innerHTML = '<div class="muted">No sessions yet.</div>';
+        return;
+      }
+      sessionList.innerHTML = "";
+      for (const s of sessions){
+        const el = document.createElement("div");
+        el.className = "item";
+
+        const title = (s.tag && s.tag.trim()) ? s.tag.trim() : "Session (Unlabeled)";
+        const when = fmtTime(s.createdAt);
+        const notes = (s.notes||"").trim();
+        const stashText = s.stashName ? ` — ${s.stashName}` : "";
+
+        const url = URL.createObjectURL(s.audioBlob);
+
+        el.innerHTML = `
+          <div class="itemHead">
+            <div style="min-width:0; flex:1;">
+              <p class="itemTitle">${escapeHtml(title)}</p>
+              <p class="itemMeta">${escapeHtml(when)}${escapeHtml(stashText)}${notes ? " — " + escapeHtml(notes) : ""}</p>
+            </div>
+            <div class="itemBtns">
+              <button class="btn btnOk" data-act="play">Play</button>
+              <button class="btn" data-act="rename">Rename</button>
+              <button class="btn btnDanger" data-act="delete">Delete</button>
+            </div>
+          </div>
+          <div class="topgap">
+            <audio controls preload="none" src="${url}"></audio>
+          </div>
+        `;
+
+        el.querySelector('[data-act="play"]').onclick = () => {
+          el.querySelector("audio").play().catch(()=>{});
+        };
+        el.querySelector('[data-act="rename"]').onclick = async () => {
+          const newTag = prompt("Rename session tag:", title);
+          if (newTag === null) return;
+          s.tag = (newTag||"").trim();
+          await dbPut(STORE_SESSIONS, s);
+          await renderSessions();
+        };
+        el.querySelector('[data-act="delete"]').onclick = async () => {
+          const ok = confirm("Delete this session from this device?");
+          if (!ok) return;
+          await dbDelete(STORE_SESSIONS, s.id);
+          await renderSessions();
+        };
+
+        sessionList.appendChild(el);
+      }
+    }
+
+    async function saveSessionFromBlob(blob){
+      const tag = (sessionTag.value || "").trim();
+      const notes = (sessionNotes.value || "").trim();
+      const stashId = sessionStashLink.value || "";
+      const stashItems = loadStash();
+      const stashItem = stashItems.find(x => x.id=== stashId);
+
+      const session = {
+        id: uid("sess"),
+        createdAt: Date.now(),
+        tag,
+        notes,
+        stashId: stashItem ? stashItem.id : "",
+        stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : "",
+        mimeType: blob.type || "audio/*",
+        audioBlob: blob
+      };
+
+      await dbPut(STORE_SESSIONS, session);
+
+      preview.src = URL.createObjectURL(blob);
+      preview.style.display = "block";
+
+      sessionTag.value = "";
+      sessionNotes.value = "";
+      sessionStashLink.value = "";
+
+      await renderSessions();
+    }
+
+    async function startRecording(){
+      if (isRecording) return;
+
+      if (!("MediaRecorder" in window)){
+        iphoneFallback.style.display = "flex";
+        alert("In-browser recording isn’t supported here. Use “Record Audio (iPhone Mode)”.");
         return;
       }
 
-      // Merge by id (safe)
-      const map = new Map(DB.entries.map(x => [x.id, x]));
-      for (const it of incoming.entries) {
-        if (!it.id) it.id = uuid();
-        map.set(it.id, it);
+      try{
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      }catch(err){
+        alert("Microphone permission blocked. Allow mic access for this site.");
+        return;
       }
-      DB.entries = Array.from(map.values()).sort((a,b)=> (b.created_at||"").localeCompare(a.created_at||""));
-      DB.updated_at = nowISO();
-      render();
-      alert("Imported (merged).");
-    } catch (err) {
-      console.error(err);
-      alert("Import failed (invalid JSON).");
-    } finally {
-      $("importFile").value = "";
+
+      chunks = [];
+      const mime = mimeChoice();
+      try{
+        mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined);
+      }catch(err){
+        iphoneFallback.style.display = "flex";
+        alert("Recording not supported in this browser. Use “Record Audio (iPhone Mode)”.");
+        if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
+
+      mediaRecorder.onstop = async () => {
+        try{
+          const blob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
+          await saveSessionFromBlob(blob);
+        } finally {
+          if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+          mediaRecorder = null;
+          chunks = [];
+        }
+      };
+
+      mediaRecorder.start();
+      isRecording = true;
+      recBtn.disabled = true;
+      stopBtn.disabled = false;
+      setStatus(statusPill, statusText, "rec", "Recording…");
     }
-  });
 
-  $("wipeBtn").addEventListener("click", () => {
-    const ok = confirm("Wipe this session timeline?");
-    if (!ok) return;
-    DB.entries = [];
-    DB.updated_at = nowISO();
-    render();
-  });
+    function stopRecording(){
+      if (!isRecording || !mediaRecorder) return;
+      try{ mediaRecorder.stop(); } catch(e){}
+      isRecording = false;
+      recBtn.disabled = false;
+      stopBtn.disabled = true;
+      setStatus(statusPill, statusText, "idle", "Saving…");
+      setTimeout(()=> setStatus(statusPill,statusText,"idle","Idle"), 600);
+    }
 
-  function downloadJSON(obj, filename) {
-    const blob = new Blob([JSON.stringify(obj, null, 2)], { type:"application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
+    recBtn.onclick = startRecording;
+    stopBtn.onclick = stopRecording;
 
-  // Init
-  $("sessionLabel").textContent = $("sessionSelect").value || "—";
-  render();
-})();
-</script>
+    fileAudio.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const blob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
+      await saveSessionFromBlob(blob);
+      fileAudio.value = "";
+      setStatus(statusPill,statusText,"idle","Idle");
+    });
+
+    clearSessionsBtn.onclick = async () => {
+      const ok = confirm("Clear ALL sessions on this device?");
+      if (!ok) return;
+      await dbClear(STORE_SESSIONS);
+      preview.style.display = "none";
+      preview.removeAttribute("src");
+      await renderSessions();
+    };
+
+    // ------------------ CAPTURE (Entries) ------------------
+    const capSession = document.getElementById("capSession");
+    const capTags = document.getElementById("capTags");
+    const capNote = document.getElementById("capNote");
+
+    const capText = document.getElementById("capText");
+    const addTextEntry = document.getElementById("addTextEntry");
+    const clearCapText = document.getElementById("clearCapText");
+
+    const capImageFile = document.getElementById("capImageFile");
+    const capImagePreview = document.getElementById("capImagePreview");
+    const addImageEntry = document.getElementById("addImageEntry");
+
+    const capRecBtn = document.getElementById("capRecBtn");
+    const capStopBtn = document.getElementById("capStopBtn");
+    const capStatusPill = document.getElementById("capStatusPill");
+    const capStatusText = document.getElementById("capStatusText");
+    const capIphoneFallback = document.getElementById("capIphoneFallback");
+    const capFileAudio = document.getElementById("capFileAudio");
+    const capAudioPreview = document.getElementById("capAudioPreview");
+    const addAudioEntry = document.getElementById("addAudioEntry");
+    const discardAudioEntry = document.getElementById("discardAudioEntry");
+
+    const entryList = document.getElementById("entryList");
+    const refreshEntriesBtn = document.getElementById("refreshEntriesBtn");
+
+    let capMR = null;
+    let capMS = null;
+    let capChunks = [];
+    let capPendingBlob = null;
+
+    function readCapMeta(){
+      const tags = (capTags.value||"").split(",").map(s=>s.trim()).filter(Boolean);
+      const note = (capNote.value||"").trim();
+      const stashId = capStashLink.value || "";
+      const stashItems = loadStash();
+      const stashItem = stashItems.find(x => x.id === stashId);
+      return {
+        session: capSession.value || "",
+        tags,
+        note,
+        stashId: stashItem ? stashItem.id : "",
+        stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : ""
+      };
+    }
+    function clearCapMeta(){
+      capTags.value = "";
+      capNote.value = "";
+    }
+
+    async function renderEntries(){
+      const entries = await dbGetAll(STORE_ENTRIES);
+      entries.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+      if (!entries.length){
+        entryList.innerHTML = '<div class="muted">No entries yet.</div>';
+        return;
+      }
+      entryList.innerHTML = "";
+
+      for (const e of entries){
+        const el = document.createElement("div");
+        el.className = "item";
+
+        const when = fmtTime(e.createdAt);
+        const tags = (e.tags && e.tags.length) ? e.tags.map(t=>`<span class="kbd">#${escapeHtml(t)}</span>`).join(" ") : "";
+        const stashText = e.stashName ? ` — ${e.stashName}` : "";
+        const sessText = e.session ? ` — ${e.session}` : "";
+
+        let body = "";
+        if (e.type === "text"){
+          body = `<div class="topgap"><div class="muted small">Text</div><div style="white-space:pre-wrap;">${escapeHtml(e.text||"")}</div></div>`;
+        } else if (e.type === "image"){
+          const url = URL.createObjectURL(e.blob);
+          body = `<div class="topgap"><div class="muted small">Image</div><img class="thumb" src="${url}" alt="image" /></div>`;
+        } else if (e.type === "audio"){
+          const url = URL.createObjectURL(e.blob);
+          const v = (e.transcriptVerbatim||"").trim();
+          const c = (e.transcriptClean||"").trim();
+          body = `
+            <div class="topgap"><div class="muted small">Audio</div><audio controls preload="none" src="${url}"></audio></div>
+            <div class="topgap">
+              <details>
+                <summary>Transcript (manual): VERBATIM + CLEAN</summary>
+                <div class="topgap">
+                  <label class="field">
+                    <span class="label">VERBATIM (raw, integrity)</span>
+                    <textarea class="textarea" data-tv="${e.id}">${escapeHtml(v)}</textarea>
+                  </label>
+                  <label class="field topgap">
+                    <span class="label">CLEAN (optional)</span>
+                    <textarea class="textarea" data-tc="${e.id}">${escapeHtml(c)}</textarea>
+                  </label>
+                  <div class="row topgap">
+                    <button class="btn btnBlue" data-saveT="${e.id}">Save Transcript</button>
+                  </div>
+                  <div class="muted small">Tip: paste your transcript here later. No auto-transcription yet.</div>
+                </div>
+              </details>
+            </div>
+          `;
+        } else {
+          body = `<div class="topgap"><div class="muted">Unknown entry type.</div></div>`;
+        }
+
+        el.innerHTML = `
+          <div class="itemHead">
+            <div style="min-width:0; flex:1;">
+              <p class="itemTitle">${escapeHtml((e.type||"entry").toUpperCase())}</p>
+              <p class="itemMeta">${escapeHtml(when)}${escapeHtml(sessText)}${escapeHtml(stashText)}${e.note ? " — " + escapeHtml(e.note) : ""}</p>
+              ${tags ? `<div class="topgap small muted">${tags}</div>` : ""}
+            </div>
+            <div class="itemBtns">
+              <button class="btn btnDanger" data-del="${e.id}">Delete</button>
+            </div>
+          </div>
+          ${body}
+        `;
+
+        el.querySelector('[data-del]').onclick = async () => {
+          const ok = confirm("Delete this entry?");
+          if (!ok) return;
+          await dbDelete(STORE_ENTRIES, e.id);
+          await renderEntries();
+        };
+
+        const saveBtn = el.querySelector('[data-saveT]');
+        if (saveBtn){
+          saveBtn.onclick = async () => {
+            const id = saveBtn.getAttribute("data-saveT");
+            const tv = el.querySelector(`[data-tv="${id}"]`);
+            const tc = el.querySelector(`[data-tc="${id}"]`);
+            e.transcriptVerbatim = tv ? tv.value : (e.transcriptVerbatim||"");
+            e.transcriptClean = tc ? tc.value : (e.transcriptClean||"");
+            await dbPut(STORE_ENTRIES, e);
+            alert("Transcript saved.");
+          };
+        }
+
+        entryList.appendChild(el);
+      }
+    }
+
+    refreshEntriesBtn.onclick = renderEntries;
+
+    // Text entry
+    addTextEntry.onclick = async () => {
+      const t = (capText.value||"").trim();
+      if (!t){
+        alert("Type something first.");
+        return;
+      }
+      const meta = readCapMeta();
+      const entry = {
+        id: uid("entry"),
+        type: "text",
+        createdAt: Date.now(),
+        session: meta.session,
+        tags: meta.tags,
+        note: meta.note,
+        stashId: meta.stashId,
+        stashName: meta.stashName,
+        text: t
+      };
+      await dbPut(STORE_ENTRIES, entry);
+      capText.value = "";
+      clearCapMeta();
+      await renderEntries();
+    };
+    clearCapText.onclick = () => capText.value = "";
+
+    // Image entry
+    let capImageBlob = null;
+    capImageFile.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      capImageBlob = new Blob([await f.arrayBuffer()], { type: f.type || "image/*" });
+      capImagePreview.src = URL.createObjectURL(capImageBlob);
+      capImagePreview.style.display = "block";
+    });
+
+    addImageEntry.onclick = async () => {
+      if (!capImageBlob){
+        alert("Pick an image first.");
+        return;
+      }
+      const meta = readCapMeta();
+      const entry = {
+        id: uid("entry"),
+        type: "image",
+        createdAt: Date.now(),
+        session: meta.session,
+        tags: meta.tags,
+        note: meta.note,
+        stashId: meta.stashId,
+        stashName: meta.stashName,
+        mimeType: capImageBlob.type || "image/*",
+        blob: capImageBlob
+      };
+      await dbPut(STORE_ENTRIES, entry);
+      capImageBlob = null;
+      capImageFile.value = "";
+      capImagePreview.style.display = "none";
+      capImagePreview.removeAttribute("src");
+      clearCapMeta();
+      await renderEntries();
+    };
+
+    // Audio entry (capture page)
+    async function capStartRecording(){
+      if (capMR) return;
+
+      if (!("MediaRecorder" in window)){
+        capIphoneFallback.style.display = "flex";
+        alert("In-browser recording isn’t supported here. Use “Add Audio (iPhone Mode)”.");
+        return;
+      }
+
+      try{
+        capMS = await navigator.mediaDevices.getUserMedia({ audio:true });
+      }catch(err){
+        alert("Microphone permission blocked. Allow mic access for this site.");
+        return;
+      }
+
+      capChunks = [];
+      const mime = mimeChoice();
+      try{
+        capMR = new MediaRecorder(capMS, mime ? { mimeType:mime } : undefined);
+      }catch(err){
+        capIphoneFallback.style.display = "flex";
+        alert("Recording not supported in this browser. Use “Add Audio (iPhone Mode)”.");
+        if (capMS){ capMS.getTracks().forEach(t=>t.stop()); capMS=null; }
+        capMR = null;
+        return;
+      }
+
+      capMR.ondataavailable = (e) => { if (e.data && e.data.size>0) capChunks.push(e.data); };
+      capMR.onstop = async () => {
+        try{
+          capPendingBlob = new Blob(capChunks, { type: capMR.mimeType || "audio/webm" });
+          capAudioPreview.src = URL.createObjectURL(capPendingBlob);
+          capAudioPreview.style.display = "block";
+          addAudioEntry.disabled = false;
+          discardAudioEntry.disabled = false;
+        } finally {
+          if (capMS){ capMS.getTracks().forEach(t=>t.stop()); capMS=null; }
+          capMR = null;
+          capChunks = [];
+          setStatus(capStatusPill, capStatusText, "idle", "Ready");
+        }
+      };
+
+      capMR.start();
+      capRecBtn.disabled = true;
+      capStopBtn.disabled = false;
+      addAudioEntry.disabled = true;
+      discardAudioEntry.disabled = true;
+      setStatus(capStatusPill, capStatusText, "rec", "Recording…");
+    }
+
+    function capStopRecording(){
+      if (!capMR) return;
+      try{ capMR.stop(); } catch(e){}
+      capRecBtn.disabled = false;
+      capStopBtn.disabled = true;
+      setStatus(capStatusPill, capStatusText, "idle", "Saving…");
+    }
+
+    capRecBtn.onclick = capStartRecording;
+    capStopBtn.onclick = capStopRecording;
+
+    capFileAudio.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      capPendingBlob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
+      capAudioPreview.src = URL.createObjectURL(capPendingBlob);
+      capAudioPreview.style.display = "block";
+      addAudioEntry.disabled = false;
+      discardAudioEntry.disabled = false;
+      capFileAudio.value = "";
+      setStatus(capStatusPill, capStatusText, "idle", "Ready");
+    });
+
+    discardAudioEntry.onclick = () => {
+      capPendingBlob = null;
+      capAudioPreview.style.display = "none";
+      capAudioPreview.removeAttribute("src");
+      addAudioEntry.disabled = true;
+      discardAudioEntry.disabled = true;
+      setStatus(capStatusPill, capStatusText, "idle", "Idle");
+    };
+
+    addAudioEntry.onclick = async () => {
+      if (!capPendingBlob) return;
+      const meta = readCapMeta();
+      const entry = {
+        id: uid("entry"),
+        type: "audio",
+        createdAt: Date.now(),
+        session: meta.session,
+        tags: meta.tags,
+        note: meta.note,
+        stashId: meta.stashId,
+        stashName: meta.stashName,
+        mimeType: capPendingBlob.type || "audio/*",
+        blob: capPendingBlob,
+        transcriptVerbatim: "",
+        transcriptClean: ""
+      };
+      await dbPut(STORE_ENTRIES, entry);
+
+      capPendingBlob = null;
+      capAudioPreview.style.display = "none";
+      capAudioPreview.removeAttribute("src");
+      addAudioEntry.disabled = true;
+      discardAudioEntry.disabled = true;
+      clearCapMeta();
+      setStatus(capStatusPill, capStatusText, "idle", "Idle");
+      await renderEntries();
+    };
+
+    // ------------------ Export / Import ------------------
+    const exportBtn = document.getElementById("exportBtn");
+    const importFile = document.getElementById("importFile");
+
+    exportBtn.onclick = async () => {
+      const stash = loadStash();
+      const sessions = await dbGetAll(STORE_SESSIONS);
+      const entries = await dbGetAll(STORE_ENTRIES);
+
+      // convert blobs to dataURL for portability
+      const sessionsOut = [];
+      for (const s of sessions){
+        const audioDataUrl = await blobToDataURL(s.audioBlob);
+        sessionsOut.push({
+          ...s,
+          audioBlob: undefined,
+          audioDataUrl
+        });
+      }
+
+      const entriesOut = [];
+      for (const e of entries){
+        if (e.type === "text"){
+          entriesOut.push({ ...e });
+        } else {
+          const dataUrl = await blobToDataURL(e.blob);
+          entriesOut.push({
+            ...e,
+            blob: undefined,
+            dataUrl
+          });
+        }
+      }
+
+      const payload = {
+        stoneyvibes_export: true,
+        version: "0.3.0",
+        exportedAt: Date.now(),
+        stash,
+        sessions: sessionsOut,
+        entries: entriesOut
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "STONEYVIBES_export_" + new Date().toISOString().replace(/[:.]/g,"-") + ".json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+
+    importFile.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+
+      try{
+        const text = await f.text();
+        const payload = JSON.parse(text);
+
+        // stash
+        if (Array.isArray(payload.stash)){
+          // merge by id
+          const cur = loadStash();
+          const map = new Map(cur.map(x => [x.id, x]));
+          payload.stash.forEach(x => { if (x && x.id) map.set(x.id, x); });
+          saveStash(Array.from(map.values()).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)));
+        }
+
+        // sessions
+        if (Array.isArray(payload.sessions)){
+          for (const s of payload.sessions){
+            const audioBlob = s.audioDataUrl ? await dataURLToBlob(s.audioDataUrl) : null;
+            const obj = {
+              ...s,
+              audioDataUrl: undefined,
+              audioBlob: audioBlob || new Blob([], {type:"audio/*"})
+            };
+            await dbPut(STORE_SESSIONS, obj);
+          }
+        }
+
+        // entries
+        if (Array.isArray(payload.entries)){
+          for (const it of payload.entries){
+            if (it.type === "text"){
+              await dbPut(STORE_ENTRIES, it);
+            } else {
+              const b = it.dataUrl ? await dataURLToBlob(it.dataUrl) : null;
+              const obj = {
+                ...it,
+                dataUrl: undefined,
+                blob: b || new Blob([], {type: it.mimeType || "application/octet-stream"})
+              };
+              await dbPut(STORE_ENTRIES, obj);
+            }
+          }
+        }
+
+        alert("Import complete (merged).");
+        await renderSessions();
+        await renderEntries();
+        renderStash();
+        renderStashLinkDropdowns();
+      }catch(err){
+        console.error(err);
+        alert("Import failed (bad JSON).");
+      } finally {
+        importFile.value = "";
+      }
+    });
+
+    // ------------------ init ------------------
+    (async function init(){
+      renderStash();
+      renderStashLinkDropdowns();
+
+      if (!("MediaRecorder" in window)){
+        iphoneFallback.style.display = "flex";
+        recBtn.textContent = "🎙️ Start Session (Browser mode unavailable)";
+        capIphoneFallback.style.display = "flex";
+        capRecBtn.textContent = "🎙️ Record (Browser mode unavailable)";
+      }
+
+      setStatus(statusPill, statusText, "idle", "Idle");
+      setStatus(capStatusPill, capStatusText, "idle", "Idle");
+      await renderSessions();
+      await renderEntries();
+    })();
+  </script>
 </body>
 </html>
