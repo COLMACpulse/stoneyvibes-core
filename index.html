@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StoneyVibes v0.2.3 — LOCKED BASELINE</title>
+  <title>StoneyVibes v0.3.1 — LOCKED+PLAY</title>
   <style>
     :root{
       --bg:#0b0d10;
@@ -18,6 +18,12 @@
       --dangerB:rgba(255,90,90,0.32);
       --ok:rgba(90,255,170,0.16);
       --okB:rgba(90,255,170,0.28);
+
+      --accent:rgba(125,211,252,0.18);
+      --accentB:rgba(125,211,252,0.30);
+      --purple:rgba(167,139,250,0.16);
+      --purpleB:rgba(167,139,250,0.30);
+
       --star:rgba(233,238,245,0.18);
       --star2:rgba(233,238,245,0.10);
     }
@@ -74,7 +80,6 @@
         /* faint side glows */
         radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.06), transparent 55%),
         radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.06), transparent 55%);
-      filter: blur(0px);
     }
 
     /* ----- swipe shell ----- */
@@ -84,7 +89,7 @@
       display:flex;
       flex-direction:column;
       position:relative;
-      z-index:1; /* above star rails */
+      z-index:1;
     }
 
     header{
@@ -94,18 +99,8 @@
       backdrop-filter: blur(8px);
     }
 
-    .title{
-      margin:0;
-      font-size:20px;
-      letter-spacing:0.02em;
-    }
-
-    .sub{
-      margin:6px 0 0 0;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.35;
-    }
+    .title{ margin:0; font-size:20px; letter-spacing:0.02em; }
+    .sub{ margin:6px 0 0 0; font-size:13px; color:var(--muted); line-height:1.35; }
 
     .nav{
       display:flex;
@@ -125,6 +120,7 @@
       cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
+      white-space:nowrap;
     }
     .tab.active{
       background:rgba(255,255,255,0.12);
@@ -171,12 +167,7 @@
     }
     .muted{ color:var(--muted); }
 
-    .row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-    }
+    .row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
     .between{ justify-content:space-between; }
     .topgap{ margin-top:10px; }
 
@@ -196,14 +187,10 @@
       border-color:rgba(255,255,255,0.28);
       background:rgba(255,255,255,0.10);
     }
-    .btnDanger{
-      border-color:var(--dangerB);
-      background:var(--danger);
-    }
-    .btnOk{
-      border-color:var(--okB);
-      background:var(--ok);
-    }
+    .btnDanger{ border-color:var(--dangerB); background:var(--danger); }
+    .btnOk{ border-color:var(--okB); background:var(--ok); }
+    .btnBlue{ border-color:var(--accentB); background:var(--accent); }
+    .btnPurple{ border-color:var(--purpleB); background:var(--purple); }
 
     .field{
       display:flex;
@@ -212,12 +199,8 @@
       flex:1;
       min-width:220px;
     }
-    .label{
-      font-size:12px;
-      color:var(--muted);
-      letter-spacing:0.04em;
-    }
-    .input, .select{
+    .label{ font-size:12px; color:var(--muted); letter-spacing:0.04em; }
+    .input, .select, .textarea{
       width:100%;
       border:1px solid var(--border);
       background:rgba(0,0,0,0.25);
@@ -226,9 +209,8 @@
       border-radius:14px;
       outline:none;
     }
-    .input:focus, .select:focus{
-      border-color:rgba(255,255,255,0.28);
-    }
+    .textarea{ min-height:90px; resize:vertical; }
+    .input:focus, .select:focus, .textarea:focus{ border-color:rgba(255,255,255,0.28); }
 
     .pillStatus{
       padding:8px 10px;
@@ -251,12 +233,7 @@
       box-shadow:0 0 0 3px rgba(255,90,90,0.18);
     }
 
-    .list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:10px;
-    }
+    .list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
     .item{
       border:1px solid var(--border);
       background:rgba(0,0,0,0.18);
@@ -269,25 +246,18 @@
       align-items:flex-start;
       justify-content:space-between;
     }
-    .itemTitle{
-      font-weight:600;
-      font-size:14px;
-      margin:0;
-      line-height:1.25;
-    }
-    .itemMeta{
-      font-size:12px;
-      color:var(--muted);
-      margin:2px 0 0 0;
-      line-height:1.35;
-    }
-    .itemBtns{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      justify-content:flex-end;
-    }
+    .itemTitle{ font-weight:600; font-size:14px; margin:0; line-height:1.25; }
+    .itemMeta{ font-size:12px; color:var(--muted); margin:2px 0 0 0; line-height:1.35; }
+    .itemBtns{ display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+
     audio{ width:100%; }
+    img.thumb{
+      width:100%;
+      border-radius:14px;
+      border:1px solid var(--border);
+      margin-top:10px;
+      display:block;
+    }
 
     .divider{ height:1px; background:var(--border); margin:12px 0; }
 
@@ -310,17 +280,27 @@
       border-radius: 8px;
       color: var(--muted);
     }
+
+    details{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      background:rgba(0,0,0,0.18);
+    }
+    summary{ cursor:pointer; user-select:none; font-weight:600; }
+    .small{ font-size:12px; }
   </style>
 </head>
 
 <body>
   <div class="shell">
     <header>
-      <h1 class="title">StoneyVibes v0.2.3 — LOCKED BASELINE</h1>
-      <p class="sub">Private, local-only logging. Signal &gt; story. Swipe left/right to move.</p>
+      <h1 class="title">StoneyVibes v0.3.1 — LOCKED+PLAY</h1>
+      <p class="sub">Private, local-first logging. Stash + Sessions + THE PLAY. Swipe left/right to move.</p>
 
       <div class="nav">
         <button class="tab active" id="tabStash" type="button">STASH</button>
+        <button class="tab" id="tabPlay" type="button">THE PLAY</button>
         <button class="tab" id="tabSessions" type="button">SESSIONS</button>
         <button class="tab" id="tabAbout" type="button">ABOUT</button>
         <div class="hint">← swipe →</div>
@@ -328,6 +308,7 @@
     </header>
 
     <main class="pages" id="pages">
+
       <!-- PAGE 1: STASH -->
       <section class="page" id="pageStash">
         <div class="card">
@@ -373,13 +354,140 @@
         </div>
 
         <div class="notice">
-          <strong>Scope lock:</strong> Category is intentionally limited to your set:
+          <strong>Scope lock:</strong> Category stays limited to your set:
           <span class="kbd">KIEF</span> <span class="kbd">HASH</span> <span class="kbd">WAX</span>
-          <span class="kbd">OTHER CONCENTRATE</span> <span class="kbd">HERBAL</span> (+ FLOWER).
+          <span class="kbd">OTHER CONCENTRATE</span> <span class="kbd">HERBAL</span> (+ <span class="kbd">FLOWER</span>).
         </div>
       </section>
 
-      <!-- PAGE 2: SESSIONS -->
+      <!-- PAGE 2: THE PLAY (CAPTURE) -->
+      <section class="page" id="pagePlay">
+        <div class="card">
+          <h2>THE PLAY</h2>
+          <div class="notice">
+            <strong>Create 3 Expressions. No thinking.</strong><br/>
+            • Text/Symbol • Image • Audio<br/>
+            Meaning optional. Notes optional. Tags optional. Just capture → done.
+          </div>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Session (optional)</span>
+              <select id="capSession" class="select">
+                <option value="">—</option>
+                <option>Morning</option>
+                <option>Afternoon</option>
+                <option>Evening</option>
+                <option>Bedtime</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="label">Link to STASH (optional)</span>
+              <select id="capStashLink" class="select">
+                <option value="">— none —</option>
+              </select>
+            </label>
+          </div>
+
+          <details class="topgap">
+            <summary>Optional: Tags / Note (applies to your next capture only)</summary>
+            <div class="row topgap">
+              <label class="field">
+                <span class="label">Tags (comma separated)</span>
+                <input id="capTags" class="input" type="text" placeholder="calm, focus, creative" />
+              </label>
+              <label class="field">
+                <span class="label">Note (short)</span>
+                <input id="capNote" class="input" type="text" placeholder="Context you don’t want lost" />
+              </label>
+            </div>
+          </details>
+
+          <div class="divider"></div>
+
+          <h2>Expression: Text / Symbol</h2>
+          <label class="field">
+            <span class="label">Your signal</span>
+            <textarea id="capText" class="textarea" placeholder="Example: “10 pushups = unfakeable win.”"></textarea>
+          </label>
+          <div class="row topgap">
+            <button id="addTextEntry" class="btn btnBlue" type="button">Add Text</button>
+            <button id="clearCapText" class="btn" type="button">Clear</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <h2>Expression: Image</h2>
+          <div class="row topgap">
+            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+              📷 Choose / Take Image
+              <input id="capImageFile" type="file" accept="image/*" capture style="display:none;" />
+            </label>
+            <button id="addImageEntry" class="btn btnBlue" type="button">Add Image</button>
+          </div>
+          <img id="capImagePreview" class="thumb" alt="Preview" style="display:none;" />
+
+          <div class="divider"></div>
+
+          <h2>Expression: Audio</h2>
+          <p class="muted" style="margin:0;">Browser recording if possible. If not, use iPhone Mode.</p>
+
+          <div class="row topgap">
+            <button id="capRecBtn" class="btn btnPrimary" type="button">🎙️ Record</button>
+            <button id="capStopBtn" class="btn" type="button" disabled>Stop</button>
+            <span id="capStatusPill" class="pillStatus"><span class="okDot"></span><span id="capStatusText">Idle</span></span>
+          </div>
+
+          <div class="row topgap" id="capIphoneFallback" style="display:none;">
+            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+              🎧 Add Audio (iPhone Mode)
+              <input id="capFileAudio" type="file" accept="audio/*" capture style="display:none;" />
+            </label>
+            <span class="muted small">Uses device recorder, then stores locally.</span>
+          </div>
+
+          <div class="row topgap">
+            <audio id="capAudioPreview" controls style="display:none;"></audio>
+          </div>
+
+          <div class="row topgap">
+            <button id="addAudioEntry" class="btn btnBlue" type="button" disabled>Add Audio Entry</button>
+            <button id="discardAudioEntry" class="btn btnDanger" type="button" disabled>Discard</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row between">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">CAPTURED ENTRIES</h2>
+            <button id="refreshEntriesBtn" class="btn" type="button">Refresh</button>
+          </div>
+
+          <div id="entryList" class="list">
+            <div class="muted">No entries yet.</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row between">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">DATA</h2>
+            <div class="row">
+              <button id="exportBtn" class="btn btnPurple" type="button">Export JSON</button>
+              <label class="btn btnPurple" style="display:inline-flex; align-items:center; gap:10px;">
+                Import JSON
+                <input id="importFile" type="file" accept="application/json" style="display:none;" />
+              </label>
+            </div>
+          </div>
+
+          <div class="notice">
+            Export/Import is your “save between builds” safety net.<br/>
+            No DevTools needed. No drama.
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 3: SESSIONS -->
       <section class="page" id="pageSessions">
         <div class="card">
           <h2>SESSION RIFF</h2>
@@ -393,7 +501,7 @@
             <span id="statusPill" class="pillStatus"><span class="okDot"></span><span id="statusText">Idle</span></span>
           </div>
 
-          <!-- iPhone fallback button (shown only when needed) -->
+          <!-- iPhone fallback button -->
           <div class="row topgap" id="iphoneFallback" style="display:none;">
             <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
               🎧 Record Audio (iPhone Mode)
@@ -440,56 +548,69 @@
 
           <div class="divider"></div>
           <div class="notice">
-            <strong>Why your audio didn’t show before:</strong> some iPhones don’t support in-browser recording well.
-            This build auto-falls-back to “iPhone Mode” if needed.
+            <strong>iPhone reality:</strong> some iPhones don’t support in-browser recording well.
+            This build falls back to “iPhone Mode” when needed.
           </div>
         </div>
       </section>
 
-      <!-- PAGE 3: ABOUT -->
+      <!-- PAGE 4: ABOUT -->
       <section class="page" id="pageAbout">
         <div class="card">
           <h2>DOCTRINE</h2>
           <p class="muted" style="margin:0;">
-            Baseline only. Stable. Local-first. No social. No claims. Just capture → later you decide what it means.
+            Locked baseline + THE PLAY. Local-first. No social. No claims. Capture now → interpret later.
           </p>
 
           <div class="divider"></div>
 
           <div class="notice">
             <strong>Core loop:</strong><br/>
-            Stash → Session → Memory → Pattern (when you’re ready).
+            Stash → Session → Expression → Memory → Pattern (when you’re ready).
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="notice">
+            <strong>Manual transcript doctrine:</strong><br/>
+            For Audio Entries you get two fields:
+            <span class="kbd">VERBATIM</span> (raw integrity) + <span class="kbd">CLEAN</span> (optional).
           </div>
 
           <div class="divider"></div>
 
           <p class="muted" style="margin:0; font-size:13px; line-height:1.5;">
-            Upgrades (parked): VAULT PACK, grid view, public strain reference, growers connection, recommendations.
-            Baseline stays clean so you can build without fear.
+            Parked upgrades: VAULT PACK, grid view, growers connection, public references, recommendations.
+            This build stays calm so you don’t break your own momentum.
           </p>
         </div>
       </section>
+
     </main>
   </div>
 
   <script>
     /************************************************************
-     * StoneyVibes v0.2.3 — LOCKED BASELINE
-     * - Swipe pages left/right (scroll-snap)
+     * StoneyVibes v0.3.1 — LOCKED+PLAY
+     * - Swipe pages left/right
      * - STASH (localStorage)
      * - SESSIONS (IndexedDB) with iPhone-friendly fallback
-     * - Visual “star rails” only (no logic expansion)
+     * - THE PLAY (Entries: text/image/audio) in IndexedDB
+     * - Manual transcript fields for audio entries (VERBATIM + CLEAN)
+     * - Export/Import JSON (stash + sessions + entries; media as dataURL)
      ************************************************************/
 
     // ------------------ Swipe nav helpers ------------------
     const pages = document.getElementById("pages");
     const tabStash = document.getElementById("tabStash");
+    const tabPlay = document.getElementById("tabPlay");
     const tabSessions = document.getElementById("tabSessions");
     const tabAbout = document.getElementById("tabAbout");
 
     function setActiveTab(which){
-      [tabStash, tabSessions, tabAbout].forEach(t => t.classList.remove("active"));
+      [tabStash, tabPlay, tabSessions, tabAbout].forEach(t => t.classList.remove("active"));
       if (which === "stash") tabStash.classList.add("active");
+      if (which === "play") tabPlay.classList.add("active");
       if (which === "sessions") tabSessions.classList.add("active");
       if (which === "about") tabAbout.classList.add("active");
     }
@@ -499,15 +620,71 @@
     }
 
     tabStash.onclick = () => scrollToPage(0);
-    tabSessions.onclick = () => scrollToPage(1);
-    tabAbout.onclick = () => scrollToPage(2);
+    tabPlay.onclick = () => scrollToPage(1);
+    tabSessions.onclick = () => scrollToPage(2);
+    tabAbout.onclick = () => scrollToPage(3);
 
     pages.addEventListener("scroll", () => {
       const idx = Math.round(pages.scrollLeft / pages.clientWidth);
       if (idx === 0) setActiveTab("stash");
-      if (idx === 1) setActiveTab("sessions");
-      if (idx === 2) setActiveTab("about");
+      if (idx === 1) setActiveTab("play");
+      if (idx === 2) setActiveTab("sessions");
+      if (idx === 3) setActiveTab("about");
     });
+
+    // ------------------ Shared helpers ------------------
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function fmtTime(ts){
+      const d = new Date(ts);
+      return d.toLocaleString(undefined, {
+        year:"numeric", month:"short", day:"2-digit",
+        hour:"2-digit", minute:"2-digit"
+      });
+    }
+
+    function uid(prefix){
+      return (prefix || "id") + "_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+    }
+
+    function setStatus(pillEl, textEl, mode, text){
+      textEl.textContent = text;
+      const dot = pillEl.querySelector("span");
+      dot.className = (mode === "rec") ? "recDot" : "okDot";
+    }
+
+    async function blobToDataURL(blob){
+      return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(fr.result);
+        fr.onerror = reject;
+        fr.readAsDataURL(blob);
+      });
+    }
+
+    async function dataURLToBlob(dataUrl){
+      const res = await fetch(dataUrl);
+      return await res.blob();
+    }
+
+    function mimeChoice(){
+      const candidates = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4"
+      ];
+      for (const m of candidates){
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
+      }
+      return "";
+    }
 
     // ------------------ STASH (localStorage) ------------------
     const STASH_KEY = "sv_stash_v1";
@@ -518,6 +695,7 @@
     const clearStashBtn = document.getElementById("clearStashBtn");
     const stashList = document.getElementById("stashList");
     const sessionStashLink = document.getElementById("sessionStashLink");
+    const capStashLink = document.getElementById("capStashLink");
 
     function loadStash(){
       try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); }
@@ -527,16 +705,7 @@
     function saveStash(items){
       localStorage.setItem(STASH_KEY, JSON.stringify(items));
       renderStash();
-      renderStashLinkDropdown();
-    }
-
-    function escapeHtml(str){
-      return String(str || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+      renderStashLinkDropdowns();
     }
 
     function renderStash(){
@@ -571,9 +740,11 @@
       });
     }
 
-    function renderStashLinkDropdown(){
+    function renderStashLinkDropdowns(){
       const items = loadStash();
-      const current = sessionStashLink.value || "";
+
+      // sessions dropdown
+      const keep1 = sessionStashLink.value || "";
       sessionStashLink.innerHTML = '<option value="">— none —</option>';
       items.forEach(it => {
         const opt = document.createElement("option");
@@ -581,7 +752,18 @@
         opt.textContent = `${it.name} (${it.category})`;
         sessionStashLink.appendChild(opt);
       });
-      sessionStashLink.value = current;
+      sessionStashLink.value = keep1;
+
+      // play dropdown
+      const keep2 = capStashLink.value || "";
+      capStashLink.innerHTML = '<option value="">— none —</option>';
+      items.forEach(it => {
+        const opt = document.createElement("option");
+        opt.value = it.id;
+        opt.textContent = `${it.name} (${it.category})`;
+        capStashLink.appendChild(opt);
+      });
+      capStashLink.value = keep2;
     }
 
     addStashBtn.onclick = () => {
@@ -591,7 +773,7 @@
         return;
       }
       const item = {
-        id: "stash_" + Math.random().toString(16).slice(2) + "_" + Date.now(),
+        id: uid("stash"),
         name,
         category: stashCategory.value,
         notes: (stashNotes.value || "").trim(),
@@ -610,19 +792,35 @@
       saveStash([]);
     };
 
-    // ------------------ SESSIONS (IndexedDB) ------------------
+    // ------------------ IndexedDB (Sessions + Entries) ------------------
     const DB_NAME = "stoneyvibes_db";
-    const DB_VERSION = 1;
-    const STORE = "sessions";
+    const DB_VERSION = 2; // v0.2.x used 1; we upgrade to add entries store
+    const STORE_SESSIONS = "sessions";
+    const STORE_ENTRIES = "entries";
 
     function openDB(){
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(DB_NAME, DB_VERSION);
         req.onupgradeneeded = () => {
           const db = req.result;
-          if (!db.objectStoreNames.contains(STORE)){
-            const store = db.createObjectStore(STORE, { keyPath: "id" });
+
+          // sessions store (keep; create if missing)
+          if (!db.objectStoreNames.contains(STORE_SESSIONS)){
+            const store = db.createObjectStore(STORE_SESSIONS, { keyPath: "id" });
             store.createIndex("createdAt", "createdAt", { unique:false });
+          } else {
+            const tx = req.transaction;
+            const st = tx.objectStore(STORE_SESSIONS);
+            if (!st.indexNames.contains("createdAt")){
+              st.createIndex("createdAt","createdAt",{unique:false});
+            }
+          }
+
+          // entries store (new)
+          if (!db.objectStoreNames.contains(STORE_ENTRIES)){
+            const storeE = db.createObjectStore(STORE_ENTRIES, { keyPath: "id" });
+            storeE.createIndex("createdAt", "createdAt", { unique:false });
+            storeE.createIndex("type", "type", { unique:false });
           }
         };
         req.onsuccess = () => resolve(req.result);
@@ -630,21 +828,21 @@
       });
     }
 
-    async function dbPut(session){
+    async function dbPut(storeName, obj){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).put(session);
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).put(obj);
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
-    async function dbGetAll(){
+    async function dbGetAll(storeName){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readonly");
-        const store = tx.objectStore(STORE);
+        const tx = db.transaction(storeName, "readonly");
+        const store = tx.objectStore(storeName);
         const idx = store.index("createdAt");
         const req = idx.getAll();
         req.onsuccess = () => resolve(req.result || []);
@@ -652,26 +850,27 @@
       });
     }
 
-    async function dbDelete(id){
+    async function dbDelete(storeName, id){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).delete(id);
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).delete(id);
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
-    async function dbClear(){
+    async function dbClear(storeName){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).clear();
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).clear();
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
+    // ------------------ SESSIONS UI ------------------
     const recBtn = document.getElementById("recBtn");
     const stopBtn = document.getElementById("stopBtn");
     const statusPill = document.getElementById("statusPill");
@@ -689,38 +888,8 @@
     let chunks = [];
     let isRecording = false;
 
-    function setStatus(mode, text){
-      statusText.textContent = text;
-      const dot = statusPill.querySelector("span");
-      dot.className = (mode === "rec") ? "recDot" : "okDot";
-    }
-
-    function fmtTime(ts){
-      const d = new Date(ts);
-      return d.toLocaleString(undefined, {
-        year:"numeric", month:"short", day:"2-digit",
-        hour:"2-digit", minute:"2-digit"
-      });
-    }
-
-    function uid(){
-      return "sess_" + Math.random().toString(16).slice(2) + "_" + Date.now();
-    }
-
-    function mimeChoice(){
-      const candidates = [
-        "audio/webm;codecs=opus",
-        "audio/webm",
-        "audio/mp4"
-      ];
-      for (const m of candidates){
-        if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
-      }
-      return "";
-    }
-
     async function renderSessions(){
-      const sessions = await dbGetAll();
+      const sessions = await dbGetAll(STORE_SESSIONS);
       sessions.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
       if (!sessions.length){
         sessionList.innerHTML = '<div class="muted">No sessions yet.</div>';
@@ -762,13 +931,13 @@
           const newTag = prompt("Rename session tag:", title);
           if (newTag === null) return;
           s.tag = (newTag||"").trim();
-          await dbPut(s);
+          await dbPut(STORE_SESSIONS, s);
           await renderSessions();
         };
         el.querySelector('[data-act="delete"]').onclick = async () => {
           const ok = confirm("Delete this session from this device?");
           if (!ok) return;
-          await dbDelete(s.id);
+          await dbDelete(STORE_SESSIONS, s.id);
           await renderSessions();
         };
 
@@ -784,7 +953,7 @@
       const stashItem = stashItems.find(x => x.id=== stashId);
 
       const session = {
-        id: uid(),
+        id: uid("sess"),
         createdAt: Date.now(),
         tag,
         notes,
@@ -794,7 +963,7 @@
         audioBlob: blob
       };
 
-      await dbPut(session);
+      await dbPut(STORE_SESSIONS, session);
 
       preview.src = URL.createObjectURL(blob);
       preview.style.display = "block";
@@ -850,7 +1019,7 @@
       isRecording = true;
       recBtn.disabled = true;
       stopBtn.disabled = false;
-      setStatus("rec", "Recording…");
+      setStatus(statusPill, statusText, "rec", "Recording…");
     }
 
     function stopRecording(){
@@ -859,8 +1028,8 @@
       isRecording = false;
       recBtn.disabled = false;
       stopBtn.disabled = true;
-      setStatus("idle", "Saving…");
-      setTimeout(()=> setStatus("idle","Idle"), 600);
+      setStatus(statusPill, statusText, "idle", "Saving…");
+      setTimeout(()=> setStatus(statusPill,statusText,"idle","Idle"), 600);
     }
 
     recBtn.onclick = startRecording;
@@ -872,30 +1041,465 @@
       const blob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
       await saveSessionFromBlob(blob);
       fileAudio.value = "";
-      setStatus("idle","Idle");
+      setStatus(statusPill,statusText,"idle","Idle");
     });
 
     clearSessionsBtn.onclick = async () => {
       const ok = confirm("Clear ALL sessions on this device?");
       if (!ok) return;
-      await dbClear();
+      await dbClear(STORE_SESSIONS);
       preview.style.display = "none";
       preview.removeAttribute("src");
       await renderSessions();
     };
 
+    // ------------------ THE PLAY (Entries) ------------------
+    const capSession = document.getElementById("capSession");
+    const capTags = document.getElementById("capTags");
+    const capNote = document.getElementById("capNote");
+
+    const capText = document.getElementById("capText");
+    const addTextEntry = document.getElementById("addTextEntry");
+    const clearCapText = document.getElementById("clearCapText");
+
+    const capImageFile = document.getElementById("capImageFile");
+    const capImagePreview = document.getElementById("capImagePreview");
+    const addImageEntry = document.getElementById("addImageEntry");
+
+    const capRecBtn = document.getElementById("capRecBtn");
+    const capStopBtn = document.getElementById("capStopBtn");
+    const capStatusPill = document.getElementById("capStatusPill");
+    const capStatusText = document.getElementById("capStatusText");
+    const capIphoneFallback = document.getElementById("capIphoneFallback");
+    const capFileAudio = document.getElementById("capFileAudio");
+    const capAudioPreview = document.getElementById("capAudioPreview");
+    const addAudioEntry = document.getElementById("addAudioEntry");
+    const discardAudioEntry = document.getElementById("discardAudioEntry");
+
+    const entryList = document.getElementById("entryList");
+    const refreshEntriesBtn = document.getElementById("refreshEntriesBtn");
+
+    let capMR = null;
+    let capMS = null;
+    let capChunks = [];
+    let capPendingBlob = null;
+
+    function readCapMeta(){
+      const tags = (capTags.value||"").split(",").map(s=>s.trim()).filter(Boolean);
+      const note = (capNote.value||"").trim();
+      const stashId = capStashLink.value || "";
+      const stashItems = loadStash();
+      const stashItem = stashItems.find(x => x.id=== stashId);
+      return {
+        session: capSession.value || "",
+        tags,
+        note,
+        stashId: stashItem ? stashItem.id : "",
+        stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : ""
+      };
+    }
+    function clearCapMeta(){
+      capTags.value = "";
+      capNote.value = "";
+    }
+
+    async function renderEntries(){
+      const entries = await dbGetAll(STORE_ENTRIES);
+      entries.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+      if (!entries.length){
+        entryList.innerHTML = '<div class="muted">No entries yet.</div>';
+        return;
+      }
+      entryList.innerHTML = "";
+
+      for (const e of entries){
+        const el = document.createElement("div");
+        el.className = "item";
+
+        const when = fmtTime(e.createdAt);
+        const tags = (e.tags && e.tags.length) ? e.tags.map(t=>`<span class="kbd">#${escapeHtml(t)}</span>`).join(" ") : "";
+        const stashText = e.stashName ? ` — ${e.stashName}` : "";
+        const sessText = e.session ? ` — ${e.session}` : "";
+
+        let body = "";
+        if (e.type === "text"){
+          body = `<div class="topgap"><div class="muted small">Text</div><div style="white-space:pre-wrap;">${escapeHtml(e.text||"")}</div></div>`;
+        } else if (e.type === "image"){
+          const url = URL.createObjectURL(e.blob);
+          body = `<div class="topgap"><div class="muted small">Image</div><img class="thumb" src="${url}" alt="image" /></div>`;
+        } else if (e.type === "audio"){
+          const url = URL.createObjectURL(e.blob);
+          const v = (e.transcriptVerbatim||"").trim();
+          const c = (e.transcriptClean||"").trim();
+          body = `
+            <div class="topgap"><div class="muted small">Audio</div><audio controls preload="none" src="${url}"></audio></div>
+            <div class="topgap">
+              <details>
+                <summary>Transcript (manual): VERBATIM + CLEAN</summary>
+                <div class="topgap">
+                  <label class="field">
+                    <span class="label">VERBATIM (raw, integrity)</span>
+                    <textarea class="textarea" data-tv="${e.id}">${escapeHtml(v)}</textarea>
+                  </label>
+                  <label class="field topgap">
+                    <span class="label">CLEAN (optional)</span>
+                    <textarea class="textarea" data-tc="${e.id}">${escapeHtml(c)}</textarea>
+                  </label>
+                  <div class="row topgap">
+                    <button class="btn btnBlue" data-saveT="${e.id}">Save Transcript</button>
+                  </div>
+                  <div class="muted small">Tip: paste your transcript here later. No auto-transcription yet.</div>
+                </div>
+              </details>
+            </div>
+          `;
+        } else {
+          body = `<div class="topgap"><div class="muted">Unknown entry type.</div></div>`;
+        }
+
+        el.innerHTML = `
+          <div class="itemHead">
+            <div style="min-width:0; flex:1;">
+              <p class="itemTitle">${escapeHtml((e.type||"entry").toUpperCase())}</p>
+              <p class="itemMeta">${escapeHtml(when)}${escapeHtml(sessText)}${escapeHtml(stashText)}${e.note ? " — " + escapeHtml(e.note) : ""}</p>
+              ${tags ? `<div class="topgap small muted">${tags}</div>` : ""}
+            </div>
+            <div class="itemBtns">
+              <button class="btn btnDanger" data-del="${e.id}">Delete</button>
+            </div>
+          </div>
+          ${body}
+        `;
+
+        el.querySelector('[data-del]').onclick = async () => {
+          const ok = confirm("Delete this entry?");
+          if (!ok) return;
+          await dbDelete(STORE_ENTRIES, e.id);
+          await renderEntries();
+        };
+
+        const saveBtn = el.querySelector('[data-saveT]');
+        if (saveBtn){
+          saveBtn.onclick = async () => {
+            const id = saveBtn.getAttribute("data-saveT");
+            const tv = el.querySelector(`[data-tv="${id}"]`);
+            const tc = el.querySelector(`[data-tc="${id}"]`);
+            e.transcriptVerbatim = tv ? tv.value : (e.transcriptVerbatim||"");
+            e.transcriptClean = tc ? tc.value : (e.transcriptClean||"");
+            await dbPut(STORE_ENTRIES, e);
+            alert("Transcript saved.");
+          };
+        }
+
+        entryList.appendChild(el);
+      }
+    }
+
+    refreshEntriesBtn.onclick = renderEntries;
+
+    // Text entry
+    addTextEntry.onclick = async () => {
+      const t = (capText.value||"").trim();
+      if (!t){
+        alert("Type something first.");
+        return;
+      }
+      const meta = readCapMeta();
+      const entry = {
+        id: uid("entry"),
+        type: "text",
+        createdAt: Date.now(),
+        session: meta.session,
+        tags: meta.tags,
+        note: meta.note,
+        stashId: meta.stashId,
+        stashName: meta.stashName,
+        text: t
+      };
+      await dbPut(STORE_ENTRIES, entry);
+      capText.value = "";
+      clearCapMeta();
+      await renderEntries();
+    };
+    clearCapText.onclick = () => capText.value = "";
+
+    // Image entry
+    let capImageBlob = null;
+    capImageFile.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      capImageBlob = new Blob([await f.arrayBuffer()], { type: f.type || "image/*" });
+      capImagePreview.src = URL.createObjectURL(capImageBlob);
+      capImagePreview.style.display = "block";
+    });
+
+    addImageEntry.onclick = async () => {
+      if (!capImageBlob){
+        alert("Pick an image first.");
+        return;
+      }
+      const meta = readCapMeta();
+      const entry = {
+        id: uid("entry"),
+        type: "image",
+        createdAt: Date.now(),
+        session: meta.session,
+        tags: meta.tags,
+        note: meta.note,
+        stashId: meta.stashId,
+        stashName: meta.stashName,
+        mimeType: capImageBlob.type || "image/*",
+        blob: capImageBlob
+      };
+      await dbPut(STORE_ENTRIES, entry);
+      capImageBlob = null;
+      capImageFile.value = "";
+      capImagePreview.style.display = "none";
+      capImagePreview.removeAttribute("src");
+      clearCapMeta();
+      await renderEntries();
+    };
+
+    // Audio entry (play page)
+    async function capStartRecording(){
+      if (capMR) return;
+
+      if (!("MediaRecorder" in window)){
+        capIphoneFallback.style.display = "flex";
+        alert("In-browser recording isn’t supported here. Use “Add Audio (iPhone Mode)”.");
+        return;
+      }
+
+      try{
+        capMS = await navigator.mediaDevices.getUserMedia({ audio:true });
+      }catch(err){
+        alert("Microphone permission blocked. Allow mic access for this site.");
+        return;
+      }
+
+      capChunks = [];
+      const mime = mimeChoice();
+      try{
+        capMR = new MediaRecorder(capMS, mime ? { mimeType:mime } : undefined);
+      }catch(err){
+        capIphoneFallback.style.display = "flex";
+        alert("Recording not supported in this browser. Use “Add Audio (iPhone Mode)”.");
+        if (capMS){ capMS.getTracks().forEach(t=>t.stop()); capMS=null; }
+        capMR = null;
+        return;
+      }
+
+      capMR.ondataavailable = (e) => { if (e.data && e.data.size>0) capChunks.push(e.data); };
+      capMR.onstop = async () => {
+        try{
+          capPendingBlob = new Blob(capChunks, { type: capMR.mimeType || "audio/webm" });
+          capAudioPreview.src = URL.createObjectURL(capPendingBlob);
+          capAudioPreview.style.display = "block";
+          addAudioEntry.disabled = false;
+          discardAudioEntry.disabled = false;
+        } finally {
+          if (capMS){ capMS.getTracks().forEach(t=>t.stop()); capMS=null; }
+          capMR = null;
+          capChunks = [];
+          setStatus(capStatusPill, capStatusText, "idle", "Ready");
+        }
+      };
+
+      capMR.start();
+      capRecBtn.disabled = true;
+      capStopBtn.disabled = false;
+      addAudioEntry.disabled = true;
+      discardAudioEntry.disabled = true;
+      setStatus(capStatusPill, capStatusText, "rec", "Recording…");
+    }
+
+    function capStopRecording(){
+      if (!capMR) return;
+      try{ capMR.stop(); } catch(e){}
+      capRecBtn.disabled = false;
+      capStopBtn.disabled = true;
+      setStatus(capStatusPill, capStatusText, "idle", "Saving…");
+    }
+
+    capRecBtn.onclick = capStartRecording;
+    capStopBtn.onclick = capStopRecording;
+
+    capFileAudio.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      capPendingBlob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
+      capAudioPreview.src = URL.createObjectURL(capPendingBlob);
+      capAudioPreview.style.display = "block";
+      addAudioEntry.disabled = false;
+      discardAudioEntry.disabled = false;
+      capFileAudio.value = "";
+      setStatus(capStatusPill, capStatusText, "idle", "Ready");
+    });
+
+    discardAudioEntry.onclick = () => {
+      capPendingBlob = null;
+      capAudioPreview.style.display = "none";
+      capAudioPreview.removeAttribute("src");
+      addAudioEntry.disabled = true;
+      discardAudioEntry.disabled = true;
+      setStatus(capStatusPill, capStatusText, "idle", "Idle");
+    };
+
+    addAudioEntry.onclick = async () => {
+      if (!capPendingBlob) return;
+      const meta = readCapMeta();
+      const entry = {
+        id: uid("entry"),
+        type: "audio",
+        createdAt: Date.now(),
+        session: meta.session,
+        tags: meta.tags,
+        note: meta.note,
+        stashId: meta.stashId,
+        stashName: meta.stashName,
+        mimeType: capPendingBlob.type || "audio/*",
+        blob: capPendingBlob,
+        transcriptVerbatim: "",
+        transcriptClean: ""
+      };
+      await dbPut(STORE_ENTRIES, entry);
+
+      capPendingBlob = null;
+      capAudioPreview.style.display = "none";
+      capAudioPreview.removeAttribute("src");
+      addAudioEntry.disabled = true;
+      discardAudioEntry.disabled = true;
+      clearCapMeta();
+      setStatus(capStatusPill, capStatusText, "idle", "Idle");
+      await renderEntries();
+    };
+
+    // ------------------ Export / Import ------------------
+    const exportBtn = document.getElementById("exportBtn");
+    const importFile = document.getElementById("importFile");
+
+    exportBtn.onclick = async () => {
+      const stash = loadStash();
+      const sessions = await dbGetAll(STORE_SESSIONS);
+      const entries = await dbGetAll(STORE_ENTRIES);
+
+      const sessionsOut = [];
+      for (const s of sessions){
+        const audioDataUrl = await blobToDataURL(s.audioBlob);
+        sessionsOut.push({
+          ...s,
+          audioBlob: undefined,
+          audioDataUrl
+        });
+      }
+
+      const entriesOut = [];
+      for (const e of entries){
+        if (e.type === "text"){
+          entriesOut.push({ ...e });
+        } else {
+          const dataUrl = await blobToDataURL(e.blob);
+          entriesOut.push({
+            ...e,
+            blob: undefined,
+            dataUrl
+          });
+        }
+      }
+
+      const payload = {
+        stoneyvibes_export: true,
+        version: "0.3.1",
+        exportedAt: Date.now(),
+        stash,
+        sessions: sessionsOut,
+        entries: entriesOut
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "STONEYVIBES_export_" + new Date().toISOString().replace(/[:.]/g,"-") + ".json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+
+    importFile.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+
+      try{
+        const text = await f.text();
+        const payload = JSON.parse(text);
+
+        // stash merge by id
+        if (Array.isArray(payload.stash)){
+          const cur = loadStash();
+          const map = new Map(cur.map(x => [x.id, x]));
+          payload.stash.forEach(x => { if (x && x.id) map.set(x.id, x); });
+          saveStash(Array.from(map.values()).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)));
+        }
+
+        // sessions import
+        if (Array.isArray(payload.sessions)){
+          for (const s of payload.sessions){
+            const audioBlob = s.audioDataUrl ? await dataURLToBlob(s.audioDataUrl) : null;
+            const obj = {
+              ...s,
+              audioDataUrl: undefined,
+              audioBlob: audioBlob || new Blob([], {type:"audio/*"})
+            };
+            await dbPut(STORE_SESSIONS, obj);
+          }
+        }
+
+        // entries import
+        if (Array.isArray(payload.entries)){
+          for (const it of payload.entries){
+            if (it.type === "text"){
+              await dbPut(STORE_ENTRIES, it);
+            } else {
+              const b = it.dataUrl ? await dataURLToBlob(it.dataUrl) : null;
+              const obj = {
+                ...it,
+                dataUrl: undefined,
+                blob: b || new Blob([], {type: it.mimeType || "application/octet-stream"})
+              };
+              await dbPut(STORE_ENTRIES, obj);
+            }
+          }
+        }
+
+        alert("Import complete (merged).");
+        await renderSessions();
+        await renderEntries();
+        renderStash();
+        renderStashLinkDropdowns();
+      }catch(err){
+        console.error(err);
+        alert("Import failed (bad JSON).");
+      } finally {
+        importFile.value = "";
+      }
+    });
+
     // ------------------ init ------------------
     (async function init(){
       renderStash();
-      renderStashLinkDropdown();
+      renderStashLinkDropdowns();
 
+      // iPhone fallback visibility
       if (!("MediaRecorder" in window)){
         iphoneFallback.style.display = "flex";
         recBtn.textContent = "🎙️ Start Session (Browser mode unavailable)";
+        capIphoneFallback.style.display = "flex";
+        capRecBtn.textContent = "🎙️ Record (Browser mode unavailable)";
       }
 
-      setStatus("idle", "Idle");
+      setStatus(statusPill, statusText, "idle", "Idle");
+      setStatus(capStatusPill, capStatusText, "idle", "Idle");
       await renderSessions();
+      await renderEntries();
     })();
   </script>
 </body>
