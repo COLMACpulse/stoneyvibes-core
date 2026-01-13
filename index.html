@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StoneyVibes v0.2.4 — LOCKED BASELINE + BACKUP</title>
+  <title>StoneyVibes v0.2.5 — LOCKED + VAULT</title>
   <style>
     :root{
       --bg:#0b0d10;
@@ -18,8 +18,12 @@
       --dangerB:rgba(255,90,90,0.32);
       --ok:rgba(90,255,170,0.16);
       --okB:rgba(90,255,170,0.28);
+      --blue:rgba(125,211,252,0.16);
+      --blueB:rgba(125,211,252,0.30);
       --star:rgba(233,238,245,0.18);
       --star2:rgba(233,238,245,0.10);
+      --gold:rgba(255,200,90,0.16);
+      --goldB:rgba(255,200,90,0.30);
     }
 
     *{ box-sizing:border-box; }
@@ -45,7 +49,6 @@
       z-index:0;
       opacity:0.9;
       background:
-        /* left rail */
         radial-gradient(circle at 6% 10%, var(--star) 0 1px, transparent 2px),
         radial-gradient(circle at 6% 18%, var(--star2) 0 1px, transparent 2px),
         radial-gradient(circle at 6% 26%, var(--star) 0 1px, transparent 2px),
@@ -58,7 +61,6 @@
         radial-gradient(circle at 6% 82%, var(--star2) 0 1px, transparent 2px),
         radial-gradient(circle at 6% 90%, var(--star) 0 1px, transparent 2px),
 
-        /* right rail */
         radial-gradient(circle at 94% 12%, var(--star) 0 1px, transparent 2px),
         radial-gradient(circle at 94% 20%, var(--star2) 0 1px, transparent 2px),
         radial-gradient(circle at 94% 28%, var(--star) 0 1px, transparent 2px),
@@ -71,12 +73,11 @@
         radial-gradient(circle at 94% 84%, var(--star2) 0 1px, transparent 2px),
         radial-gradient(circle at 94% 92%, var(--star) 0 1px, transparent 2px),
 
-        /* faint side glows */
         radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.06), transparent 55%),
         radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.06), transparent 55%);
-      filter: blur(0px);
     }
 
+    /* ----- swipe shell ----- */
     .shell{
       height:100svh;
       overflow:hidden;
@@ -93,8 +94,18 @@
       backdrop-filter: blur(8px);
     }
 
-    .title{ margin:0; font-size:20px; letter-spacing:0.02em; }
-    .sub{ margin:6px 0 0 0; font-size:13px; color:var(--muted); line-height:1.35; }
+    .title{
+      margin:0;
+      font-size:20px;
+      letter-spacing:0.02em;
+    }
+
+    .sub{
+      margin:6px 0 0 0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.35;
+    }
 
     .nav{
       display:flex;
@@ -114,6 +125,7 @@
       cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
+      white-space:nowrap;
     }
     .tab.active{
       background:rgba(255,255,255,0.12);
@@ -144,6 +156,7 @@
       padding:14px 16px 24px 16px;
     }
 
+    /* ----- cards + controls ----- */
     .card{
       border:1px solid var(--border);
       background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
@@ -159,7 +172,12 @@
     }
     .muted{ color:var(--muted); }
 
-    .row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
     .between{ justify-content:space-between; }
     .topgap{ margin-top:10px; }
 
@@ -179,8 +197,22 @@
       border-color:rgba(255,255,255,0.28);
       background:rgba(255,255,255,0.10);
     }
-    .btnDanger{ border-color:var(--dangerB); background:var(--danger); }
-    .btnOk{ border-color:var(--okB); background:var(--ok); }
+    .btnDanger{
+      border-color:var(--dangerB);
+      background:var(--danger);
+    }
+    .btnOk{
+      border-color:var(--okB);
+      background:var(--ok);
+    }
+    .btnBlue{
+      border-color:var(--blueB);
+      background:var(--blue);
+    }
+    .btnGold{
+      border-color:var(--goldB);
+      background:var(--gold);
+    }
 
     .field{
       display:flex;
@@ -189,8 +221,12 @@
       flex:1;
       min-width:220px;
     }
-    .label{ font-size:12px; color:var(--muted); letter-spacing:0.04em; }
-    .input, .select{
+    .label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.04em;
+    }
+    .input, .select, .textarea{
       width:100%;
       border:1px solid var(--border);
       background:rgba(0,0,0,0.25);
@@ -199,7 +235,10 @@
       border-radius:14px;
       outline:none;
     }
-    .input:focus, .select:focus{ border-color:rgba(255,255,255,0.28); }
+    .textarea{ min-height:90px; resize:vertical; }
+    .input:focus, .select:focus, .textarea:focus{
+      border-color:rgba(255,255,255,0.28);
+    }
 
     .pillStatus{
       padding:8px 10px;
@@ -222,7 +261,12 @@
       box-shadow:0 0 0 3px rgba(255,90,90,0.18);
     }
 
-    .list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
     .item{
       border:1px solid var(--border);
       background:rgba(0,0,0,0.18);
@@ -235,11 +279,26 @@
       align-items:flex-start;
       justify-content:space-between;
     }
-    .itemTitle{ font-weight:600; font-size:14px; margin:0; line-height:1.25; }
-    .itemMeta{ font-size:12px; color:var(--muted); margin:2px 0 0 0; line-height:1.35; }
-    .itemBtns{ display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
-
+    .itemTitle{
+      font-weight:600;
+      font-size:14px;
+      margin:0;
+      line-height:1.25;
+    }
+    .itemMeta{
+      font-size:12px;
+      color:var(--muted);
+      margin:2px 0 0 0;
+      line-height:1.35;
+    }
+    .itemBtns{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:flex-end;
+    }
     audio{ width:100%; }
+
     .divider{ height:1px; background:var(--border); margin:12px 0; }
 
     .notice{
@@ -260,26 +319,53 @@
       background: rgba(255,255,255,0.04);
       border-radius: 8px;
       color: var(--muted);
+      display:inline-block;
+      margin:2px 4px 0 0;
     }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+    .chip{
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .chip.active{
+      background:rgba(255,255,255,0.12);
+      border-color:rgba(255,255,255,0.28);
+    }
+
+    .small{ font-size:12px; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   </style>
 </head>
 
 <body>
   <div class="shell">
     <header>
-      <h1 class="title">StoneyVibes v0.2.4 — LOCKED BASELINE + BACKUP</h1>
-      <p class="sub">Private, local-only logging. Signal &gt; story. Swipe left/right to move.</p>
+      <h1 class="title">StoneyVibes v0.2.5 — LOCKED + VAULT</h1>
+      <p class="sub">Private, local-only logging. Signal &gt; story. Swipe left/right to move. VAULT is not social.</p>
 
       <div class="nav">
         <button class="tab active" id="tabStash" type="button">STASH</button>
         <button class="tab" id="tabSessions" type="button">SESSIONS</button>
+        <button class="tab" id="tabVault" type="button">VAULT</button>
         <button class="tab" id="tabAbout" type="button">ABOUT</button>
         <div class="hint">← swipe →</div>
       </div>
     </header>
 
     <main class="pages" id="pages">
-
       <!-- PAGE 1: STASH -->
       <section class="page" id="pageStash">
         <div class="card">
@@ -324,18 +410,6 @@
           </div>
         </div>
 
-        <div class="card">
-          <h2>BACKUP (STASH)</h2>
-          <p class="muted" style="margin:0;">Export/import only. No cloud. No accounts. Just a parachute.</p>
-          <div class="row topgap">
-            <button id="exportStashBtn" class="btn btnOk" type="button">Export STASH JSON</button>
-            <label class="btn" style="display:inline-flex; align-items:center; gap:10px;">
-              Import STASH JSON
-              <input id="importStashFile" type="file" accept="application/json" style="display:none;" />
-            </label>
-          </div>
-        </div>
-
         <div class="notice">
           <strong>Scope lock:</strong> Category is intentionally limited to your set:
           <span class="kbd">KIEF</span> <span class="kbd">HASH</span> <span class="kbd">WAX</span>
@@ -357,13 +431,12 @@
             <span id="statusPill" class="pillStatus"><span class="okDot"></span><span id="statusText">Idle</span></span>
           </div>
 
-          <!-- iPhone fallback button (shown only when needed) -->
           <div class="row topgap" id="iphoneFallback" style="display:none;">
             <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
               🎧 Record Audio (iPhone Mode)
               <input id="fileAudio" type="file" accept="audio/*" capture style="display:none;" />
             </label>
-            <span class="muted" style="font-size:12px;">Uses your device recorder, then saves locally.</span>
+            <span class="muted small">Uses your device recorder, then saves locally.</span>
           </div>
 
           <div class="row topgap">
@@ -403,33 +476,164 @@
           </div>
 
           <div class="divider"></div>
-
-          <div class="card" style="margin:0;">
-            <h2>BACKUP (SESSIONS)</h2>
-            <p class="muted" style="margin:0;">Exports audio as base64 inside JSON. Files can get big.</p>
-            <div class="row topgap">
-              <button id="exportSessionsBtn" class="btn btnOk" type="button">Export SESSIONS JSON</button>
-              <label class="btn" style="display:inline-flex; align-items:center; gap:10px;">
-                Import SESSIONS JSON
-                <input id="importSessionsFile" type="file" accept="application/json" style="display:none;" />
-              </label>
-            </div>
-          </div>
-
-          <div class="divider"></div>
           <div class="notice">
-            <strong>Why your audio didn’t show before:</strong> some iPhones don’t support in-browser recording well.
+            <strong>iPhone reality:</strong> some iPhones don’t support in-browser recording well.
             This build auto-falls-back to “iPhone Mode” if needed.
           </div>
         </div>
       </section>
 
-      <!-- PAGE 3: ABOUT -->
+      <!-- PAGE 3: VAULT -->
+      <section class="page" id="pageVault">
+        <div class="card">
+          <h2>VAULT</h2>
+          <p class="muted" style="margin:0;">Grower notes locker. Private. Searchable. No social. No feed.</p>
+
+          <div class="divider"></div>
+
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">ADD TO VAULT</h2>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Type</span>
+              <select id="vaultType" class="select">
+                <option value="text">TEXT</option>
+                <option value="link">LINK</option>
+                <option value="audio">AUDIO (file)</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="label">Title (required)</span>
+              <input id="vaultTitle" class="input" type="text" placeholder="e.g., Drying trick: paper bag 12h" />
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Tags (comma separated)</span>
+              <input id="vaultTags" class="input" type="text" placeholder="dry, cure, humidity" />
+            </label>
+
+            <label class="field">
+              <span class="label">Lane (optional)</span>
+              <select id="vaultLane" class="select">
+                <option value="">—</option>
+                <option value="GENETICS">GENETICS</option>
+                <option value="SOIL">SOIL</option>
+                <option value="HYDRO">HYDRO</option>
+                <option value="LIGHTS">LIGHTS</option>
+                <option value="IPM">IPM (Pests)</option>
+                <option value="TRAINING">TRAINING</option>
+                <option value="DRY_CURE">DRY/CURE</option>
+                <option value="STORAGE">STORAGE</option>
+                <option value="TOOLS">TOOLS</option>
+                <option value="MISC">MISC</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- TEXT -->
+          <div id="vaultTextBox" class="topgap">
+            <label class="field">
+              <span class="label">Text</span>
+              <textarea id="vaultText" class="textarea" placeholder="Write the note. No fluff."></textarea>
+            </label>
+          </div>
+
+          <!-- LINK -->
+          <div id="vaultLinkBox" class="topgap" style="display:none;">
+            <div class="row">
+              <label class="field">
+                <span class="label">URL</span>
+                <input id="vaultUrl" class="input" type="url" placeholder="https://..." />
+              </label>
+            </div>
+            <div class="row topgap">
+              <label class="field">
+                <span class="label">Note (optional)</span>
+                <input id="vaultUrlNote" class="input" type="text" placeholder="Why this link matters" />
+              </label>
+            </div>
+          </div>
+
+          <!-- AUDIO -->
+          <div id="vaultAudioBox" class="topgap" style="display:none;">
+            <div class="notice">
+              <strong>Audio is file-based on purpose.</strong><br/>
+              This avoids iPhone browser recorder weirdness. Record with your phone → attach here.
+            </div>
+            <div class="row topgap">
+              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                🎧 Add Audio File
+                <input id="vaultAudioFile" type="file" accept="audio/*" capture style="display:none;" />
+              </label>
+              <button id="vaultClearAudio" class="btn" type="button">Clear</button>
+            </div>
+            <div class="row topgap">
+              <audio id="vaultAudioPreview" controls style="display:none;"></audio>
+            </div>
+          </div>
+
+          <div class="row topgap">
+            <button id="vaultAddBtn" class="btn btnBlue" type="button">Add Vault Entry</button>
+            <button id="vaultResetBtn" class="btn" type="button">Reset</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">SEARCH + FILTER</h2>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Search</span>
+              <input id="vaultSearch" class="input" type="text" placeholder="title / tags / text" />
+            </label>
+          </div>
+
+          <div class="chips">
+            <div class="chip active" data-vfilter="all">ALL</div>
+            <div class="chip" data-vfilter="text">TEXT</div>
+            <div class="chip" data-vfilter="link">LINK</div>
+            <div class="chip" data-vfilter="audio">AUDIO</div>
+            <div class="chip" data-vfilter="fav">★ FAVORITES</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row between">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">VAULT LIST</h2>
+            <button id="vaultRefreshBtn" class="btn" type="button">Refresh</button>
+          </div>
+          <div id="vaultList" class="list">
+            <div class="muted">No vault entries yet.</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row between">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">VAULT PACK</h2>
+            <div class="row">
+              <button id="vaultExportBtn" class="btn btnGold" type="button">Export VAULT JSON</button>
+              <label class="btn btnGold" style="display:inline-flex; align-items:center; gap:10px;">
+                Import VAULT JSON
+                <input id="vaultImportFile" type="file" accept="application/json" style="display:none;" />
+              </label>
+            </div>
+          </div>
+          <div class="notice">
+            Vault Pack is how you “connect” with growers without becoming a platform.<br/>
+            You trade a file on purpose. Nothing live. Nothing public.
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 4: ABOUT -->
       <section class="page" id="pageAbout">
         <div class="card">
           <h2>DOCTRINE</h2>
           <p class="muted" style="margin:0;">
-            Baseline only. Stable. Local-first. No social. No claims. Just capture → later you decide what it means.
+            Weed-specific. Local-first. No claims. No social. Capture now → interpret later.
           </p>
 
           <div class="divider"></div>
@@ -442,55 +646,92 @@
           <div class="divider"></div>
 
           <div class="notice">
-            <strong>Backup doctrine:</strong><br/>
-            Export JSON when you feel nervous. Import after updates. Your data stays yours.
+            <strong>VAULT rules:</strong><br/>
+            No feed. No discovery. No ranking. No comments.<br/>
+            Just a knowledge locker you can search + export as a Vault Pack.
           </div>
-
-          <div class="divider"></div>
-
-          <p class="muted" style="margin:0; font-size:13px; line-height:1.5;">
-            Upgrades (parked): VAULT PACK, grid view, public strain reference, growers connection, recommendations.
-            Baseline stays clean so you can build without fear.
-          </p>
         </div>
       </section>
-
     </main>
   </div>
 
   <script>
     /************************************************************
-     * StoneyVibes v0.2.4 — LOCKED BASELINE + BACKUP
+     * StoneyVibes v0.2.5 — LOCKED + VAULT
+     * - Swipe pages left/right (scroll-snap)
      * - STASH (localStorage)
-     * - SESSIONS (IndexedDB) with iPhone-friendly fallback
-     * - BACKUP: export/import JSON for STASH + SESSIONS (separately)
+     * - SESSIONS (IndexedDB)
+     * - VAULT (IndexedDB) (text/link/audio file)
+     * - VAULT PACK export/import (audio as dataURL)
      ************************************************************/
 
     // ------------------ Swipe nav helpers ------------------
     const pages = document.getElementById("pages");
     const tabStash = document.getElementById("tabStash");
     const tabSessions = document.getElementById("tabSessions");
+    const tabVault = document.getElementById("tabVault");
     const tabAbout = document.getElementById("tabAbout");
 
     function setActiveTab(which){
-      [tabStash, tabSessions, tabAbout].forEach(t => t.classList.remove("active"));
+      [tabStash, tabSessions, tabVault, tabAbout].forEach(t => t.classList.remove("active"));
       if (which === "stash") tabStash.classList.add("active");
       if (which === "sessions") tabSessions.classList.add("active");
+      if (which === "vault") tabVault.classList.add("active");
       if (which === "about") tabAbout.classList.add("active");
     }
+
     function scrollToPage(idx){
       pages.scrollTo({ left: idx * pages.clientWidth, behavior: "smooth" });
     }
+
     tabStash.onclick = () => scrollToPage(0);
     tabSessions.onclick = () => scrollToPage(1);
-    tabAbout.onclick = () => scrollToPage(2);
+    tabVault.onclick = () => scrollToPage(2);
+    tabAbout.onclick = () => scrollToPage(3);
 
     pages.addEventListener("scroll", () => {
       const idx = Math.round(pages.scrollLeft / pages.clientWidth);
       if (idx === 0) setActiveTab("stash");
       if (idx === 1) setActiveTab("sessions");
-      if (idx === 2) setActiveTab("about");
+      if (idx === 2) setActiveTab("vault");
+      if (idx === 3) setActiveTab("about");
     });
+
+    // ------------------ Shared helpers ------------------
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function fmtTime(ts){
+      const d = new Date(ts);
+      return d.toLocaleString(undefined, {
+        year:"numeric", month:"short", day:"2-digit",
+        hour:"2-digit", minute:"2-digit"
+      });
+    }
+
+    function uid(prefix){
+      return (prefix || "id") + "_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+    }
+
+    async function blobToDataURL(blob){
+      return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(fr.result);
+        fr.onerror = reject;
+        fr.readAsDataURL(blob);
+      });
+    }
+
+    async function dataURLToBlob(dataUrl){
+      const res = await fetch(dataUrl);
+      return await res.blob();
+    }
 
     // ------------------ STASH (localStorage) ------------------
     const STASH_KEY = "sv_stash_v1";
@@ -506,18 +747,11 @@
       try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); }
       catch { return []; }
     }
+
     function saveStash(items){
       localStorage.setItem(STASH_KEY, JSON.stringify(items));
       renderStash();
       renderStashLinkDropdown();
-    }
-    function escapeHtml(str){
-      return String(str || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
     }
 
     function renderStash(){
@@ -572,7 +806,7 @@
         return;
       }
       const item = {
-        id: "stash_" + Math.random().toString(16).slice(2) + "_" + Date.now(),
+        id: uid("stash"),
         name,
         category: stashCategory.value,
         notes: (stashNotes.value || "").trim(),
@@ -591,63 +825,36 @@
       saveStash([]);
     };
 
-    // ------------------ BACKUP (STASH) ------------------
-    const exportStashBtn = document.getElementById("exportStashBtn");
-    const importStashFile = document.getElementById("importStashFile");
-
-    exportStashBtn.onclick = () => {
-      const payload = {
-        stoneyvibes_export: true,
-        type: "stash",
-        version: "0.2.4",
-        exportedAt: Date.now(),
-        stash: loadStash()
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "STONEYVIBES_STASH_" + new Date().toISOString().replace(/[:.]/g,"-") + ".json";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    };
-
-    importStashFile.addEventListener("change", async (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      try{
-        const text = await f.text();
-        const payload = JSON.parse(text);
-        if (!payload || !Array.isArray(payload.stash)){
-          alert("Not a valid STASH export.");
-          return;
-        }
-        // merge by id (import doesn't wipe unless you clear)
-        const cur = loadStash();
-        const map = new Map(cur.map(x => [x.id, x]));
-        payload.stash.forEach(x => { if (x && x.id) map.set(x.id, x); });
-        saveStash(Array.from(map.values()).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)));
-        alert("STASH import complete (merged).");
-      }catch(err){
-        console.error(err);
-        alert("Import failed (bad JSON).");
-      } finally {
-        importStashFile.value = "";
-      }
-    });
-
-    // ------------------ SESSIONS (IndexedDB) ------------------
+    // ------------------ IndexedDB (Sessions + Vault) ------------------
     const DB_NAME = "stoneyvibes_db";
-    const DB_VERSION = 1;
-    const STORE = "sessions";
+    const DB_VERSION = 2; // 1 -> sessions, 2 -> add vault (sessions preserved)
+    const STORE_SESSIONS = "sessions";
+    const STORE_VAULT = "vault";
 
     function openDB(){
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(DB_NAME, DB_VERSION);
         req.onupgradeneeded = () => {
           const db = req.result;
-          if (!db.objectStoreNames.contains(STORE)){
-            const store = db.createObjectStore(STORE, { keyPath: "id" });
-            store.createIndex("createdAt", "createdAt", { unique:false });
+
+          // sessions store (existing baseline)
+          if (!db.objectStoreNames.contains(STORE_SESSIONS)){
+            const s = db.createObjectStore(STORE_SESSIONS, { keyPath: "id" });
+            s.createIndex("createdAt", "createdAt", { unique:false });
+          } else {
+            const tx = req.transaction;
+            const st = tx.objectStore(STORE_SESSIONS);
+            if (!st.indexNames.contains("createdAt")){
+              st.createIndex("createdAt","createdAt",{unique:false});
+            }
+          }
+
+          // vault store (new)
+          if (!db.objectStoreNames.contains(STORE_VAULT)){
+            const v = db.createObjectStore(STORE_VAULT, { keyPath: "id" });
+            v.createIndex("createdAt", "createdAt", { unique:false });
+            v.createIndex("type", "type", { unique:false });
+            v.createIndex("favorite", "favorite", { unique:false });
           }
         };
         req.onsuccess = () => resolve(req.result);
@@ -655,21 +862,21 @@
       });
     }
 
-    async function dbPut(session){
+    async function dbPut(storeName, obj){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).put(session);
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).put(obj);
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
-    async function dbGetAll(){
+    async function dbGetAll(storeName){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readonly");
-        const store = tx.objectStore(STORE);
+        const tx = db.transaction(storeName, "readonly");
+        const store = tx.objectStore(storeName);
         const idx = store.index("createdAt");
         const req = idx.getAll();
         req.onsuccess = () => resolve(req.result || []);
@@ -677,40 +884,27 @@
       });
     }
 
-    async function dbDelete(id){
+    async function dbDelete(storeName, id){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).delete(id);
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).delete(id);
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
-    async function dbClear(){
+    async function dbClear(storeName){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).clear();
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).clear();
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
-    async function blobToDataURL(blob){
-      return new Promise((resolve, reject) => {
-        const fr = new FileReader();
-        fr.onload = () => resolve(fr.result);
-        fr.onerror = reject;
-        fr.readAsDataURL(blob);
-      });
-    }
-
-    async function dataURLToBlob(dataUrl){
-      const res = await fetch(dataUrl);
-      return await res.blob();
-    }
-
+    // ------------------ SESSIONS (same baseline logic) ------------------
     const recBtn = document.getElementById("recBtn");
     const stopBtn = document.getElementById("stopBtn");
     const statusPill = document.getElementById("statusPill");
@@ -734,18 +928,6 @@
       dot.className = (mode === "rec") ? "recDot" : "okDot";
     }
 
-    function fmtTime(ts){
-      const d = new Date(ts);
-      return d.toLocaleString(undefined, {
-        year:"numeric", month:"short", day:"2-digit",
-        hour:"2-digit", minute:"2-digit"
-      });
-    }
-
-    function uid(){
-      return "sess_" + Math.random().toString(16).slice(2) + "_" + Date.now();
-    }
-
     function mimeChoice(){
       const candidates = [
         "audio/webm;codecs=opus",
@@ -759,7 +941,7 @@
     }
 
     async function renderSessions(){
-      const sessions = await dbGetAll();
+      const sessions = await dbGetAll(STORE_SESSIONS);
       sessions.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
       if (!sessions.length){
         sessionList.innerHTML = '<div class="muted">No sessions yet.</div>';
@@ -801,13 +983,13 @@
           const newTag = prompt("Rename session tag:", title);
           if (newTag === null) return;
           s.tag = (newTag||"").trim();
-          await dbPut(s);
+          await dbPut(STORE_SESSIONS, s);
           await renderSessions();
         };
         el.querySelector('[data-act="delete"]').onclick = async () => {
           const ok = confirm("Delete this session from this device?");
           if (!ok) return;
-          await dbDelete(s.id);
+          await dbDelete(STORE_SESSIONS, s.id);
           await renderSessions();
         };
 
@@ -823,7 +1005,7 @@
       const stashItem = stashItems.find(x => x.id=== stashId);
 
       const session = {
-        id: uid(),
+        id: uid("sess"),
         createdAt: Date.now(),
         tag,
         notes,
@@ -833,7 +1015,7 @@
         audioBlob: blob
       };
 
-      await dbPut(session);
+      await dbPut(STORE_SESSIONS, session);
 
       preview.src = URL.createObjectURL(blob);
       preview.style.display = "block";
@@ -917,84 +1099,346 @@
     clearSessionsBtn.onclick = async () => {
       const ok = confirm("Clear ALL sessions on this device?");
       if (!ok) return;
-      await dbClear();
+      await dbClear(STORE_SESSIONS);
       preview.style.display = "none";
       preview.removeAttribute("src");
       await renderSessions();
     };
 
-    // ------------------ BACKUP (SESSIONS) ------------------
-    const exportSessionsBtn = document.getElementById("exportSessionsBtn");
-    const importSessionsFile = document.getElementById("importSessionsFile");
+    // ------------------ VAULT ------------------
+    const vaultType = document.getElementById("vaultType");
+    const vaultTitle = document.getElementById("vaultTitle");
+    const vaultTags = document.getElementById("vaultTags");
+    const vaultLane = document.getElementById("vaultLane");
 
-    exportSessionsBtn.onclick = async () => {
-      const sessions = await dbGetAll();
-      const out = [];
-      for (const s of sessions){
-        const audioDataUrl = await blobToDataURL(s.audioBlob);
-        out.push({
-          ...s,
-          audioBlob: undefined,
-          audioDataUrl
-        });
+    const vaultTextBox = document.getElementById("vaultTextBox");
+    const vaultText = document.getElementById("vaultText");
+
+    const vaultLinkBox = document.getElementById("vaultLinkBox");
+    const vaultUrl = document.getElementById("vaultUrl");
+    const vaultUrlNote = document.getElementById("vaultUrlNote");
+
+    const vaultAudioBox = document.getElementById("vaultAudioBox");
+    const vaultAudioFile = document.getElementById("vaultAudioFile");
+    const vaultAudioPreview = document.getElementById("vaultAudioPreview");
+    const vaultClearAudio = document.getElementById("vaultClearAudio");
+
+    const vaultAddBtn = document.getElementById("vaultAddBtn");
+    const vaultResetBtn = document.getElementById("vaultResetBtn");
+    const vaultRefreshBtn = document.getElementById("vaultRefreshBtn");
+    const vaultList = document.getElementById("vaultList");
+    const vaultSearch = document.getElementById("vaultSearch");
+
+    const vaultExportBtn = document.getElementById("vaultExportBtn");
+    const vaultImportFile = document.getElementById("vaultImportFile");
+
+    let vaultPendingAudioBlob = null;
+    let vaultFilter = "all"; // all | text | link | audio | fav
+
+    function parseTags(str){
+      return (str||"").split(",").map(s=>s.trim()).filter(Boolean);
+    }
+
+    function setVaultTypeUI(){
+      const t = vaultType.value;
+      vaultTextBox.style.display = (t === "text") ? "block" : "none";
+      vaultLinkBox.style.display = (t === "link") ? "block" : "none";
+      vaultAudioBox.style.display = (t === "audio") ? "block" : "none";
+    }
+
+    vaultType.addEventListener("change", () => {
+      setVaultTypeUI();
+    });
+
+    vaultAudioFile.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      vaultPendingAudioBlob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
+      vaultAudioPreview.src = URL.createObjectURL(vaultPendingAudioBlob);
+      vaultAudioPreview.style.display = "block";
+    });
+
+    vaultClearAudio.onclick = () => {
+      vaultPendingAudioBlob = null;
+      vaultAudioFile.value = "";
+      vaultAudioPreview.style.display = "none";
+      vaultAudioPreview.removeAttribute("src");
+    };
+
+    function vaultReset(){
+      vaultType.value = "text";
+      vaultTitle.value = "";
+      vaultTags.value = "";
+      vaultLane.value = "";
+      vaultText.value = "";
+      vaultUrl.value = "";
+      vaultUrlNote.value = "";
+      vaultClearAudio.click();
+      setVaultTypeUI();
+    }
+
+    vaultResetBtn.onclick = vaultReset;
+
+    async function vaultAdd(){
+      const type = vaultType.value;
+      const title = (vaultTitle.value || "").trim();
+      if (!title){
+        alert("Title required.");
+        return;
       }
-      const payload = {
-        stoneyvibes_export: true,
-        type: "sessions",
-        version: "0.2.4",
-        exportedAt: Date.now(),
-        sessions: out
+      const tags = parseTags(vaultTags.value);
+      const lane = vaultLane.value || "";
+
+      const base = {
+        id: uid("vault"),
+        createdAt: Date.now(),
+        type,
+        title,
+        tags,
+        lane,
+        favorite: false
       };
+
+      if (type === "text"){
+        const t = (vaultText.value || "").trim();
+        if (!t){
+          alert("Text required for TEXT entry.");
+          return;
+        }
+        await dbPut(STORE_VAULT, { ...base, text: t });
+      } else if (type === "link"){
+        const url = (vaultUrl.value || "").trim();
+        if (!url || !/^https?:\/\//i.test(url)){
+          alert("Valid URL required (must start with http:// or https://).");
+          return;
+        }
+        await dbPut(STORE_VAULT, { ...base, url, note: (vaultUrlNote.value||"").trim() });
+      } else if (type === "audio"){
+        if (!vaultPendingAudioBlob){
+          alert("Attach an audio file first.");
+          return;
+        }
+        await dbPut(STORE_VAULT, { ...base, mimeType: vaultPendingAudioBlob.type || "audio/*", audioBlob: vaultPendingAudioBlob });
+      } else {
+        alert("Unknown vault type.");
+        return;
+      }
+
+      vaultReset();
+      await renderVault();
+    }
+
+    vaultAddBtn.onclick = vaultAdd;
+    vaultRefreshBtn.onclick = () => renderVault();
+    vaultSearch.addEventListener("input", () => renderVault());
+
+    // filter chips
+    document.querySelectorAll("[data-vfilter]").forEach(ch => {
+      ch.onclick = () => {
+        document.querySelectorAll("[data-vfilter]").forEach(x => x.classList.remove("active"));
+        ch.classList.add("active");
+        vaultFilter = ch.getAttribute("data-vfilter") || "all";
+        renderVault();
+      };
+    });
+
+    function vaultMatches(entry, q){
+      if (!q) return true;
+      const hay = [
+        entry.title || "",
+        (entry.tags || []).join(" "),
+        entry.lane || "",
+        entry.type || "",
+        entry.text || "",
+        entry.note || "",
+        entry.url || ""
+      ].join(" ").toLowerCase();
+      return hay.includes(q);
+    }
+
+    function vaultPassesFilter(entry){
+      if (vaultFilter === "all") return true;
+      if (vaultFilter === "fav") return !!entry.favorite;
+      return (entry.type === vaultFilter);
+    }
+
+    function laneLabel(lane){
+      if (!lane) return "";
+      return lane.replaceAll("_","/");
+    }
+
+    async function renderVault(){
+      const q = (vaultSearch.value || "").trim().toLowerCase();
+      const items = await dbGetAll(STORE_VAULT);
+      items.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+
+      const shown = items.filter(e => vaultPassesFilter(e) && vaultMatches(e, q));
+
+      if (!shown.length){
+        vaultList.innerHTML = '<div class="muted">No vault entries match.</div>';
+        return;
+      }
+
+      vaultList.innerHTML = "";
+      for (const v of shown){
+        const el = document.createElement("div");
+        el.className = "item";
+
+        const when = fmtTime(v.createdAt);
+        const tags = (v.tags && v.tags.length) ? v.tags.map(t=>`<span class="kbd">#${escapeHtml(t)}</span>`).join(" ") : "";
+        const lane = v.lane ? `<span class="kbd">${escapeHtml(laneLabel(v.lane))}</span>` : "";
+        const star = v.favorite ? "★" : "☆";
+
+        let body = "";
+        if (v.type === "text"){
+          body = `<div class="topgap" style="white-space:pre-wrap;">${escapeHtml(v.text||"")}</div>`;
+        } else if (v.type === "link"){
+          const safeUrl = escapeHtml(v.url||"");
+          body = `
+            <div class="topgap">
+              <div class="muted small">Link</div>
+              <div class="topgap">
+                <a class="mono" href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeUrl}</a>
+              </div>
+              ${v.note ? `<div class="topgap">${escapeHtml(v.note)}</div>` : ""}
+            </div>
+          `;
+        } else if (v.type === "audio"){
+          const url = URL.createObjectURL(v.audioBlob);
+          body = `
+            <div class="topgap">
+              <div class="muted small">Audio</div>
+              <div class="topgap"><audio controls preload="none" src="${url}"></audio></div>
+            </div>
+          `;
+        } else {
+          body = `<div class="topgap muted">Unknown type.</div>`;
+        }
+
+        el.innerHTML = `
+          <div class="itemHead">
+            <div style="min-width:0; flex:1;">
+              <p class="itemTitle">${escapeHtml(v.title || (v.type||"VAULT").toUpperCase())}</p>
+              <p class="itemMeta">${escapeHtml(when)} — ${escapeHtml((v.type||"").toUpperCase())}</p>
+              <div class="topgap small muted">${lane}${tags ? " " + tags : ""}</div>
+            </div>
+            <div class="itemBtns">
+              <button class="btn btnGold" data-fav="${v.id}">${star}</button>
+              <button class="btn btnDanger" data-del="${v.id}">Delete</button>
+            </div>
+          </div>
+          ${body}
+        `;
+
+        el.querySelector('[data-del]').onclick = async () => {
+          const ok = confirm("Delete this vault entry?");
+          if (!ok) return;
+          await dbDelete(STORE_VAULT, v.id);
+          await renderVault();
+        };
+
+        el.querySelector('[data-fav]').onclick = async () => {
+          v.favorite = !v.favorite;
+          await dbPut(STORE_VAULT, v);
+          await renderVault();
+        };
+
+        vaultList.appendChild(el);
+      }
+    }
+
+    // ------------------ VAULT PACK Export / Import ------------------
+    vaultExportBtn.onclick = async () => {
+      const entries = await dbGetAll(STORE_VAULT);
+      entries.sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+
+      const out = [];
+      for (const v of entries){
+        if (v.type === "audio"){
+          const dataUrl = await blobToDataURL(v.audioBlob);
+          out.push({
+            ...v,
+            audioBlob: undefined,
+            audioDataUrl: dataUrl
+          });
+        } else {
+          out.push({ ...v });
+        }
+      }
+
+      const payload = {
+        stoneyvibes_vaultpack: true,
+        version: "0.2.5",
+        exportedAt: Date.now(),
+        vault: out
+      };
+
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "STONEYVIBES_SESSIONS_" + new Date().toISOString().replace(/[:.]/g,"-") + ".json";
+      a.download = "STONEYVIBES_VAULTPACK_" + new Date().toISOString().replace(/[:.]/g,"-") + ".json";
       a.click();
       URL.revokeObjectURL(a.href);
     };
 
-    importSessionsFile.addEventListener("change", async (e) => {
+    vaultImportFile.addEventListener("change", async (e) => {
       const f = e.target.files && e.target.files[0];
       if (!f) return;
 
       try{
         const text = await f.text();
         const payload = JSON.parse(text);
-        if (!payload || !Array.isArray(payload.sessions)){
-          alert("Not a valid SESSIONS export.");
+        const list = Array.isArray(payload.vault) ? payload.vault : null;
+        if (!list){
+          alert("Import failed: no vault array found.");
           return;
         }
-        for (const s of payload.sessions){
-          const audioBlob = s.audioDataUrl ? await dataURLToBlob(s.audioDataUrl) : null;
-          const obj = {
-            ...s,
-            audioDataUrl: undefined,
-            audioBlob: audioBlob || new Blob([], {type:"audio/*"})
-          };
-          await dbPut(obj);
+
+        for (const it of list){
+          if (!it || !it.id) continue;
+
+          if (it.type === "audio"){
+            const b = it.audioDataUrl ? await dataURLToBlob(it.audioDataUrl) : null;
+            const obj = {
+              ...it,
+              audioDataUrl: undefined,
+              audioBlob: b || new Blob([], { type: it.mimeType || "audio/*" })
+            };
+            await dbPut(STORE_VAULT, obj);
+          } else {
+            await dbPut(STORE_VAULT, it);
+          }
         }
-        alert("SESSIONS import complete (merged).");
-        await renderSessions();
-      }catch(err){
+
+        alert("Vault Pack import complete (merged).");
+        await renderVault();
+      } catch(err){
         console.error(err);
         alert("Import failed (bad JSON).");
       } finally {
-        importSessionsFile.value = "";
+        vaultImportFile.value = "";
       }
     });
 
     // ------------------ init ------------------
     (async function init(){
+      // STASH
       renderStash();
       renderStashLinkDropdown();
 
+      // sessions recorder fallback visibility
       if (!("MediaRecorder" in window)){
         iphoneFallback.style.display = "flex";
         recBtn.textContent = "🎙️ Start Session (Browser mode unavailable)";
       }
 
+      // VAULT UI
+      setVaultTypeUI();
+
+      // status + renders
       setStatus("idle", "Idle");
       await renderSessions();
+      await renderVault();
     })();
   </script>
 </body>
