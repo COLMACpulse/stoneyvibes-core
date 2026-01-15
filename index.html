@@ -900,7 +900,16 @@
       };
 
       await dbPut(session);
+// reset inputs after save (including TIMEBOX)
+preview.src = URL.createObjectURL(blob);
+preview.style.display = "block";
 
+sessionTag.value = "";
+sessionNotes.value = "";
+sessionStashLink.value = "";
+sessionTimebox.value = "";
+
+sessionTimebox.value = ""; // NEW
       preview.src = URL.createObjectURL(blob);
       preview.style.display = "block";
 
