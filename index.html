@@ -830,6 +830,7 @@
         const title = (s.tag && s.tag.trim()) ? s.tag.trim() : "Session (Unlabeled)";
         const when = fmtTime(s.createdAt);
         const notes = (s.notes||"").trim();
+        const timebox = s.timebox ? ` · ${s.timebox}` : "";
         const stashText = s.stashName ? ` — ${s.stashName}` : "";
 
         // NEW: reference match display
@@ -841,7 +842,7 @@
           <div class="itemHead">
             <div style="min-width:0; flex:1;">
               <p class="itemTitle">${escapeHtml(title)}</p>
-              <p class="itemMeta">${escapeHtml(when)}${escapeHtml(stashText)}${escapeHtml(refText)}${notes ? " — " + escapeHtml(notes) : ""}</p>
+              <p class="itemMeta">${escapeHtml(when)}${timebox}${escapeHtml(stashText)}${notes ? " — " + escapeHtml(notes) : ""}</p>
             </div>
             <div class="itemBtns">
               <button class="btn btnOk" data-act="play">Play</button>
