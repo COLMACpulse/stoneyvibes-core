@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StoneyVibes v0.2.5 — LOCKED + VAULT</title>
+  <title>StoneyVibes v0.2.4 — LOCKED + REF MATCH</title>
   <style>
     :root{
       --bg:#0b0d10;
@@ -18,12 +18,8 @@
       --dangerB:rgba(255,90,90,0.32);
       --ok:rgba(90,255,170,0.16);
       --okB:rgba(90,255,170,0.28);
-      --blue:rgba(125,211,252,0.16);
-      --blueB:rgba(125,211,252,0.30);
       --star:rgba(233,238,245,0.18);
       --star2:rgba(233,238,245,0.10);
-      --gold:rgba(255,200,90,0.16);
-      --goldB:rgba(255,200,90,0.30);
     }
 
     *{ box-sizing:border-box; }
@@ -49,6 +45,7 @@
       z-index:0;
       opacity:0.9;
       background:
+        /* left rail */
         radial-gradient(circle at 6% 10%, var(--star) 0 1px, transparent 2px),
         radial-gradient(circle at 6% 18%, var(--star2) 0 1px, transparent 2px),
         radial-gradient(circle at 6% 26%, var(--star) 0 1px, transparent 2px),
@@ -61,6 +58,7 @@
         radial-gradient(circle at 6% 82%, var(--star2) 0 1px, transparent 2px),
         radial-gradient(circle at 6% 90%, var(--star) 0 1px, transparent 2px),
 
+        /* right rail */
         radial-gradient(circle at 94% 12%, var(--star) 0 1px, transparent 2px),
         radial-gradient(circle at 94% 20%, var(--star2) 0 1px, transparent 2px),
         radial-gradient(circle at 94% 28%, var(--star) 0 1px, transparent 2px),
@@ -73,11 +71,12 @@
         radial-gradient(circle at 94% 84%, var(--star2) 0 1px, transparent 2px),
         radial-gradient(circle at 94% 92%, var(--star) 0 1px, transparent 2px),
 
+        /* faint side glows */
         radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.06), transparent 55%),
         radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.06), transparent 55%);
+      filter: blur(0px);
     }
 
-    /* ----- swipe shell ----- */
     .shell{
       height:100svh;
       overflow:hidden;
@@ -125,7 +124,6 @@
       cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
-      white-space:nowrap;
     }
     .tab.active{
       background:rgba(255,255,255,0.12);
@@ -156,7 +154,6 @@
       padding:14px 16px 24px 16px;
     }
 
-    /* ----- cards + controls ----- */
     .card{
       border:1px solid var(--border);
       background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
@@ -205,14 +202,6 @@
       border-color:var(--okB);
       background:var(--ok);
     }
-    .btnBlue{
-      border-color:var(--blueB);
-      background:var(--blue);
-    }
-    .btnGold{
-      border-color:var(--goldB);
-      background:var(--gold);
-    }
 
     .field{
       display:flex;
@@ -226,7 +215,7 @@
       color:var(--muted);
       letter-spacing:0.04em;
     }
-    .input, .select, .textarea{
+    .input, .select{
       width:100%;
       border:1px solid var(--border);
       background:rgba(0,0,0,0.25);
@@ -235,8 +224,7 @@
       border-radius:14px;
       outline:none;
     }
-    .textarea{ min-height:90px; resize:vertical; }
-    .input:focus, .select:focus, .textarea:focus{
+    .input:focus, .select:focus{
       border-color:rgba(255,255,255,0.28);
     }
 
@@ -319,47 +307,19 @@
       background: rgba(255,255,255,0.04);
       border-radius: 8px;
       color: var(--muted);
-      display:inline-block;
-      margin:2px 4px 0 0;
     }
-
-    .chips{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:8px;
-    }
-    .chip{
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,0.06);
-      color:var(--text);
-      padding:8px 10px;
-      border-radius:999px;
-      font-size:13px;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .chip.active{
-      background:rgba(255,255,255,0.12);
-      border-color:rgba(255,255,255,0.28);
-    }
-
-    .small{ font-size:12px; }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   </style>
 </head>
 
 <body>
   <div class="shell">
     <header>
-      <h1 class="title">StoneyVibes v0.2.5 — LOCKED + VAULT</h1>
-      <p class="sub">Private, local-only logging. Signal &gt; story. Swipe left/right to move. VAULT is not social.</p>
+      <h1 class="title">StoneyVibes v0.2.4 — LOCKED + REF MATCH</h1>
+      <p class="sub">Private, local-only logging. Signal &gt; story. Swipe left/right to move.</p>
 
       <div class="nav">
         <button class="tab active" id="tabStash" type="button">STASH</button>
         <button class="tab" id="tabSessions" type="button">SESSIONS</button>
-        <button class="tab" id="tabVault" type="button">VAULT</button>
         <button class="tab" id="tabAbout" type="button">ABOUT</button>
         <div class="hint">← swipe →</div>
       </div>
@@ -431,12 +391,13 @@
             <span id="statusPill" class="pillStatus"><span class="okDot"></span><span id="statusText">Idle</span></span>
           </div>
 
+          <!-- iPhone fallback button (shown only when needed) -->
           <div class="row topgap" id="iphoneFallback" style="display:none;">
             <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
               🎧 Record Audio (iPhone Mode)
               <input id="fileAudio" type="file" accept="audio/*" capture style="display:none;" />
             </label>
-            <span class="muted small">Uses your device recorder, then saves locally.</span>
+            <span class="muted" style="font-size:12px;">Uses your device recorder, then saves locally.</span>
           </div>
 
           <div class="row topgap">
@@ -448,6 +409,16 @@
             <label class="field">
               <span class="label">Link to STASH (optional)</span>
               <select id="sessionStashLink" class="select">
+                <option value="">— none —</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- NEW: Reference Match dropdown -->
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Reference Match (optional)</span>
+              <select id="sessionRefMatch" class="select">
                 <option value="">— none —</option>
               </select>
             </label>
@@ -477,163 +448,18 @@
 
           <div class="divider"></div>
           <div class="notice">
-            <strong>iPhone reality:</strong> some iPhones don’t support in-browser recording well.
+            <strong>Why your audio didn’t show before:</strong> some iPhones don’t support in-browser recording well.
             This build auto-falls-back to “iPhone Mode” if needed.
           </div>
         </div>
       </section>
 
-      <!-- PAGE 3: VAULT -->
-      <section class="page" id="pageVault">
-        <div class="card">
-          <h2>VAULT</h2>
-          <p class="muted" style="margin:0;">Grower notes locker. Private. Searchable. No social. No feed.</p>
-
-          <div class="divider"></div>
-
-          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">ADD TO VAULT</h2>
-
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">Type</span>
-              <select id="vaultType" class="select">
-                <option value="text">TEXT</option>
-                <option value="link">LINK</option>
-                <option value="audio">AUDIO (file)</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span class="label">Title (required)</span>
-              <input id="vaultTitle" class="input" type="text" placeholder="e.g., Drying trick: paper bag 12h" />
-            </label>
-          </div>
-
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">Tags (comma separated)</span>
-              <input id="vaultTags" class="input" type="text" placeholder="dry, cure, humidity" />
-            </label>
-
-            <label class="field">
-              <span class="label">Lane (optional)</span>
-              <select id="vaultLane" class="select">
-                <option value="">—</option>
-                <option value="GENETICS">GENETICS</option>
-                <option value="SOIL">SOIL</option>
-                <option value="HYDRO">HYDRO</option>
-                <option value="LIGHTS">LIGHTS</option>
-                <option value="IPM">IPM (Pests)</option>
-                <option value="TRAINING">TRAINING</option>
-                <option value="DRY_CURE">DRY/CURE</option>
-                <option value="STORAGE">STORAGE</option>
-                <option value="TOOLS">TOOLS</option>
-                <option value="MISC">MISC</option>
-              </select>
-            </label>
-          </div>
-
-          <!-- TEXT -->
-          <div id="vaultTextBox" class="topgap">
-            <label class="field">
-              <span class="label">Text</span>
-              <textarea id="vaultText" class="textarea" placeholder="Write the note. No fluff."></textarea>
-            </label>
-          </div>
-
-          <!-- LINK -->
-          <div id="vaultLinkBox" class="topgap" style="display:none;">
-            <div class="row">
-              <label class="field">
-                <span class="label">URL</span>
-                <input id="vaultUrl" class="input" type="url" placeholder="https://..." />
-              </label>
-            </div>
-            <div class="row topgap">
-              <label class="field">
-                <span class="label">Note (optional)</span>
-                <input id="vaultUrlNote" class="input" type="text" placeholder="Why this link matters" />
-              </label>
-            </div>
-          </div>
-
-          <!-- AUDIO -->
-          <div id="vaultAudioBox" class="topgap" style="display:none;">
-            <div class="notice">
-              <strong>Audio is file-based on purpose.</strong><br/>
-              This avoids iPhone browser recorder weirdness. Record with your phone → attach here.
-            </div>
-            <div class="row topgap">
-              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                🎧 Add Audio File
-                <input id="vaultAudioFile" type="file" accept="audio/*" capture style="display:none;" />
-              </label>
-              <button id="vaultClearAudio" class="btn" type="button">Clear</button>
-            </div>
-            <div class="row topgap">
-              <audio id="vaultAudioPreview" controls style="display:none;"></audio>
-            </div>
-          </div>
-
-          <div class="row topgap">
-            <button id="vaultAddBtn" class="btn btnBlue" type="button">Add Vault Entry</button>
-            <button id="vaultResetBtn" class="btn" type="button">Reset</button>
-          </div>
-
-          <div class="divider"></div>
-
-          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">SEARCH + FILTER</h2>
-
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">Search</span>
-              <input id="vaultSearch" class="input" type="text" placeholder="title / tags / text" />
-            </label>
-          </div>
-
-          <div class="chips">
-            <div class="chip active" data-vfilter="all">ALL</div>
-            <div class="chip" data-vfilter="text">TEXT</div>
-            <div class="chip" data-vfilter="link">LINK</div>
-            <div class="chip" data-vfilter="audio">AUDIO</div>
-            <div class="chip" data-vfilter="fav">★ FAVORITES</div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="row between">
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">VAULT LIST</h2>
-            <button id="vaultRefreshBtn" class="btn" type="button">Refresh</button>
-          </div>
-          <div id="vaultList" class="list">
-            <div class="muted">No vault entries yet.</div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="row between">
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">VAULT PACK</h2>
-            <div class="row">
-              <button id="vaultExportBtn" class="btn btnGold" type="button">Export VAULT JSON</button>
-              <label class="btn btnGold" style="display:inline-flex; align-items:center; gap:10px;">
-                Import VAULT JSON
-                <input id="vaultImportFile" type="file" accept="application/json" style="display:none;" />
-              </label>
-            </div>
-          </div>
-          <div class="notice">
-            Vault Pack is how you “connect” with growers without becoming a platform.<br/>
-            You trade a file on purpose. Nothing live. Nothing public.
-          </div>
-        </div>
-      </section>
-
-      <!-- PAGE 4: ABOUT -->
+      <!-- PAGE 3: ABOUT -->
       <section class="page" id="pageAbout">
         <div class="card">
           <h2>DOCTRINE</h2>
           <p class="muted" style="margin:0;">
-            Weed-specific. Local-first. No claims. No social. Capture now → interpret later.
+            Baseline only. Stable. Local-first. No social. No claims. Just capture → later you decide what it means.
           </p>
 
           <div class="divider"></div>
@@ -645,10 +471,15 @@
 
           <div class="divider"></div>
 
+          <p class="muted" style="margin:0; font-size:13px; line-height:1.5;">
+            Upgrades (parked): VAULT PACK, transcript/verbatim, photo capture, quiz calibration, grid view, growers corner.
+            Baseline stays clean so you can build without fear.
+          </p>
+
+          <div class="divider"></div>
           <div class="notice">
-            <strong>VAULT rules:</strong><br/>
-            No feed. No discovery. No ranking. No comments.<br/>
-            Just a knowledge locker you can search + export as a Vault Pack.
+            <strong>Reference catalog:</strong> <span class="kbd">CANNABIS STRAIN REFERENCE — v2.0 (READ-ONLY)</span><br/>
+            “Reference Match” is optional and does not change your stash.
           </div>
         </div>
       </section>
@@ -657,26 +488,23 @@
 
   <script>
     /************************************************************
-     * StoneyVibes v0.2.5 — LOCKED + VAULT
+     * StoneyVibes v0.2.4 — LOCKED + REF MATCH
      * - Swipe pages left/right (scroll-snap)
      * - STASH (localStorage)
-     * - SESSIONS (IndexedDB)
-     * - VAULT (IndexedDB) (text/link/audio file)
-     * - VAULT PACK export/import (audio as dataURL)
+     * - SESSIONS (IndexedDB) with iPhone-friendly fallback
+     * - NEW: Reference Match dropdown (read-only catalog)
      ************************************************************/
 
     // ------------------ Swipe nav helpers ------------------
     const pages = document.getElementById("pages");
     const tabStash = document.getElementById("tabStash");
     const tabSessions = document.getElementById("tabSessions");
-    const tabVault = document.getElementById("tabVault");
     const tabAbout = document.getElementById("tabAbout");
 
     function setActiveTab(which){
-      [tabStash, tabSessions, tabVault, tabAbout].forEach(t => t.classList.remove("active"));
+      [tabStash, tabSessions, tabAbout].forEach(t => t.classList.remove("active"));
       if (which === "stash") tabStash.classList.add("active");
       if (which === "sessions") tabSessions.classList.add("active");
-      if (which === "vault") tabVault.classList.add("active");
       if (which === "about") tabAbout.classList.add("active");
     }
 
@@ -686,51 +514,59 @@
 
     tabStash.onclick = () => scrollToPage(0);
     tabSessions.onclick = () => scrollToPage(1);
-    tabVault.onclick = () => scrollToPage(2);
-    tabAbout.onclick = () => scrollToPage(3);
+    tabAbout.onclick = () => scrollToPage(2);
 
     pages.addEventListener("scroll", () => {
       const idx = Math.round(pages.scrollLeft / pages.clientWidth);
       if (idx === 0) setActiveTab("stash");
       if (idx === 1) setActiveTab("sessions");
-      if (idx === 2) setActiveTab("vault");
-      if (idx === 3) setActiveTab("about");
+      if (idx === 2) setActiveTab("about");
     });
 
-    // ------------------ Shared helpers ------------------
-    function escapeHtml(str){
-      return String(str || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
+    // ------------------ READ-ONLY REFERENCE CATALOG ------------------
+    // Minimal embedded catalog derived from your v2.0 reference tables.
+    // No web calls. No AI. Just a stable list for matching.
+    const REF_CATALOG = [
+      // Indica (core + v3)
+      { id:"ref_northern_lights", name:"Northern Lights", category:"Indica", chemotype:"Type I" },
+      { id:"ref_gdp", name:"Granddaddy Purple", category:"Indica", chemotype:"Type I" },
+      { id:"ref_bubba_kush", name:"Bubba Kush", category:"Indica", chemotype:"Type I" },
+      { id:"ref_hindu_kush", name:"Hindu Kush", category:"Indica", chemotype:"Type I" },
+      { id:"ref_purple_kush", name:"Purple Kush", category:"Indica", chemotype:"Type I" },
+      { id:"ref_afghani", name:"Afghani", category:"Indica", chemotype:"Type I" },
+      { id:"ref_critical_mass", name:"Critical Mass", category:"Indica", chemotype:"Type I" },
+      { id:"ref_ice_cream_cake", name:"Ice Cream Cake", category:"Indica", chemotype:"Type I" },
+      { id:"ref_kosher_kush", name:"Kosher Kush", category:"Indica", chemotype:"Type I" },
+      { id:"ref_master_kush", name:"Master Kush", category:"Indica", chemotype:"Type I" },
 
-    function fmtTime(ts){
-      const d = new Date(ts);
-      return d.toLocaleString(undefined, {
-        year:"numeric", month:"short", day:"2-digit",
-        hour:"2-digit", minute:"2-digit"
-      });
-    }
+      // Sativa (core + v3)
+      { id:"ref_durban_poison", name:"Durban Poison", category:"Sativa", chemotype:"Type I" },
+      { id:"ref_jack_herer", name:"Jack Herer", category:"Sativa", chemotype:"Type I" },
+      { id:"ref_sour_diesel", name:"Sour Diesel", category:"Sativa", chemotype:"Type I" },
+      { id:"ref_acapulco_gold", name:"Acapulco Gold", category:"Sativa", chemotype:"Type I" },
+      { id:"ref_super_lemon_haze", name:"Super Lemon Haze", category:"Sativa", chemotype:"Type I" },
+      { id:"ref_amnesia_haze", name:"Amnesia Haze", category:"Sativa", chemotype:"Type I" },
+      { id:"ref_ghost_train_haze", name:"Ghost Train Haze", category:"Sativa", chemotype:"Type I" },
+      { id:"ref_green_crack", name:"Green Crack", category:"Sativa", chemotype:"Type I" },
+      { id:"ref_maui_wowie", name:"Maui Wowie", category:"Sativa", chemotype:"Type I" },
+      { id:"ref_thai", name:"Thai", category:"Sativa", chemotype:"Type I" },
 
-    function uid(prefix){
-      return (prefix || "id") + "_" + Math.random().toString(16).slice(2) + "_" + Date.now();
-    }
+      // Hybrid + CBD + Alt (core + v3)
+      { id:"ref_blue_dream", name:"Blue Dream", category:"Hybrid", chemotype:"Type I" },
+      { id:"ref_wedding_cake", name:"Wedding Cake", category:"Hybrid", chemotype:"Type I" },
+      { id:"ref_gelato", name:"Gelato", category:"Hybrid", chemotype:"Type I" },
+      { id:"ref_gorilla_glue_4", name:"Gorilla Glue #4", category:"Hybrid", chemotype:"Type I" },
+      { id:"ref_harlequin", name:"Harlequin", category:"Hybrid", chemotype:"Type II" },
+      { id:"ref_acdc", name:"ACDC", category:"CBD", chemotype:"Type III" },
+      { id:"ref_cannatonic", name:"Cannatonic", category:"CBD", chemotype:"Type II" },
+      { id:"ref_dougs_varin", name:"Doug’s Varin", category:"Hybrid", chemotype:"Type I" },
+      { id:"ref_pineapple_purps", name:"Pineapple Purps", category:"Hybrid", chemotype:"Type I" },
+      { id:"ref_white_cbg", name:"White CBG", category:"CBG", chemotype:"Type IV" },
+      { id:"ref_stem_cell_cbg", name:"Stem Cell CBG", category:"CBG", chemotype:"Type IV" }
+    ];
 
-    async function blobToDataURL(blob){
-      return new Promise((resolve, reject) => {
-        const fr = new FileReader();
-        fr.onload = () => resolve(fr.result);
-        fr.onerror = reject;
-        fr.readAsDataURL(blob);
-      });
-    }
-
-    async function dataURLToBlob(dataUrl){
-      const res = await fetch(dataUrl);
-      return await res.blob();
+    function refLabel(r){
+      return `${r.name} — ${r.category} (${r.chemotype})`;
     }
 
     // ------------------ STASH (localStorage) ------------------
@@ -752,6 +588,15 @@
       localStorage.setItem(STASH_KEY, JSON.stringify(items));
       renderStash();
       renderStashLinkDropdown();
+    }
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
     function renderStash(){
@@ -806,7 +651,7 @@
         return;
       }
       const item = {
-        id: uid("stash"),
+        id: "stash_" + Math.random().toString(16).slice(2) + "_" + Date.now(),
         name,
         category: stashCategory.value,
         notes: (stashNotes.value || "").trim(),
@@ -825,36 +670,19 @@
       saveStash([]);
     };
 
-    // ------------------ IndexedDB (Sessions + Vault) ------------------
+    // ------------------ SESSIONS (IndexedDB) ------------------
     const DB_NAME = "stoneyvibes_db";
-    const DB_VERSION = 2; // 1 -> sessions, 2 -> add vault (sessions preserved)
-    const STORE_SESSIONS = "sessions";
-    const STORE_VAULT = "vault";
+    const DB_VERSION = 1;
+    const STORE = "sessions";
 
     function openDB(){
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(DB_NAME, DB_VERSION);
         req.onupgradeneeded = () => {
           const db = req.result;
-
-          // sessions store (existing baseline)
-          if (!db.objectStoreNames.contains(STORE_SESSIONS)){
-            const s = db.createObjectStore(STORE_SESSIONS, { keyPath: "id" });
-            s.createIndex("createdAt", "createdAt", { unique:false });
-          } else {
-            const tx = req.transaction;
-            const st = tx.objectStore(STORE_SESSIONS);
-            if (!st.indexNames.contains("createdAt")){
-              st.createIndex("createdAt","createdAt",{unique:false});
-            }
-          }
-
-          // vault store (new)
-          if (!db.objectStoreNames.contains(STORE_VAULT)){
-            const v = db.createObjectStore(STORE_VAULT, { keyPath: "id" });
-            v.createIndex("createdAt", "createdAt", { unique:false });
-            v.createIndex("type", "type", { unique:false });
-            v.createIndex("favorite", "favorite", { unique:false });
+          if (!db.objectStoreNames.contains(STORE)){
+            const store = db.createObjectStore(STORE, { keyPath: "id" });
+            store.createIndex("createdAt", "createdAt", { unique:false });
           }
         };
         req.onsuccess = () => resolve(req.result);
@@ -862,21 +690,21 @@
       });
     }
 
-    async function dbPut(storeName, obj){
+    async function dbPut(session){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(storeName, "readwrite");
-        tx.objectStore(storeName).put(obj);
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).put(session);
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
-    async function dbGetAll(storeName){
+    async function dbGetAll(){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(storeName, "readonly");
-        const store = tx.objectStore(storeName);
+        const tx = db.transaction(STORE, "readonly");
+        const store = tx.objectStore(STORE);
         const idx = store.index("createdAt");
         const req = idx.getAll();
         req.onsuccess = () => resolve(req.result || []);
@@ -884,27 +712,26 @@
       });
     }
 
-    async function dbDelete(storeName, id){
+    async function dbDelete(id){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(storeName, "readwrite");
-        tx.objectStore(storeName).delete(id);
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).delete(id);
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
-    async function dbClear(storeName){
+    async function dbClear(){
       const db = await openDB();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction(storeName, "readwrite");
-        tx.objectStore(storeName).clear();
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).clear();
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
     }
 
-    // ------------------ SESSIONS (same baseline logic) ------------------
     const recBtn = document.getElementById("recBtn");
     const stopBtn = document.getElementById("stopBtn");
     const statusPill = document.getElementById("statusPill");
@@ -917,6 +744,9 @@
     const iphoneFallback = document.getElementById("iphoneFallback");
     const fileAudio = document.getElementById("fileAudio");
 
+    // NEW: ref match control
+    const sessionRefMatch = document.getElementById("sessionRefMatch");
+
     let mediaRecorder = null;
     let mediaStream = null;
     let chunks = [];
@@ -926,6 +756,18 @@
       statusText.textContent = text;
       const dot = statusPill.querySelector("span");
       dot.className = (mode === "rec") ? "recDot" : "okDot";
+    }
+
+    function fmtTime(ts){
+      const d = new Date(ts);
+      return d.toLocaleString(undefined, {
+        year:"numeric", month:"short", day:"2-digit",
+        hour:"2-digit", minute:"2-digit"
+      });
+    }
+
+    function uid(){
+      return "sess_" + Math.random().toString(16).slice(2) + "_" + Date.now();
     }
 
     function mimeChoice(){
@@ -940,8 +782,41 @@
       return "";
     }
 
+    function renderRefMatchDropdown(){
+      const current = sessionRefMatch.value || "";
+      sessionRefMatch.innerHTML = '<option value="">— none —</option>';
+
+      // Grouped display: Indica/Sativa/Hybrid/CBD/CBG (no fancy UI, still clean)
+      const groups = {};
+      for (const r of REF_CATALOG){
+        const key = r.category || "Other";
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(r);
+      }
+
+      const order = ["Indica","Sativa","Hybrid","CBD","CBG","Other"];
+      for (const g of order){
+        if (!groups[g] || !groups[g].length) continue;
+        const og = document.createElement("optgroup");
+        og.label = g.toUpperCase();
+        groups[g].slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(r=>{
+          const opt = document.createElement("option");
+          opt.value = r.id;
+          opt.textContent = refLabel(r);
+          og.appendChild(opt);
+        });
+        sessionRefMatch.appendChild(og);
+      }
+
+      sessionRefMatch.value = current;
+    }
+
+    function getRefById(refId){
+      return REF_CATALOG.find(r => r.id === refId) || null;
+    }
+
     async function renderSessions(){
-      const sessions = await dbGetAll(STORE_SESSIONS);
+      const sessions = await dbGetAll();
       sessions.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
       if (!sessions.length){
         sessionList.innerHTML = '<div class="muted">No sessions yet.</div>';
@@ -957,13 +832,16 @@
         const notes = (s.notes||"").trim();
         const stashText = s.stashName ? ` — ${s.stashName}` : "";
 
+        // NEW: reference match display
+        const refText = s.refName ? ` — REF: ${s.refName}` : "";
+
         const url = URL.createObjectURL(s.audioBlob);
 
         el.innerHTML = `
           <div class="itemHead">
             <div style="min-width:0; flex:1;">
               <p class="itemTitle">${escapeHtml(title)}</p>
-              <p class="itemMeta">${escapeHtml(when)}${escapeHtml(stashText)}${notes ? " — " + escapeHtml(notes) : ""}</p>
+              <p class="itemMeta">${escapeHtml(when)}${escapeHtml(stashText)}${escapeHtml(refText)}${notes ? " — " + escapeHtml(notes) : ""}</p>
             </div>
             <div class="itemBtns">
               <button class="btn btnOk" data-act="play">Play</button>
@@ -983,13 +861,13 @@
           const newTag = prompt("Rename session tag:", title);
           if (newTag === null) return;
           s.tag = (newTag||"").trim();
-          await dbPut(STORE_SESSIONS, s);
+          await dbPut(s);
           await renderSessions();
         };
         el.querySelector('[data-act="delete"]').onclick = async () => {
           const ok = confirm("Delete this session from this device?");
           if (!ok) return;
-          await dbDelete(STORE_SESSIONS, s.id);
+          await dbDelete(s.id);
           await renderSessions();
         };
 
@@ -1004,18 +882,24 @@
       const stashItems = loadStash();
       const stashItem = stashItems.find(x => x.id=== stashId);
 
+      // NEW: capture reference match
+      const refId = sessionRefMatch.value || "";
+      const ref = refId ? getRefById(refId) : null;
+
       const session = {
-        id: uid("sess"),
+        id: uid(),
         createdAt: Date.now(),
         tag,
         notes,
         stashId: stashItem ? stashItem.id : "",
         stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : "",
+        refId: ref ? ref.id : "",
+        refName: ref ? refLabel(ref) : "",
         mimeType: blob.type || "audio/*",
         audioBlob: blob
       };
 
-      await dbPut(STORE_SESSIONS, session);
+      await dbPut(session);
 
       preview.src = URL.createObjectURL(blob);
       preview.style.display = "block";
@@ -1023,6 +907,7 @@
       sessionTag.value = "";
       sessionNotes.value = "";
       sessionStashLink.value = "";
+      sessionRefMatch.value = "";
 
       await renderSessions();
     }
@@ -1099,346 +984,25 @@
     clearSessionsBtn.onclick = async () => {
       const ok = confirm("Clear ALL sessions on this device?");
       if (!ok) return;
-      await dbClear(STORE_SESSIONS);
+      await dbClear();
       preview.style.display = "none";
       preview.removeAttribute("src");
       await renderSessions();
     };
 
-    // ------------------ VAULT ------------------
-    const vaultType = document.getElementById("vaultType");
-    const vaultTitle = document.getElementById("vaultTitle");
-    const vaultTags = document.getElementById("vaultTags");
-    const vaultLane = document.getElementById("vaultLane");
-
-    const vaultTextBox = document.getElementById("vaultTextBox");
-    const vaultText = document.getElementById("vaultText");
-
-    const vaultLinkBox = document.getElementById("vaultLinkBox");
-    const vaultUrl = document.getElementById("vaultUrl");
-    const vaultUrlNote = document.getElementById("vaultUrlNote");
-
-    const vaultAudioBox = document.getElementById("vaultAudioBox");
-    const vaultAudioFile = document.getElementById("vaultAudioFile");
-    const vaultAudioPreview = document.getElementById("vaultAudioPreview");
-    const vaultClearAudio = document.getElementById("vaultClearAudio");
-
-    const vaultAddBtn = document.getElementById("vaultAddBtn");
-    const vaultResetBtn = document.getElementById("vaultResetBtn");
-    const vaultRefreshBtn = document.getElementById("vaultRefreshBtn");
-    const vaultList = document.getElementById("vaultList");
-    const vaultSearch = document.getElementById("vaultSearch");
-
-    const vaultExportBtn = document.getElementById("vaultExportBtn");
-    const vaultImportFile = document.getElementById("vaultImportFile");
-
-    let vaultPendingAudioBlob = null;
-    let vaultFilter = "all"; // all | text | link | audio | fav
-
-    function parseTags(str){
-      return (str||"").split(",").map(s=>s.trim()).filter(Boolean);
-    }
-
-    function setVaultTypeUI(){
-      const t = vaultType.value;
-      vaultTextBox.style.display = (t === "text") ? "block" : "none";
-      vaultLinkBox.style.display = (t === "link") ? "block" : "none";
-      vaultAudioBox.style.display = (t === "audio") ? "block" : "none";
-    }
-
-    vaultType.addEventListener("change", () => {
-      setVaultTypeUI();
-    });
-
-    vaultAudioFile.addEventListener("change", async (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      vaultPendingAudioBlob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
-      vaultAudioPreview.src = URL.createObjectURL(vaultPendingAudioBlob);
-      vaultAudioPreview.style.display = "block";
-    });
-
-    vaultClearAudio.onclick = () => {
-      vaultPendingAudioBlob = null;
-      vaultAudioFile.value = "";
-      vaultAudioPreview.style.display = "none";
-      vaultAudioPreview.removeAttribute("src");
-    };
-
-    function vaultReset(){
-      vaultType.value = "text";
-      vaultTitle.value = "";
-      vaultTags.value = "";
-      vaultLane.value = "";
-      vaultText.value = "";
-      vaultUrl.value = "";
-      vaultUrlNote.value = "";
-      vaultClearAudio.click();
-      setVaultTypeUI();
-    }
-
-    vaultResetBtn.onclick = vaultReset;
-
-    async function vaultAdd(){
-      const type = vaultType.value;
-      const title = (vaultTitle.value || "").trim();
-      if (!title){
-        alert("Title required.");
-        return;
-      }
-      const tags = parseTags(vaultTags.value);
-      const lane = vaultLane.value || "";
-
-      const base = {
-        id: uid("vault"),
-        createdAt: Date.now(),
-        type,
-        title,
-        tags,
-        lane,
-        favorite: false
-      };
-
-      if (type === "text"){
-        const t = (vaultText.value || "").trim();
-        if (!t){
-          alert("Text required for TEXT entry.");
-          return;
-        }
-        await dbPut(STORE_VAULT, { ...base, text: t });
-      } else if (type === "link"){
-        const url = (vaultUrl.value || "").trim();
-        if (!url || !/^https?:\/\//i.test(url)){
-          alert("Valid URL required (must start with http:// or https://).");
-          return;
-        }
-        await dbPut(STORE_VAULT, { ...base, url, note: (vaultUrlNote.value||"").trim() });
-      } else if (type === "audio"){
-        if (!vaultPendingAudioBlob){
-          alert("Attach an audio file first.");
-          return;
-        }
-        await dbPut(STORE_VAULT, { ...base, mimeType: vaultPendingAudioBlob.type || "audio/*", audioBlob: vaultPendingAudioBlob });
-      } else {
-        alert("Unknown vault type.");
-        return;
-      }
-
-      vaultReset();
-      await renderVault();
-    }
-
-    vaultAddBtn.onclick = vaultAdd;
-    vaultRefreshBtn.onclick = () => renderVault();
-    vaultSearch.addEventListener("input", () => renderVault());
-
-    // filter chips
-    document.querySelectorAll("[data-vfilter]").forEach(ch => {
-      ch.onclick = () => {
-        document.querySelectorAll("[data-vfilter]").forEach(x => x.classList.remove("active"));
-        ch.classList.add("active");
-        vaultFilter = ch.getAttribute("data-vfilter") || "all";
-        renderVault();
-      };
-    });
-
-    function vaultMatches(entry, q){
-      if (!q) return true;
-      const hay = [
-        entry.title || "",
-        (entry.tags || []).join(" "),
-        entry.lane || "",
-        entry.type || "",
-        entry.text || "",
-        entry.note || "",
-        entry.url || ""
-      ].join(" ").toLowerCase();
-      return hay.includes(q);
-    }
-
-    function vaultPassesFilter(entry){
-      if (vaultFilter === "all") return true;
-      if (vaultFilter === "fav") return !!entry.favorite;
-      return (entry.type === vaultFilter);
-    }
-
-    function laneLabel(lane){
-      if (!lane) return "";
-      return lane.replaceAll("_","/");
-    }
-
-    async function renderVault(){
-      const q = (vaultSearch.value || "").trim().toLowerCase();
-      const items = await dbGetAll(STORE_VAULT);
-      items.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
-
-      const shown = items.filter(e => vaultPassesFilter(e) && vaultMatches(e, q));
-
-      if (!shown.length){
-        vaultList.innerHTML = '<div class="muted">No vault entries match.</div>';
-        return;
-      }
-
-      vaultList.innerHTML = "";
-      for (const v of shown){
-        const el = document.createElement("div");
-        el.className = "item";
-
-        const when = fmtTime(v.createdAt);
-        const tags = (v.tags && v.tags.length) ? v.tags.map(t=>`<span class="kbd">#${escapeHtml(t)}</span>`).join(" ") : "";
-        const lane = v.lane ? `<span class="kbd">${escapeHtml(laneLabel(v.lane))}</span>` : "";
-        const star = v.favorite ? "★" : "☆";
-
-        let body = "";
-        if (v.type === "text"){
-          body = `<div class="topgap" style="white-space:pre-wrap;">${escapeHtml(v.text||"")}</div>`;
-        } else if (v.type === "link"){
-          const safeUrl = escapeHtml(v.url||"");
-          body = `
-            <div class="topgap">
-              <div class="muted small">Link</div>
-              <div class="topgap">
-                <a class="mono" href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeUrl}</a>
-              </div>
-              ${v.note ? `<div class="topgap">${escapeHtml(v.note)}</div>` : ""}
-            </div>
-          `;
-        } else if (v.type === "audio"){
-          const url = URL.createObjectURL(v.audioBlob);
-          body = `
-            <div class="topgap">
-              <div class="muted small">Audio</div>
-              <div class="topgap"><audio controls preload="none" src="${url}"></audio></div>
-            </div>
-          `;
-        } else {
-          body = `<div class="topgap muted">Unknown type.</div>`;
-        }
-
-        el.innerHTML = `
-          <div class="itemHead">
-            <div style="min-width:0; flex:1;">
-              <p class="itemTitle">${escapeHtml(v.title || (v.type||"VAULT").toUpperCase())}</p>
-              <p class="itemMeta">${escapeHtml(when)} — ${escapeHtml((v.type||"").toUpperCase())}</p>
-              <div class="topgap small muted">${lane}${tags ? " " + tags : ""}</div>
-            </div>
-            <div class="itemBtns">
-              <button class="btn btnGold" data-fav="${v.id}">${star}</button>
-              <button class="btn btnDanger" data-del="${v.id}">Delete</button>
-            </div>
-          </div>
-          ${body}
-        `;
-
-        el.querySelector('[data-del]').onclick = async () => {
-          const ok = confirm("Delete this vault entry?");
-          if (!ok) return;
-          await dbDelete(STORE_VAULT, v.id);
-          await renderVault();
-        };
-
-        el.querySelector('[data-fav]').onclick = async () => {
-          v.favorite = !v.favorite;
-          await dbPut(STORE_VAULT, v);
-          await renderVault();
-        };
-
-        vaultList.appendChild(el);
-      }
-    }
-
-    // ------------------ VAULT PACK Export / Import ------------------
-    vaultExportBtn.onclick = async () => {
-      const entries = await dbGetAll(STORE_VAULT);
-      entries.sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
-
-      const out = [];
-      for (const v of entries){
-        if (v.type === "audio"){
-          const dataUrl = await blobToDataURL(v.audioBlob);
-          out.push({
-            ...v,
-            audioBlob: undefined,
-            audioDataUrl: dataUrl
-          });
-        } else {
-          out.push({ ...v });
-        }
-      }
-
-      const payload = {
-        stoneyvibes_vaultpack: true,
-        version: "0.2.5",
-        exportedAt: Date.now(),
-        vault: out
-      };
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "STONEYVIBES_VAULTPACK_" + new Date().toISOString().replace(/[:.]/g,"-") + ".json";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    };
-
-    vaultImportFile.addEventListener("change", async (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-
-      try{
-        const text = await f.text();
-        const payload = JSON.parse(text);
-        const list = Array.isArray(payload.vault) ? payload.vault : null;
-        if (!list){
-          alert("Import failed: no vault array found.");
-          return;
-        }
-
-        for (const it of list){
-          if (!it || !it.id) continue;
-
-          if (it.type === "audio"){
-            const b = it.audioDataUrl ? await dataURLToBlob(it.audioDataUrl) : null;
-            const obj = {
-              ...it,
-              audioDataUrl: undefined,
-              audioBlob: b || new Blob([], { type: it.mimeType || "audio/*" })
-            };
-            await dbPut(STORE_VAULT, obj);
-          } else {
-            await dbPut(STORE_VAULT, it);
-          }
-        }
-
-        alert("Vault Pack import complete (merged).");
-        await renderVault();
-      } catch(err){
-        console.error(err);
-        alert("Import failed (bad JSON).");
-      } finally {
-        vaultImportFile.value = "";
-      }
-    });
-
     // ------------------ init ------------------
     (async function init(){
-      // STASH
       renderStash();
       renderStashLinkDropdown();
+      renderRefMatchDropdown();
 
-      // sessions recorder fallback visibility
       if (!("MediaRecorder" in window)){
         iphoneFallback.style.display = "flex";
         recBtn.textContent = "🎙️ Start Session (Browser mode unavailable)";
       }
 
-      // VAULT UI
-      setVaultTypeUI();
-
-      // status + renders
       setStatus("idle", "Idle");
       await renderSessions();
-      await renderVault();
     })();
   </script>
 </body>
