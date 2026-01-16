@@ -307,8 +307,31 @@
       background: rgba(255,255,255,0.04);
       border-radius: 8px;
       color: var(--muted);
-    }
-  </style>
+    color: var(--muted);
+}
+
+/* 👇 PASTE STARTS HERE */
+.audioDetails {
+  margin-top: 6px;
+}
+
+.audioDetails summary {
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+}
+
+.audioDetails[open] summary {
+  margin-bottom: 6px;
+}
+/* 👆 PASTE ENDS HERE */
+
+</style>
+    
 </head>
 
 <body>
@@ -851,7 +874,8 @@
             </div>
           </div>
           <div class="topgap">
-            <audio controls preload="none" src="${url}" style="width:100%; margin-top:8px;"></audio>
+           <details class="audioDetails"><summary>▶ Listen</summary><audio controls preload="none" src="${url}" style="width:100%; margin-top:8px;"></audio></details>
+
 
           </div>
         `;
