@@ -3,11 +3,11 @@ console.log("app.js loaded");
 document.addEventListener("DOMContentLoaded", async () => {
   const recBtn = document.getElementById("recBtn");
   const stopBtn = document.getElementById("stopBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
   const statusText = document.getElementById("statusText");
   const preview = document.getElementById("preview");
   const sessionList = document.getElementById("sessionList");
-
-  if (!recBtn || !stopBtn || !statusText || !preview || !sessionList) {
+if (!recBtn || !stopBtn || !pauseBtn || !statusText || !preview || !sessionList) {
     console.error("Missing required elements");
     return;
   }
