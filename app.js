@@ -1,1 +1,1 @@
-// app.js placeholder — next step will inject core logic safely
+console.log("app.js loaded");
