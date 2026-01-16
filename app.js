@@ -11,10 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  recBtn.onclick = () => {
-    console.log("REC clicked");
-    statusText.textContent = "REC";
-  };
+ recBtn.onclick = () => {
+  console.log("REC clicked");
+  statusText.textContent = "REC";
+  pauseBtn.disabled = false;
+};
 
   stopBtn.onclick = () => {
     console.log("STOP clicked");
