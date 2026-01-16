@@ -408,8 +408,10 @@
           </p>
 
           <div class="row topgap">
-            <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Start Session</button>
-            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
+           <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Start Session</button>
+           <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
+           <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
+
             <span id="statusPill" class="pillStatus"><span class="okDot"></span><span id="statusText">Idle</span></span>
           </div>
 
@@ -895,11 +897,30 @@
           await dbDelete(s.id);
           await renderSessions();
         };
+document.getElementById("pauseBtn").onclick = () => {
+  if (!mediaRecorder || mediaRecorder.state === "inactive") return;
 
+  if (!isPaused) {
+    mediaRecorder.pause();
+    pausedAt = Date.now();
+    isPaused = true;
+    document.getElementById("pauseBtn").textContent = "Resume";
+    setStatus("Paused");
+  } else {
+    mediaRecorder.resume();
+    totalPausedMs += Date.now() - pausedAt;
+    pausedAt = 0;
+    isPaused = false;
+    document.getElementById("pauseBtn").textContent = "Pause";
+    setStatus("Recording");
+  }
+};
         sessionList.appendChild(el);
       }
     }
-
+let isPaused = false;
+let pausedAt = 0;
+let totalPausedMs = 0;
     async function saveSessionFromBlob(blob){
       const tag = (sessionTag.value || "").trim();
       const notes = (sessionNotes.value || "").trim();
@@ -939,8 +960,8 @@ preview.style.display = "block";
 
     async function startRecording(){
       if (isRecording) return;
-
-      if (!("MediaRecorder" in window)){
+isPaused = false;
+      
         iphoneFallback.style.display = "flex";
         alert("In-browser recording isn’t supported here. Use “Record Audio (iPhone Mode)”.");
         return;
