@@ -12,6 +12,10 @@ if (!recBtn || !stopBtn || !pauseBtn || !statusText || !preview || !sessionList)
     return;
   }
 
+  pauseBtn.onclick = () => {
+  console.log("PAUSE clicked");
+};
+  
   /* ---------- IndexedDB ---------- */
   const DB_NAME = "sv_db";
   const STORE = "sessions";
