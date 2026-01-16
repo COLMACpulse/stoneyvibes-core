@@ -1,22 +1,27 @@
 console.log("app.js loaded");
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+  // ---------- DOM ----------
   const recBtn = document.getElementById("recBtn");
   const stopBtn = document.getElementById("stopBtn");
-  const pauseBtn = document.getElementById("pauseBtn");
+  const pauseBtn = document.getElementById("pauseBtn"); // optional
   const statusText = document.getElementById("statusText");
   const preview = document.getElementById("preview");
   const sessionList = document.getElementById("sessionList");
-if (!recBtn || !stopBtn || !pauseBtn || !statusText || !preview || !sessionList) {
-    console.error("Missing required elements");
+
+  if (!recBtn || !stopBtn || !statusText || !preview || !sessionList) {
+    console.error("Missing required elements", {
+      recBtn, stopBtn, statusText, preview, sessionList
+    });
     return;
   }
 
-  pauseBtn.onclick = () => {
-  console.log("PAUSE clicked");
-};
-  
-  /* ---------- IndexedDB ---------- */
+  if (pauseBtn) {
+    pauseBtn.onclick = () => console.log("PAUSE clicked");
+  }
+
+  // ---------- IndexedDB ----------
   const DB_NAME = "sv_db";
   const STORE = "sessions";
 
@@ -59,13 +64,14 @@ if (!recBtn || !stopBtn || !pauseBtn || !statusText || !preview || !sessionList)
   async function renderSessions() {
     const sessions = await loadSessions();
     sessionList.innerHTML = "";
+
     if (!sessions.length) {
       sessionList.innerHTML = `<div class="muted">No sessions yet.</div>`;
       return;
     }
 
     sessions
-      .sort((a,b)=>b.createdAt-a.createdAt)
+      .sort((a, b) => b.createdAt - a.createdAt)
       .forEach(s => {
         const url = URL.createObjectURL(s.blob);
         const el = document.createElement("div");
@@ -78,7 +84,7 @@ if (!recBtn || !stopBtn || !pauseBtn || !statusText || !preview || !sessionList)
       });
   }
 
-  /* ---------- Recording ---------- */
+  // ---------- Recording ----------
   let mediaRecorder = null;
   let mediaStream = null;
   let chunks = [];
@@ -103,12 +109,14 @@ if (!recBtn || !stopBtn || !pauseBtn || !statusText || !preview || !sessionList)
     mediaRecorder.onstop = async () => {
       const blob = new Blob(chunks, { type: mediaRecorder.mimeType });
       await saveSession(blob);
+
       preview.src = URL.createObjectURL(blob);
       preview.style.display = "block";
 
       mediaStream.getTracks().forEach(t => t.stop());
       mediaRecorder = null;
       chunks = [];
+
       await renderSessions();
     };
 
@@ -126,6 +134,6 @@ if (!recBtn || !stopBtn || !pauseBtn || !statusText || !preview || !sessionList)
     statusText.textContent = "Idle";
   };
 
-  /* ---------- Init ---------- */
+  // ---------- Init ----------
   await renderSessions();
 });
