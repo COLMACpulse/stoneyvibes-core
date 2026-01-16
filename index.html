@@ -299,15 +299,14 @@
       line-height:1.45;
     }
 
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      padding: 2px 6px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      border-radius: 8px;
-      color: var(--muted);
-    color: var(--muted);
+   .kbd{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  padding: 2px 6px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  color: var(--muted);
 }
 
 /* 👇 PASTE STARTS HERE */
@@ -930,14 +929,6 @@
 preview.src = URL.createObjectURL(blob);
 preview.style.display = "block";
 
-sessionTag.value = "";
-sessionNotes.value = "";
-sessionStashLink.value = "";
-sessionTimebox.value = "";
-
-      preview.src = URL.createObjectURL(blob);
-      preview.style.display = "block";
-
       sessionTag.value = "";
       sessionNotes.value = "";
       sessionStashLink.value = "";
@@ -1028,70 +1019,7 @@ sessionTimebox.value = "";
     (async function init(){
       renderStash();
       renderStashLinkDropdown();
-      // ===== PATCH: Reference Match dropdown + simple filter (B) =====
-const CATALOG = [
-  { name:"Northern Lights", type:"INDICA" },
-  { name:"Granddaddy Purple", type:"INDICA" },
-  { name:"Bubba Kush", type:"INDICA" },
-  { name:"Hindu Kush", type:"INDICA" },
-  { name:"Purple Kush", type:"INDICA" },
-
-  { name:"Durban Poison", type:"SATIVA" },
-  { name:"Jack Herer", type:"SATIVA" },
-  { name:"Sour Diesel", type:"SATIVA" },
-  { name:"Acapulco Gold", type:"SATIVA" },
-  { name:"Super Lemon Haze", type:"SATIVA" },
-
-  { name:"Blue Dream", type:"HYBRID" },
-  { name:"Gelato", type:"HYBRID" },
-  { name:"Gorilla Glue #4", type:"HYBRID" },
-  { name:"Wedding Cake", type:"HYBRID" },
-
-  { name:"Harlequin", type:"CBD_ALT" },
-  { name:"ACDC", type:"CBD_ALT" },
-  { name:"Cannatonic", type:"CBD_ALT" },
-  { name:"Doug’s Varin", type:"CBD_ALT" },
-  { name:"White CBG", type:"CBD_ALT" },
-  { name:"Stem Cell CBG", type:"CBD_ALT" },
-];
-
-const refMatch = document.getElementById("refMatch");
-const filterRefType = document.getElementById("filterRefType");
-
-function renderReferenceDropdown(){
-  if (!refMatch) return;
-  const cur = refMatch.value || "";
-  refMatch.innerHTML = '<option value="">— none —</option>';
-
-  const groups = [
-    { label:"INDICA", key:"INDICA" },
-    { label:"SATIVA", key:"SATIVA" },
-    { label:"HYBRID", key:"HYBRID" },
-    { label:"CBD + ALT", key:"CBD_ALT" },
-  ];
-
-  for (const g of groups){
-    const og = document.createElement("optgroup");
-    og.label = g.label;
-    CATALOG.filter(x => x.type===g.key).forEach(x => {
-      const opt = document.createElement("option");
-      opt.value = `${x.name}||${x.type}`;
-      opt.textContent = x.name;
-      og.appendChild(opt);
-    });
-    refMatch.appendChild(og);
-  }
-  refMatch.value = cur;
-}
-
-// Hook filter dropdown (if present) to rerender
-if (filterRefType){
-  filterRefType.addEventListener("change", () => { renderSessions(); });
-}
-
-// Render the dropdown now
-renderReferenceDropdown();
-// ===== END PATCH =====
+      
 
       renderRefMatchDropdown();
 
