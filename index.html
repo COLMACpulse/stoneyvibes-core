@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StoneyVibes — V1.1 (CAPTURE SCREEN FROZEN)</title>
+  <title>StoneyVibes v1.1 — FORCE-FED ART</title>
   <style>
     :root{
       --bg:#0b0d10;
@@ -14,76 +14,42 @@
       --card:rgba(255,255,255,0.04);
       --shadow:0 10px 30px rgba(0,0,0,0.35);
       --radius:16px;
-      --danger:rgba(255,90,90,0.18);
-      --dangerB:rgba(255,90,90,0.32);
-      --ok:rgba(90,255,170,0.16);
-      --okB:rgba(90,255,170,0.28);
-      --chipOn:rgba(255,255,255,0.14);
-      --chipOff:rgba(255,255,255,0.06);
-      --chipBorder:rgba(255,255,255,0.22);
-      --chipBorderOff:rgba(233,238,245,0.18);
-      --star:rgba(233,238,245,0.18);
-      --star2:rgba(233,238,245,0.10);
+
+      /* severity colors */
+      --sev1:#7dd3fc; /* calm blue */
+      --sev2:#34d399; /* green */
+      --sev3:#fbbf24; /* amber */
+      --sev4:#fb7185; /* rose */
+      --sev5:#a78bfa; /* violet */
     }
 
     *{ box-sizing:border-box; }
     body{
       margin:0;
       font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color:var(--text);
+      overflow:hidden;
+    }
+
+    /* --- full-screen layout --- */
+    .app{
+      height:100svh;
+      display:grid;
+      grid-template-columns: 1fr 0.82fr; /* left app / right art */
+      gap:0;
+    }
+
+    /* --- left side (app) --- */
+    .left{
+      position:relative;
+      height:100%;
+      overflow:hidden;
+      border-right:1px solid var(--border);
       background:
         radial-gradient(1000px 600px at 30% 0%, rgba(255,255,255,0.06), transparent 60%),
         radial-gradient(900px 700px at 80% 10%, rgba(90,255,170,0.06), transparent 55%),
-        radial-gradient(900px 700px at 40% 80%, rgba(255,180,90,0.05), transparent 60%),
-        var(--bg);
-      color:var(--text);
-      position:relative;
-      overflow:hidden;
-    }
-
-    /* subtle star rails (visual only) */
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:0;
-      opacity:0.9;
-      background:
-        radial-gradient(circle at 6% 10%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 18%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 26%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 34%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 42%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 50%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 58%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 66%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 74%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 82%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 90%, var(--star) 0 1px, transparent 2px),
-
-        radial-gradient(circle at 94% 12%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 20%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 28%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 36%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 44%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 52%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 60%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 68%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 76%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 84%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 92%, var(--star) 0 1px, transparent 2px),
-
-        radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.06), transparent 55%),
-        radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.06), transparent 55%);
-    }
-
-    .shell{
-      height:100svh;
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      position:relative;
-      z-index:1;
+        radial-gradient(900px 700px at 40% 80%, rgba(255,180,90,0.05), transparent 60%);
     }
 
     header{
@@ -92,28 +58,12 @@
       background:rgba(0,0,0,0.18);
       backdrop-filter: blur(8px);
     }
-
-    .title{
-      margin:0;
-      font-size:20px;
-      letter-spacing:0.02em;
-    }
-
-    .sub{
-      margin:6px 0 0 0;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.35;
-    }
+    .title{ margin:0; font-size:20px; letter-spacing:0.02em; }
+    .sub{ margin:6px 0 0 0; font-size:13px; color:var(--muted); line-height:1.35; }
 
     .nav{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-      align-items:center;
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; align-items:center;
     }
-
     .tab{
       border:1px solid var(--border2);
       background:rgba(255,255,255,0.06);
@@ -129,17 +79,10 @@
       background:rgba(255,255,255,0.12);
       border-color:rgba(255,255,255,0.28);
     }
-
-    .hint{
-      margin-left:auto;
-      font-size:12px;
-      color:var(--muted);
-      opacity:0.85;
-      white-space:nowrap;
-    }
+    .hint{ margin-left:auto; font-size:12px; color:var(--muted); opacity:0.85; white-space:nowrap; }
 
     .pages{
-      flex:1;
+      height:calc(100svh - 92px);
       display:flex;
       overflow-x:auto;
       scroll-snap-type:x mandatory;
@@ -162,19 +105,10 @@
       box-shadow:var(--shadow);
       margin:12px 0;
     }
-    .card h2{
-      margin:0 0 6px 0;
-      font-size:14px;
-      letter-spacing:0.10em;
-    }
+    .card h2{ margin:0 0 6px 0; font-size:14px; letter-spacing:0.10em; }
     .muted{ color:var(--muted); }
 
-    .row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-    }
+    .row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
     .between{ justify-content:space-between; }
     .topgap{ margin-top:10px; }
 
@@ -190,31 +124,11 @@
       -webkit-tap-highlight-color: transparent;
     }
     .btn:disabled{ opacity:0.5; cursor:not-allowed; }
-    .btnPrimary{
-      border-color:rgba(255,255,255,0.28);
-      background:rgba(255,255,255,0.10);
-    }
-    .btnDanger{
-      border-color:var(--dangerB);
-      background:var(--danger);
-    }
-    .btnOk{
-      border-color:var(--okB);
-      background:var(--ok);
-    }
+    .btnPrimary{ border-color:rgba(255,255,255,0.28); background:rgba(255,255,255,0.10); }
+    .btnDanger{ border-color:rgba(255,90,90,0.32); background:rgba(255,90,90,0.18); }
 
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      flex:1;
-      min-width:220px;
-    }
-    .label{
-      font-size:12px;
-      color:var(--muted);
-      letter-spacing:0.04em;
-    }
+    .field{ display:flex; flex-direction:column; gap:6px; flex:1; min-width:220px; }
+    .label{ font-size:12px; color:var(--muted); letter-spacing:0.04em; }
     .input, .select{
       width:100%;
       border:1px solid var(--border);
@@ -223,9 +137,6 @@
       padding:10px 12px;
       border-radius:14px;
       outline:none;
-    }
-    .input:focus, .select:focus{
-      border-color:rgba(255,255,255,0.28);
     }
 
     .pillStatus{
@@ -239,1045 +150,305 @@
       align-items:center;
       gap:8px;
     }
-    .okDot, .recDot{
-      width:8px; height:8px; border-radius:50%;
-      display:inline-block;
-      background:rgba(233,238,245,0.35);
-    }
-    .recDot{
-      background:rgba(255,90,90,0.85);
-      box-shadow:0 0 0 3px rgba(255,90,90,0.18);
-    }
-
-    .list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:10px;
-    }
-    .item{
-      border:1px solid var(--border);
-      background:rgba(0,0,0,0.18);
-      border-radius:14px;
-      padding:10px;
-    }
-    .itemHead{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      justify-content:space-between;
-    }
-    .itemTitle{
-      font-weight:600;
-      font-size:14px;
-      margin:0;
-      line-height:1.25;
-    }
-    .itemMeta{
-      font-size:12px;
-      color:var(--muted);
-      margin:2px 0 0 0;
-      line-height:1.35;
-    }
-    .itemBtns{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      justify-content:flex-end;
-    }
-    audio{ width:100%; }
+    .okDot,.recDot{ width:8px;height:8px;border-radius:50%; display:inline-block; background:rgba(233,238,245,0.35); }
+    .recDot{ background:rgba(255,90,90,0.85); box-shadow:0 0 0 3px rgba(255,90,90,0.18); }
 
     .divider{ height:1px; background:var(--border); margin:12px 0; }
+    .list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .item{ border:1px solid var(--border); background:rgba(0,0,0,0.18); border-radius:14px; padding:10px; }
+    .itemTitle{ font-weight:600; font-size:14px; margin:0; line-height:1.25; }
+    audio{ width:100%; }
 
-    .notice{
-      border:1px dashed var(--border2);
-      background:rgba(255,255,255,0.04);
-      border-radius:14px;
-      padding:10px 12px;
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.45;
-    }
-
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      padding: 2px 6px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      border-radius: 8px;
-      color: var(--muted);
-    }
-
-    /* chips */
-    .chipRow{ display:flex; flex-wrap:wrap; gap:8px; }
-    .chip{
-      border:1px solid var(--chipBorderOff);
-      background:var(--chipOff);
-      color:var(--text);
-      border-radius:999px;
-      padding:8px 10px;
-      font-size:13px;
-      cursor:pointer;
-      user-select:none;
-    }
-    .chip.on{
-      border-color:var(--chipBorder);
-      background:var(--chipOn);
-    }
-
-    /* photos */
-    .thumbs{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
-    .thumb{
-      width:92px; height:92px;
-      border-radius:14px;
-      border:1px solid var(--border);
+    /* --- right side (art panel) --- */
+    .right{
+      position:relative;
+      height:100%;
       overflow:hidden;
-      background:rgba(255,255,255,0.04);
+      background: rgba(0,0,0,0.35);
+    }
+
+    /* Force-fed right image (base64) */
+    .right::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image: url("__PASTE_RIGHT_IMAGE_BASE64_HERE__");
+      background-size: cover;
+      background-position: center;
+      filter: saturate(1.05) contrast(1.05);
+      opacity:0.95;
+      transform: translateZ(0);
+    }
+
+    /* glass overlay */
+    .right::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.65));
+      pointer-events:none;
+    }
+
+    /* sigil badge */
+    .sigil{
+      position:absolute;
+      top:18px;
+      right:18px;
+      width:54px;
+      height:54px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(10px);
+      display:grid;
+      place-items:center;
+      z-index:2;
+      overflow:hidden;
+    }
+    .sigil img{
+      width:80%;
+      height:80%;
+      object-fit:contain;
+      opacity:0.95;
+    }
+
+    /* severity indicator v1 (CANON) */
+    .severity{
+      position:absolute;
+      left:16px;
+      bottom:16px;
+      z-index:2;
+      width:min(360px, calc(100% - 32px));
+      border:1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.28);
+      backdrop-filter: blur(10px);
+      border-radius:16px;
+      padding:12px;
+    }
+    .sevTop{
       display:flex;
       align-items:center;
-      justify-content:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
     }
-    .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .tiny{ font-size:12px; color:var(--muted); }
+    .sevLabel{
+      font-size:12px;
+      letter-spacing:0.12em;
+      color:rgba(233,238,245,0.78);
+    }
+    .sevValue{
+      font-size:12px;
+      color:rgba(233,238,245,0.70);
+    }
+    .sevBar{
+      height:10px;
+      border-radius:999px;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:6px;
+    }
+    .sevTick{
+      border-radius:999px;
+      opacity:0.55;
+      border:1px solid rgba(255,255,255,0.14);
+    }
+    .sevTick.active{ opacity:1; border-color: rgba(255,255,255,0.26); }
 
-    /* details for audio */
-    .audioDetails { margin-top: 6px; }
-    .audioDetails summary {
-      cursor: pointer;
-      user-select: none;
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
+    /* mobile: stack */
+    @media (max-width: 920px){
+      .app{ grid-template-columns:1fr; }
+      .right{ display:none; } /* keep V1 simple on phone */
+      .pages{ height:calc(100svh - 92px); }
     }
-    .audioDetails[open] summary { margin-bottom: 6px; }
   </style>
 </head>
 
 <body>
-  <div class="shell">
-    <header>
-      <h1 class="title">StoneyVibes — V1.1</h1>
-      <p class="sub">A private way to track what you smoke and how it lands.</p>
-
-      <div class="nav">
-        <button class="tab active" id="tabStash" type="button">STASH</button>
-        <button class="tab" id="tabCapture" type="button">CAPTURE</button>
-        <button class="tab" id="tabAbout" type="button">ABOUT</button>
-        <div class="hint">← swipe →</div>
-      </div>
-    </header>
-
-    <main class="pages" id="pages">
-      <!-- PAGE 1: STASH -->
-      <section class="page" id="pageStash">
-        <div class="card">
-          <h2>STASH</h2>
-          <p class="muted" style="margin:0;">Stash entries capture what you smoke (past or present). Not just “inventory.”</p>
-
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">Name</span>
-              <input id="stashName" class="input" type="text" placeholder="e.g., Zookie / DD (mixed flower) / Unknown" />
-            </label>
-
-            <label class="field">
-              <span class="label">Category</span>
-              <select id="stashCategory" class="select">
-                <option value="FLOWER">FLOWER</option>
-                <option value="KIEF">KIEF</option>
-                <option value="HASH">HASH</option>
-                <option value="WAX">WAX</option>
-                <option value="OTHER_CONCENTRATE">OTHER CONCENTRATE</option>
-                <option value="HERBAL">HERBAL</option>
-                <option value="UNKNOWN">UNKNOWN</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">Notes (optional)</span>
-              <input id="stashNotes" class="input" type="text" placeholder="One line. (Optional)" />
-            </label>
-          </div>
-
-          <div class="row topgap">
-            <button id="addStashBtn" class="btn btnPrimary" type="button">Add</button>
-            <button id="clearStashBtn" class="btn btnDanger" type="button">Clear</button>
-          </div>
-
-          <div class="divider"></div>
-          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">LIST</h2>
-          <div id="stashList" class="list">
-            <div class="muted">No stash items yet.</div>
-          </div>
+  <div class="app">
+    <!-- LEFT: app -->
+    <div class="left">
+      <header>
+        <h1 class="title">StoneyVibes v1.1</h1>
+        <p class="sub">Private way to track what you sample and how it lands. Swipe left/right.</p>
+        <div class="nav">
+          <button class="tab active" id="tabStash" type="button">STASH</button>
+          <button class="tab" id="tabSessions" type="button">SESSIONS</button>
+          <button class="tab" id="tabAbout" type="button">ABOUT</button>
+          <div class="hint">← swipe →</div>
         </div>
+      </header>
 
-        <div class="notice">
-          <strong>V1 Canon:</strong><br/>
-          Stash entries can represent what you have on you <em>or</em> what you smoked in the past. Both are valid.
-        </div>
-      </section>
-
-      <!-- PAGE 2: CAPTURE -->
-      <section class="page" id="pageCapture">
-        <div class="card">
-          <h2>CAPTURE</h2>
-          <p class="muted" style="margin:0;">
-            Optional inputs. Save what matters. Skip what doesn’t.
-          </p>
-
-          <div class="divider"></div>
-
-          <!-- 1) What are you sampling? -->
-          <div class="row between">
-            <span class="label">1) WHAT ARE YOU SAMPLING?</span>
-            <span class="tiny">(buttons + optional text)</span>
+      <main class="pages" id="pages">
+        <section class="page">
+          <div class="card">
+            <h2>STASH</h2>
+            <p class="muted" style="margin:0;">Entries capture what you like or have sampled in the past.</p>
+            <div class="divider"></div>
+            <div class="muted">Your existing stash logic can be pasted back in here unchanged.</div>
           </div>
-          <div class="row topgap">
-            <div class="chipRow" id="sampleTypeChips"></div>
-          </div>
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">Optional detail</span>
-              <input id="sampleDetail" class="input" type="text" placeholder="e.g., brand / strain name / “DD” / whatever you call it" />
-            </label>
-          </div>
+        </section>
 
-          <div class="divider"></div>
+        <section class="page">
+          <div class="card">
+            <h2>SESSION</h2>
+            <p class="muted" style="margin:0;">Audio-first capture. Nothing leaves your device.</p>
 
-          <!-- 2) Where did it come from? -->
-          <div class="row between">
-            <span class="label">2) WHERE DID IT COME FROM?</span>
-            <span class="tiny">(buttons)</span>
-          </div>
-          <div class="row topgap">
-            <div class="chipRow" id="sourceChips"></div>
-          </div>
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">Link to STASH (optional)</span>
-              <select id="sessionStashLink" class="select">
-                <option value="">— none —</option>
-              </select>
-            </label>
-          </div>
+            <div class="row topgap">
+              <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Start</button>
+              <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
+              <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
+              <span class="pillStatus"><span id="dot" class="okDot"></span><span id="statusText">Idle</span></span>
+            </div>
 
-          <div class="divider"></div>
+            <div class="row topgap">
+              <audio id="preview" controls style="display:none;"></audio>
+            </div>
 
-          <!-- 3) What does it look like? -->
-          <div class="row between">
-            <span class="label">3) WHAT DOES IT LOOK LIKE?</span>
-            <span class="tiny">(chips + optional photos)</span>
-          </div>
-          <div class="row topgap">
-            <div class="chipRow" id="lookChips"></div>
-          </div>
-
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">Add 1–3 photos (optional)</span>
-              <input id="lookPhotos" class="input" type="file" accept="image/*" capture="environment" multiple />
-            </label>
-          </div>
-          <div id="thumbs" class="thumbs" style="display:none;"></div>
-          <div class="notice">
-            <strong>Tooltip (LOOKS LIKE):</strong>
-            Quick visual anchors only. Use chips, photos, or both.
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- Time + apparatus + additive -->
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">TIME (optional)</span>
-              <select id="sessionTime" class="select">
-                <option value="">—</option>
-                <option value="AM">AM</option>
-                <option value="NOON">NOON</option>
-                <option value="PM">PM</option>
-                <option value="SLEEP">SLEEP</option>
-                <option value="UNKNOWN">UNKNOWN</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span class="label">APPARATUS / IGNITION (optional)</span>
-              <input id="sessionApparatus" class="input" type="text" placeholder="e.g., one-hitter / joint / vape" />
-            </label>
-          </div>
-
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">ADDITIVE (optional)</span>
-              <input id="sessionAdditive" class="input" type="text" placeholder="e.g., none / kief / hash / herb" />
-            </label>
-
-            <label class="field">
-              <span class="label">NOTES (optional)</span>
-              <input id="sessionNotes" class="input" type="text" placeholder="One line." />
-            </label>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- 5) Key features stand out -->
-          <div class="row between">
-            <span class="label">5) KEY FEATURES THAT STAND OUT?</span>
-            <span class="tiny">(broad + minimal)</span>
-          </div>
-          <div class="row topgap">
-            <div class="chipRow" id="typeChips"></div>
-          </div>
-          <div class="row topgap">
-            <div class="chipRow" id="featureChips"></div>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- Audio log -->
-          <div class="row between">
-            <span class="label">AUDIO LOG</span>
-            <span id="statusPill" class="pillStatus"><span class="okDot"></span><span id="statusText">Idle</span></span>
-          </div>
-
-          <div class="row topgap">
-            <button id="recBtn" class="btn btnPrimary" type="button">Start</button>
-            <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
-            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
-          </div>
-
-          <!-- iPhone fallback -->
-          <div class="row topgap" id="iphoneFallback" style="display:none;">
-            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-              Record Audio (iPhone Mode)
-              <input id="fileAudio" type="file" accept="audio/*" capture style="display:none;" />
-            </label>
-            <span class="muted" style="font-size:12px;">Uses your device recorder, then saves locally.</span>
-          </div>
-
-          <div class="row topgap">
-            <audio id="preview" controls style="display:none;"></audio>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- 7) Would you try this again? -->
-          <div class="row between">
-            <span class="label">7) WOULD YOU TRY THIS AGAIN?</span>
-            <span class="tiny">(buttons)</span>
-          </div>
-          <div class="row topgap">
-            <div class="chipRow" id="againChips"></div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="row between">
+            <div class="divider"></div>
             <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">RECENT</h2>
-            <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear</button>
+            <div id="sessionList" class="list"><div class="muted">No sessions yet.</div></div>
           </div>
+        </section>
 
-          <div id="sessionList" class="list">
-            <div class="muted">No sessions yet.</div>
+        <section class="page">
+          <div class="card">
+            <h2>ABOUT</h2>
+            <p class="muted" style="margin:0;">Local-first. No accounts. No feeds. Just capture.</p>
           </div>
+        </section>
+      </main>
+    </div>
 
-          <div class="divider"></div>
-          <div class="notice">
-            <strong>Memory layer (V1):</strong> saved on this device only. The “pattern unlock” lives later.
-          </div>
+    <!-- RIGHT: art force-fed -->
+    <aside class="right">
+      <div class="sigil">
+        <img alt="sigil" src="__PASTE_SIGIL_BASE64_HERE__">
+      </div>
+
+      <div class="severity" id="severityBox">
+        <div class="sevTop">
+          <div class="sevLabel">SEVERITY</div>
+          <div class="sevValue" id="sevValue">2 / 5</div>
         </div>
-      </section>
-
-      <!-- PAGE 3: ABOUT -->
-      <section class="page" id="pageAbout">
-        <div class="card">
-          <h2>ABOUT</h2>
-          <p class="muted" style="margin:0;">
-            V1 stays clean: capture first, meaning later.
-          </p>
-
-          <div class="divider"></div>
-
-          <div class="notice">
-            <strong>V1 Canon:</strong><br/>
-            A private way to track what you smoke and how it lands.
-          </div>
-
-          <div class="divider"></div>
-
-          <p class="muted" style="margin:0; font-size:13px; line-height:1.5;">
-            Upgrade paths are parked. No bolted-on nonsense in V1.
-          </p>
+        <div class="sevBar" id="sevBar">
+          <div class="sevTick" data-s="1" style="background:var(--sev1)"></div>
+          <div class="sevTick active" data-s="2" style="background:var(--sev2)"></div>
+          <div class="sevTick" data-s="3" style="background:var(--sev3)"></div>
+          <div class="sevTick" data-s="4" style="background:var(--sev4)"></div>
+          <div class="sevTick" data-s="5" style="background:var(--sev5)"></div>
         </div>
-      </section>
-    </main>
+      </div>
+    </aside>
   </div>
 
   <script>
-    /************************************************************
-     * STONEYVIBES — V1.1 (CAPTURE SCREEN FROZEN)
-     * Single-file. Local-only.
-     * - STASH stored in localStorage
-     * - CAPTURE sessions stored in IndexedDB (audio + minimal fields)
-     * - Start / Pause / Stop audio
-     ************************************************************/
-
-    // ---------- swipe nav ----------
+    // swipe nav
     const pages = document.getElementById("pages");
     const tabStash = document.getElementById("tabStash");
-    const tabCapture = document.getElementById("tabCapture");
+    const tabSessions = document.getElementById("tabSessions");
     const tabAbout = document.getElementById("tabAbout");
 
     function setActiveTab(which){
-      [tabStash, tabCapture, tabAbout].forEach(t => t.classList.remove("active"));
+      [tabStash, tabSessions, tabAbout].forEach(t => t.classList.remove("active"));
       if (which === "stash") tabStash.classList.add("active");
-      if (which === "capture") tabCapture.classList.add("active");
+      if (which === "sessions") tabSessions.classList.add("active");
       if (which === "about") tabAbout.classList.add("active");
     }
-
     function scrollToPage(idx){
       pages.scrollTo({ left: idx * pages.clientWidth, behavior: "smooth" });
     }
-
     tabStash.onclick = () => scrollToPage(0);
-    tabCapture.onclick = () => scrollToPage(1);
+    tabSessions.onclick = () => scrollToPage(1);
     tabAbout.onclick = () => scrollToPage(2);
 
     pages.addEventListener("scroll", () => {
       const idx = Math.round(pages.scrollLeft / pages.clientWidth);
       if (idx === 0) setActiveTab("stash");
-      if (idx === 1) setActiveTab("capture");
+      if (idx === 1) setActiveTab("sessions");
       if (idx === 2) setActiveTab("about");
     });
 
-    // ---------- utils ----------
-    function escapeHtml(str){
-      return String(str || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function fmtTime(ts){
-      const d = new Date(ts);
-      return d.toLocaleString(undefined, {
-        year:"numeric", month:"short", day:"2-digit",
-        hour:"2-digit", minute:"2-digit"
+    // severity click (optional)
+    const sevBar = document.getElementById("sevBar");
+    const sevValue = document.getElementById("sevValue");
+    if (sevBar && sevValue){
+      sevBar.addEventListener("click", (e)=>{
+        const t = e.target.closest(".sevTick");
+        if (!t) return;
+        const s = Number(t.dataset.s||"2");
+        [...sevBar.querySelectorAll(".sevTick")].forEach(x=>x.classList.toggle("active", Number(x.dataset.s)<=s));
+        sevValue.textContent = `${s} / 5`;
       });
     }
 
-    function uid(){
-      return "sess_" + Math.random().toString(16).slice(2) + "_" + Date.now();
-    }
-
-    // chip helpers: single-select + multi-select
-    function mountChips(container, options, mode){
-      // mode: "single" or "multi"
-      container.innerHTML = "";
-      const state = { selected: (mode === "multi") ? new Set() : "" };
-
-      options.forEach(opt => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "chip";
-        b.textContent = opt;
-        b.onclick = () => {
-          if (mode === "single"){
-            state.selected = (state.selected === opt) ? "" : opt;
-            // update all
-            [...container.querySelectorAll(".chip")].forEach(x => {
-              x.classList.toggle("on", x.textContent === state.selected);
-            });
-          } else {
-            if (state.selected.has(opt)) state.selected.delete(opt);
-            else state.selected.add(opt);
-            b.classList.toggle("on", state.selected.has(opt));
-          }
-        };
-        container.appendChild(b);
-      });
-
-      return state;
-    }
-
-    // ---------- STASH ----------
-    const STASH_KEY = "sv_stash_v1";
-    const stashName = document.getElementById("stashName");
-    const stashCategory = document.getElementById("stashCategory");
-    const stashNotes = document.getElementById("stashNotes");
-    const addStashBtn = document.getElementById("addStashBtn");
-    const clearStashBtn = document.getElementById("clearStashBtn");
-    const stashList = document.getElementById("stashList");
-    const sessionStashLink = document.getElementById("sessionStashLink");
-
-    function loadStash(){
-      try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); }
-      catch { return []; }
-    }
-
-    function saveStash(items){
-      localStorage.setItem(STASH_KEY, JSON.stringify(items));
-      renderStash();
-      renderStashLinkDropdown();
-    }
-
-    function renderStash(){
-      const items = loadStash();
-      if (!items.length){
-        stashList.innerHTML = '<div class="muted">No stash items yet.</div>';
-        return;
-      }
-      stashList.innerHTML = "";
-      items.forEach((it, i) => {
-        const el = document.createElement("div");
-        el.className = "item";
-        el.innerHTML = `
-          <div class="itemHead">
-            <div style="min-width:0; flex:1;">
-              <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
-              <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
-            </div>
-            <div class="itemBtns">
-              <button class="btn btnDanger" type="button">Delete</button>
-            </div>
-          </div>
-        `;
-        el.querySelector("button").onclick = () => {
-          const ok = confirm("Delete this stash item?");
-          if (!ok) return;
-          const updated = loadStash();
-          updated.splice(i,1);
-          saveStash(updated);
-        };
-        stashList.appendChild(el);
-      });
-    }
-
-    function renderStashLinkDropdown(){
-      const items = loadStash();
-      const current = sessionStashLink.value || "";
-      sessionStashLink.innerHTML = '<option value="">— none —</option>';
-      items.forEach(it => {
-        const opt = document.createElement("option");
-        opt.value = it.id;
-        opt.textContent = `${it.name} (${it.category})`;
-        sessionStashLink.appendChild(opt);
-      });
-      sessionStashLink.value = current;
-    }
-
-    addStashBtn.onclick = () => {
-      const name = (stashName.value || "").trim();
-      if (!name){
-        alert("Give it a name (even 'Unknown').");
-        return;
-      }
-      const item = {
-        id: "stash_" + Math.random().toString(16).slice(2) + "_" + Date.now(),
-        name,
-        category: stashCategory.value,
-        notes: (stashNotes.value || "").trim(),
-        createdAt: Date.now()
-      };
-      const items = loadStash();
-      items.unshift(item);
-      saveStash(items);
-      stashName.value = "";
-      stashNotes.value = "";
-    };
-
-    clearStashBtn.onclick = () => {
-      const ok = confirm("Clear entire STASH on this device?");
-      if (!ok) return;
-      saveStash([]);
-    };
-
-    // ---------- CAPTURE UI (V1.1 frozen prompts) ----------
-    const sampleTypeChips = document.getElementById("sampleTypeChips");
-    const sourceChips = document.getElementById("sourceChips");
-    const lookChips = document.getElementById("lookChips");
-    const typeChips = document.getElementById("typeChips");
-    const featureChips = document.getElementById("featureChips");
-    const againChips = document.getElementById("againChips");
-
-    // Locked sampling options (final list)
-    const sampleTypeState = mountChips(sampleTypeChips, [
-      "FLOWER","KIEF","HASH","WAX","OTHER CONCENTRATE","VAPE","EDIBLE","HERBAL","UNKNOWN"
-    ], "single");
-
-    const sourceState = mountChips(sourceChips, [
-      "PERSONAL STASH","ELSEWHERE","UNKNOWN"
-    ], "single");
-
-    // look chips: minimal physical anchors (per your note)
-    const lookState = mountChips(lookChips, [
-      "TINY","SMALL","MED","LARGE",
-      "LOOSE","COMPACT",
-      "FROSTY","NOT FROSTY",
-      "HAIRY","NOT HAIRY",
-      "LIGHT GREEN","DARK GREEN","PURPLE","ORANGE","MIXED"
-    ], "multi");
-
-    // 4 buttons requested (type)
-    const typeState = mountChips(typeChips, [
-      "INDICA","SATIVA","HYBRID","UNKNOWN"
-    ], "single");
-
-    // “key features that stand out” (ultra-minimal)
-    const featureState = mountChips(featureChips, [
-      "CALM","FOCUS","ENERGY","BODY","HEAD","SLEEP","HUNGRY","GIGGLES","EDGY","NONE"
-    ], "multi");
-
-    const againState = mountChips(againChips, [
-      "YES","LATER","NO","DON’T KNOW"
-    ], "single");
-
-    const sampleDetail = document.getElementById("sampleDetail");
-    const lookPhotos = document.getElementById("lookPhotos");
-    const thumbs = document.getElementById("thumbs");
-
-    const sessionTime = document.getElementById("sessionTime");
-    const sessionApparatus = document.getElementById("sessionApparatus");
-    const sessionAdditive = document.getElementById("sessionAdditive");
-    const sessionNotes = document.getElementById("sessionNotes");
-
-    // photo handling (store small dataURLs; V1 only)
-    let photoData = []; // array of {name, dataUrl}
-    function resetPhotos(){
-      photoData = [];
-      thumbs.style.display = "none";
-      thumbs.innerHTML = "";
-      lookPhotos.value = "";
-    }
-
-    async function fileToDataUrl(file){
-      return new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(String(r.result || ""));
-        r.onerror = () => reject(r.error);
-        r.readAsDataURL(file);
-      });
-    }
-
-    lookPhotos.addEventListener("change", async (e) => {
-      const files = [...(e.target.files || [])].slice(0,3);
-      if (!files.length) return;
-      photoData = [];
-      thumbs.innerHTML = "";
-      thumbs.style.display = "flex";
-
-      for (const f of files){
-        try{
-          const dataUrl = await fileToDataUrl(f);
-          photoData.push({ name: f.name, dataUrl });
-
-          const box = document.createElement("div");
-          box.className = "thumb";
-          const img = document.createElement("img");
-          img.src = dataUrl;
-          img.alt = f.name;
-          box.appendChild(img);
-          thumbs.appendChild(box);
-        } catch(err){
-          // skip silently
-        }
-      }
-    });
-
-    // ---------- IndexedDB ----------
-    const DB_NAME = "stoneyvibes_db";
-    const DB_VERSION = 2; // bump for new fields
-    const STORE = "sessions";
-
-    function openDB(){
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = () => {
-          const db = req.result;
-          if (!db.objectStoreNames.contains(STORE)){
-            const s = db.createObjectStore(STORE, { keyPath:"id" });
-            s.createIndex("createdAt","createdAt",{ unique:false });
-          } else {
-            // ensure index exists (older versions)
-            const store = req.transaction.objectStore(STORE);
-            if (!store.indexNames.contains("createdAt")){
-              store.createIndex("createdAt","createdAt",{ unique:false });
-            }
-          }
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    async function dbPut(session){
-      const db = await openDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).put(session);
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    async function dbGetAll(){
-      const db = await openDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readonly");
-        const store = tx.objectStore(STORE);
-        const idx = store.index("createdAt");
-        const req = idx.getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    async function dbDelete(id){
-      const db = await openDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).delete(id);
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    async function dbClear(){
-      const db = await openDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).clear();
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    // ---------- Audio recording ----------
+    // minimal recorder skeleton (you will paste your working recorder back in)
     const recBtn = document.getElementById("recBtn");
     const pauseBtn = document.getElementById("pauseBtn");
     const stopBtn = document.getElementById("stopBtn");
-    const statusPill = document.getElementById("statusPill");
     const statusText = document.getElementById("statusText");
+    const dot = document.getElementById("dot");
     const preview = document.getElementById("preview");
-    const sessionList = document.getElementById("sessionList");
-    const clearSessionsBtn = document.getElementById("clearSessionsBtn");
-    const iphoneFallback = document.getElementById("iphoneFallback");
-    const fileAudio = document.getElementById("fileAudio");
 
-    let mediaRecorder = null;
-    let mediaStream = null;
-    let chunks = [];
-    let isRecording = false;
-    let isPaused = false;
+    let mediaRecorder=null, mediaStream=null, chunks=[], isPaused=false;
 
-    function setStatus(mode, text){
-      statusText.textContent = text;
-      const dot = statusPill.querySelector("span");
-      dot.className = (mode === "rec") ? "recDot" : "okDot";
+    function setStatus(mode, txt){
+      statusText.textContent = txt;
+      dot.className = (mode==="rec") ? "recDot" : "okDot";
     }
 
-    function mimeChoice(){
-      const candidates = [
-        "audio/webm;codecs=opus",
-        "audio/webm",
-        "audio/mp4"
-      ];
-      for (const m of candidates){
-        if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
-      }
-      return "";
-    }
-
-    function collectCaptureFields(){
-      const stashId = sessionStashLink.value || "";
-      const stashItems = loadStash();
-      const stashItem = stashItems.find(x => x.id === stashId);
-
-      return {
-        sampleType: sampleTypeState.selected || "",
-        sampleDetail: (sampleDetail.value || "").trim(),
-
-        source: sourceState.selected || "",
-        stashId: stashItem ? stashItem.id : "",
-        stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : "",
-
-        lookTags: [...lookState.selected],
-        photos: photoData.slice(0,3), // [{name,dataUrl}] optional
-
-        time: sessionTime.value || "",
-        apparatus: (sessionApparatus.value || "").trim(),
-        additive: (sessionAdditive.value || "").trim(),
-        notes: (sessionNotes.value || "").trim(),
-
-        type: typeState.selected || "", // INDICA/SATIVA/HYBRID/UNKNOWN
-        features: [...featureState.selected],
-
-        tryAgain: againState.selected || ""
-      };
-    }
-
-    function resetCaptureFieldsAfterSave(){
-      sampleTypeState.selected = "";
-      [...sampleTypeChips.querySelectorAll(".chip")].forEach(x=>x.classList.remove("on"));
-      sourceState.selected = "";
-      [...sourceChips.querySelectorAll(".chip")].forEach(x=>x.classList.remove("on"));
-      lookState.selected.clear();
-      [...lookChips.querySelectorAll(".chip")].forEach(x=>x.classList.remove("on"));
-      typeState.selected = "";
-      [...typeChips.querySelectorAll(".chip")].forEach(x=>x.classList.remove("on"));
-      featureState.selected.clear();
-      [...featureChips.querySelectorAll(".chip")].forEach(x=>x.classList.remove("on"));
-      againState.selected = "";
-      [...againChips.querySelectorAll(".chip")].forEach(x=>x.classList.remove("on"));
-
-      sampleDetail.value = "";
-      sessionStashLink.value = "";
-      sessionTime.value = "";
-      sessionApparatus.value = "";
-      sessionAdditive.value = "";
-      sessionNotes.value = "";
-      resetPhotos();
-    }
-
-    async function saveSessionFromBlob(blob){
-      const c = collectCaptureFields();
-
-      const session = {
-        id: uid(),
-        createdAt: Date.now(),
-        mimeType: blob.type || "audio/*",
-        audioBlob: blob,
-
-        // V1.1 capture fields (nothing extra)
-        sampleType: c.sampleType,
-        sampleDetail: c.sampleDetail,
-        source: c.source,
-        stashId: c.stashId,
-        stashName: c.stashName,
-        lookTags: c.lookTags,
-        photos: c.photos,
-        time: c.time,
-        apparatus: c.apparatus,
-        additive: c.additive,
-        notes: c.notes,
-        type: c.type,
-        features: c.features,
-        tryAgain: c.tryAgain
-      };
-
-      await dbPut(session);
-
-      preview.src = URL.createObjectURL(blob);
-      preview.style.display = "block";
-
-      resetCaptureFieldsAfterSave();
-      await renderSessions();
-    }
-
-    async function startRecording(){
-      if (isRecording) return;
-
-      if (!("MediaRecorder" in window)){
-        iphoneFallback.style.display = "flex";
-        alert("Browser recording isn’t supported here. Use iPhone Mode.");
-        return;
-      }
-
+    recBtn.onclick = async ()=>{
       try{
-        mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true });
-      } catch(err){
-        alert("Microphone permission blocked.");
-        return;
-      }
-
-      chunks = [];
-      const mime = mimeChoice();
-      try{
-        mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined);
-      } catch(err){
-        iphoneFallback.style.display = "flex";
-        alert("Recording not supported in this browser. Use iPhone Mode.");
-        if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
-        return;
-      }
-
-      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
-
-      mediaRecorder.onstop = async () => {
-        try{
-          const blob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
-          await saveSessionFromBlob(blob);
-        } finally {
-          if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
-          mediaRecorder = null;
-          chunks = [];
-          isRecording = false;
-          isPaused = false;
-          recBtn.disabled = false;
-          pauseBtn.disabled = true;
-          stopBtn.disabled = true;
-          pauseBtn.textContent = "Pause";
+        mediaStream = await navigator.mediaDevices.getUserMedia({audio:true});
+        mediaRecorder = new MediaRecorder(mediaStream);
+        chunks = [];
+        mediaRecorder.ondataavailable = e=>{ if (e.data && e.data.size) chunks.push(e.data); };
+        mediaRecorder.onstop = ()=>{
+          const blob = new Blob(chunks, {type: mediaRecorder.mimeType || "audio/webm"});
+          preview.src = URL.createObjectURL(blob);
+          preview.style.display = "block";
+          mediaStream.getTracks().forEach(t=>t.stop());
+          mediaStream=null; mediaRecorder=null; chunks=[];
+          pauseBtn.disabled=true; stopBtn.disabled=true; recBtn.disabled=false;
           setStatus("idle","Idle");
-        }
-      };
-
-      mediaRecorder.start();
-      isRecording = true;
-      isPaused = false;
-
-      recBtn.disabled = true;
-      pauseBtn.disabled = false;
-      stopBtn.disabled = false;
-      pauseBtn.textContent = "Pause";
-      setStatus("rec", "Recording…");
-    }
-
-    function togglePause(){
-      if (!isRecording || !mediaRecorder) return;
-
-      // Some browsers may not support pause/resume; guard it.
-      if (typeof mediaRecorder.pause !== "function" || typeof mediaRecorder.resume !== "function"){
-        alert("Pause isn’t supported here (use Stop).");
-        return;
-      }
-
-      if (!isPaused){
-        try{ mediaRecorder.pause(); } catch(e){}
-        isPaused = true;
-        pauseBtn.textContent = "Resume";
-        setStatus("idle","Paused");
-      } else {
-        try{ mediaRecorder.resume(); } catch(e){}
-        isPaused = false;
-        pauseBtn.textContent = "Pause";
+        };
+        mediaRecorder.start();
+        recBtn.disabled=true;
+        pauseBtn.disabled=false;
+        stopBtn.disabled=false;
+        isPaused=false;
+        pauseBtn.textContent="Pause";
         setStatus("rec","Recording…");
+      }catch(e){
+        alert("Mic permission blocked.");
       }
-    }
-
-    function stopRecording(){
-      if (!isRecording || !mediaRecorder) return;
-      try{ mediaRecorder.stop(); } catch(e){}
-      setStatus("idle","Saving…");
-    }
-
-    recBtn.onclick = startRecording;
-    pauseBtn.onclick = togglePause;
-    stopBtn.onclick = stopRecording;
-
-    fileAudio.addEventListener("change", async (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      const blob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
-      await saveSessionFromBlob(blob);
-      fileAudio.value = "";
-      setStatus("idle","Idle");
-    });
-
-    // ---------- render sessions ----------
-    async function renderSessions(){
-      const sessions = await dbGetAll();
-      sessions.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
-      if (!sessions.length){
-        sessionList.innerHTML = '<div class="muted">No sessions yet.</div>';
-        return;
-      }
-
-      sessionList.innerHTML = "";
-      for (const s of sessions){
-        const el = document.createElement("div");
-        el.className = "item";
-
-        const when = fmtTime(s.createdAt);
-        const a = [];
-        if (s.sampleType) a.push(s.sampleType);
-        if (s.type) a.push(s.type);
-        if (s.time) a.push(s.time);
-        const headline = a.length ? a.join(" · ") : "Session";
-
-        const stashTxt = s.stashName ? ` — ${s.stashName}` : "";
-        const sourceTxt = s.source ? ` — ${s.source}` : "";
-        const againTxt = s.tryAgain ? ` — AGAIN: ${s.tryAgain}` : "";
-
-        const notes = (s.notes||"").trim();
-        const url = URL.createObjectURL(s.audioBlob);
-
-        const lookLine = (s.lookTags && s.lookTags.length) ? `LOOK: ${s.lookTags.join(", ")}` : "";
-        const featLine = (s.features && s.features.length) ? `FEAT: ${s.features.join(", ")}` : "";
-
-        const hasPhotos = Array.isArray(s.photos) && s.photos.length;
-
-        el.innerHTML = `
-          <div class="itemHead">
-            <div style="min-width:0; flex:1;">
-              <p class="itemTitle">${escapeHtml(headline)}</p>
-              <p class="itemMeta">${escapeHtml(when)}${escapeHtml(stashTxt)}${escapeHtml(sourceTxt)}${escapeHtml(againTxt)}${notes ? " — " + escapeHtml(notes) : ""}</p>
-              ${lookLine ? `<p class="itemMeta">${escapeHtml(lookLine)}</p>` : ""}
-              ${featLine ? `<p class="itemMeta">${escapeHtml(featLine)}</p>` : ""}
-            </div>
-            <div class="itemBtns">
-              <button class="btn btnOk" data-act="play" type="button">Play</button>
-              <button class="btn btnDanger" data-act="delete" type="button">Delete</button>
-            </div>
-          </div>
-
-          <div class="topgap">
-            <details class="audioDetails">
-              <summary>▶ Listen</summary>
-              <audio controls preload="none" src="${url}" style="width:100%; margin-top:8px;"></audio>
-            </details>
-          </div>
-
-          ${hasPhotos ? `
-            <div class="topgap thumbs">
-              ${s.photos.map(p => `<div class="thumb"><img src="${p.dataUrl}" alt="photo"/></div>`).join("")}
-            </div>
-          ` : ``}
-        `;
-
-        el.querySelector('[data-act="play"]').onclick = () => {
-          const au = el.querySelector("audio");
-          if (au) au.play().catch(()=>{});
-        };
-        el.querySelector('[data-act="delete"]').onclick = async () => {
-          const ok = confirm("Delete this session from this device?");
-          if (!ok) return;
-          await dbDelete(s.id);
-          await renderSessions();
-        };
-
-        sessionList.appendChild(el);
-      }
-    }
-
-    clearSessionsBtn.onclick = async () => {
-      const ok = confirm("Clear ALL sessions on this device?");
-      if (!ok) return;
-      await dbClear();
-      preview.style.display = "none";
-      preview.removeAttribute("src");
-      await renderSessions();
     };
 
-    // ---------- init ----------
-    (async function init(){
-      renderStash();
-      renderStashLinkDropdown();
-
-      if (!("MediaRecorder" in window)){
-        iphoneFallback.style.display = "flex";
-        recBtn.textContent = "Start (Browser mode unavailable)";
+    pauseBtn.onclick = ()=>{
+      if (!mediaRecorder) return;
+      if (!isPaused){
+        mediaRecorder.pause();
+        isPaused=true;
+        pauseBtn.textContent="Resume";
+        setStatus("rec","Paused…");
+      }else{
+        mediaRecorder.resume();
+        isPaused=false;
+        pauseBtn.textContent="Pause";
+        setStatus("rec","Recording…");
       }
+    };
 
-      setStatus("idle","Idle");
-      await renderSessions();
-    })();
+    stopBtn.onclick = ()=>{
+      if (!mediaRecorder) return;
+      try{ mediaRecorder.stop(); }catch(e){}
+      pauseBtn.disabled=true; stopBtn.disabled=true;
+      setStatus("idle","Saving…");
+      setTimeout(()=>setStatus("idle","Idle"), 500);
+    };
+
+    setStatus("idle","Idle");
   </script>
 </body>
 </html>
