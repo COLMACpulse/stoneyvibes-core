@@ -1,458 +1,53 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StoneyVibes v1.1 — FORCE-FED ART</title>
+  <meta charset="UTF-8" />
+  <title>StoneyVibes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    :root{
-      --bg:#0b0d10;
-      --text:#e9eef5;
-      --muted:rgba(233,238,245,0.72);
-      --border:rgba(233,238,245,0.12);
-      --border2:rgba(233,238,245,0.18);
-      --card:rgba(255,255,255,0.04);
-      --shadow:0 10px 30px rgba(0,0,0,0.35);
-      --radius:16px;
-
-      /* severity colors */
-      --sev1:#7dd3fc; /* calm blue */
-      --sev2:#34d399; /* green */
-      --sev3:#fbbf24; /* amber */
-      --sev4:#fb7185; /* rose */
-      --sev5:#a78bfa; /* violet */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #111;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color:var(--text);
-      overflow:hidden;
-    }
-
-    /* --- full-screen layout --- */
-    .app{
-      height:100svh;
-      display:grid;
-      grid-template-columns: 1fr 0.82fr; /* left app / right art */
-      gap:0;
-    }
-
-    /* --- left side (app) --- */
-    .left{
-      position:relative;
-      height:100%;
-      overflow:hidden;
-      border-right:1px solid var(--border);
-      background:
-        radial-gradient(1000px 600px at 30% 0%, rgba(255,255,255,0.06), transparent 60%),
-        radial-gradient(900px 700px at 80% 10%, rgba(90,255,170,0.06), transparent 55%),
-        radial-gradient(900px 700px at 40% 80%, rgba(255,180,90,0.05), transparent 60%);
-    }
-
-    header{
-      padding:14px 16px 10px 16px;
-      border-bottom:1px solid var(--border);
-      background:rgba(0,0,0,0.18);
-      backdrop-filter: blur(8px);
-    }
-    .title{ margin:0; font-size:20px; letter-spacing:0.02em; }
-    .sub{ margin:6px 0 0 0; font-size:13px; color:var(--muted); line-height:1.35; }
-
-    .nav{
-      display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; align-items:center;
-    }
-    .tab{
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,0.06);
-      color:var(--text);
-      padding:8px 10px;
-      border-radius:999px;
-      font-size:13px;
-      cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .tab.active{
-      background:rgba(255,255,255,0.12);
-      border-color:rgba(255,255,255,0.28);
-    }
-    .hint{ margin-left:auto; font-size:12px; color:var(--muted); opacity:0.85; white-space:nowrap; }
-
-    .pages{
-      height:calc(100svh - 92px);
-      display:flex;
-      overflow-x:auto;
-      scroll-snap-type:x mandatory;
-      scroll-behavior:smooth;
-      -webkit-overflow-scrolling:touch;
-    }
-    .page{
-      scroll-snap-align:start;
-      min-width:100%;
-      height:100%;
-      overflow-y:auto;
-      padding:14px 16px 24px 16px;
-    }
-
-    .card{
-      border:1px solid var(--border);
-      background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-      border-radius:var(--radius);
-      padding:14px;
-      box-shadow:var(--shadow);
-      margin:12px 0;
-    }
-    .card h2{ margin:0 0 6px 0; font-size:14px; letter-spacing:0.10em; }
-    .muted{ color:var(--muted); }
-
-    .row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
-    .between{ justify-content:space-between; }
-    .topgap{ margin-top:10px; }
-
-    .btn{
-      border:1px solid var(--border2);
-      background:rgba(255,255,255,0.06);
-      color:var(--text);
-      border-radius:14px;
-      padding:10px 12px;
-      cursor:pointer;
-      font-size:14px;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn:disabled{ opacity:0.5; cursor:not-allowed; }
-    .btnPrimary{ border-color:rgba(255,255,255,0.28); background:rgba(255,255,255,0.10); }
-    .btnDanger{ border-color:rgba(255,90,90,0.32); background:rgba(255,90,90,0.18); }
-
-    .field{ display:flex; flex-direction:column; gap:6px; flex:1; min-width:220px; }
-    .label{ font-size:12px; color:var(--muted); letter-spacing:0.04em; }
-    .input, .select{
-      width:100%;
-      border:1px solid var(--border);
-      background:rgba(0,0,0,0.25);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:14px;
-      outline:none;
-    }
-
-    .pillStatus{
-      padding:8px 10px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,0.04);
-      border-radius:999px;
-      color:var(--muted);
-      font-size:13px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-    }
-    .okDot,.recDot{ width:8px;height:8px;border-radius:50%; display:inline-block; background:rgba(233,238,245,0.35); }
-    .recDot{ background:rgba(255,90,90,0.85); box-shadow:0 0 0 3px rgba(255,90,90,0.18); }
-
-    .divider{ height:1px; background:var(--border); margin:12px 0; }
-    .list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-    .item{ border:1px solid var(--border); background:rgba(0,0,0,0.18); border-radius:14px; padding:10px; }
-    .itemTitle{ font-weight:600; font-size:14px; margin:0; line-height:1.25; }
-    audio{ width:100%; }
-
-    /* --- right side (art panel) --- */
-    .right{
-      position:relative;
-      height:100%;
-      overflow:hidden;
-      background: rgba(0,0,0,0.35);
-    }
-
-    /* Force-fed right image (base64) */
-    .right::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background-image: url("__PASTE_RIGHT_IMAGE_BASE64_HERE__");
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: url("assets/bg_leaf_math_16x9.png");
       background-size: cover;
       background-position: center;
-      filter: saturate(1.05) contrast(1.05);
-      opacity:0.95;
-      transform: translateZ(0);
+      background-repeat: no-repeat;
     }
 
-    /* glass overlay */
-    .right::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.65));
-      pointer-events:none;
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
     }
 
-    /* sigil badge */
-    .sigil{
-      position:absolute;
-      top:18px;
-      right:18px;
-      width:54px;
-      height:54px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,0.18);
-      background: rgba(0,0,0,0.25);
-      backdrop-filter: blur(10px);
-      display:grid;
-      place-items:center;
-      z-index:2;
-      overflow:hidden;
-    }
-    .sigil img{
-      width:80%;
-      height:80%;
-      object-fit:contain;
-      opacity:0.95;
-    }
-
-    /* severity indicator v1 (CANON) */
-    .severity{
-      position:absolute;
-      left:16px;
-      bottom:16px;
-      z-index:2;
-      width:min(360px, calc(100% - 32px));
-      border:1px solid rgba(255,255,255,0.18);
-      background: rgba(0,0,0,0.28);
-      backdrop-filter: blur(10px);
-      border-radius:16px;
-      padding:12px;
-    }
-    .sevTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .sevLabel{
-      font-size:12px;
-      letter-spacing:0.12em;
-      color:rgba(233,238,245,0.78);
-    }
-    .sevValue{
-      font-size:12px;
-      color:rgba(233,238,245,0.70);
-    }
-    .sevBar{
-      height:10px;
-      border-radius:999px;
-      overflow:hidden;
-      display:grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap:6px;
-    }
-    .sevTick{
-      border-radius:999px;
-      opacity:0.55;
-      border:1px solid rgba(255,255,255,0.14);
-    }
-    .sevTick.active{ opacity:1; border-color: rgba(255,255,255,0.26); }
-
-    /* mobile: stack */
-    @media (max-width: 920px){
-      .app{ grid-template-columns:1fr; }
-      .right{ display:none; } /* keep V1 simple on phone */
-      .pages{ height:calc(100svh - 92px); }
+    .sigil {
+      position: relative;
+      z-index: 1;
+      width: 220px;
+      max-width: 60vw;
+      opacity: 0.95;
     }
   </style>
 </head>
 
 <body>
-  <header class="sv-hero">
-  <img class="sv-sigil" src="assets/sigil_plant.PNG" alt="StoneyVibes" />
-</header>
-  <div class="app">
-    <!-- LEFT: app -->
-    <div class="left">
-      <header>
-        <h1 class="title">StoneyVibes v1.1</h1>
-        <p class="sub">Private way to track what you sample and how it lands. Swipe left/right.</p>
-        <div class="nav">
-          <button class="tab active" id="tabStash" type="button">STASH</button>
-          <button class="tab" id="tabSessions" type="button">SESSIONS</button>
-          <button class="tab" id="tabAbout" type="button">ABOUT</button>
-          <div class="hint">← swipe →</div>
-        </div>
-      </header>
+  <div class="overlay"></div>
 
-      <main class="pages" id="pages">
-        <section class="page">
-          <div class="card">
-            <h2>STASH</h2>
-            <p class="muted" style="margin:0;">Entries capture what you like or have sampled in the past.</p>
-            <div class="divider"></div>
-            <div class="muted">Your existing stash logic can be pasted back in here unchanged.</div>
-          </div>
-        </section>
-
-        <section class="page">
-          <div class="card">
-            <h2>SESSION</h2>
-            <p class="muted" style="margin:0;">Audio-first capture. Nothing leaves your device.</p>
-
-            <div class="row topgap">
-              <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Start</button>
-              <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
-              <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
-              <span class="pillStatus"><span id="dot" class="okDot"></span><span id="statusText">Idle</span></span>
-            </div>
-
-            <div class="row topgap">
-              <audio id="preview" controls style="display:none;"></audio>
-            </div>
-
-            <div class="divider"></div>
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">RECENT</h2>
-            <div id="sessionList" class="list"><div class="muted">No sessions yet.</div></div>
-          </div>
-        </section>
-
-        <section class="page">
-          <div class="card">
-            <h2>ABOUT</h2>
-            <p class="muted" style="margin:0;">Local-first. No accounts. No feeds. Just capture.</p>
-          </div>
-        </section>
-      </main>
-    </div>
-
-    <!-- RIGHT: art force-fed -->
-    <aside class="right">
-      <div class="sigil">
-        <img alt="sigil" src="__PASTE_SIGIL_BASE64_HERE__">
-      </div>
-
-      <div class="severity" id="severityBox">
-        <div class="sevTop">
-          <div class="sevLabel">SEVERITY</div>
-          <div class="sevValue" id="sevValue">2 / 5</div>
-        </div>
-        <div class="sevBar" id="sevBar">
-          <div class="sevTick" data-s="1" style="background:var(--sev1)"></div>
-          <div class="sevTick active" data-s="2" style="background:var(--sev2)"></div>
-          <div class="sevTick" data-s="3" style="background:var(--sev3)"></div>
-          <div class="sevTick" data-s="4" style="background:var(--sev4)"></div>
-          <div class="sevTick" data-s="5" style="background:var(--sev5)"></div>
-        </div>
-      </div>
-    </aside>
-  </div>
-
-  <script>
-    // swipe nav
-    const pages = document.getElementById("pages");
-    const tabStash = document.getElementById("tabStash");
-    const tabSessions = document.getElementById("tabSessions");
-    const tabAbout = document.getElementById("tabAbout");
-
-    function setActiveTab(which){
-      [tabStash, tabSessions, tabAbout].forEach(t => t.classList.remove("active"));
-      if (which === "stash") tabStash.classList.add("active");
-      if (which === "sessions") tabSessions.classList.add("active");
-      if (which === "about") tabAbout.classList.add("active");
-    }
-    function scrollToPage(idx){
-      pages.scrollTo({ left: idx * pages.clientWidth, behavior: "smooth" });
-    }
-    tabStash.onclick = () => scrollToPage(0);
-    tabSessions.onclick = () => scrollToPage(1);
-    tabAbout.onclick = () => scrollToPage(2);
-
-    pages.addEventListener("scroll", () => {
-      const idx = Math.round(pages.scrollLeft / pages.clientWidth);
-      if (idx === 0) setActiveTab("stash");
-      if (idx === 1) setActiveTab("sessions");
-      if (idx === 2) setActiveTab("about");
-    });
-
-    // severity click (optional)
-    const sevBar = document.getElementById("sevBar");
-    const sevValue = document.getElementById("sevValue");
-    if (sevBar && sevValue){
-      sevBar.addEventListener("click", (e)=>{
-        const t = e.target.closest(".sevTick");
-        if (!t) return;
-        const s = Number(t.dataset.s||"2");
-        [...sevBar.querySelectorAll(".sevTick")].forEach(x=>x.classList.toggle("active", Number(x.dataset.s)<=s));
-        sevValue.textContent = `${s} / 5`;
-      });
-    }
-
-    // minimal recorder skeleton (you will paste your working recorder back in)
-    const recBtn = document.getElementById("recBtn");
-    const pauseBtn = document.getElementById("pauseBtn");
-    const stopBtn = document.getElementById("stopBtn");
-    const statusText = document.getElementById("statusText");
-    const dot = document.getElementById("dot");
-    const preview = document.getElementById("preview");
-
-    let mediaRecorder=null, mediaStream=null, chunks=[], isPaused=false;
-
-    function setStatus(mode, txt){
-      statusText.textContent = txt;
-      dot.className = (mode==="rec") ? "recDot" : "okDot";
-    }
-
-    recBtn.onclick = async ()=>{
-      try{
-        mediaStream = await navigator.mediaDevices.getUserMedia({audio:true});
-        mediaRecorder = new MediaRecorder(mediaStream);
-        chunks = [];
-        mediaRecorder.ondataavailable = e=>{ if (e.data && e.data.size) chunks.push(e.data); };
-        mediaRecorder.onstop = ()=>{
-          const blob = new Blob(chunks, {type: mediaRecorder.mimeType || "audio/webm"});
-          preview.src = URL.createObjectURL(blob);
-          preview.style.display = "block";
-          mediaStream.getTracks().forEach(t=>t.stop());
-          mediaStream=null; mediaRecorder=null; chunks=[];
-          pauseBtn.disabled=true; stopBtn.disabled=true; recBtn.disabled=false;
-          setStatus("idle","Idle");
-        };
-        mediaRecorder.start();
-        recBtn.disabled=true;
-        pauseBtn.disabled=false;
-        stopBtn.disabled=false;
-        isPaused=false;
-        pauseBtn.textContent="Pause";
-        setStatus("rec","Recording…");
-      }catch(e){
-        alert("Mic permission blocked.");
-      }
-    };
-
-    pauseBtn.onclick = ()=>{
-      if (!mediaRecorder) return;
-      if (!isPaused){
-        mediaRecorder.pause();
-        isPaused=true;
-        pauseBtn.textContent="Resume";
-        setStatus("rec","Paused…");
-      }else{
-        mediaRecorder.resume();
-        isPaused=false;
-        pauseBtn.textContent="Pause";
-        setStatus("rec","Recording…");
-      }
-    };
-
-    stopBtn.onclick = ()=>{
-      if (!mediaRecorder) return;
-      try{ mediaRecorder.stop(); }catch(e){}
-      pauseBtn.disabled=true; stopBtn.disabled=true;
-      setStatus("idle","Saving…");
-      setTimeout(()=>setStatus("idle","Idle"), 500);
-    };
-
-    setStatus("idle","Idle");
-  </script>
+  <img
+    class="sigil"
+    src="assets/sigil_plant.PNG"
+    alt="StoneyVibes Sigil"
+  />
 </body>
 </html>
-
