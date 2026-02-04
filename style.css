@@ -1,1 +1,24 @@
+:root{
+  --bg: url("assets/bg_leaf_math_16X9.png.png");
+}
 
+body{
+  margin: 0;
+  min-height: 100vh;
+  background-image: var(--bg);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.sv-hero{
+  position: relative;
+  padding: 18px 18px 0 18px;
+}
+
+.sv-sigil{
+  width: 56px;
+  height: 56px;
+  opacity: 0.95;
+  display: block;
+}
