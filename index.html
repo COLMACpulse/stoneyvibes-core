@@ -19,8 +19,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-
-      /* MUST match filename exactly (capital X) */
       background-image: url("assets/bg_leaf_math_16X9.png");
       background-size: cover;
       background-position: center;
@@ -28,20 +26,17 @@
     }
 
     .overlay {
-      position: fixed;
+      position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.55);
-      pointer-events: none;
+      background: rgba(0, 0, 0, 0.55);
     }
 
     .sigil {
       position: relative;
       z-index: 1;
-      width: 240px;
+      width: 220px;
       max-width: 60vw;
-      height: auto;
       opacity: 0.95;
-      filter: drop-shadow(0 8px 20px rgba(0,0,0,0.45));
     }
   </style>
 </head>
@@ -49,8 +44,10 @@
 <body>
   <div class="overlay"></div>
 
-  <!-- MUST match filename exactly (.PNG) -->
-  <img class="sigil" src="assets/sigil_plant.PNG" alt="StoneyVibes Sigil" />
+  <img
+    class="sigil"
+    src="assets/sigil_plant.PNG"
+    alt="StoneyVibes Sigil"
+  />
 </body>
 </html>
-
