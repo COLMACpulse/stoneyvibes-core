@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StoneyVibes — Tier 1</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+  /* TIER 1 BG — hard-forced from HTML (bypasses CSS/path issues) */
+  html, body { height: 100%; }
+  body { background: #0b0b0b; }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("/stoneyvibes-core/assets/tier1_bg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.22;
+    pointer-events: none;
+    z-index: -1;
+  }
+</style>
+
 </head>
 <body>
   <main class="shell">
@@ -45,4 +64,5 @@
   </script>
 </body>
 </html>
+
 
