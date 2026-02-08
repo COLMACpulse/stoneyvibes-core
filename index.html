@@ -1,53 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>StoneyVibes</title>
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #111;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-image: url("assets/bg_leaf_math_16X9.png");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-
-    .overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-    }
-
-    .sigil {
-      position: relative;
-      z-index: 1;
-      width: 220px;
-      max-width: 60vw;
-      opacity: 0.95;
-    }
-  </style>
+  <!-- single source of truth for look -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <div class="overlay"></div>
-
-  <img
-    class="sigil"
-    src="assets/sigil_plant.PNG"
-    alt="StoneyVibes Sigil"
-  />
+  <!-- intentional: minimal Tier-1 baseline -->
+  <main class="shell">
+    <div class="card">
+      <div class="kicker">STONEYVIBES</div>
+      <div class="title">Tier 1 — Baseline</div>
+      <div class="sub">Art locked. System stable. Next: build.</div>
+    </div>
+  </main>
 </body>
 </html>
+
