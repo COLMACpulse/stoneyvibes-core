@@ -35,3 +35,16 @@ img,
 .canvas {
   display: none !important;
 }
+/* --- TIER-1 ART LAYER (BASELINE SAFE) --- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("assets/YOUR_IMAGE_FILENAME.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.18;              /* adjust only this if needed */
+  pointer-events: none;
+  z-index: -1;
+}
