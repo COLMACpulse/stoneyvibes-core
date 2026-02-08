@@ -1,42 +1,16 @@
-/* ===== STONEYVIBES — BASELINE RESET ===== */
+/* ===== BASELINE SAFE — TIER 1 ===== */
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+
+body{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #fff;
+  background: #0b0b0b;
 }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  background: #111;
-  color: #eaeaea;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-/* Centered neutral container */
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Temporary content anchor */
-#app {
-  text-align: center;
-  opacity: 0.95;
-}
-
-/* Disable ALL art hooks for now */
-img,
-.background,
-.overlay,
-.hero,
-.canvas {
-  display: none !important;
-}
-/* --- TIER-1 ART LAYER (BASELINE SAFE) --- */
-body::before {
+/* Tier-1 Background Art (single hook) */
+body::before{
   content: "";
   position: fixed;
   inset: 0;
@@ -44,7 +18,99 @@ body::before {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.18;              /* adjust only this if needed */
+  opacity: 0.22;          /* adjust ONLY this if needed */
+  pointer-events: none;
+  z-index: -2;
+}
+
+/* Soft dark wash for readability */
+body::after{
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
   pointer-events: none;
   z-index: -1;
 }
+
+/* Layout shell */
+.shell{
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 18px;
+  gap: 14px;
+}
+
+.top{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  letter-spacing: 0.12em;
+  opacity: 0.92;
+}
+
+.brand{ font-weight: 700; font-size: 12px; }
+.tier{ font-weight: 600; font-size: 12px; opacity: 0.8; }
+
+.card{
+  width: min(520px, 100%);
+  margin: 0 auto;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 18px;
+  backdrop-filter: blur(6px);
+}
+
+.title{
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.06em;
+}
+
+.sub{
+  margin: 8px 0 16px;
+  opacity: 0.85;
+  font-size: 14px;
+}
+
+.grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn{
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  padding: 14px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.btn:active{
+  transform: translateY(1px);
+  background: rgba(255,255,255,0.10);
+}
+
+.status{
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  font-size: 13px;
+  opacity: 0.92;
+}
+
+.foot{
+  display: flex;
+  justify-content: center;
+  opacity: 0.75;
+}
+
+.tiny{ font-size: 12px; letter-spacing: 0.04em; }
