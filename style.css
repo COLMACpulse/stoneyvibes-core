@@ -1,33 +1,197 @@
-/* STONEYVIBES — TIER 1 CRAWL MODE */
+/* STONEYVIBES — TIER 1
+   UI TARGET: dark matte + glass panel + soft borders (NO BACKGROUND ART)
+*/
 
-* { box-sizing: border-box; }
+/* ---------- Theme tokens ---------- */
+:root{
+  --bg0:#07090b;
+  --bg1:#0b0f12;
+  --panel: rgba(20,24,28,.62);
+  --panel2: rgba(20,24,28,.38);
+  --stroke: rgba(255,255,255,.10);
+  --stroke2: rgba(255,255,255,.16);
+  --text:#e9eef2;
+  --muted: rgba(233,238,242,.70);
 
-html, body {
-  height: 100%;
-  margin: 0;
+  --accent:#a6ff9f;          /* “stoner-safe” green */
+  --accent2:#6fe58a;
+
+  --shadow: 0 18px 50px rgba(0,0,0,.55);
+  --radius: 22px;
 }
 
-body {
-  background: #0f1110;              /* near-black */
-  color: #e6e6e6;
+/* ---------- Base ---------- */
+*{ box-sizing:border-box; }
+html,body{ height:100%; margin:0; }
+
+body{
+  background:
+    radial-gradient(1100px 700px at 18% 22%, rgba(255,255,255,.06), transparent 55%),
+    radial-gradient(900px 600px at 80% 60%, rgba(120,255,160,.04), transparent 60%),
+    linear-gradient(180deg, var(--bg1), var(--bg0));
+  color: var(--text);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: .2px;
 }
 
-/* primary accent */
-button, .btn {
+/* ---------- Header / corner labels ---------- */
+/* Works with your existing top-left / top-right labels */
+header, .header, .topbar{
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  display:flex;
+  justify-content: space-between;
+  align-items:flex-start;
+  z-index: 10;
+  pointer-events:none; /* prevents weird click blocking */
+}
+
+header *, .header *, .topbar *{ pointer-events:none; }
+
+.stoney, .brand, .brand-name, .logo, .app-title, .title-left{
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: rgba(233,238,242,.92);
+}
+
+.tier, .tier-tag, .title-right{
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: rgba(233,238,242,.70);
+}
+
+/* ---------- Main layout ---------- */
+main, .wrap, .container{
+  min-height: 100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 80px 18px 40px;
+}
+
+/* ---------- Panel (the “card”) ---------- */
+.panel, .card, .box, .frame{
+  width: min(620px, 92vw);
+  background: linear-gradient(180deg, var(--panel), var(--panel2));
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 26px 26px 18px;
+}
+
+/* Soft inner outline like the reference */
+.panel::after, .card::after, .box::after, .frame::after{
+  content:"";
+  position:absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  pointer-events:none;
+}
+
+/* Make sure pseudo-element works even if container isn't positioned */
+.panel, .card, .box, .frame{ position: relative; }
+
+/* ---------- Typography ---------- */
+h1, .title{
+  margin: 0 0 6px 0;
+  font-size: 38px;
+  line-height: 1.05;
+  letter-spacing: .6px;
+}
+
+.subtitle, .sub, .desc{
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+/* ---------- Buttons ---------- */
+/* Supports both your old simple buttons and the new “grid buttons” layout */
+button{
+  font: inherit;
+}
+
+.btn, .button, .pill, .slot button, .btn-grid button{
+  appearance:none;
+  border: 1px solid rgba(166,255,159,.55);
+  background: rgba(8,10,12,.35);
+  color: rgba(233,238,242,.92);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+  transition: transform .06s ease, border-color .12s ease, background .12s ease;
+}
+
+.btn:hover, .button:hover, .pill:hover, .slot button:hover, .btn-grid button:hover{
+  border-color: rgba(166,255,159,.85);
+  background: rgba(14,18,20,.55);
+}
+
+.btn:active, .button:active, .pill:active, .slot button:active, .btn-grid button:active{
+  transform: translateY(1px);
+}
+
+/* Optional “ghost” button (if present) */
+.btn-ghost{
+  border-color: rgba(255,255,255,.16);
   background: transparent;
-  color: #6f8f7a;
-  border: 1px solid #6f8f7a;
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
+  color: rgba(233,238,242,.78);
+}
+.btn-ghost:hover{
+  border-color: rgba(255,255,255,.28);
+  background: rgba(255,255,255,.04);
 }
 
-button:hover {
-  background: rgba(111, 143, 122, 0.12);
+/* ---------- Button layout ---------- */
+.btn-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 14px 0 14px;
 }
 
-/* kill all art hooks */
-body::before { content: none !important; }
-img, canvas, .background, .overlay, .hero { display: none !important; }
+/* If your HTML still uses inline buttons without a grid, keep it tidy */
+.actions, .buttons, .slot{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+}
 
+/* ---------- Status line ---------- */
+.status, #status{
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(0,0,0,.22);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(233,238,242,.78);
+  font-size: 13px;
+}
+
+/* ---------- Footer note ---------- */
+.footnote, .note, .baseline{
+  margin-top: 14px;
+  text-align:center;
+  color: rgba(233,238,242,.45);
+  font-size: 12px;
+}
+
+/* ---------- Mobile tightening ---------- */
+@media (max-width: 520px){
+  .panel, .card, .box, .frame{ padding: 20px 18px 14px; }
+  h1, .title{ font-size: 32px; }
+  .btn-grid{ grid-template-columns: 1fr; }
+}
