@@ -1,23 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StoneyVibes</title>
-
-  <!-- single source of truth for look -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StoneyVibes — Tier 1</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <!-- intentional: minimal Tier-1 baseline -->
   <main class="shell">
-    <div class="card">
-      <div class="kicker">STONEYVIBES</div>
-      <div class="title">Tier 1 — Baseline</div>
-      <div class="sub">Art locked. System stable. Next: build.</div>
-    </div>
+    <header class="top">
+      <div class="brand">STONEYVIBES</div>
+      <div class="tier">TIER 1</div>
+    </header>
+
+    <section class="card">
+      <h1 class="title">LOG</h1>
+      <p class="sub">One tap. Timestamp. Done.</p>
+
+      <div class="grid">
+        <button class="btn" data-tag="AM">AM</button>
+        <button class="btn" data-tag="NOON">NOON</button>
+        <button class="btn" data-tag="PM">PM</button>
+        <button class="btn" data-tag="REST">REST</button>
+      </div>
+
+      <div class="status" id="status">Ready.</div>
+    </section>
+
+    <footer class="foot">
+      <span class="tiny">Baseline build • no extras</span>
+    </footer>
   </main>
+
+  <script>
+    // Tier-1: minimal behavior (no storage yet)
+    const statusEl = document.getElementById("status");
+    document.querySelectorAll(".btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const tag = btn.dataset.tag;
+        const t = new Date().toLocaleString();
+        statusEl.textContent = `${tag} logged @ ${t}`;
+      });
+    });
+  </script>
 </body>
 </html>
 
