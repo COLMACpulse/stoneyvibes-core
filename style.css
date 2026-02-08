@@ -40,7 +40,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: url("assets/YOUR_IMAGE_FILENAME.jpg");
+  background-image: url("assets/tier1_bg.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
