@@ -1,25 +1,33 @@
-/* STONEYVIBES TIER 1 — BASELINE + BG */
+/* STONEYVIBES — TIER 1 CRAWL MODE */
 
 * { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
 
 body {
-  background: #0b0b0b;
-  color: #eaeaea;
+  background: #0f1110;              /* near-black */
+  color: #e6e6e6;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* TIER-1 ART LAYER (the only hook) */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
- background-image: url("assets/tier1_bg.png");
-
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.22;
-  pointer-events: none;
-  z-index: -1;
+/* primary accent */
+button, .btn {
+  background: transparent;
+  color: #6f8f7a;
+  border: 1px solid #6f8f7a;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
 }
+
+button:hover {
+  background: rgba(111, 143, 122, 0.12);
+}
+
+/* kill all art hooks */
+body::before { content: none !important; }
+img, canvas, .background, .overlay, .hero { display: none !important; }
+
