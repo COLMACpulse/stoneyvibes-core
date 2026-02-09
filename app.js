@@ -1,45 +1,57 @@
-console.log("app.js loaded");
+// ===============================
+// STONEYVIBES — CORE DATA LAYER
+// ===============================
 
-document.addEventListener("DOMContentLoaded", () => {
-  const recBtn = document.getElementById("recBtn");
-  const stopBtn = document.getElementById("stopBtn");
-  const pauseBtn = document.getElementById("pauseBtn");
-  const statusText = document.getElementById("statusText");
+const STORAGE_KEY = "stoneyvibes_sessions_v1";
 
-  if (!recBtn || !stopBtn || !pauseBtn || !statusText) {
-    console.error("Missing required elements");
-    return;
+// ---- Data Models ----
+
+function createSession({
+  strainName = "",
+  photo = null,        // base64
+  audio = null,        // base64
+  moodBefore = null,   // string
+  moodAfter = null,    // string
+  sleepQuality = null, // 1–5
+  severity = null      // 1–5
+}) {
+  return {
+    id: crypto.randomUUID(),
+    timestamp: Date.now(),
+    strainName,
+    photo,
+    audio,
+    moodBefore,
+    moodAfter,
+    sleepQuality,
+    severity
+  };
+}
+
+// ---- Storage ----
+
+function loadSessions() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch {
+    return [];
   }
+}
 
-  // Initial state
-  recBtn.disabled = false;
-  stopBtn.disabled = true;
-  pauseBtn.disabled = true;
-  statusText.textContent = "Idle";
+function saveSessions(sessions) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+}
 
-  // START
-  recBtn.onclick = () => {
-    console.log("REC clicked");
-    statusText.textContent = "REC";
-    recBtn.disabled = true;
-    stopBtn.disabled = false;
-    pauseBtn.disabled = false;
-  };
+function addSession(session) {
+  const sessions = loadSessions();
+  sessions.unshift(session); // newest first
+  saveSessions(sessions);
+  return session;
+}
 
-  // PAUSE
-  pauseBtn.onclick = () => {
-    console.log("PAUSE clicked");
-    statusText.textContent = "PAUSE";
-    pauseBtn.disabled = true;
-    recBtn.disabled = false;
-  };
-
-  // STOP
-  stopBtn.onclick = () => {
-    console.log("STOP clicked");
-    statusText.textContent = "STOP";
-    stopBtn.disabled = true;
-    pauseBtn.disabled = true;
-    recBtn.disabled = false;
-  };
-});
+// ---- Debug Hook (TEMP) ----
+window.StoneyVibes = {
+  createSession,
+  addSession,
+  loadSessions
+};
