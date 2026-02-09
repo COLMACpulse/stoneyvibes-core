@@ -1,68 +1,1070 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StoneyVibes — Tier 1</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StoneyVibes v1 — VOLUME 1</title>
   <style>
-  /* TIER 1 BG — hard-forced from HTML (bypasses CSS/path issues) */
-  html, body { height: 100%; }
-  body { background: #0b0b0b; }
+    :root{
+      --bg:#0b0d10;
+      --text:#e9eef5;
+      --muted:rgba(233,238,245,0.72);
+      --border:rgba(233,238,245,0.12);
+      --border2:rgba(233,238,245,0.18);
+      --card:rgba(255,255,255,0.04);
+      --shadow:0 10px 30px rgba(0,0,0,0.35);
+      --radius:16px;
+      --danger:rgba(255,90,90,0.18);
+      --dangerB:rgba(255,90,90,0.32);
+      --ok:rgba(90,255,170,0.16);
+      --okB:rgba(90,255,170,0.28);
+      --star:rgba(233,238,245,0.18);
+      --star2:rgba(233,238,245,0.10);
+    }
 
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background-image: url("/stoneyvibes-core/assets/tier1_bg.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.22;
-    pointer-events: none;
-    z-index: -1;
-  }
-</style>
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1000px 600px at 30% 0%, rgba(255,255,255,0.06), transparent 60%),
+        radial-gradient(900px 700px at 80% 10%, rgba(90,255,170,0.06), transparent 55%),
+        radial-gradient(900px 700px at 40% 80%, rgba(255,180,90,0.05), transparent 60%),
+        var(--bg);
+      color:var(--text);
+      position:relative;
+      overflow:hidden;
+    }
 
+    /* subtle “star rails” art layer (purely visual) */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      opacity:0.9;
+      background:
+        radial-gradient(circle at 6% 10%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 18%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 26%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 34%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 42%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 50%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 58%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 66%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 74%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 82%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 90%, var(--star) 0 1px, transparent 2px),
+
+        radial-gradient(circle at 94% 12%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 20%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 28%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 36%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 44%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 52%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 60%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 68%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 76%, var(--star) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 84%, var(--star2) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 92%, var(--star) 0 1px, transparent 2px),
+
+        radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.06), transparent 55%),
+        radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.06), transparent 55%);
+    }
+
+    .shell{
+      height:100svh;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+      z-index:1;
+    }
+
+    header{
+      padding:14px 16px 10px 16px;
+      border-bottom:1px solid var(--border);
+      background:rgba(0,0,0,0.18);
+      backdrop-filter: blur(8px);
+    }
+
+    .title{
+      margin:0;
+      font-size:20px;
+      letter-spacing:0.02em;
+    }
+
+    .sub{
+      margin:6px 0 0 0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      align-items:center;
+    }
+
+    .tab{
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab.active{
+      background:rgba(255,255,255,0.12);
+      border-color:rgba(255,255,255,0.28);
+    }
+
+    .hint{
+      margin-left:auto;
+      font-size:12px;
+      color:var(--muted);
+      opacity:0.85;
+      white-space:nowrap;
+    }
+
+    .pages{
+      flex:1;
+      display:flex;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      scroll-behavior:smooth;
+      -webkit-overflow-scrolling:touch;
+    }
+    .page{
+      scroll-snap-align:start;
+      min-width:100%;
+      height:100%;
+      overflow-y:auto;
+      padding:14px 16px 24px 16px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow:var(--shadow);
+      margin:12px 0;
+    }
+    .card h2{
+      margin:0 0 6px 0;
+      font-size:14px;
+      letter-spacing:0.10em;
+    }
+    .muted{ color:var(--muted); }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    .between{ justify-content:space-between; }
+    .topgap{ margin-top:10px; }
+
+    .btn{
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+      border-radius:14px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-size:14px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+    .btnPrimary{
+      border-color:rgba(255,255,255,0.28);
+      background:rgba(255,255,255,0.10);
+    }
+    .btnDanger{
+      border-color:var(--dangerB);
+      background:var(--danger);
+    }
+    .btnOk{
+      border-color:var(--okB);
+      background:var(--ok);
+    }
+    .btnTiny{
+      padding:6px 10px;
+      border-radius:12px;
+      font-size:12px;
+      opacity:0.95;
+    }
+    .btnTog.active{
+      background:rgba(255,255,255,0.14);
+      border-color:rgba(255,255,255,0.32);
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      flex:1;
+      min-width:220px;
+    }
+    .label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.04em;
+    }
+    .input, .select{
+      width:100%;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.25);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      outline:none;
+    }
+    .input:focus, .select:focus{
+      border-color:rgba(255,255,255,0.28);
+    }
+
+    .pillStatus{
+      padding:8px 10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:13px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .okDot, .recDot{
+      width:8px; height:8px; border-radius:50%;
+      display:inline-block;
+      background:rgba(233,238,245,0.35);
+    }
+    .recDot{
+      background:rgba(255,90,90,0.85);
+      box-shadow:0 0 0 3px rgba(255,90,90,0.18);
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+    .item{
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.18);
+      border-radius:14px;
+      padding:10px;
+    }
+    .itemHead{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .itemTitle{
+      font-weight:600;
+      font-size:14px;
+      margin:0;
+      line-height:1.25;
+    }
+    .itemMeta{
+      font-size:12px;
+      color:var(--muted);
+      margin:2px 0 0 0;
+      line-height:1.35;
+    }
+    .itemBtns{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:flex-end;
+    }
+    audio{ width:100%; }
+
+    .divider{ height:1px; background:var(--border); margin:12px 0; }
+
+    .notice{
+      border:1px dashed var(--border2);
+      background:rgba(255,255,255,0.04);
+      border-radius:14px;
+      padding:10px 12px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      color: var(--muted);
+    }
+
+    .audioDetails { margin-top: 6px; }
+    .audioDetails summary {
+      cursor: pointer;
+      user-select: none;
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+    }
+    .audioDetails[open] summary { margin-bottom: 6px; }
+  </style>
 </head>
+
 <body>
-  <main class="shell">
-    <header class="top">
-      <div class="brand">STONEYVIBES</div>
-      <div class="tier">TIER 1</div>
+  <div class="shell">
+    <header>
+      <h1 class="title">StoneyVibes — VOLUME 1</h1>
+      <p class="sub">Private, local-only logging. Swipe left/right to move.</p>
+
+      <div class="nav">
+        <button class="tab active" id="tabStash" type="button">STASH</button>
+        <button class="tab" id="tabSessions" type="button">SESSIONS</button>
+        <button class="tab" id="tabAbout" type="button">ABOUT</button>
+        <div class="hint">← swipe →</div>
+      </div>
     </header>
 
-    <section class="card">
-      <h1 class="title">LOG</h1>
-      <p class="sub">One tap. Timestamp. Done.</p>
+    <main class="pages" id="pages">
+      <!-- PAGE 1: STASH -->
+      <section class="page" id="pageStash">
+        <div class="card">
+          <h2>STASH</h2>
+          <p class="muted" style="margin:0;">Inventory spine. Local only.</p>
 
-      <div class="grid">
-        <button class="btn" data-tag="AM">AM</button>
-        <button class="btn" data-tag="NOON">NOON</button>
-        <button class="btn" data-tag="PM">PM</button>
-        <button class="btn" data-tag="REST">REST</button>
-      </div>
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Name</span>
+              <input id="stashName" class="input" type="text" placeholder="e.g., Zookie / Lemon Tree / DD (mixed flower)" />
+            </label>
 
-      <div class="status" id="status">Ready.</div>
-    </section>
+            <label class="field">
+              <span class="label">Category</span>
+              <select id="stashCategory" class="select">
+                <option value="FLOWER">FLOWER</option>
+                <option value="KIEF">KIEF</option>
+                <option value="HASH">HASH</option>
+                <option value="WAX">WAX</option>
+                <option value="OTHER_CONCENTRATE">OTHER CONCENTRATE</option>
+                <option value="HERBAL">HERBAL</option>
+              </select>
+            </label>
+          </div>
 
-    <footer class="foot">
-      <span class="tiny">Baseline build • no extras</span>
-    </footer>
-  </main>
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Notes (optional)</span>
+              <input id="stashNotes" class="input" type="text" placeholder="One line. Keep it human." />
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <button id="addStashBtn" class="btn btnPrimary" type="button">Add</button>
+            <button id="clearStashBtn" class="btn btnDanger" type="button">Clear</button>
+          </div>
+
+          <div class="divider"></div>
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH LIST</h2>
+          <div id="stashList" class="list">
+            <div class="muted">No stash items yet.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 2: SESSIONS -->
+      <section class="page" id="pageSessions">
+        <div class="card">
+          <h2>SESSION</h2>
+          <p class="muted" style="margin:0;">Buttons exist. Press one if you want. Don’t if you don’t.</p>
+
+          <div class="row topgap">
+            <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Start</button>
+            <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
+            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
+            <span id="statusPill" class="pillStatus"><span class="okDot"></span><span id="statusText">Idle</span></span>
+          </div>
+
+          <!-- iPhone fallback (shown only when needed) -->
+          <div class="row topgap" id="iphoneFallback" style="display:none;">
+            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+              🎧 iPhone Mode
+              <input id="fileAudio" type="file" accept="audio/*" capture style="display:none;" />
+            </label>
+            <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
+          </div>
+
+          
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Sample (optional)</span>
+              <input id="sessionTag" class="input" type="text" placeholder="e.g., Zookie / DD / Unknown" />
+            </label>
+
+            <label class="field">
+              <span class="label">From STASH? (optional)</span>
+              <select id="sessionStashLink" class="select">
+                <option value="">— none —</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">TIME (optional)</span>
+              <select id="timeboxSelect" class="select">
+                <option value="">—</option>
+                <option value="AM">AM</option>
+                <option value="NOON">NOON</option>
+                <option value="PM">PM</option>
+                <option value="REST">REST</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="label">APPARATUS / IGNITION (optional)</span>
+              <input id="sessionApparatus" class="input" type="text" placeholder="e.g., one-hitter / joint / vape" />
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">ADDITIVE (optional)</span>
+              <input id="sessionAdditive" class="input" type="text" placeholder="e.g., none / kief / hash / herb" />
+            </label>
+
+            <label class="field">
+              <span class="label">NOTES (optional)</span>
+              <input id="sessionNotes" class="input" type="text" placeholder="One line." />
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <button id="viewTranscriptBtn" class="btn" type="button" disabled>View Transcript (v2)</button>
+            <button id="addTranscriptBtn" class="btn" type="button" disabled>Add Transcript To… (v2)</button>
+            <span class="muted" style="font-size:12px;">Transcript is parked for Volume 2.</span>
+          </div>
+
+          <!-- V1 sensor core: ultra-minimal optional buttons (memory on device) -->
+ minimal toggles -->
+          <div class="row topgap">
+            <span class="label" style="min-width:120px;">Options</span>
+            <button class="btn btnTiny btnTog" type="button" data-opt="CALM">CALM</button>
+            <button class="btn btnTiny btnTog" type="button" data-opt="FOCUS">FOCUS</button>
+            <button class="btn btnTiny btnTog" type="button" data-opt="ENERGY">ENERGY</button>
+            <button class="btn btnTiny btnTog" type="button" data-opt="SLEEPY">SLEEPY</button>
+            <button class="btn btnTiny btnTog" type="button" data-opt="SOCIAL">SOCIAL</button>
+            <button class="btn btnTiny btnTog" type="button" data-opt="SILENT">SILENT</button>
+            <button id="optsReset" class="btn btnTiny" type="button">Reset</button>
+          </div>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Notes (optional)</span>
+              <input id="sessionNotes" class="input" type="text" placeholder="One line. Keep it human." />
+            </label>
+          </div>
+
+          <div class="row topgap">
+            <audio id="preview" controls style="display:none;"></audio>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row between">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">RECENT</h2>
+            <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear</button>
+          </div>
+
+          <div id="sessionList" class="list">
+            <div class="muted">No sessions yet.</div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="notice">
+            <strong>Memory layer name:</strong> <span class="kbd">TRAIL</span><br/>
+            Stored locally on this device only. Nothing leaves the system.
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 3: ABOUT -->
+      <section class="page" id="pageAbout">
+        <div class="card">
+          <h2>DOCTRINE</h2>
+          <p class="muted" style="margin:0;">
+            V1 is capture. Pattern unlock is later (separate tier).
+          </p>
+
+          <div class="divider"></div>
+
+          <div class="notice">
+            <strong>Pattern unlock (future tier):</strong> <span class="kbd">PATTERN LENS</span><br/>
+            Uses only what you already stored in TRAIL.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script>
-    // Tier-1: minimal behavior (no storage yet)
-    const statusEl = document.getElementById("status");
-    document.querySelectorAll(".btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const tag = btn.dataset.tag;
-        const t = new Date().toLocaleString();
-        statusEl.textContent = `${tag} logged @ ${t}`;
-      });
+    /************************************************************
+     * StoneyVibes — VOLUME 1 (single-file)
+     * - Swipe pages left/right (scroll-snap)
+     * - STASH (localStorage)
+     * - SESSIONS (IndexedDB)
+     * - Recording: Start / Pause(Resume) / Stop
+     * - iPhone fallback: file capture
+     * - V1 sensor core: tiny option toggles (stored)
+     * - Timebox: AM/NOON/PM/REST (stored)
+     ************************************************************/
+
+    // ------------------ Swipe nav helpers ------------------
+    const pages = document.getElementById("pages");
+    const tabStash = document.getElementById("tabStash");
+    const tabSessions = document.getElementById("tabSessions");
+    const tabAbout = document.getElementById("tabAbout");
+
+    function setActiveTab(which){
+      [tabStash, tabSessions, tabAbout].forEach(t => t.classList.remove("active"));
+      if (which === "stash") tabStash.classList.add("active");
+      if (which === "sessions") tabSessions.classList.add("active");
+      if (which === "about") tabAbout.classList.add("active");
+    }
+
+    function scrollToPage(idx){
+      pages.scrollTo({ left: idx * pages.clientWidth, behavior: "smooth" });
+    }
+
+    tabStash.onclick = () => scrollToPage(0);
+    tabSessions.onclick = () => scrollToPage(1);
+    tabAbout.onclick = () => scrollToPage(2);
+
+    pages.addEventListener("scroll", () => {
+      const idx = Math.round(pages.scrollLeft / pages.clientWidth);
+      if (idx === 0) setActiveTab("stash");
+      if (idx === 1) setActiveTab("sessions");
+      if (idx === 2) setActiveTab("about");
     });
+
+    // ------------------ Helpers ------------------
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function fmtTime(ts){
+      const d = new Date(ts);
+      return d.toLocaleString(undefined, {
+        year:"numeric", month:"short", day:"2-digit",
+        hour:"2-digit", minute:"2-digit"
+      });
+    }
+
+    function uid(){
+      return "sess_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+    }
+
+    // ------------------ STASH (localStorage) ------------------
+    const STASH_KEY = "sv_stash_v1";
+    const stashName = document.getElementById("stashName");
+    const stashCategory = document.getElementById("stashCategory");
+    const stashNotes = document.getElementById("stashNotes");
+    const addStashBtn = document.getElementById("addStashBtn");
+    const clearStashBtn = document.getElementById("clearStashBtn");
+    const stashList = document.getElementById("stashList");
+    const sessionStashLink = document.getElementById("sessionStashLink");
+
+    function loadStash(){
+      try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); }
+      catch { return []; }
+    }
+
+    function saveStash(items){
+      localStorage.setItem(STASH_KEY, JSON.stringify(items));
+      renderStash();
+      renderStashLinkDropdown();
+    }
+
+    function renderStash(){
+      const items = loadStash();
+      if (!items.length){
+        stashList.innerHTML = '<div class="muted">No stash items yet.</div>';
+        return;
+      }
+      stashList.innerHTML = "";
+      items.forEach((it, i) => {
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="itemHead">
+            <div style="min-width:0; flex:1;">
+              <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
+              <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
+            </div>
+            <div class="itemBtns">
+              <button class="btn btnDanger" data-i="${i}">Delete</button>
+            </div>
+          </div>
+        `;
+        el.querySelector("button").onclick = () => {
+          const ok = confirm("Delete this stash item?");
+          if (!ok) return;
+          const updated = loadStash();
+          updated.splice(i,1);
+          saveStash(updated);
+        };
+        stashList.appendChild(el);
+      });
+    }
+
+    function renderStashLinkDropdown(){
+      const items = loadStash();
+      const current = sessionStashLink.value || "";
+      sessionStashLink.innerHTML = '<option value="">— none —</option>';
+      items.forEach(it => {
+        const opt = document.createElement("option");
+        opt.value = it.id;
+        opt.textContent = `${it.name} (${it.category})`;
+        sessionStashLink.appendChild(opt);
+      });
+      sessionStashLink.value = current;
+    }
+
+    addStashBtn.onclick = () => {
+      const name = (stashName.value || "").trim();
+      if (!name){
+        alert("Give it a name (even 'Unknown').");
+        return;
+      }
+      const item = {
+        id: "stash_" + Math.random().toString(16).slice(2) + "_" + Date.now(),
+        name,
+        category: stashCategory.value,
+        notes: (stashNotes.value || "").trim(),
+        createdAt: Date.now()
+      };
+      const items = loadStash();
+      items.unshift(item);
+      saveStash(items);
+      stashName.value = "";
+      stashNotes.value = "";
+    };
+
+    clearStashBtn.onclick = () => {
+      const ok = confirm("Clear entire STASH on this device?");
+      if (!ok) return;
+      saveStash([]);
+    };
+
+    // ------------------ SESSIONS (IndexedDB) ------------------
+    const DB_NAME = "stoneyvibes_db";
+    const DB_VERSION = 1;
+    const STORE = "sessions";
+
+    function openDB(){
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(STORE)){
+            const store = db.createObjectStore(STORE, { keyPath: "id" });
+            store.createIndex("createdAt", "createdAt", { unique:false });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function dbPut(session){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).put(session);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function dbGetAll(){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readonly");
+        const store = tx.objectStore(STORE);
+        const idx = store.index("createdAt");
+        const req = idx.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function dbDelete(id){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).delete(id);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function dbClear(){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).clear();
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    // ------------------ UI refs ------------------
+    const recBtn = document.getElementById("recBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const statusPill = document.getElementById("statusPill");
+    const statusText = document.getElementById("statusText");
+    const sessionTag = document.getElementById("sessionTag");
+    const sessionNotes = document.getElementById("sessionNotes");
+    const preview = document.getElementById("preview");
+    const sessionList = document.getElementById("sessionList");
+    const clearSessionsBtn = document.getElementById("clearSessionsBtn");
+    const iphoneFallback = document.getElementById("iphoneFallback");
+    const fileAudio = document.getElementById("fileAudio");
+
+    // V1 controls
+    const timeboxSelect = document.getElementById("timeboxSelect");
+    const sessionApparatus = document.getElementById("sessionApparatus");
+    const sessionAdditive = document.getElementById("sessionAdditive");
+    const optBtns = Array.from(document.querySelectorAll("[data-opt]"));
+    const optsReset = document.getElementById("optsReset");
+
+    let currentTimebox = (timeboxSelect && timeboxSelect.value) ? timeboxSelect.value : ""; // AM | NOON | PM | REST | ""
+    let currentOptions = new Set();      // e.g., CALM, FOCUS...
+
+    function setStatus(mode, text){
+      statusText.textContent = text;
+      const dot = statusPill.querySelector("span");
+      dot.className = (mode === "rec") ? "recDot" : "okDot";
+    }
+
+    function setToggleButtons(btns, activeValue){
+      btns.forEach(b => {
+        const v = b.getAttribute("data-opt");
+        const isActive = (activeValue instanceof Set) ? activeValue.has(v) : (v === activeValue);
+        b.classList.toggle("active", !!isActive);
+      });
+    }
+
+    function autoTimebox(ts){
+      const h = new Date(ts).getHours();
+      if (h >= 5 && h < 11) return "AM";
+      if (h >= 11 && h < 15) return "NOON";
+      if (h >= 15 && h < 20) return "PM";
+      return "REST";
+    }
+
+    // Prefill TIME once (you can change it)
+    if (timeboxSelect && !timeboxSelect.value){
+      timeboxSelect.value = autoTimebox(Date.now());
+      currentTimebox = timeboxSelect.value;
+    }
+    if (timeboxSelect){
+      timeboxSelect.onchange = () => { currentTimebox = timeboxSelect.value || ""; };
+    }
+
+    optBtns.forEach(b => {
+      b.onclick = () => {
+        const v = b.getAttribute("data-opt");
+        if (!v) return;
+        if (currentOptions.has(v)) currentOptions.delete(v);
+        else currentOptions.add(v);
+        setToggleButtons(optBtns, currentOptions);
+      };
+    });
+
+    if (optsReset){
+      optsReset.onclick = () => {
+        currentOptions = new Set();
+        setToggleButtons(optBtns, currentOptions);
+      };
+    }
+let mediaRecorder = null;
+    let mediaStream = null;
+    let chunks = [];
+    let isRecording = false;
+    let isPaused = false;
+
+    function mimeChoice(){
+      const candidates = ["audio/webm;codecs=opus","audio/webm","audio/mp4"];
+      for (const m of candidates){
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
+      }
+      return "";
+    }
+
+    async function renderSessions(){
+      const sessions = await dbGetAll();
+      sessions.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+      if (!sessions.length){
+        sessionList.innerHTML = '<div class="muted">No sessions yet.</div>';
+        return;
+      }
+      sessionList.innerHTML = "";
+      for (const s of sessions){
+        const el = document.createElement("div");
+        el.className = "item";
+
+        const title = (s.tag && s.tag.trim()) ? s.tag.trim() : "Session";
+        const when = fmtTime(s.createdAt);
+        const notes = (s.notes||"").trim();
+
+        const metaParts = [];
+        metaParts.push(when);
+        if (s.timebox) metaParts.push(s.timebox);
+        if (s.stashName) metaParts.push(s.stashName);
+        if (s.apparatus) metaParts.push("APP:"+s.apparatus);
+        if (s.additive) metaParts.push("ADD:"+s.additive);
+        if (s.opts && s.opts.length) metaParts.push("[" + s.opts.join(", ") + "]");
+        if (notes) metaParts.push(notes);
+
+        const url = URL.createObjectURL(s.audioBlob);
+
+        el.innerHTML = `
+          <div class="itemHead">
+            <div style="min-width:0; flex:1;">
+              <p class="itemTitle">${escapeHtml(title)}</p>
+              <p class="itemMeta">${escapeHtml(metaParts.join(" — "))}</p>
+            </div>
+            <div class="itemBtns">
+              <button class="btn btnOk" data-act="play">Play</button>
+              <button class="btn" data-act="rename">Rename</button>
+              <button class="btn btnDanger" data-act="delete">Delete</button>
+            </div>
+          </div>
+          <div class="topgap">
+            <details class="audioDetails">
+              <summary>▶ Listen</summary>
+              <audio controls preload="none" src="${url}" style="width:100%; margin-top:8px;"></audio>
+            </details>
+          </div>
+        `;
+
+        el.querySelector('[data-act="play"]').onclick = () => {
+          el.querySelector("audio").play().catch(()=>{});
+        };
+
+        el.querySelector('[data-act="rename"]').onclick = async () => {
+          const newTag = prompt("Rename tag:", title);
+          if (newTag === null) return;
+          s.tag = (newTag||"").trim();
+          await dbPut(s);
+          await renderSessions();
+        };
+
+        el.querySelector('[data-act="delete"]').onclick = async () => {
+          const ok = confirm("Delete this session from this device?");
+          if (!ok) return;
+          await dbDelete(s.id);
+          await renderSessions();
+        };
+
+        sessionList.appendChild(el);
+      }
+    }
+
+    async function saveSessionFromBlob(blob){
+      const tag = (sessionTag.value || "").trim();
+      const notes = (sessionNotes.value || "").trim();
+      const stashId = sessionStashLink.value || "";
+      const stashItems = loadStash();
+      const stashItem = stashItems.find(x => x.id=== stashId);
+
+      const createdAt = Date.now();
+      const timebox = currentTimebox || autoTimebox(createdAt);
+      const opts = Array.from(currentOptions);
+
+      const session = {
+        id: uid(),
+        createdAt,
+        tag,
+        notes,
+        apparatus: (sessionApparatus ? (sessionApparatus.value||"").trim() : ""),
+        additive: (sessionAdditive ? (sessionAdditive.value||"").trim() : ""),
+        stashId: stashItem ? stashItem.id : "",
+        stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : "",
+        timebox,
+        opts,
+        mimeType: blob.type || "audio/*",
+        audioBlob: blob
+      };
+
+      await dbPut(session);
+
+      preview.src = URL.createObjectURL(blob);
+      preview.style.display = "block";
+
+      // reset inputs after save
+      sessionTag.value = "";
+      sessionNotes.value = "";
+      sessionStashLink.value = "";
+      if (sessionApparatus) sessionApparatus.value = "";
+      if (sessionAdditive) sessionAdditive.value = "";
+      if (timeboxSelect){
+        timeboxSelect.value = autoTimebox(Date.now());
+        currentTimebox = timeboxSelect.value;
+      } else {
+        currentTimebox = "";
+      }
+      currentOptions = new Set();
+      setToggleButtons(optBtns, currentOptions);
+
+      await renderSessions();
+    }
+
+    async function startRecording(){
+      if (isRecording) return;
+
+      if (!("MediaRecorder" in window)){
+        iphoneFallback.style.display = "flex";
+        alert("In-browser recording isn’t supported here. Use iPhone Mode.");
+        return;
+      }
+
+      try{
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      }catch(err){
+        alert("Microphone permission blocked. Allow mic access for this site.");
+        return;
+      }
+
+      chunks = [];
+      const mime = mimeChoice();
+      try{
+        mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined);
+      }catch(err){
+        iphoneFallback.style.display = "flex";
+        alert("Recording not supported in this browser. Use iPhone Mode.");
+        if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
+
+      mediaRecorder.onstop = async () => {
+        try{
+          const blob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
+          await saveSessionFromBlob(blob);
+        } finally {
+          if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+          mediaRecorder = null;
+          chunks = [];
+          isPaused = false;
+          pauseBtn.textContent = "Pause";
+        }
+      };
+
+      mediaRecorder.onpause = () => {
+        isPaused = true;
+        pauseBtn.textContent = "Resume";
+        setStatus("rec", "Paused");
+      };
+
+      mediaRecorder.onresume = () => {
+        isPaused = false;
+        pauseBtn.textContent = "Pause";
+        setStatus("rec", "Recording…");
+      };
+
+      mediaRecorder.start();
+      isRecording = true;
+      isPaused = false;
+
+      recBtn.disabled = true;
+      pauseBtn.disabled = false;
+      stopBtn.disabled = false;
+
+      setStatus("rec", "Recording…");
+    }
+
+    function togglePause(){
+      if (!isRecording || !mediaRecorder) return;
+      try{
+        if (!isPaused && mediaRecorder.state === "recording") mediaRecorder.pause();
+        else if (isPaused && mediaRecorder.state === "paused") mediaRecorder.resume();
+      }catch(e){}
+    }
+
+    function stopRecording(){
+      if (!isRecording || !mediaRecorder) return;
+      try{ mediaRecorder.stop(); } catch(e){}
+      isRecording = false;
+      recBtn.disabled = false;
+      pauseBtn.disabled = true;
+      stopBtn.disabled = true;
+      setStatus("idle", "Saving…");
+      setTimeout(()=> setStatus("idle","Idle"), 600);
+    }
+
+    recBtn.onclick = startRecording;
+    pauseBtn.onclick = togglePause;
+    stopBtn.onclick = stopRecording;
+
+    fileAudio.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const blob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
+      await saveSessionFromBlob(blob);
+      fileAudio.value = "";
+      setStatus("idle","Idle");
+    });
+
+    clearSessionsBtn.onclick = async () => {
+      const ok = confirm("Clear ALL sessions on this device?");
+      if (!ok) return;
+      await dbClear();
+      preview.style.display = "none";
+      preview.removeAttribute("src");
+      await renderSessions();
+    };
+
+    // ------------------ init ------------------
+    (async function init(){
+      renderStash();
+      renderStashLinkDropdown();
+
+      if (!("MediaRecorder" in window)){
+        iphoneFallback.style.display = "flex";
+        recBtn.textContent = "🎙️ Start (Browser unavailable)";
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+      }
+
+      setStatus("idle", "Idle");
+      await renderSessions();
+    })();
   </script>
 </body>
 </html>
-
-
