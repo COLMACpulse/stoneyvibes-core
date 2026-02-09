@@ -1,240 +1,460 @@
-* { box-sizing: border-box; }
+// StoneyVibes — Volume 1 (private, local-only)
+// Core: STASH + SESSIONS + ABOUT
+// Adds: photo, severity slider, smell tags, audio recording
 
-:root{
-  --bg: #0b0b0b;
-  --card: #111;
-  --card2:#0f0f0f;
-  --text: #e6e6e6;
-  --muted: rgba(230,230,230,.65);
-  --line: #1f1f1f;
-  --pill: #141414;
-  --green: #3a7;
-  --danger: #8a2f2f;
+const KEY_STASH = findExistingKey(["sv_stash", "stoneyvibes_stash", "stash"]) || "sv_stash";
+const KEY_SESS  = findExistingKey(["sv_sessions", "stoneyvibes_sessions", "sessions"]) || "sv_sessions";
+
+function findExistingKey(keys){
+  for (const k of keys){
+    if (localStorage.getItem(k)) return k;
+  }
+  return null;
 }
 
-body{
-  margin:0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, sans-serif;
+const $ = (id) => document.getElementById(id);
+
+const tabs = Array.from(document.querySelectorAll(".tab"));
+const views = {
+  stash: $("view-stash"),
+  sessions: $("view-sessions"),
+  about: $("view-about"),
+};
+
+function setView(name){
+  tabs.forEach(t => t.classList.toggle("active", t.dataset.view === name));
+  Object.entries(views).forEach(([k, el]) => el.classList.toggle("active", k === name));
+  currentView = name;
+}
+tabs.forEach(t => t.addEventListener("click", () => setView(t.dataset.view)));
+
+let currentView = "stash";
+// swipe
+let touchStartX = null;
+document.addEventListener("touchstart", (e) => touchStartX = e.touches[0].clientX, {passive:true});
+document.addEventListener("touchend", (e) => {
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  touchStartX = null;
+  if (Math.abs(dx) < 60) return;
+
+  const order = ["stash","sessions","about"];
+  const idx = order.indexOf(currentView);
+  if (dx < 0 && idx < order.length - 1) setView(order[idx+1]);
+  if (dx > 0 && idx > 0) setView(order[idx-1]);
+}, {passive:true});
+
+// -------- Data helpers --------
+function loadJSON(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw);
+  }catch{ return fallback; }
+}
+function saveJSON(key, value){
+  localStorage.setItem(key, JSON.stringify(value));
+}
+function uid(){
+  return Math.random().toString(16).slice(2) + Date.now().toString(16);
 }
 
-.top{
-  padding:16px 16px 10px;
+// -------- STASH --------
+let stash = loadJSON(KEY_STASH, []);
+let sessions = loadJSON(KEY_SESS, []);
+
+function renderStash(){
+  const list = $("stashList");
+  list.innerHTML = "";
+  if (!stash.length){
+    list.innerHTML = `<div class="hint">No stash yet. Add one above.</div>`;
+    return;
+  }
+  stash.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <div>
+        <strong>${escapeHTML(item.name)}</strong>
+        <small>${escapeHTML(item.category)} — ${escapeHTML(item.notes || "—")}</small>
+      </div>
+      <div class="right">
+        <button class="mini" data-del="${item.id}">Delete</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+
+  list.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.getAttribute("data-del");
+      stash = stash.filter(s => s.id !== id);
+      saveJSON(KEY_STASH, stash);
+      // keep sessions intact (they store stashName snapshot)
+      renderStash();
+      refreshSessionPick();
+    });
+  });
 }
 
-.top-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
-  gap:12px;
+$("stashAdd").addEventListener("click", ()=>{
+  const name = $("stashName").value.trim();
+  const category = $("stashCategory").value;
+  const notes = $("stashNotes").value.trim();
+  if (!name) return;
+
+  stash.unshift({ id: uid(), name, category, notes, createdAt: Date.now() });
+  saveJSON(KEY_STASH, stash);
+
+  $("stashName").value = "";
+  $("stashNotes").value = "";
+
+  renderStash();
+  refreshSessionPick();
+});
+
+$("stashClear").addEventListener("click", ()=>{
+  $("stashName").value = "";
+  $("stashNotes").value = "";
+});
+
+// -------- Mood + Smell tags --------
+const MOODS = ["calm","neutral","wired","heavy","social","antisocial","focused","foggy","pissed","aggressive","not great"];
+const SMELLS = ["citrus","gas","sweet","earthy","pine","funk","floral","sharp","muted","other"];
+
+let moodOn = new Set();
+let smellOn = new Set();
+
+function buildTagGrid(containerId, items, setRef){
+  const el = $(containerId);
+  el.innerHTML = "";
+  items.forEach(name=>{
+    const b = document.createElement("button");
+    b.className = "tag";
+    b.textContent = name;
+    b.addEventListener("click", ()=>{
+      if (setRef.has(name)) setRef.delete(name);
+      else setRef.add(name);
+      b.classList.toggle("on", setRef.has(name));
+    });
+    el.appendChild(b);
+  });
 }
 
-.brand{
-  font-weight:700;
-  letter-spacing:.5px;
-  font-size: 1.15rem;
+buildTagGrid("moodGrid", MOODS, moodOn);
+buildTagGrid("smellGrid", SMELLS, smellOn);
+
+// -------- Photo capture --------
+let photoDataUrl = null;
+$("photoInput").addEventListener("change", async (e)=>{
+  const file = e.target.files?.[0];
+  if (!file){
+    photoDataUrl = null;
+    $("photoPreview").innerHTML = "No photo";
+    return;
+  }
+  photoDataUrl = await fileToDataURL(file);
+  $("photoPreview").innerHTML = `<img alt="photo" src="${photoDataUrl}">`;
+});
+
+function fileToDataURL(file){
+  return new Promise((resolve, reject)=>{
+    const r = new FileReader();
+    r.onload = ()=> resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
 }
 
-.mode{
-  font-size:.75rem;
-  opacity:.6;
+// -------- Audio recording (IndexedDB) --------
+let recStream = null;
+let mediaRecorder = null;
+let recChunks = [];
+let lastAudioId = null;
+
+const recStart = $("recStart");
+const recStop  = $("recStop");
+const recPlay  = $("recPlayback");
+const recHint  = $("recHint");
+
+recStart.addEventListener("click", async ()=>{
+  try{
+    recHint.textContent = "Requesting mic…";
+    recStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    recChunks = [];
+    mediaRecorder = new MediaRecorder(recStream);
+    mediaRecorder.ondataavailable = (e)=> { if (e.data && e.data.size) recChunks.push(e.data); };
+    mediaRecorder.onstop = async ()=>{
+      const blob = new Blob(recChunks, { type: recChunks[0]?.type || "audio/webm" });
+      lastAudioId = uid();
+      await idbPut(lastAudioId, blob);
+      const url = URL.createObjectURL(blob);
+      recPlay.src = url;
+      recPlay.style.display = "block";
+      recHint.textContent = "Recorded.";
+      cleanupStream();
+    };
+    mediaRecorder.start();
+    recStart.disabled = true;
+    recStop.disabled = false;
+    recHint.textContent = "Recording…";
+  }catch(err){
+    recHint.textContent = "Mic blocked or unavailable.";
+    recStart.disabled = false;
+    recStop.disabled = true;
+  }
+});
+
+recStop.addEventListener("click", ()=>{
+  try{
+    mediaRecorder?.stop();
+  }catch{}
+  recStart.disabled = false;
+  recStop.disabled = true;
+});
+
+function cleanupStream(){
+  if (recStream){
+    recStream.getTracks().forEach(t => t.stop());
+    recStream = null;
+  }
 }
 
-.subline{
-  margin-top:6px;
-  opacity:.55;
-  font-size:.85rem;
+function idb(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open("stoneyvibes_db", 1);
+    req.onupgradeneeded = ()=>{
+      const db = req.result;
+      if (!db.objectStoreNames.contains("audio")){
+        db.createObjectStore("audio");
+      }
+    };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
 }
 
-.tabs{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-top:12px;
+async function idbPut(key, blob){
+  const db = await idb();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction("audio", "readwrite");
+    tx.objectStore("audio").put(blob, key);
+    tx.oncomplete = ()=> resolve(true);
+    tx.onerror = ()=> reject(tx.error);
+  });
 }
 
-.tab{
-  background: var(--pill);
-  border:1px solid #262626;
-  color: var(--text);
-  padding:10px 16px;
-  border-radius:999px;
+async function idbGet(key){
+  const db = await idb();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction("audio", "readonly");
+    const req = tx.objectStore("audio").get(key);
+    req.onsuccess = ()=> resolve(req.result || null);
+    req.onerror = ()=> reject(req.error);
+  });
 }
 
-.tab.active{
-  border-color: var(--green);
-  box-shadow: inset 0 0 0 1px rgba(51,170,119,.2);
+async function idbDel(key){
+  const db = await idb();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction("audio", "readwrite");
+    tx.objectStore("audio").delete(key);
+    tx.oncomplete = ()=> resolve(true);
+    tx.onerror = ()=> reject(tx.error);
+  });
 }
 
-.swipehint{
-  margin-left:auto;
-  opacity:.45;
-  font-size:.85rem;
+// -------- Sessions --------
+function refreshSessionPick(){
+  const sel = $("sessionStashPick");
+  sel.innerHTML = "";
+  if (!stash.length){
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "No stash yet — add one first";
+    sel.appendChild(opt);
+    return;
+  }
+  stash.forEach(s=>{
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = `${s.name} (${s.category})`;
+    sel.appendChild(opt);
+  });
 }
 
-.wrap{
-  padding: 0 16px 20px;
-  max-width: 520px;
+function renderSessions(){
+  const list = $("sessionList");
+  list.innerHTML = "";
+  if (!sessions.length){
+    list.innerHTML = `<div class="hint">No sessions yet.</div>`;
+    return;
+  }
+
+  sessions.forEach(sess=>{
+    const div = document.createElement("div");
+    div.className = "item";
+
+    const when = new Date(sess.createdAt).toLocaleString();
+    const smells = (sess.smellTags || []).join(", ") || "—";
+    const moods = (sess.moodBefore || []).join(", ") || "—";
+
+    div.innerHTML = `
+      <div>
+        <strong>${escapeHTML(sess.stashName || "—")}</strong>
+        <small>${escapeHTML(when)} · rate ${sess.severity}/5 · sleep ${sess.sleepScore || "—"}</small>
+        <small>mood: ${escapeHTML(moods)}</small>
+        <small>smell: ${escapeHTML(smells)}${sess.smellText ? " · " + escapeHTML(sess.smellText) : ""}</small>
+      </div>
+      <div class="right">
+        ${sess.audioId ? `<button class="mini" data-play="${sess.id}">Play</button>` : ""}
+        <button class="mini" data-del="${sess.id}">Delete</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+
+  list.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.getAttribute("data-del");
+      const s = sessions.find(x=>x.id===id);
+      if (s?.audioId) await idbDel(s.audioId);
+      sessions = sessions.filter(x=>x.id!==id);
+      saveJSON(KEY_SESS, sessions);
+      renderSessions();
+    });
+  });
+
+  list.querySelectorAll("[data-play]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.getAttribute("data-play");
+      const s = sessions.find(x=>x.id===id);
+      if (!s?.audioId) return;
+      const blob = await idbGet(s.audioId);
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      // quick inline playback (reuse top player)
+      recPlay.src = url;
+      recPlay.style.display = "block";
+      recHint.textContent = "Playing saved audio.";
+      setView("sessions");
+      recPlay.play().catch(()=>{});
+    });
+  });
 }
 
-.card{
-  background: linear-gradient(180deg, #121212, #0e0e0e);
-  border-radius: 22px;
-  padding: 18px;
-  box-shadow: inset 0 0 0 1px var(--line);
-  margin-top: 14px;
+$("sessionSave").addEventListener("click", ()=>{
+  if (!stash.length) return;
+
+  const stashId = $("sessionStashPick").value;
+  const stashItem = stash.find(s=>s.id===stashId) || stash[0];
+
+  const severity = Number($("severity").value);
+  const sleepScore = $("sleepScore").value;
+  const smellText = $("smellText").value.trim();
+
+  const entry = {
+    id: uid(),
+    createdAt: Date.now(),
+    stashId: stashItem.id,
+    stashName: stashItem.name,
+    severity,
+    sleepScore: sleepScore === "0" ? "" : sleepScore,
+    moodBefore: Array.from(moodOn),
+    smellTags: Array.from(smellOn),
+    smellText,
+    photoDataUrl: photoDataUrl || "",
+    audioId: lastAudioId || ""
+  };
+
+  sessions.unshift(entry);
+  saveJSON(KEY_SESS, sessions);
+
+  // reset session inputs (but keep stash selection)
+  $("sleepScore").value = "0";
+  $("severity").value = "3";
+  $("smellText").value = "";
+  moodOn.clear();
+  smellOn.clear();
+  buildTagGrid("moodGrid", MOODS, moodOn);
+  buildTagGrid("smellGrid", SMELLS, smellOn);
+
+  photoDataUrl = null;
+  $("photoInput").value = "";
+  $("photoPreview").innerHTML = "No photo";
+
+  lastAudioId = null;
+  recPlay.style.display = "none";
+  recPlay.src = "";
+  recHint.textContent = "No recording yet.";
+  recStart.disabled = false;
+  recStop.disabled = true;
+
+  renderSessions();
+});
+
+$("sessionClear").addEventListener("click", ()=>{
+  $("sleepScore").value = "0";
+  $("severity").value = "3";
+  $("smellText").value = "";
+  photoDataUrl = null;
+  $("photoInput").value = "";
+  $("photoPreview").innerHTML = "No photo";
+  moodOn.clear();
+  smellOn.clear();
+  buildTagGrid("moodGrid", MOODS, moodOn);
+  buildTagGrid("smellGrid", SMELLS, smellOn);
+
+  lastAudioId = null;
+  recPlay.style.display = "none";
+  recPlay.src = "";
+  recHint.textContent = "No recording yet.";
+  recStart.disabled = false;
+  recStop.disabled = true;
+});
+
+// -------- About: export + wipe --------
+$("exportJson").addEventListener("click", async ()=>{
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    stash,
+    sessions: sessions.map(s => {
+      // do NOT embed audio blob in JSON export (too big)
+      // keep pointer so you know it exists locally
+      return { ...s };
+    })
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "stoneyvibes_export.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+$("wipeAll").addEventListener("click", async ()=>{
+  // local wipe
+  localStorage.removeItem(KEY_STASH);
+  localStorage.removeItem(KEY_SESS);
+  stash = [];
+  sessions = [];
+  saveJSON(KEY_STASH, stash);
+  saveJSON(KEY_SESS, sessions);
+  renderStash();
+  refreshSessionPick();
+  renderSessions();
+  setView("stash");
+});
+
+function escapeHTML(s){
+  return String(s ?? "").replace(/[&<>"']/g, (c)=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
 }
 
-.card h1{
-  margin:0 0 8px 0;
-  font-size: 1.6rem;
-  letter-spacing:.5px;
-}
+// init
+renderStash();
+refreshSessionPick();
+renderSessions();
 
-.card h2{
-  margin: 8px 0 10px 0;
-  font-size: 1.05rem;
-  opacity:.9;
-  letter-spacing:.3px;
-}
-
-.muted{ color: var(--muted); }
-
-.field{ margin: 12px 0; }
-
-label{
-  display:block;
-  margin-bottom:6px;
-  opacity:.75;
-  font-size:.92rem;
-}
-
-input, select{
-  width:100%;
-  background:#0b0b0b;
-  border:1px solid #2a2a2a;
-  border-radius: 14px;
-  padding: 12px 12px;
-  color: var(--text);
-}
-
-.text{ padding: 10px 12px; border-radius: 12px; }
-
-.row{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-
-button{
-  cursor:pointer;
-  user-select:none;
-}
-
-.primary{
-  flex:1;
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--green);
-  border-radius: 16px;
-  padding: 12px 0;
-}
-
-.danger{
-  flex:1;
-  background: rgba(138,47,47,.18);
-  color: var(--text);
-  border: 1px solid var(--danger);
-  border-radius: 16px;
-  padding: 12px 0;
-}
-
-.divider{
-  height:1px;
-  background: #222;
-  margin: 16px 0;
-}
-
-.list{ display:flex; flex-direction:column; gap:10px; }
-
-.item{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  padding: 12px;
-  border-radius: 18px;
-  background:#101010;
-  border:1px solid #222;
-}
-
-.item strong{ display:block; letter-spacing:.4px; }
-.item small{ opacity:.65; display:block; margin-top:2px; }
-
-.item .right{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  align-items:flex-end;
-}
-
-.item .mini{
-  padding:8px 12px;
-  border-radius: 14px;
-  border:1px solid var(--danger);
-  background: rgba(138,47,47,.18);
-  color: var(--text);
-}
-
-.tag-grid{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.tag{
-  border:1px solid #2b2b2b;
-  background: transparent;
-  color: var(--text);
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-size: .85rem;
-  opacity:.9;
-}
-
-.tag.on{
-  border-color: var(--green);
-  box-shadow: inset 0 0 0 1px rgba(51,170,119,.25);
-}
-
-.photo-preview{
-  margin-top:8px;
-  font-size:.85rem;
-  opacity:.6;
-}
-
-.photo-preview img{
-  display:block;
-  max-width:100%;
-  border-radius:18px;
-  border:1px solid #222;
-}
-
-.range-labels{
-  display:flex;
-  justify-content:space-between;
-  font-size:.8rem;
-  opacity:.55;
-  margin-top:4px;
-}
-
-.audio{ width:100%; margin-top:8px; }
-
-.hint{
-  opacity:.55;
-  font-size:.85rem;
-  margin-top:6px;
-}
-
-.view{ display:none; }
-.view.active{ display:block; }
