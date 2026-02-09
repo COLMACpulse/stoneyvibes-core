@@ -8,73 +8,144 @@
 </head>
 <body>
 
-  <main class="app">
+  <header class="top">
+    <div class="top-row">
+      <div class="brand">StoneyVibes — VOLUME 1</div>
+      <div class="mode">PRIVATE · LOCAL</div>
+    </div>
+    <div class="subline">Private, local-only logging. Swipe left/right or tap.</div>
 
-    <section class="log-card">
-      <h1>LOG</h1>
-      <p class="sub">One tap. Timestamp. Done.</p>
+    <nav class="tabs">
+      <button class="tab active" data-view="stash">STASH</button>
+      <button class="tab" data-view="sessions">SESSIONS</button>
+      <button class="tab" data-view="about">ABOUT</button>
+      <div class="swipehint">← swipe →</div>
+    </nav>
+  </header>
 
-      <div class="buttons-row">
-        <button>AM</button>
-        <button>NOON</button>
-        <button>PM</button>
-        <button>REST</button>
+  <main class="wrap">
+
+    <!-- STASH -->
+    <section class="card view active" id="view-stash">
+      <h1>STASH</h1>
+
+      <div class="field">
+        <label>What are you sampling?</label>
+        <input id="stashName" type="text" placeholder="e.g., Elmer’s Glue / Zookie / Lemon Tree" />
       </div>
 
-      <p class="status">Ready.</p>
+      <div class="field">
+        <label>Category</label>
+        <select id="stashCategory">
+          <option value="FLOWER">FLOWER</option>
+          <option value="VAPE">VAPE</option>
+          <option value="EDIBLE">EDIBLE</option>
+          <option value="CONCENTRATE">CONCENTRATE</option>
+          <option value="OTHER">OTHER</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Notes (optional)</label>
+        <input id="stashNotes" type="text" placeholder="One line. Keep it human." />
+      </div>
+
+      <div class="row">
+        <button id="stashAdd" class="primary">Add</button>
+        <button id="stashClear" class="danger">Clear</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>STASH LIST</h2>
+      <div id="stashList" class="list"></div>
     </section>
 
-    <!-- SESSION AUGMENT (UI ONLY) -->
-    <section class="session-augment">
+    <!-- SESSIONS -->
+    <section class="card view" id="view-sessions">
+      <h1>SESSIONS</h1>
 
-      <h2>Session</h2>
+      <div class="field">
+        <label>Pick from stash</label>
+        <select id="sessionStashPick"></select>
+      </div>
+
+      <div class="field">
+        <label>How’d you sleep last night?</label>
+        <select id="sleepScore">
+          <option value="0">—</option>
+          <option value="1">1 (bad)</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5 (great)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Mood (before)</label>
+        <div class="tag-grid" id="moodGrid"></div>
+      </div>
 
       <!-- PHOTO -->
-      <div class="block">
-        <label>Photo (optional)</label>
-        <button class="ghost">Add Photo</button>
-        <div class="photo-placeholder">No photo</div>
+      <div class="field">
+        <label>Photo of nug (optional)</label>
+        <input id="photoInput" type="file" accept="image/*" capture="environment" />
+        <div id="photoPreview" class="photo-preview">No photo</div>
       </div>
 
       <!-- SEVERITY -->
-      <div class="block">
-        <label>Rate it</label>
-        <input type="range" min="1" max="5" value="3" />
+      <div class="field">
+        <label>Rate it (1–5)</label>
+        <input id="severity" type="range" min="1" max="5" value="3" />
         <div class="range-labels">
           <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
         </div>
       </div>
 
       <!-- SMELL -->
-      <div class="block">
+      <div class="field">
         <label>Smell</label>
-        <div class="tag-grid">
-          <button>citrus</button>
-          <button>gas</button>
-          <button>sweet</button>
-          <button>earthy</button>
-          <button>pine</button>
-          <button>funk</button>
-          <button>floral</button>
-          <button>sharp</button>
-          <button>muted</button>
-          <button>other</button>
-        </div>
-
-        <input
-          type="text"
-          placeholder="Anything else?"
-          class="smell-note"
-        />
+        <div class="tag-grid" id="smellGrid"></div>
+        <input id="smellText" type="text" class="text" placeholder="Anything else?" />
       </div>
 
+      <!-- AUDIO -->
+      <div class="field">
+        <label>Audio note (paramount)</label>
+        <div class="row">
+          <button id="recStart" class="primary">Record</button>
+          <button id="recStop" class="danger" disabled>Stop</button>
+        </div>
+        <audio id="recPlayback" controls class="audio" style="display:none;"></audio>
+        <div class="hint" id="recHint">No recording yet.</div>
+      </div>
+
+      <div class="row">
+        <button id="sessionSave" class="primary">Save Session</button>
+        <button id="sessionClear" class="danger">Clear</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>SESSION LOG</h2>
+      <div id="sessionList" class="list"></div>
     </section>
 
-    <footer class="footer">
-      Baseline build · no extras
-    </footer>
+    <!-- ABOUT -->
+    <section class="card view" id="view-about">
+      <h1>ABOUT</h1>
+      <p class="muted">
+        Private. Local-only. Nothing leaves this device unless you export it later.
+      </p>
+      <div class="divider"></div>
+      <button id="exportJson" class="primary">Export JSON</button>
+      <button id="wipeAll" class="danger">Wipe Local Data</button>
+      <p class="hint">Export gives you a file you can stash anywhere. Wipe is irreversible.</p>
+    </section>
 
   </main>
 
+  <script src="app.js"></script>
 </body>
 </html>
