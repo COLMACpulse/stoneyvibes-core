@@ -147,5 +147,139 @@
   </main>
 
   <script src="app.js"></script>
+  <script>
+/* =========================
+   STONEYVIBES — BUTTON PATCH v1
+   Goal: make “tag / mood / smell / type” buttons reliably click + persist
+   Works even if buttons are inside a <form> and were causing page reload.
+   ========================= */
+
+(function () {
+  // simple state bucket for the current capture
+  const SV = (window.SV = window.SV || {});
+  SV.capture = SV.capture || {};
+  SV.capture.tags = SV.capture.tags || {};
+
+  // CSS helper (only if you don’t already have an .active style)
+  const style = document.createElement("style");
+  style.textContent = `
+    .sv-active{ outline:2px solid rgba(255,255,255,.65); filter:brightness(1.1); }
+  `;
+  document.head.appendChild(style);
+
+  // 1) Prevent “button clicks” from submitting forms / reloading the page
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest("button, a, div");
+    if (!btn) return;
+
+    // Only intercept things that look like your option buttons:
+    // - has data-sv / data-group / data-tag
+    // - OR has a class containing "chip" or "tag" or "pill"
+    const looksLikeOption =
+      btn.dataset.sv ||
+      btn.dataset.group ||
+      btn.dataset.tag ||
+      /chip|tag|pill|opt|option/i.test(btn.className || "");
+
+    if (!looksLikeOption) return;
+
+    // If it’s inside a form, stop it from submitting / navigating.
+    e.preventDefault();
+  }, true);
+
+  // 2) Event delegation: any clickable option element can become “a working button”
+  // You can optionally add attributes later, but this works with common class names too.
+  document.addEventListener("click", function (e) {
+    const el = e.target.closest("button, a, div");
+    if (!el) return;
+
+    // Determine group + value
+    // Priority: data-group + data-value, then data-sv + data-value, then data-tag, then text
+    const group =
+      el.dataset.group ||
+      el.dataset.sv ||
+      (el.closest("[data-group]") ? el.closest("[data-group]").dataset.group : null) ||
+      (el.closest("[data-sv]") ? el.closest("[data-sv]").dataset.sv : null) ||
+      (el.dataset.tag ? "tag" : null);
+
+    if (!group) {
+      // fallback: only if it looks like one of your option buttons
+      if (!/chip|tag|pill|opt|option/i.test(el.className || "")) return;
+    }
+
+    const value =
+      el.dataset.value ||
+      el.dataset.tag ||
+      (el.textContent || "").trim();
+
+    if (!value) return;
+
+    const g = group || "tag";
+
+    // Toggle behavior:
+    // - If the group is “type” (indica/sativa/hybrid/unknown), make it single-select
+    // - Otherwise allow multi-select
+    const singleSelectGroups = new Set(["type", "strainType", "category"]);
+    const isSingle = singleSelectGroups.has(g);
+
+    // Find siblings in same group (best effort) for single-select clearing
+    if (isSingle) {
+      const scope = el.closest(`[data-group="${g}"], [data-sv="${g}"]`) || document;
+      scope.querySelectorAll(".sv-active").forEach(x => x.classList.remove("sv-active"));
+      SV.capture.tags[g] = value;
+      el.classList.add("sv-active");
+    } else {
+      // multi-select toggle
+      const key = `${g}:${value}`;
+      const nowOn = !SV.capture.tags[key];
+      SV.capture.tags[key] = nowOn ? true : null;
+      if (nowOn) el.classList.add("sv-active");
+      else el.classList.remove("sv-active");
+    }
+
+    // Persist lightweight capture state (so refresh doesn’t wipe it)
+    try {
+      localStorage.setItem("sv_capture_v1", JSON.stringify(SV.capture));
+    } catch (_) {}
+
+    // Optional: if you have a debug/status element, update it
+    const status = document.getElementById("statusText") || document.getElementById("status");
+    if (status) status.textContent = "Saved.";
+  });
+
+  // 3) On load: restore button states (if any)
+  document.addEventListener("DOMContentLoaded", function () {
+    try {
+      const saved = JSON.parse(localStorage.getItem("sv_capture_v1") || "{}");
+      if (saved && typeof saved === "object") SV.capture = saved;
+    } catch (_) {}
+
+    // Re-apply active classes (best effort)
+    // For single-select types
+    for (const g of ["type", "strainType", "category"]) {
+      const v = SV.capture?.tags?.[g];
+      if (!v) continue;
+      document.querySelectorAll("button, a, div").forEach(el => {
+        const val = (el.dataset.value || el.dataset.tag || (el.textContent || "").trim());
+        const grp = (el.dataset.group || el.dataset.sv || null);
+        if (grp === g && val === v) el.classList.add("sv-active");
+      });
+    }
+    // For multi-select toggles
+    const tags = SV.capture?.tags || {};
+    Object.keys(tags).forEach(k => {
+      if (!tags[k]) return;
+      if (!k.includes(":")) return;
+      const [, value] = k.split(":");
+      document.querySelectorAll("button, a, div").forEach(el => {
+        const val = (el.dataset.value || el.dataset.tag || (el.textContent || "").trim());
+        if (val === value) el.classList.add("sv-active");
+      });
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
+
