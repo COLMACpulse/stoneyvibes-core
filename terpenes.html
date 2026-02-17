@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>StoneyVibes — Terpene Input</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:760px;margin:0 auto;padding:18px;line-height:1.35}
+    h1{margin:0 0 8px}
+    .note{opacity:.8;margin:0 0 16px}
+    .card{border:1px solid #ddd;border-radius:12px;padding:14px;margin:12px 0}
+    label{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed #eee}
+    label:last-child{border-bottom:none}
+    input[type="number"]{width:110px;padding:6px;border:1px solid #ccc;border-radius:10px}
+    button{padding:10px 12px;border-radius:12px;border:1px solid #111;background:#111;color:#fff;font-weight:600;cursor:pointer}
+    button:active{transform:translateY(1px)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f3f3}
+    pre{white-space:pre-wrap;word-break:break-word;background:#fafafa;border:1px solid #eee;border-radius:12px;padding:12px}
+    a{color:#111}
+  </style>
+</head>
+<body>
+  <h1>Terpene Input</h1>
+  <p class="note">Enter percentages if you have them. If you don’t, use a 0–3 “presence score” (0 none, 1 low, 2 med, 3 high).</p>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <span class="pill">Mode: A (Terpene Input Screen)</span>
+      <a href="index.html">← Back</a>
+    </div>
+  </div>
+
+  <div class="card" id="formCard">
+    <h3 style="margin:0 0 10px">Inputs</h3>
+
+    <label>Myrcene <input id="myrcene" type="number" step="0.01" min="0" value="0"></label>
+    <label>Limonene <input id="limonene" type="number" step="0.01" min="0" value="0"></label>
+    <label>β-Caryophyllene <input id="caryophyllene" type="number" step="0.01" min="0" value="0"></label>
+    <label>α/β-Pinene <input id="pinene" type="number" step="0.01" min="0" value="0"></label>
+    <label>Linalool <input id="linalool" type="number" step="0.01" min="0" value="0"></label>
+    <label>Terpinolene <input id="terpinolene" type="number" step="0.01" min="0" value="0"></label>
+
+    <div class="row" style="margin-top:12px">
+      <button id="runBtn">Run Z-Scale</button>
+      <button id="saveBtn" style="background:#fff;color:#111">Save to Log</button>
+      <span class="pill" id="statusPill">Ready</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 10px">Result</h3>
+    <pre id="out">—</pre>
+  </div>
+
+  <script src="terpenes.js"></script>
+</body>
+</html>
