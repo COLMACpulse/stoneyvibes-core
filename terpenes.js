@@ -1,100 +1,175 @@
-function n(id) {
-  const v = parseFloat(document.getElementById(id).value);
-  return Number.isFinite(v) ? v : 0;
-}
+/* terpenes.js — StoneyVibes v1
+   Presence-only terpene draft:
+   NP = Not Present
+   BG = Background
+   N  = Noticeable
+   D  = Dominant
+*/
 
-function evaluateTerpenes(t) {
-  const { myrcene, limonene, caryophyllene, pinene, linalool, terpinolene } = t;
+(() => {
+  const DRAFT_KEY = "sv_terp_draft_v1";
 
-  // “Presence score” compatible:
-  // If user enters 0–3 instead of % values, math still behaves (relative weighting).
+  const TERPENES = [
+    { id: "myrcene", label: "Myrcene" },
+    { id: "limonene", label: "Limonene" },
+    { id: "caryophyllene", label: "β-Caryophyllene" },
+    { id: "pinene", label: "α/β-Pinene" },
+    { id: "linalool", label: "Linalool" },
+    { id: "terpinolene", label: "Terpinolene" },
+  ];
 
-  const BodyIndex =
-    (myrcene * 2) +
-    caryophyllene +
-    linalool;
+  const LEVELS = [
+    { v: "NP", t: "NP" },
+    { v: "BG", t: "BG" },
+    { v: "N",  t: "N"  },
+    { v: "D",  t: "D"  },
+  ];
 
-  const ClarityIndex =
-    (limonene + (pinene * 1.5)) -
-    (myrcene * 0.5);
+  const $ = (id) => document.getElementById(id);
 
-  const CreativeIndex =
-    (limonene + pinene + terpinolene) -
-    (myrcene * 0.7);
+  const backBtn = $("backBtn");
+  const terpList = $("terpList");
+  const saveDraftBtn = $("saveDraftBtn");
+  const clearDraftBtn = $("clearDraftBtn");
+  const draftStatus = $("draftStatus");
 
-  let zScore = "Unclassified";
-
-  if (BodyIndex < 1 && ClarityIndex > 1) zScore = "Z2 — Functional Lift";
-  else if (BodyIndex >= 1 && BodyIndex <= 1.5) zScore = "Z3–Z4 — Grounded Flow";
-  else if (BodyIndex > 1.5 && BodyIndex <= 2) zScore = "Z5 — Body Glow";
-  else if (BodyIndex > 2) zScore = "Z6 — Melt / Sleep";
-
-  return { BodyIndex, ClarityIndex, CreativeIndex, zScore };
-}
-
-function nowStamp() {
-  const d = new Date();
-  return d.toISOString();
-}
-
-function loadLog() {
-  try {
-    return JSON.parse(localStorage.getItem("sv_terpene_log") || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveLog(entry) {
-  const log = loadLog();
-  log.unshift(entry);
-  localStorage.setItem("sv_terpene_log", JSON.stringify(log));
-  return log;
-}
-
-function renderResult(res, t) {
-  return [
-    `Inputs: ${JSON.stringify(t)}`,
-    "",
-    `BodyIndex: ${res.BodyIndex.toFixed(2)}`,
-    `ClarityIndex: ${res.ClarityIndex.toFixed(2)}`,
-    `CreativeIndex: ${res.CreativeIndex.toFixed(2)}`,
-    "",
-    `Z-Scale: ${res.zScore}`,
-  ].join("\n");
-}
-
-const out = document.getElementById("out");
-const statusPill = document.getElementById("statusPill");
-
-document.getElementById("runBtn").addEventListener("click", () => {
-  const t = {
-    myrcene: n("myrcene"),
-    limonene: n("limonene"),
-    caryophyllene: n("caryophyllene"),
-    pinene: n("pinene"),
-    linalool: n("linalool"),
-    terpinolene: n("terpinolene"),
-  };
-
-  const res = evaluateTerpenes(t);
-  out.textContent = renderResult(res, t);
-  statusPill.textContent = "Ran Z-Scale";
-});
-
-document.getElementById("saveBtn").addEventListener("click", () => {
-  // Require a run first
-  if (out.textContent === "—") {
-    statusPill.textContent = "Run first";
-    return;
+  function escapeHtml(str) {
+    return String(str || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
-  const entry = {
-    ts: nowStamp(),
-    type: "terpenes",
-    raw: out.textContent,
-  };
+  function loadDraft() {
+    try {
+      return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+    } catch {
+      return null;
+    }
+  }
 
-  saveLog(entry);
-  statusPill.textContent = "Saved";
-});
+  function saveDraft(obj) {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(obj));
+  }
+
+  function clearDraft() {
+    localStorage.removeItem(DRAFT_KEY);
+  }
+
+  function nowStamp() {
+    const d = new Date();
+    return d.toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  function setStatus(text) {
+    if (draftStatus) draftStatus.textContent = text;
+  }
+
+  function render() {
+    if (!terpList) return;
+    terpList.innerHTML = "";
+
+    const draft = loadDraft() || { values: {}, updatedAt: null };
+
+    for (const terp of TERPENES) {
+      const current = (draft.values && draft.values[terp.id]) ? draft.values[terp.id] : "";
+
+      const el = document.createElement("div");
+      el.className = "item";
+
+      const btns = LEVELS.map((L) => {
+        const active = current === L.v ? " active" : "";
+        return `<button class="btn btnTiny btnTog${active}" type="button" data-terp="${escapeHtml(terp.id)}" data-val="${escapeHtml(L.v)}">${escapeHtml(L.t)}</button>`;
+      }).join("");
+
+      el.innerHTML = `
+        <div class="itemHead">
+          <div style="min-width:0; flex:1;">
+            <p class="itemTitle">${escapeHtml(terp.label)}</p>
+            <p class="itemMeta">Pick one: NP / BG / N / D</p>
+          </div>
+        </div>
+        <div class="row topgap" style="gap:8px;">
+          ${btns}
+        </div>
+      `;
+
+      terpList.appendChild(el);
+    }
+
+    // bind handlers
+    const buttons = Array.from(document.querySelectorAll("[data-terp][data-val]"));
+    buttons.forEach((b) => {
+      b.onclick = () => {
+        const terpId = b.getAttribute("data-terp");
+        const val = b.getAttribute("data-val");
+        if (!terpId || !val) return;
+
+        const draftNow = loadDraft() || { values: {}, updatedAt: null };
+        draftNow.values = draftNow.values || {};
+        draftNow.values[terpId] = val;
+        draftNow.updatedAt = Date.now();
+        saveDraft(draftNow);
+
+        // update active state in that terp row
+        const rowBtns = Array.from(document.querySelectorAll(`[data-terp="${CSS.escape(terpId)}"]`));
+        rowBtns.forEach((x) => x.classList.toggle("active", x.getAttribute("data-val") === val));
+
+        setStatus(`Draft updated — ${nowStamp()}`);
+      };
+    });
+
+    if (draft.updatedAt) setStatus(`Draft saved — ${new Date(draft.updatedAt).toLocaleString()}`);
+    else setStatus("No draft yet.");
+  }
+
+  function collectCurrentFromUI() {
+    const out = {};
+    for (const terp of TERPENES) {
+      const active = document.querySelector(`[data-terp="${CSS.escape(terp.id)}"].active`);
+      if (active) out[terp.id] = active.getAttribute("data-val") || "";
+    }
+    return out;
+  }
+
+  // nav
+  if (backBtn) {
+    backBtn.onclick = () => {
+      // back to app root
+      window.location.href = "./index.html";
+    };
+  }
+
+  if (saveDraftBtn) {
+    saveDraftBtn.onclick = () => {
+      const values = collectCurrentFromUI();
+      const draft = { values, updatedAt: Date.now() };
+      saveDraft(draft);
+      setStatus(`Draft saved — ${nowStamp()}`);
+      alert("Draft saved.");
+    };
+  }
+
+  if (clearDraftBtn) {
+    clearDraftBtn.onclick = () => {
+      const ok = confirm("Clear terpene draft on this device?");
+      if (!ok) return;
+      clearDraft();
+      render();
+      setStatus("No draft yet.");
+      alert("Draft cleared.");
+    };
+  }
+
+  // init
+  render();
+})();
+
