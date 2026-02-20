@@ -1,460 +1,328 @@
-// StoneyVibes — Volume 1 (private, local-only)
-// Core: STASH + SESSIONS + ABOUT
-// Adds: photo, severity slider, smell tags, audio recording
+:root{
+  --bg:#0b0d10;
+  --text:#e9eef5;
+  --muted:rgba(233,238,245,0.72);
+  --border:rgba(233,238,245,0.12);
+  --border2:rgba(233,238,245,0.18);
+  --card:rgba(255,255,255,0.04);
+  --shadow:0 10px 30px rgba(0,0,0,0.35);
+  --radius:16px;
 
-const KEY_STASH = findExistingKey(["sv_stash", "stoneyvibes_stash", "stash"]) || "sv_stash";
-const KEY_SESS  = findExistingKey(["sv_sessions", "stoneyvibes_sessions", "sessions"]) || "sv_sessions";
+  --danger:rgba(255,90,90,0.18);
+  --dangerB:rgba(255,90,90,0.32);
+  --ok:rgba(90,255,170,0.16);
+  --okB:rgba(90,255,170,0.28);
 
-function findExistingKey(keys){
-  for (const k of keys){
-    if (localStorage.getItem(k)) return k;
-  }
-  return null;
+  --star:rgba(233,238,245,0.18);
+  --star2:rgba(233,238,245,0.10);
 }
 
-const $ = (id) => document.getElementById(id);
+*{ box-sizing:border-box; }
 
-const tabs = Array.from(document.querySelectorAll(".tab"));
-const views = {
-  stash: $("view-stash"),
-  sessions: $("view-sessions"),
-  about: $("view-about"),
-};
-
-function setView(name){
-  tabs.forEach(t => t.classList.toggle("active", t.dataset.view === name));
-  Object.entries(views).forEach(([k, el]) => el.classList.toggle("active", k === name));
-  currentView = name;
-}
-tabs.forEach(t => t.addEventListener("click", () => setView(t.dataset.view)));
-
-let currentView = "stash";
-// swipe
-let touchStartX = null;
-document.addEventListener("touchstart", (e) => touchStartX = e.touches[0].clientX, {passive:true});
-document.addEventListener("touchend", (e) => {
-  if (touchStartX === null) return;
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  touchStartX = null;
-  if (Math.abs(dx) < 60) return;
-
-  const order = ["stash","sessions","about"];
-  const idx = order.indexOf(currentView);
-  if (dx < 0 && idx < order.length - 1) setView(order[idx+1]);
-  if (dx > 0 && idx > 0) setView(order[idx-1]);
-}, {passive:true});
-
-// -------- Data helpers --------
-function loadJSON(key, fallback){
-  try{
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    return JSON.parse(raw);
-  }catch{ return fallback; }
-}
-function saveJSON(key, value){
-  localStorage.setItem(key, JSON.stringify(value));
-}
-function uid(){
-  return Math.random().toString(16).slice(2) + Date.now().toString(16);
+body{
+  margin:0;
+  font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background:
+    radial-gradient(1000px 600px at 30% 0%, rgba(255,255,255,0.06), transparent 60%),
+    radial-gradient(900px 700px at 80% 10%, rgba(90,255,170,0.06), transparent 55%),
+    radial-gradient(900px 700px at 40% 80%, rgba(255,180,90,0.05), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  position:relative;
+  overflow:hidden;
 }
 
-// -------- STASH --------
-let stash = loadJSON(KEY_STASH, []);
-let sessions = loadJSON(KEY_SESS, []);
+/* subtle “star rails” art layer (purely visual) */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.9;
+  background:
+    radial-gradient(circle at 6% 10%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 18%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 26%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 34%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 42%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 50%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 58%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 66%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 74%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 82%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 90%, var(--star) 0 1px, transparent 2px),
 
-function renderStash(){
-  const list = $("stashList");
-  list.innerHTML = "";
-  if (!stash.length){
-    list.innerHTML = `<div class="hint">No stash yet. Add one above.</div>`;
-    return;
-  }
-  stash.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `
-      <div>
-        <strong>${escapeHTML(item.name)}</strong>
-        <small>${escapeHTML(item.category)} — ${escapeHTML(item.notes || "—")}</small>
-      </div>
-      <div class="right">
-        <button class="mini" data-del="${item.id}">Delete</button>
-      </div>
-    `;
-    list.appendChild(div);
-  });
+    radial-gradient(circle at 94% 12%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 20%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 28%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 36%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 44%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 52%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 60%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 68%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 76%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 84%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 92%, var(--star) 0 1px, transparent 2px),
 
-  list.querySelectorAll("[data-del]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const id = btn.getAttribute("data-del");
-      stash = stash.filter(s => s.id !== id);
-      saveJSON(KEY_STASH, stash);
-      // keep sessions intact (they store stashName snapshot)
-      renderStash();
-      refreshSessionPick();
-    });
-  });
+    radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.06), transparent 55%),
+    radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.06), transparent 55%);
 }
 
-$("stashAdd").addEventListener("click", ()=>{
-  const name = $("stashName").value.trim();
-  const category = $("stashCategory").value;
-  const notes = $("stashNotes").value.trim();
-  if (!name) return;
-
-  stash.unshift({ id: uid(), name, category, notes, createdAt: Date.now() });
-  saveJSON(KEY_STASH, stash);
-
-  $("stashName").value = "";
-  $("stashNotes").value = "";
-
-  renderStash();
-  refreshSessionPick();
-});
-
-$("stashClear").addEventListener("click", ()=>{
-  $("stashName").value = "";
-  $("stashNotes").value = "";
-});
-
-// -------- Mood + Smell tags --------
-const MOODS = ["calm","neutral","wired","heavy","social","antisocial","focused","foggy","pissed","aggressive","not great"];
-const SMELLS = ["citrus","gas","sweet","earthy","pine","funk","floral","sharp","muted","other"];
-
-let moodOn = new Set();
-let smellOn = new Set();
-
-function buildTagGrid(containerId, items, setRef){
-  const el = $(containerId);
-  el.innerHTML = "";
-  items.forEach(name=>{
-    const b = document.createElement("button");
-    b.className = "tag";
-    b.textContent = name;
-    b.addEventListener("click", ()=>{
-      if (setRef.has(name)) setRef.delete(name);
-      else setRef.add(name);
-      b.classList.toggle("on", setRef.has(name));
-    });
-    el.appendChild(b);
-  });
+.shell{
+  height:100svh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  z-index:1;
 }
 
-buildTagGrid("moodGrid", MOODS, moodOn);
-buildTagGrid("smellGrid", SMELLS, smellOn);
-
-// -------- Photo capture --------
-let photoDataUrl = null;
-$("photoInput").addEventListener("change", async (e)=>{
-  const file = e.target.files?.[0];
-  if (!file){
-    photoDataUrl = null;
-    $("photoPreview").innerHTML = "No photo";
-    return;
-  }
-  photoDataUrl = await fileToDataURL(file);
-  $("photoPreview").innerHTML = `<img alt="photo" src="${photoDataUrl}">`;
-});
-
-function fileToDataURL(file){
-  return new Promise((resolve, reject)=>{
-    const r = new FileReader();
-    r.onload = ()=> resolve(r.result);
-    r.onerror = reject;
-    r.readAsDataURL(file);
-  });
+header{
+  padding:14px 16px 10px 16px;
+  border-bottom:1px solid var(--border);
+  background:rgba(0,0,0,0.18);
+  backdrop-filter: blur(8px);
 }
 
-// -------- Audio recording (IndexedDB) --------
-let recStream = null;
-let mediaRecorder = null;
-let recChunks = [];
-let lastAudioId = null;
-
-const recStart = $("recStart");
-const recStop  = $("recStop");
-const recPlay  = $("recPlayback");
-const recHint  = $("recHint");
-
-recStart.addEventListener("click", async ()=>{
-  try{
-    recHint.textContent = "Requesting mic…";
-    recStream = await navigator.mediaDevices.getUserMedia({ audio:true });
-    recChunks = [];
-    mediaRecorder = new MediaRecorder(recStream);
-    mediaRecorder.ondataavailable = (e)=> { if (e.data && e.data.size) recChunks.push(e.data); };
-    mediaRecorder.onstop = async ()=>{
-      const blob = new Blob(recChunks, { type: recChunks[0]?.type || "audio/webm" });
-      lastAudioId = uid();
-      await idbPut(lastAudioId, blob);
-      const url = URL.createObjectURL(blob);
-      recPlay.src = url;
-      recPlay.style.display = "block";
-      recHint.textContent = "Recorded.";
-      cleanupStream();
-    };
-    mediaRecorder.start();
-    recStart.disabled = true;
-    recStop.disabled = false;
-    recHint.textContent = "Recording…";
-  }catch(err){
-    recHint.textContent = "Mic blocked or unavailable.";
-    recStart.disabled = false;
-    recStop.disabled = true;
-  }
-});
-
-recStop.addEventListener("click", ()=>{
-  try{
-    mediaRecorder?.stop();
-  }catch{}
-  recStart.disabled = false;
-  recStop.disabled = true;
-});
-
-function cleanupStream(){
-  if (recStream){
-    recStream.getTracks().forEach(t => t.stop());
-    recStream = null;
-  }
+.title{
+  margin:0;
+  font-size:20px;
+  letter-spacing:0.02em;
+}
+.sub{
+  margin:6px 0 0 0;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.35;
 }
 
-function idb(){
-  return new Promise((resolve, reject)=>{
-    const req = indexedDB.open("stoneyvibes_db", 1);
-    req.onupgradeneeded = ()=>{
-      const db = req.result;
-      if (!db.objectStoreNames.contains("audio")){
-        db.createObjectStore("audio");
-      }
-    };
-    req.onsuccess = ()=> resolve(req.result);
-    req.onerror = ()=> reject(req.error);
-  });
+.nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:10px;
+  align-items:center;
 }
 
-async function idbPut(key, blob){
-  const db = await idb();
-  return new Promise((resolve, reject)=>{
-    const tx = db.transaction("audio", "readwrite");
-    tx.objectStore("audio").put(blob, key);
-    tx.oncomplete = ()=> resolve(true);
-    tx.onerror = ()=> reject(tx.error);
-  });
+.tab{
+  border:1px solid var(--border2);
+  background:rgba(255,255,255,0.06);
+  color:var(--text);
+  padding:8px 10px;
+  border-radius:999px;
+  font-size:13px;
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab.active{
+  background:rgba(255,255,255,0.12);
+  border-color:rgba(255,255,255,0.28);
 }
 
-async function idbGet(key){
-  const db = await idb();
-  return new Promise((resolve, reject)=>{
-    const tx = db.transaction("audio", "readonly");
-    const req = tx.objectStore("audio").get(key);
-    req.onsuccess = ()=> resolve(req.result || null);
-    req.onerror = ()=> reject(req.error);
-  });
+.hint{
+  margin-left:auto;
+  font-size:12px;
+  color:var(--muted);
+  opacity:0.85;
+  white-space:nowrap;
 }
 
-async function idbDel(key){
-  const db = await idb();
-  return new Promise((resolve, reject)=>{
-    const tx = db.transaction("audio", "readwrite");
-    tx.objectStore("audio").delete(key);
-    tx.oncomplete = ()=> resolve(true);
-    tx.onerror = ()=> reject(tx.error);
-  });
+.pages{
+  flex:1;
+  display:flex;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+}
+.page{
+  scroll-snap-align:start;
+  min-width:100%;
+  height:100%;
+  overflow-y:auto;
+  padding:14px 16px 24px 16px;
 }
 
-// -------- Sessions --------
-function refreshSessionPick(){
-  const sel = $("sessionStashPick");
-  sel.innerHTML = "";
-  if (!stash.length){
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "No stash yet — add one first";
-    sel.appendChild(opt);
-    return;
-  }
-  stash.forEach(s=>{
-    const opt = document.createElement("option");
-    opt.value = s.id;
-    opt.textContent = `${s.name} (${s.category})`;
-    sel.appendChild(opt);
-  });
+.card{
+  border:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius:var(--radius);
+  padding:14px;
+  box-shadow:var(--shadow);
+  margin:12px 0;
+}
+.card h2{
+  margin:0 0 6px 0;
+  font-size:14px;
+  letter-spacing:0.10em;
 }
 
-function renderSessions(){
-  const list = $("sessionList");
-  list.innerHTML = "";
-  if (!sessions.length){
-    list.innerHTML = `<div class="hint">No sessions yet.</div>`;
-    return;
-  }
+.muted{ color:var(--muted); }
 
-  sessions.forEach(sess=>{
-    const div = document.createElement("div");
-    div.className = "item";
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+.between{ justify-content:space-between; }
+.topgap{ margin-top:10px; }
 
-    const when = new Date(sess.createdAt).toLocaleString();
-    const smells = (sess.smellTags || []).join(", ") || "—";
-    const moods = (sess.moodBefore || []).join(", ") || "—";
+.btn{
+  border:1px solid var(--border2);
+  background:rgba(255,255,255,0.06);
+  color:var(--text);
+  border-radius:14px;
+  padding:10px 12px;
+  cursor:pointer;
+  font-size:14px;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:disabled{ opacity:0.5; cursor:not-allowed; }
 
-    div.innerHTML = `
-      <div>
-        <strong>${escapeHTML(sess.stashName || "—")}</strong>
-        <small>${escapeHTML(when)} · rate ${sess.severity}/5 · sleep ${sess.sleepScore || "—"}</small>
-        <small>mood: ${escapeHTML(moods)}</small>
-        <small>smell: ${escapeHTML(smells)}${sess.smellText ? " · " + escapeHTML(sess.smellText) : ""}</small>
-      </div>
-      <div class="right">
-        ${sess.audioId ? `<button class="mini" data-play="${sess.id}">Play</button>` : ""}
-        <button class="mini" data-del="${sess.id}">Delete</button>
-      </div>
-    `;
-    list.appendChild(div);
-  });
-
-  list.querySelectorAll("[data-del]").forEach(btn=>{
-    btn.addEventListener("click", async ()=>{
-      const id = btn.getAttribute("data-del");
-      const s = sessions.find(x=>x.id===id);
-      if (s?.audioId) await idbDel(s.audioId);
-      sessions = sessions.filter(x=>x.id!==id);
-      saveJSON(KEY_SESS, sessions);
-      renderSessions();
-    });
-  });
-
-  list.querySelectorAll("[data-play]").forEach(btn=>{
-    btn.addEventListener("click", async ()=>{
-      const id = btn.getAttribute("data-play");
-      const s = sessions.find(x=>x.id===id);
-      if (!s?.audioId) return;
-      const blob = await idbGet(s.audioId);
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      // quick inline playback (reuse top player)
-      recPlay.src = url;
-      recPlay.style.display = "block";
-      recHint.textContent = "Playing saved audio.";
-      setView("sessions");
-      recPlay.play().catch(()=>{});
-    });
-  });
+.btnDanger{
+  border-color:var(--dangerB);
+  background:var(--danger);
+}
+.btnOk{
+  border-color:var(--okB);
+  background:var(--ok);
 }
 
-$("sessionSave").addEventListener("click", ()=>{
-  if (!stash.length) return;
-
-  const stashId = $("sessionStashPick").value;
-  const stashItem = stash.find(s=>s.id===stashId) || stash[0];
-
-  const severity = Number($("severity").value);
-  const sleepScore = $("sleepScore").value;
-  const smellText = $("smellText").value.trim();
-
-  const entry = {
-    id: uid(),
-    createdAt: Date.now(),
-    stashId: stashItem.id,
-    stashName: stashItem.name,
-    severity,
-    sleepScore: sleepScore === "0" ? "" : sleepScore,
-    moodBefore: Array.from(moodOn),
-    smellTags: Array.from(smellOn),
-    smellText,
-    photoDataUrl: photoDataUrl || "",
-    audioId: lastAudioId || ""
-  };
-
-  sessions.unshift(entry);
-  saveJSON(KEY_SESS, sessions);
-
-  // reset session inputs (but keep stash selection)
-  $("sleepScore").value = "0";
-  $("severity").value = "3";
-  $("smellText").value = "";
-  moodOn.clear();
-  smellOn.clear();
-  buildTagGrid("moodGrid", MOODS, moodOn);
-  buildTagGrid("smellGrid", SMELLS, smellOn);
-
-  photoDataUrl = null;
-  $("photoInput").value = "";
-  $("photoPreview").innerHTML = "No photo";
-
-  lastAudioId = null;
-  recPlay.style.display = "none";
-  recPlay.src = "";
-  recHint.textContent = "No recording yet.";
-  recStart.disabled = false;
-  recStop.disabled = true;
-
-  renderSessions();
-});
-
-$("sessionClear").addEventListener("click", ()=>{
-  $("sleepScore").value = "0";
-  $("severity").value = "3";
-  $("smellText").value = "";
-  photoDataUrl = null;
-  $("photoInput").value = "";
-  $("photoPreview").innerHTML = "No photo";
-  moodOn.clear();
-  smellOn.clear();
-  buildTagGrid("moodGrid", MOODS, moodOn);
-  buildTagGrid("smellGrid", SMELLS, smellOn);
-
-  lastAudioId = null;
-  recPlay.style.display = "none";
-  recPlay.src = "";
-  recHint.textContent = "No recording yet.";
-  recStart.disabled = false;
-  recStop.disabled = true;
-});
-
-// -------- About: export + wipe --------
-$("exportJson").addEventListener("click", async ()=>{
-  const payload = {
-    exportedAt: new Date().toISOString(),
-    stash,
-    sessions: sessions.map(s => {
-      // do NOT embed audio blob in JSON export (too big)
-      // keep pointer so you know it exists locally
-      return { ...s };
-    })
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "stoneyvibes_export.json";
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-$("wipeAll").addEventListener("click", async ()=>{
-  // local wipe
-  localStorage.removeItem(KEY_STASH);
-  localStorage.removeItem(KEY_SESS);
-  stash = [];
-  sessions = [];
-  saveJSON(KEY_STASH, stash);
-  saveJSON(KEY_SESS, sessions);
-  renderStash();
-  refreshSessionPick();
-  renderSessions();
-  setView("stash");
-});
-
-function escapeHTML(s){
-  return String(s ?? "").replace(/[&<>"']/g, (c)=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
+.btnTiny{
+  padding:6px 10px;
+  border-radius:12px;
+  font-size:12px;
+  opacity:0.95;
+}
+.btnTog.active{
+  background:rgba(255,255,255,0.14);
+  border-color:rgba(255,255,255,0.32);
 }
 
-// init
-renderStash();
-refreshSessionPick();
-renderSessions();
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  flex:1;
+  min-width:220px;
+}
+.label{
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:0.04em;
+}
 
+.input, .select{
+  width:100%;
+  border:1px solid var(--border);
+  background:rgba(0,0,0,0.25);
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:14px;
+  outline:none;
+}
+.input:focus, .select:focus{
+  border-color:rgba(255,255,255,0.28);
+}
+
+.pillStatus{
+  padding:8px 10px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,0.04);
+  border-radius:999px;
+  color:var(--muted);
+  font-size:13px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.okDot, .recDot{
+  width:8px; height:8px; border-radius:50%;
+  display:inline-block;
+  background:rgba(233,238,245,0.35);
+}
+.recDot{
+  background:rgba(255,90,90,0.85);
+  box-shadow:0 0 0 3px rgba(255,90,90,0.18);
+}
+
+.list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:10px;
+}
+.item{
+  border:1px solid var(--border);
+  background:rgba(0,0,0,0.18);
+  border-radius:14px;
+  padding:10px;
+}
+.itemHead{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  justify-content:space-between;
+}
+.itemTitle{
+  font-weight:600;
+  font-size:14px;
+  margin:0;
+  line-height:1.25;
+}
+.itemMeta{
+  font-size:12px;
+  color:var(--muted);
+  margin:2px 0 0 0;
+  line-height:1.35;
+}
+.itemBtns{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:flex-end;
+}
+
+audio{ width:100%; }
+
+.divider{ height:1px; background:var(--border); margin:12px 0; }
+
+.notice{
+  border:1px dashed var(--border2);
+  background:rgba(255,255,255,0.04);
+  border-radius:14px;
+  padding:10px 12px;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.45;
+}
+.kbd{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  padding: 2px 6px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.audioDetails { margin-top: 6px; }
+.audioDetails summary {
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+}
+.audioDetails[open] summary { margin-bottom: 6px; }
+
+/* small-screen spacing */
+@media (max-width: 420px){
+  .field{ min-width: 160px; }
+}
