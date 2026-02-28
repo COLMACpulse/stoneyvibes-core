@@ -520,6 +520,7 @@
 
           <div class="row topgap">
             <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Record</button>
+            <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
             <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
             <span id="statusPill" class="pill"><span class="okDot"></span><span id="statusText">Idle</span></span>
           </div>
@@ -715,6 +716,7 @@
         req.onerror = () => reject(req.error);
       });
     }
+
     async function dbPut(session){
       const db = await openDB();
       return new Promise((resolve, reject) => {
@@ -876,8 +878,10 @@
       });
       return out;
     }
-// Audio
+
+    // Audio + Pause
     const recBtn = document.getElementById("recBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
     const stopBtn = document.getElementById("stopBtn");
     const statusPill = document.getElementById("statusPill");
     const statusText = document.getElementById("statusText");
@@ -905,6 +909,18 @@
       }
       return "";
     }
+
+    function togglePause(){
+      if (!mediaRecorder) return;
+      try{
+        if (mediaRecorder.state === "recording" && typeof mediaRecorder.pause === "function"){
+          mediaRecorder.pause();
+        } else if (mediaRecorder.state === "paused" && typeof mediaRecorder.resume === "function"){
+          mediaRecorder.resume();
+        }
+      }catch(e){}
+    }
+
     async function startRecording(){
       if (!("MediaRecorder" in window)){
         iphoneFallback.style.display = "flex";
@@ -925,6 +941,16 @@
       }
 
       mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
+
+      mediaRecorder.onpause = () => {
+        pauseBtn.textContent = "Resume";
+        setStatus("rec","Paused");
+      };
+      mediaRecorder.onresume = () => {
+        pauseBtn.textContent = "Pause";
+        setStatus("rec","Recording…");
+      };
+
       mediaRecorder.onstop = () => {
         try{
           pendingAudioBlob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
@@ -935,27 +961,40 @@
           if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
           mediaRecorder = null;
           chunks = [];
+          pauseBtn.textContent = "Pause";
+          pauseBtn.disabled = true;
         }
       };
 
       mediaRecorder.start();
+
       recBtn.disabled = true;
       stopBtn.disabled = false;
+
+      const pauseSupported = (typeof mediaRecorder.pause === "function" && typeof mediaRecorder.resume === "function");
+      pauseBtn.disabled = !pauseSupported;
+      pauseBtn.textContent = "Pause";
+
       pendingAudioBlob = null;
       preview.style.display = "none";
       preview.removeAttribute("src");
       setStatus("rec","Recording…");
     }
+
     function stopRecording(){
       if (!mediaRecorder) return;
       try{ mediaRecorder.stop(); } catch(e){}
       recBtn.disabled = false;
       stopBtn.disabled = true;
+      pauseBtn.disabled = true;
+      pauseBtn.textContent = "Pause";
       setStatus("idle","Saving…");
       setTimeout(()=> setStatus("idle","Ready to Save"), 350);
     }
+
     recBtn.onclick = startRecording;
     stopBtn.onclick = stopRecording;
+    pauseBtn.onclick = togglePause;
 
     fileAudio.addEventListener("change", async (e) => {
       const f = e.target.files && e.target.files[0];
@@ -972,7 +1011,7 @@
 
       const stashId = sessionStashLink.value || "";
       const stashItems = loadStash();
-      const stashItem = stashItems.find(x => x.id === stashId);
+      const stashItem = stashItems.find(x => x.id=== stashId);
       const tag = (sessionTag.value || "").trim() || (stashItem ? stashItem.name : "Session");
 
       const session = {
@@ -1088,7 +1127,8 @@
       await renderSessions();
       setStatus("idle","Idle");
     };
- // Export / wipe
+
+    // Export / wipe
     const exportBtn = document.getElementById("exportBtn");
     const wipeBtn = document.getElementById("wipeBtn");
 
@@ -1131,6 +1171,7 @@
         iphoneFallback.style.display = "flex";
         recBtn.textContent = "🎙️ Record (Browser unavailable)";
         stopBtn.disabled = true;
+        pauseBtn.disabled = true;
       }
 
       setStatus("idle","Idle");
@@ -1139,3 +1180,4 @@
   </script>
 </body>
 </html>
+
