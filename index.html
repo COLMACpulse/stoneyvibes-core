@@ -3,23 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StoneyVibes v1 — VOLUME 1</title>
+  <title>StoneyVibes — VOLUME 1</title>
   <style>
     :root{
       --bg:#0b0d10;
+      --panel:rgba(255,255,255,0.04);
+      --panel2:rgba(255,255,255,0.06);
       --text:#e9eef5;
       --muted:rgba(233,238,245,0.72);
       --border:rgba(233,238,245,0.12);
       --border2:rgba(233,238,245,0.18);
-      --card:rgba(255,255,255,0.04);
       --shadow:0 10px 30px rgba(0,0,0,0.35);
       --radius:16px;
       --danger:rgba(255,90,90,0.18);
       --dangerB:rgba(255,90,90,0.32);
       --ok:rgba(90,255,170,0.16);
       --okB:rgba(90,255,170,0.28);
-      --star:rgba(233,238,245,0.18);
-      --star2:rgba(233,238,245,0.10);
     }
 
     *{ box-sizing:border-box; }
@@ -32,45 +31,7 @@
         radial-gradient(900px 700px at 40% 80%, rgba(255,180,90,0.05), transparent 60%),
         var(--bg);
       color:var(--text);
-      position:relative;
       overflow:hidden;
-    }
-
-    /* subtle “star rails” art layer (purely visual) */
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:0;
-      opacity:0.9;
-      background:
-        radial-gradient(circle at 6% 10%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 18%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 26%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 34%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 42%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 50%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 58%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 66%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 74%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 82%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 6% 90%, var(--star) 0 1px, transparent 2px),
-
-        radial-gradient(circle at 94% 12%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 20%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 28%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 36%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 44%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 52%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 60%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 68%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 76%, var(--star) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 84%, var(--star2) 0 1px, transparent 2px),
-        radial-gradient(circle at 94% 92%, var(--star) 0 1px, transparent 2px),
-
-        radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.06), transparent 55%),
-        radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.06), transparent 55%);
     }
 
     .shell{
@@ -78,8 +39,6 @@
       overflow:hidden;
       display:flex;
       flex-direction:column;
-      position:relative;
-      z-index:1;
     }
 
     header{
@@ -174,6 +133,8 @@
     .between{ justify-content:space-between; }
     .topgap{ margin-top:10px; }
 
+    .divider{ height:1px; background:var(--border); margin:12px 0; }
+
     .btn{
       border:1px solid var(--border2);
       background:rgba(255,255,255,0.06);
@@ -204,7 +165,7 @@
       font-size:12px;
       opacity:0.95;
     }
-    .btnTog.active{
+    .chip.active{
       background:rgba(255,255,255,0.14);
       border-color:rgba(255,255,255,0.32);
     }
@@ -234,7 +195,7 @@
       border-color:rgba(255,255,255,0.28);
     }
 
-    .pillStatus{
+    .pill{
       padding:8px 10px;
       border:1px solid var(--border);
       background:rgba(255,255,255,0.04);
@@ -255,17 +216,13 @@
       box-shadow:0 0 0 3px rgba(255,90,90,0.18);
     }
 
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border:1px solid var(--border);
-      background:rgba(90,255,170,0.08);
-      border-radius:999px;
-      color:rgba(233,238,245,0.9);
-      font-size:13px;
-      white-space:nowrap;
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    @media (min-width: 820px){
+      .grid2{ grid-template-columns: 1fr 1fr; }
     }
 
     .list{
@@ -297,6 +254,7 @@
       color:var(--muted);
       margin:2px 0 0 0;
       line-height:1.35;
+      white-space:pre-wrap;
     }
     .itemBtns{
       display:flex;
@@ -305,8 +263,6 @@
       justify-content:flex-end;
     }
     audio{ width:100%; }
-
-    .divider{ height:1px; background:var(--border); margin:12px 0; }
 
     .notice{
       border:1px dashed var(--border2);
@@ -318,27 +274,67 @@
       line-height:1.45;
     }
 
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      padding: 2px 6px;
+    .ratingRow{ display:flex; flex-wrap:wrap; gap:8px; }
+    .rateBtn{ min-width:44px; text-align:center; }
+
+    .photoBox{
+      border:1px dashed var(--border2);
+      border-radius:14px;
+      padding:10px;
+      background:rgba(255,255,255,0.03);
+    }
+    .thumb{
+      width:100%;
+      max-height:240px;
+      object-fit:cover;
+      border-radius:12px;
+      display:none;
+      margin-top:10px;
       border:1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      border-radius: 8px;
-      color: var(--muted);
     }
 
-    .audioDetails { margin-top: 6px; }
-    .audioDetails summary {
-      cursor: pointer;
-      user-select: none;
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
+    .terpRow{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px;
+      background:rgba(0,0,0,0.12);
     }
-    .audioDetails[open] summary { margin-bottom: 6px; }
+    .terpTop{
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      align-items:flex-start;
+    }
+    .terpName{
+      font-weight:700;
+      letter-spacing:0.02em;
+      margin:0;
+      font-size:13px;
+    }
+    .terpHint{
+      margin:4px 0 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+    .scale{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .scale label{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      padding:8px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      user-select:none;
+      font-size:12px;
+    }
   </style>
 </head>
 
@@ -346,7 +342,7 @@
   <div class="shell">
     <header>
       <h1 class="title">StoneyVibes — VOLUME 1</h1>
-      <p class="sub">Private, local-only logging. Swipe left/right to move.</p>
+      <p class="sub">Private, local-only logging. Swipe left/right or tap.</p>
 
       <div class="nav">
         <button class="tab active" id="tabStash" type="button">STASH</button>
@@ -361,23 +357,22 @@
       <section class="page" id="pageStash">
         <div class="card">
           <h2>STASH</h2>
-          <p class="muted" style="margin:0;">Inventory spine. Local only.</p>
+          <p class="muted" style="margin:0;">Your sample library: what you like, what you’ve tried, what you want to remember.</p>
 
           <div class="row topgap">
             <label class="field">
-              <span class="label">Name</span>
-              <input id="stashName" class="input" type="text" placeholder="e.g., Zookie / Lemon Tree / DD (mixed flower)" />
+              <span class="label">What are you sampling?</span>
+              <input id="stashName" class="input" type="text" placeholder="e.g., Zookie / Lemon Tree / Unknown" />
             </label>
 
             <label class="field">
               <span class="label">Category</span>
               <select id="stashCategory" class="select">
                 <option value="FLOWER">FLOWER</option>
-                <option value="KIEF">KIEF</option>
-                <option value="HASH">HASH</option>
-                <option value="WAX">WAX</option>
-                <option value="OTHER_CONCENTRATE">OTHER CONCENTRATE</option>
-                <option value="HERBAL">HERBAL</option>
+                <option value="VAPE">VAPE</option>
+                <option value="EDIBLE">EDIBLE</option>
+                <option value="CONCENTRATE">CONCENTRATE</option>
+                <option value="OTHER">OTHER</option>
               </select>
             </label>
           </div>
@@ -406,17 +401,129 @@
       <section class="page" id="pageSessions">
         <div class="card">
           <h2>SESSION</h2>
-          <p class="muted" style="margin:0;">Buttons exist. Press one if you want. Don’t if you don’t.</p>
+          <p class="muted" style="margin:0;">Capture what you tried, what it smelled like, and how it landed.</p>
 
           <div class="row topgap">
-            <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Start</button>
-            <button id="pauseBtn" class="btn" type="button" disabled>Checkpoint</button>
-            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
-            <span id="statusPill" class="pillStatus"><span class="okDot"></span><span id="statusText">Idle</span></span>
-            <span id="checkpointBadge" class="badge" style="display:none;">✓ Checkpoint captured</span>
+            <label class="field">
+              <span class="label">Pick from stash (optional)</span>
+              <select id="sessionStashLink" class="select">
+                <option value="">— none —</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="label">Sample name (optional)</span>
+              <input id="sessionTag" class="input" type="text" placeholder="If it’s not in stash yet." />
+            </label>
           </div>
 
-          <!-- iPhone fallback (shown only when needed) -->
+          <div class="divider"></div>
+
+          <div class="grid2">
+            <div class="terpRow">
+              <p class="terpName">How’d you sleep last night?</p>
+              <p class="terpHint">1 (bad) → 5 (great)</p>
+              <div class="ratingRow" id="sleepRow"></div>
+              <input type="hidden" id="sleepScore" value="" />
+            </div>
+
+            <div class="terpRow">
+              <p class="terpName">Mood (before)</p>
+              <p class="terpHint">Pick anything that fits. Add one word if needed.</p>
+              <div class="row topgap" style="gap:8px;">
+                <button class="btn btnTiny chip" type="button" data-mood="CALM">CALM</button>
+                <button class="btn btnTiny chip" type="button" data-mood="FOCUSED">FOCUSED</button>
+                <button class="btn btnTiny chip" type="button" data-mood="WIRED">WIRED</button>
+                <button class="btn btnTiny chip" type="button" data-mood="HEAVY">HEAVY</button>
+                <button class="btn btnTiny chip" type="button" data-mood="SOCIAL">SOCIAL</button>
+                <button class="btn btnTiny chip" type="button" data-mood="QUIET">QUIET</button>
+                <button class="btn btnTiny chip" type="button" data-mood="FOGGY">FOGGY</button>
+                <button class="btn btnTiny chip" type="button" data-mood="PISSED">PISSED</button>
+                <button class="btn btnTiny chip" type="button" data-mood="NOT_GREAT">NOT GREAT</button>
+                <button class="btn btnTiny chip" type="button" data-mood="AGGRESSIVE">AGGRESSIVE</button>
+                <button class="btn btnTiny chip" type="button" data-mood="MELLOW">MELLOW</button>
+              </div>
+              <div class="row topgap">
+                <label class="field" style="min-width:220px;">
+                  <span class="label">Other (one word, optional)</span>
+                  <input id="moodOther" class="input" type="text" placeholder="e.g., anxious / happy / ashamed" />
+                </label>
+                <button id="moodReset" class="btn btnTiny" type="button">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="grid2">
+            <div class="photoBox">
+              <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
+              <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
+
+              <div class="row topgap">
+                <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                  📷 Take / Choose Photo
+                  <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+                </label>
+                <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
+              </div>
+
+              <img id="photoThumb" class="thumb" alt="Photo preview" />
+              <input id="photoDataUrl" type="hidden" value="" />
+            </div>
+
+            <div class="terpRow">
+              <p class="terpName">Rate it (1–5)</p>
+              <p class="terpHint">Your “run it again” math.</p>
+              <div class="ratingRow" id="rateRow"></div>
+              <input type="hidden" id="rateScore" value="" />
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="grid2">
+            <div class="terpRow">
+              <p class="terpName">Smell notes (multi-select)</p>
+              <p class="terpHint">Fast tags + optional one-word “Other”.</p>
+              <div class="row topgap" style="gap:8px;">
+                <button class="btn btnTiny chip" type="button" data-smell="SWEET">SWEET</button>
+                <button class="btn btnTiny chip" type="button" data-smell="EARTHY">EARTHY</button>
+                <button class="btn btnTiny chip" type="button" data-smell="PINEY">PINEY</button>
+                <button class="btn btnTiny chip" type="button" data-smell="CITRUS">CITRUS</button>
+                <button class="btn btnTiny chip" type="button" data-smell="SPICY">SPICY</button>
+                <button class="btn btnTiny chip" type="button" data-smell="PEPPERY">PEPPERY</button>
+                <button class="btn btnTiny chip" type="button" data-smell="GASSY">GASSY</button>
+                <button class="btn btnTiny chip" type="button" data-smell="FUNKY">FUNKY</button>
+                <button class="btn btnTiny chip" type="button" data-smell="SKUNKY">SKUNKY</button>
+              </div>
+              <div class="row topgap">
+                <label class="field" style="min-width:220px;">
+                  <span class="label">Other (one word, optional)</span>
+                  <input id="smellOther" class="input" type="text" placeholder="e.g., gym / raisins / metal" />
+                </label>
+                <button id="smellReset" class="btn btnTiny" type="button">Reset</button>
+              </div>
+            </div>
+
+            <div class="terpRow">
+              <p class="terpName">Terpene presence</p>
+              <p class="terpHint">Not %s. Just your read: Not present / Background / Noticeable / Dominant.</p>
+              <div id="terpeneBox" class="list" style="margin-top:10px;"></div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">AUDIO NOTE (PARAMOUNT)</h2>
+          <p class="muted" style="margin:6px 0 0 0;">Record first, then Save Session.</p>
+
+          <div class="row topgap">
+            <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Record</button>
+            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
+            <span id="statusPill" class="pill"><span class="okDot"></span><span id="statusText">Idle</span></span>
+          </div>
+
           <div class="row topgap" id="iphoneFallback" style="display:none;">
             <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
               🎧 iPhone Mode
@@ -426,76 +533,17 @@
           </div>
 
           <div class="row topgap">
-            <label class="field">
-              <span class="label">Sample (optional)</span>
-              <input id="sessionTag" class="input" type="text" placeholder="e.g., Zookie / DD / Unknown" />
-            </label>
-
-            <label class="field">
-              <span class="label">From STASH? (optional)</span>
-              <select id="sessionStashLink" class="select">
-                <option value="">— none —</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">TIME (optional)</span>
-              <select id="timeboxSelect" class="select">
-                <option value="">—</option>
-                <option value="AM">AM</option>
-                <option value="NOON">NOON</option>
-                <option value="PM">PM</option>
-                <option value="REST">REST</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span class="label">APPARATUS / IGNITION (optional)</span>
-              <input id="sessionApparatus" class="input" type="text" placeholder="e.g., one-hitter / joint / vape" />
-            </label>
-          </div>
-
-          <div class="row topgap">
-            <label class="field">
-              <span class="label">ADDITIVE (optional)</span>
-              <input id="sessionAdditive" class="input" type="text" placeholder="e.g., none / kief / hash / herb" />
-            </label>
-
-            <label class="field">
-              <span class="label">NOTES (optional)</span>
-              <input id="sessionNotes" class="input" type="text" placeholder="One line. Keep it human." />
-            </label>
-          </div>
-
-          <div class="row topgap">
-            <button id="viewTranscriptBtn" class="btn" type="button" disabled>View Transcript (v2)</button>
-            <button id="addTranscriptBtn" class="btn" type="button" disabled>Add Transcript To… (v2)</button>
-            <span class="muted" style="font-size:12px;">Transcript is parked for Volume 2.</span>
-          </div>
-
-          <!-- V1 sensor core: ultra-minimal optional buttons (memory on device) -->
-          <div class="row topgap">
-            <span class="label" style="min-width:120px;">Options</span>
-            <button class="btn btnTiny btnTog" type="button" data-opt="CALM">CALM</button>
-            <button class="btn btnTiny btnTog" type="button" data-opt="FOCUS">FOCUS</button>
-            <button class="btn btnTiny btnTog" type="button" data-opt="ENERGY">ENERGY</button>
-            <button class="btn btnTiny btnTog" type="button" data-opt="SLEEPY">SLEEPY</button>
-            <button class="btn btnTiny btnTog" type="button" data-opt="SOCIAL">SOCIAL</button>
-            <button class="btn btnTiny btnTog" type="button" data-opt="SILENT">SILENT</button>
-            <button id="optsReset" class="btn btnTiny" type="button">Reset</button>
-          </div>
-
-          <div class="row topgap">
             <audio id="preview" controls style="display:none;"></audio>
           </div>
 
           <div class="divider"></div>
 
           <div class="row between">
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">RECENT</h2>
-            <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear</button>
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">SESSION LOG</h2>
+            <div class="row" style="gap:8px;">
+              <button id="saveSessionBtn" class="btn btnOk" type="button">Save Session</button>
+              <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear</button>
+            </div>
           </div>
 
           <div id="sessionList" class="list">
@@ -504,25 +552,27 @@
 
           <div class="divider"></div>
           <div class="notice">
-            <strong>Memory layer name:</strong> <span class="kbd">TRAIL</span><br/>
-            Stored locally on this device only. Nothing leaves the system.
+            Stored locally on this device only. Nothing leaves the system unless you export it.
           </div>
         </div>
       </section>
 
-      <!-- PAGE 3: ABOUT -->
       <section class="page" id="pageAbout">
         <div class="card">
-          <h2>DOCTRINE</h2>
-          <p class="muted" style="margin:0;">
-            V1 is capture. Pattern unlock is later (separate tier).
-          </p>
+          <h2>ABOUT</h2>
+          <p class="muted" style="margin:0;">Export or wipe. That’s it.</p>
+
+          <div class="divider"></div>
+
+          <div class="row topgap">
+            <button id="exportBtn" class="btn btnPrimary" type="button">Export JSON</button>
+            <button id="wipeBtn" class="btn btnDanger" type="button">Wipe Local Data</button>
+          </div>
 
           <div class="divider"></div>
 
           <div class="notice">
-            <strong>Pattern unlock (future tier):</strong> <span class="kbd">PATTERN LENS</span><br/>
-            Uses only what you already stored in TRAIL.
+            Export excludes audio blobs (too big) but keeps your session metadata and terpene/smell/mood.
           </div>
         </div>
       </section>
@@ -530,18 +580,6 @@
   </div>
 
   <script>
-    /************************************************************
-     * StoneyVibes — VOLUME 1 (single-file)
-     * - Swipe pages left/right (scroll-snap)
-     * - STASH (localStorage)
-     * - SESSIONS (IndexedDB)
-     * - Recording: Start / Checkpoint (one) / Stop
-     * - iPhone fallback: file capture
-     * - V1 sensor core: tiny option toggles (stored)
-     * - Timebox: AM/NOON/PM/REST (stored)
-     ************************************************************/
-
-    // ------------------ Swipe nav helpers ------------------
     const pages = document.getElementById("pages");
     const tabStash = document.getElementById("tabStash");
     const tabSessions = document.getElementById("tabSessions");
@@ -553,15 +591,12 @@
       if (which === "sessions") tabSessions.classList.add("active");
       if (which === "about") tabAbout.classList.add("active");
     }
-
     function scrollToPage(idx){
       pages.scrollTo({ left: idx * pages.clientWidth, behavior: "smooth" });
     }
-
     tabStash.onclick = () => scrollToPage(0);
     tabSessions.onclick = () => scrollToPage(1);
     tabAbout.onclick = () => scrollToPage(2);
-
     pages.addEventListener("scroll", () => {
       const idx = Math.round(pages.scrollLeft / pages.clientWidth);
       if (idx === 0) setActiveTab("stash");
@@ -569,7 +604,6 @@
       if (idx === 2) setActiveTab("about");
     });
 
-    // ------------------ Helpers ------------------
     function escapeHtml(str){
       return String(str || "")
         .replaceAll("&","&amp;")
@@ -578,27 +612,15 @@
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
-
     function fmtTime(ts){
       const d = new Date(ts);
-      return d.toLocaleString(undefined, {
-        year:"numeric", month:"short", day:"2-digit",
-        hour:"2-digit", minute:"2-digit"
-      });
+      return d.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+    }
+    function uid(prefix){
+      return (prefix||"id") + "_" + Math.random().toString(16).slice(2) + "_" + Date.now();
     }
 
-    function uid(){
-      return "sess_" + Math.random().toString(16).slice(2) + "_" + Date.now();
-    }
-
-    function minsDeltaLabel(createdAt, checkpointTs){
-      const ms = Math.max(0, checkpointTs - createdAt);
-      const mins = Math.round(ms / 60000);
-      if (mins <= 0) return "CHK@+0m";
-      return "CHK@+" + mins + "m";
-    }
-
-    // ------------------ STASH (localStorage) ------------------
+    // STASH
     const STASH_KEY = "sv_stash_v1";
     const stashName = document.getElementById("stashName");
     const stashCategory = document.getElementById("stashCategory");
@@ -607,18 +629,14 @@
     const clearStashBtn = document.getElementById("clearStashBtn");
     const stashList = document.getElementById("stashList");
     const sessionStashLink = document.getElementById("sessionStashLink");
+    const sessionTag = document.getElementById("sessionTag");
 
-    function loadStash(){
-      try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); }
-      catch { return []; }
-    }
-
+    function loadStash(){ try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); } catch { return []; } }
     function saveStash(items){
       localStorage.setItem(STASH_KEY, JSON.stringify(items));
       renderStash();
       renderStashLinkDropdown();
     }
-
     function renderStash(){
       const items = loadStash();
       if (!items.length){
@@ -636,7 +654,7 @@
               <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
             </div>
             <div class="itemBtns">
-              <button class="btn btnDanger" data-i="${i}">Delete</button>
+              <button class="btn btnDanger">Delete</button>
             </div>
           </div>
         `;
@@ -650,7 +668,6 @@
         stashList.appendChild(el);
       });
     }
-
     function renderStashLinkDropdown(){
       const items = loadStash();
       const current = sessionStashLink.value || "";
@@ -663,35 +680,24 @@
       });
       sessionStashLink.value = current;
     }
-
     addStashBtn.onclick = () => {
       const name = (stashName.value || "").trim();
-      if (!name){
-        alert("Give it a name (even 'Unknown').");
-        return;
-      }
-      const item = {
-        id: "stash_" + Math.random().toString(16).slice(2) + "_" + Date.now(),
-        name,
-        category: stashCategory.value,
-        notes: (stashNotes.value || "").trim(),
-        createdAt: Date.now()
-      };
+      if (!name){ alert("Give it a name (even 'Unknown')."); return; }
+      const item = { id: uid("stash"), name, category: stashCategory.value, notes: (stashNotes.value||"").trim(), createdAt: Date.now() };
       const items = loadStash();
       items.unshift(item);
       saveStash(items);
       stashName.value = "";
       stashNotes.value = "";
     };
-
     clearStashBtn.onclick = () => {
       const ok = confirm("Clear entire STASH on this device?");
       if (!ok) return;
       saveStash([]);
     };
 
-    // ------------------ SESSIONS (IndexedDB) ------------------
-    const DB_NAME = "stoneyvibes_db";
+    // IndexedDB
+    const DB_NAME = "stoneyvibes_db_v1";
     const DB_VERSION = 1;
     const STORE = "sessions";
 
@@ -709,7 +715,6 @@
         req.onerror = () => reject(req.error);
       });
     }
-
     async function dbPut(session){
       const db = await openDB();
       return new Promise((resolve, reject) => {
@@ -719,19 +724,16 @@
         tx.onerror = () => reject(tx.error);
       });
     }
-
     async function dbGetAll(){
       const db = await openDB();
       return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE, "readonly");
-        const store = tx.objectStore(STORE);
-        const idx = store.index("createdAt");
+        const idx = tx.objectStore(STORE).index("createdAt");
         const req = idx.getAll();
         req.onsuccess = () => resolve(req.result || []);
         req.onerror = () => reject(req.error);
       });
     }
-
     async function dbDelete(id){
       const db = await openDB();
       return new Promise((resolve, reject) => {
@@ -741,7 +743,6 @@
         tx.onerror = () => reject(tx.error);
       });
     }
-
     async function dbClear(){
       const db = await openDB();
       return new Promise((resolve, reject) => {
@@ -752,132 +753,151 @@
       });
     }
 
-    // ------------------ UI refs ------------------
+    // Ratings
+    const sleepRow = document.getElementById("sleepRow");
+    const rateRow = document.getElementById("rateRow");
+    const sleepScore = document.getElementById("sleepScore");
+    const rateScore = document.getElementById("rateScore");
+
+    function buildRatingRow(container, hiddenInput){
+      container.innerHTML = "";
+      for (let i=1;i<=5;i++){
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "btn btnTiny rateBtn";
+        b.textContent = String(i);
+        b.onclick = () => {
+          hiddenInput.value = String(i);
+          Array.from(container.querySelectorAll("button")).forEach(x => x.classList.remove("btnPrimary"));
+          b.classList.add("btnPrimary");
+        };
+        container.appendChild(b);
+      }
+    }
+    buildRatingRow(sleepRow, sleepScore);
+    buildRatingRow(rateRow, rateScore);
+
+    // Mood
+    const moodChips = Array.from(document.querySelectorAll("[data-mood]"));
+    const moodOther = document.getElementById("moodOther");
+    const moodReset = document.getElementById("moodReset");
+    let moodSet = new Set();
+    function renderMood(){ moodChips.forEach(b => b.classList.toggle("active", moodSet.has(b.getAttribute("data-mood")))); }
+    moodChips.forEach(b => b.onclick = () => {
+      const v = b.getAttribute("data-mood"); if (!v) return;
+      if (moodSet.has(v)) moodSet.delete(v); else moodSet.add(v);
+      renderMood();
+    });
+    moodReset.onclick = () => { moodSet = new Set(); moodOther.value = ""; renderMood(); };
+
+    // Smell
+    const smellChips = Array.from(document.querySelectorAll("[data-smell]"));
+    const smellOther = document.getElementById("smellOther");
+    const smellReset = document.getElementById("smellReset");
+    let smellSet = new Set();
+    function renderSmell(){ smellChips.forEach(b => b.classList.toggle("active", smellSet.has(b.getAttribute("data-smell")))); }
+    smellChips.forEach(b => b.onclick = () => {
+      const v = b.getAttribute("data-smell"); if (!v) return;
+      if (smellSet.has(v)) smellSet.delete(v); else smellSet.add(v);
+      renderSmell();
+    });
+    smellReset.onclick = () => { smellSet = new Set(); smellOther.value = ""; renderSmell(); };
+
+    // Photo
+    const photoInput = document.getElementById("photoInput");
+    const photoThumb = document.getElementById("photoThumb");
+    const photoDataUrl = document.getElementById("photoDataUrl");
+    const photoClear = document.getElementById("photoClear");
+    function setPhoto(dataUrl){
+      photoDataUrl.value = dataUrl || "";
+      if (dataUrl){ photoThumb.src = dataUrl; photoThumb.style.display = "block"; }
+      else { photoThumb.style.display = "none"; photoThumb.removeAttribute("src"); }
+    }
+    photoInput.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => setPhoto(String(reader.result||""));
+      reader.readAsDataURL(f);
+      photoInput.value = "";
+    });
+    photoClear.onclick = () => setPhoto("");
+
+    // Terpenes
+    const terpeneBox = document.getElementById("terpeneBox");
+    const TERPENES = [
+      { key:"MYRCENE", name:"Myrcene", hint:"Often heavy body, couchy, earthy/musky, blanket feel." },
+      { key:"CARYOPHYLLENE", name:"Caryophyllene", hint:"Often peppery/spicy, grounded body, steady feel." },
+      { key:"LIMONENE", name:"Limonene", hint:"Often citrus lift, brighter headspace." },
+      { key:"PINENE", name:"Pinene", hint:"Often pine/fresh air, sharper clarity." },
+      { key:"LINALOOL", name:"Linalool", hint:"Often floral/soft calm, smoother settle." },
+      { key:"TERPINOLENE", name:"Terpinolene", hint:"Often sweet/floral/herbal, airy." },
+    ];
+    const PRESENCE = [
+      { val:"", label:"—" },
+      { val:"NOT_PRESENT", label:"Not present" },
+      { val:"BACKGROUND", label:"Background" },
+      { val:"NOTICEABLE", label:"Noticeable" },
+      { val:"DOMINANT", label:"Dominant" },
+    ];
+    function buildTerpenes(){
+      terpeneBox.innerHTML = "";
+      TERPENES.forEach(t => {
+        const row = document.createElement("div");
+        row.className = "terpRow";
+        row.innerHTML = `
+          <div class="terpTop">
+            <div style="min-width:0; flex:1;">
+              <p class="terpName">${escapeHtml(t.name)}</p>
+              <p class="terpHint">${escapeHtml(t.hint)}</p>
+            </div>
+          </div>
+          <div class="scale">
+            ${PRESENCE.map(p => {
+              const id = `terp_${t.key}_${p.val||"NONE"}`;
+              return `
+                <label for="${id}">
+                  <input id="${id}" type="radio" name="terp_${t.key}" value="${escapeHtml(p.val)}" ${p.val==="" ? "checked" : ""}/>
+                  ${escapeHtml(p.label)}
+                </label>
+              `;
+            }).join("")}
+          </div>
+        `;
+        terpeneBox.appendChild(row);
+      });
+    }
+    buildTerpenes();
+    function readTerpenePresence(){
+      const out = {};
+      TERPENES.forEach(t => {
+        const sel = document.querySelector(`input[name="terp_${t.key}"]:checked`);
+        out[t.key] = sel ? (sel.value || "") : "";
+      });
+      return out;
+    }
+// Audio
     const recBtn = document.getElementById("recBtn");
-    const pauseBtn = document.getElementById("pauseBtn"); // CHECKPOINT (one)
     const stopBtn = document.getElementById("stopBtn");
     const statusPill = document.getElementById("statusPill");
     const statusText = document.getElementById("statusText");
-    const checkpointBadge = document.getElementById("checkpointBadge");
-
-    const sessionTag = document.getElementById("sessionTag");
-    const sessionNotes = document.getElementById("sessionNotes");
     const preview = document.getElementById("preview");
-    const sessionList = document.getElementById("sessionList");
-    const clearSessionsBtn = document.getElementById("clearSessionsBtn");
     const iphoneFallback = document.getElementById("iphoneFallback");
     const fileAudio = document.getElementById("fileAudio");
+    const saveSessionBtn = document.getElementById("saveSessionBtn");
+    const clearSessionsBtn = document.getElementById("clearSessionsBtn");
+    const sessionList = document.getElementById("sessionList");
 
-    // V1 controls
-    const timeboxSelect = document.getElementById("timeboxSelect");
-    const sessionApparatus = document.getElementById("sessionApparatus");
-    const sessionAdditive = document.getElementById("sessionAdditive");
-    const optBtns = Array.from(document.querySelectorAll("[data-opt]"));
-    const optsReset = document.getElementById("optsReset");
-
-    let currentTimebox = (timeboxSelect && timeboxSelect.value) ? timeboxSelect.value : ""; // AM | NOON | PM | REST | ""
-    let currentOptions = new Set();      // e.g., CALM, FOCUS...
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let chunks = [];
+    let pendingAudioBlob = null;
 
     function setStatus(mode, text){
       statusText.textContent = text;
       const dot = statusPill.querySelector("span");
       dot.className = (mode === "rec") ? "recDot" : "okDot";
     }
-
-    function setToggleButtons(btns, activeValue){
-      btns.forEach(b => {
-        const v = b.getAttribute("data-opt");
-        const isActive = (activeValue instanceof Set) ? activeValue.has(v) : (v === activeValue);
-        b.classList.toggle("active", !!isActive);
-      });
-    }
-
-    function autoTimebox(ts){
-      const h = new Date(ts).getHours();
-      if (h >= 5 && h < 11) return "AM";
-      if (h >= 11 && h < 15) return "NOON";
-      if (h >= 15 && h < 20) return "PM";
-      return "REST";
-    }
-
-    // Prefill TIME once (you can change it)
-    if (timeboxSelect && !timeboxSelect.value){
-      timeboxSelect.value = autoTimebox(Date.now());
-      currentTimebox = timeboxSelect.value;
-    }
-    if (timeboxSelect){
-      timeboxSelect.onchange = () => { currentTimebox = timeboxSelect.value || ""; };
-    }
-
-    optBtns.forEach(b => {
-      b.onclick = () => {
-        const v = b.getAttribute("data-opt");
-        if (!v) return;
-        if (currentOptions.has(v)) currentOptions.delete(v);
-        else currentOptions.add(v);
-        setToggleButtons(optBtns, currentOptions);
-      };
-    });
-
-    if (optsReset){
-      optsReset.onclick = () => {
-        currentOptions = new Set();
-        setToggleButtons(optBtns, currentOptions);
-      };
-    }
-
-    // ------------------ Recording + Checkpoint (one) ------------------
-    let mediaRecorder = null;
-    let mediaStream = null;
-    let chunks = [];
-    let isRecording = false;
-
-    // checkpoint state (one per recording)
-    let checkpointCaptured = false;
-    let checkpointData = null;
-    let recordingStartedAt = 0;
-
-    function resetCheckpointUI(){
-      checkpointCaptured = false;
-      checkpointData = null;
-      checkpointBadge.style.display = "none";
-      pauseBtn.disabled = true;
-      pauseBtn.textContent = "Checkpoint";
-    }
-
-    function showCheckpointUI(){
-      checkpointBadge.style.display = "inline-flex";
-      pauseBtn.disabled = true;
-      pauseBtn.textContent = "✓ Captured";
-    }
-
-    function collectCheckpointSnapshot(){
-      const stashId = sessionStashLink.value || "";
-      const stashItems = loadStash();
-      const stashItem = stashItems.find(x => x.id === stashId);
-
-      return {
-        ts: Date.now(),
-        tag: (sessionTag.value || "").trim(),
-        notes: (sessionNotes.value || "").trim(),
-        timebox: currentTimebox || "",
-        apparatus: (sessionApparatus ? (sessionApparatus.value||"").trim() : ""),
-        additive: (sessionAdditive ? (sessionAdditive.value||"").trim() : ""),
-        stashId: stashItem ? stashItem.id : "",
-        stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : "",
-        opts: Array.from(currentOptions)
-      };
-    }
-
-    function captureCheckpointOnce(){
-      if (!isRecording) return;
-      if (checkpointCaptured) return;
-
-      checkpointData = collectCheckpointSnapshot();
-      checkpointCaptured = true;
-      showCheckpointUI();
-    }
-
     function mimeChoice(){
       const candidates = ["audio/webm;codecs=opus","audio/webm","audio/mp4"];
       for (const m of candidates){
@@ -885,6 +905,122 @@
       }
       return "";
     }
+    async function startRecording(){
+      if (!("MediaRecorder" in window)){
+        iphoneFallback.style.display = "flex";
+        alert("In-browser recording isn’t supported here. Use iPhone Mode.");
+        return;
+      }
+      try{ mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true }); }
+      catch(err){ alert("Microphone permission blocked. Allow mic access for this site."); return; }
+
+      chunks = [];
+      const mime = mimeChoice();
+      try{ mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined); }
+      catch(err){
+        iphoneFallback.style.display = "flex";
+        alert("Recording not supported in this browser. Use iPhone Mode.");
+        if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        try{
+          pendingAudioBlob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
+          preview.src = URL.createObjectURL(pendingAudioBlob);
+          preview.style.display = "block";
+          setStatus("idle","Ready to Save");
+        } finally {
+          if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+          mediaRecorder = null;
+          chunks = [];
+        }
+      };
+
+      mediaRecorder.start();
+      recBtn.disabled = true;
+      stopBtn.disabled = false;
+      pendingAudioBlob = null;
+      preview.style.display = "none";
+      preview.removeAttribute("src");
+      setStatus("rec","Recording…");
+    }
+    function stopRecording(){
+      if (!mediaRecorder) return;
+      try{ mediaRecorder.stop(); } catch(e){}
+      recBtn.disabled = false;
+      stopBtn.disabled = true;
+      setStatus("idle","Saving…");
+      setTimeout(()=> setStatus("idle","Ready to Save"), 350);
+    }
+    recBtn.onclick = startRecording;
+    stopBtn.onclick = stopRecording;
+
+    fileAudio.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      pendingAudioBlob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
+      preview.src = URL.createObjectURL(pendingAudioBlob);
+      preview.style.display = "block";
+      fileAudio.value = "";
+      setStatus("idle","Ready to Save");
+    });
+
+    async function saveSession(){
+      if (!pendingAudioBlob){ alert("Record audio first (or use iPhone Mode)."); return; }
+
+      const stashId = sessionStashLink.value || "";
+      const stashItems = loadStash();
+      const stashItem = stashItems.find(x => x.id === stashId);
+      const tag = (sessionTag.value || "").trim() || (stashItem ? stashItem.name : "Session");
+
+      const session = {
+        id: uid("sess"),
+        createdAt: Date.now(),
+        stashId: stashItem ? stashItem.id : "",
+        stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : "",
+        tag,
+        sleep: sleepScore.value || "",
+        mood: Array.from(moodSet),
+        moodOther: (moodOther.value || "").trim(),
+        rate: rateScore.value || "",
+        smell: Array.from(smellSet),
+        smellOther: (smellOther.value || "").trim(),
+        terpenes: readTerpenePresence(),
+        photoDataUrl: photoDataUrl.value || "",
+        mimeType: pendingAudioBlob.type || "audio/*",
+        audioBlob: pendingAudioBlob,
+      };
+
+      await dbPut(session);
+
+      // reset capture
+      pendingAudioBlob = null;
+      preview.style.display = "none";
+      preview.removeAttribute("src");
+      setStatus("idle","Idle");
+
+      sleepScore.value = "";
+      rateScore.value = "";
+      Array.from(sleepRow.querySelectorAll("button")).forEach(x=>x.classList.remove("btnPrimary"));
+      Array.from(rateRow.querySelectorAll("button")).forEach(x=>x.classList.remove("btnPrimary"));
+
+      moodSet = new Set(); moodOther.value = ""; renderMood();
+      smellSet = new Set(); smellOther.value = ""; renderSmell();
+      setPhoto("");
+
+      TERPENES.forEach(t => {
+        const first = document.querySelector(`input[name="terp_${t.key}"][value=""]`);
+        if (first) first.checked = true;
+      });
+
+      sessionTag.value = "";
+      sessionStashLink.value = "";
+
+      await renderSessions();
+    }
+    saveSessionBtn.onclick = saveSession;
 
     async function renderSessions(){
       const sessions = await dbGetAll();
@@ -900,17 +1036,16 @@
 
         const title = (s.tag && s.tag.trim()) ? s.tag.trim() : "Session";
         const when = fmtTime(s.createdAt);
-        const notes = (s.notes||"").trim();
 
-        const metaParts = [];
-        metaParts.push(when);
-        if (s.timebox) metaParts.push(s.timebox);
-        if (s.stashName) metaParts.push(s.stashName);
-        if (s.apparatus) metaParts.push("APP:"+s.apparatus);
-        if (s.additive) metaParts.push("ADD:"+s.additive);
-        if (s.opts && s.opts.length) metaParts.push("[" + s.opts.join(", ") + "]");
-        if (s.checkpoint && s.checkpoint.ts) metaParts.push(minsDeltaLabel(s.createdAt, s.checkpoint.ts));
-        if (notes) metaParts.push(notes);
+        const bits = [];
+        bits.push(when);
+        if (s.stashName) bits.push(s.stashName);
+        if (s.sleep) bits.push("SLEEP:"+s.sleep);
+        if (s.rate) bits.push("RATE:"+s.rate);
+        if (s.mood && s.mood.length) bits.push("MOOD:[" + s.mood.join(", ") + "]");
+        if (s.moodOther) bits.push("MOOD_OTHER:" + s.moodOther);
+        if (s.smell && s.smell.length) bits.push("SMELL:[" + s.smell.join(", ") + "]");
+        if (s.smellOther) bits.push("SMELL_OTHER:" + s.smellOther);
 
         const url = URL.createObjectURL(s.audioBlob);
 
@@ -918,34 +1053,20 @@
           <div class="itemHead">
             <div style="min-width:0; flex:1;">
               <p class="itemTitle">${escapeHtml(title)}</p>
-              <p class="itemMeta">${escapeHtml(metaParts.join(" — "))}</p>
+              <p class="itemMeta">${escapeHtml(bits.join(" — "))}</p>
             </div>
             <div class="itemBtns">
               <button class="btn btnOk" data-act="play">Play</button>
-              <button class="btn" data-act="rename">Rename</button>
               <button class="btn btnDanger" data-act="delete">Delete</button>
             </div>
           </div>
+          ${s.photoDataUrl ? `<div class="topgap"><img src="${escapeHtml(s.photoDataUrl)}" alt="Photo" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; border:1px solid var(--border);" /></div>` : ""}
           <div class="topgap">
-            <details class="audioDetails">
-              <summary>▶ Listen</summary>
-              <audio controls preload="none" src="${url}" style="width:100%; margin-top:8px;"></audio>
-            </details>
+            <audio controls preload="none" src="${url}" style="width:100%;"></audio>
           </div>
         `;
 
-        el.querySelector('[data-act="play"]').onclick = () => {
-          el.querySelector("audio").play().catch(()=>{});
-        };
-
-        el.querySelector('[data-act="rename"]').onclick = async () => {
-          const newTag = prompt("Rename tag:", title);
-          if (newTag === null) return;
-          s.tag = (newTag||"").trim();
-          await dbPut(s);
-          await renderSessions();
-        };
-
+        el.querySelector('[data-act="play"]').onclick = () => el.querySelector("audio").play().catch(()=>{});
         el.querySelector('[data-act="delete"]').onclick = async () => {
           const ok = confirm("Delete this session from this device?");
           if (!ok) return;
@@ -957,164 +1078,62 @@
       }
     }
 
-    async function saveSessionFromBlob(blob){
-      const tag = (sessionTag.value || "").trim();
-      const notes = (sessionNotes.value || "").trim();
-      const stashId = sessionStashLink.value || "";
-      const stashItems = loadStash();
-      const stashItem = stashItems.find(x => x.id=== stashId);
-
-      const createdAt = Date.now();
-      const timebox = currentTimebox || autoTimebox(createdAt);
-      const opts = Array.from(currentOptions);
-
-      const session = {
-        id: uid(),
-        createdAt,
-        tag,
-        notes,
-        apparatus: (sessionApparatus ? (sessionApparatus.value||"").trim() : ""),
-        additive: (sessionAdditive ? (sessionAdditive.value||"").trim() : ""),
-        stashId: stashItem ? stashItem.id : "",
-        stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : "",
-        timebox,
-        opts,
-        checkpoint: checkpointData ? checkpointData : null,
-        mimeType: blob.type || "audio/*",
-        audioBlob: blob
-      };
-
-      await dbPut(session);
-
-      preview.src = URL.createObjectURL(blob);
-      preview.style.display = "block";
-
-      // reset inputs after save
-      sessionTag.value = "";
-      sessionNotes.value = "";
-      sessionStashLink.value = "";
-      if (sessionApparatus) sessionApparatus.value = "";
-      if (sessionAdditive) sessionAdditive.value = "";
-      if (timeboxSelect){
-        timeboxSelect.value = autoTimebox(Date.now());
-        currentTimebox = timeboxSelect.value;
-      } else {
-        currentTimebox = "";
-      }
-      currentOptions = new Set();
-      setToggleButtons(optBtns, currentOptions);
-
-      resetCheckpointUI();
-      await renderSessions();
-    }
-
-    async function startRecording(){
-      if (isRecording) return;
-
-      if (!("MediaRecorder" in window)){
-        iphoneFallback.style.display = "flex";
-        alert("In-browser recording isn’t supported here. Use iPhone Mode.");
-        return;
-      }
-
-      try{
-        mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true });
-      }catch(err){
-        alert("Microphone permission blocked. Allow mic access for this site.");
-        return;
-      }
-
-      chunks = [];
-      const mime = mimeChoice();
-      try{
-        mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined);
-      }catch(err){
-        iphoneFallback.style.display = "flex";
-        alert("Recording not supported in this browser. Use iPhone Mode.");
-        if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
-        return;
-      }
-
-      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
-
-      mediaRecorder.onstop = async () => {
-        try{
-          const blob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
-          await saveSessionFromBlob(blob);
-        } finally {
-          if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
-          mediaRecorder = null;
-          chunks = [];
-        }
-      };
-
-      mediaRecorder.start();
-      isRecording = true;
-      recordingStartedAt = Date.now();
-
-      // checkpoint resets each recording
-      checkpointCaptured = false;
-      checkpointData = null;
-      checkpointBadge.style.display = "none";
-      pauseBtn.disabled = false;
-      pauseBtn.textContent = "Checkpoint";
-
-      recBtn.disabled = true;
-      stopBtn.disabled = false;
-
-      setStatus("rec", "Recording…");
-    }
-
-    function stopRecording(){
-      if (!isRecording || !mediaRecorder) return;
-      try{ mediaRecorder.stop(); } catch(e){}
-      isRecording = false;
-      recBtn.disabled = false;
-      pauseBtn.disabled = true;
-      stopBtn.disabled = true;
-      setStatus("idle", "Saving…");
-      setTimeout(()=> setStatus("idle","Idle"), 600);
-    }
-
-    recBtn.onclick = startRecording;
-    pauseBtn.onclick = captureCheckpointOnce;
-    stopBtn.onclick = stopRecording;
-
-    fileAudio.addEventListener("change", async (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      // for file-based audio, checkpoint still allowed BEFORE selecting file (not during)
-      resetCheckpointUI();
-      const blob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
-      await saveSessionFromBlob(blob);
-      fileAudio.value = "";
-      setStatus("idle","Idle");
-    });
-
     clearSessionsBtn.onclick = async () => {
       const ok = confirm("Clear ALL sessions on this device?");
       if (!ok) return;
       await dbClear();
+      pendingAudioBlob = null;
       preview.style.display = "none";
       preview.removeAttribute("src");
-      resetCheckpointUI();
       await renderSessions();
+      setStatus("idle","Idle");
+    };
+ // Export / wipe
+    const exportBtn = document.getElementById("exportBtn");
+    const wipeBtn = document.getElementById("wipeBtn");
+
+    exportBtn.onclick = async () => {
+      const stash = loadStash();
+      const sessions = await dbGetAll();
+      const safeSessions = sessions.map(s => {
+        const { audioBlob, ...rest } = s;
+        return rest;
+      });
+
+      const payload = { exportedAt: new Date().toISOString(), version:"V1", stash, sessions: safeSessions };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "stoneyvibes_export_v1.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     };
 
-    // ------------------ init ------------------
+    wipeBtn.onclick = async () => {
+      const ok = confirm("Wipe ALL local data (stash + sessions) on this device? This is irreversible.");
+      if (!ok) return;
+      localStorage.removeItem(STASH_KEY);
+      await dbClear();
+      renderStash();
+      renderStashLinkDropdown();
+      await renderSessions();
+      setStatus("idle","Idle");
+      alert("Wiped.");
+    };
+
     (async function init(){
       renderStash();
       renderStashLinkDropdown();
 
       if (!("MediaRecorder" in window)){
         iphoneFallback.style.display = "flex";
-        recBtn.textContent = "🎙️ Start (Browser unavailable)";
-        pauseBtn.disabled = true;
+        recBtn.textContent = "🎙️ Record (Browser unavailable)";
         stopBtn.disabled = true;
       }
 
-      setStatus("idle", "Idle");
-      resetCheckpointUI();
+      setStatus("idle","Idle");
       await renderSessions();
     })();
   </script>
