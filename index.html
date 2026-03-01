@@ -293,6 +293,35 @@
       border:1px solid var(--border);
     }
 
+    /* NEW: small stash icon preview */
+    .stashIconThumb{
+      width:84px;
+      height:84px;
+      border-radius:16px;
+      object-fit:cover;
+      display:none;
+      margin-top:10px;
+      border:1px solid var(--border);
+    }
+
+    /* NEW: stash list avatar */
+    .avatar{
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      object-fit:cover;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      flex:0 0 auto;
+    }
+    .avatarPlaceholder{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      color:rgba(233,238,245,0.60);
+    }
+
     .terpRow{
       border:1px solid var(--border);
       border-radius:14px;
@@ -383,6 +412,24 @@
               <input id="stashNotes" class="input" type="text" placeholder="One line. Keep it human." />
             </label>
           </div>
+
+          <!-- NEW: STASH ICON -->
+          <div class="divider"></div>
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH ICON (OPTIONAL)</h2>
+          <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library. This becomes the stash item’s icon.</p>
+
+          <div class="row topgap">
+            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+              📷 Choose Icon Photo
+              <input id="stashIconInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+            </label>
+            <button id="stashIconClear" class="btn btnTiny" type="button">No icon</button>
+          </div>
+
+          <img id="stashIconThumb" class="stashIconThumb" alt="Stash icon preview" />
+          <input id="stashIconDataUrl" type="hidden" value="" />
+
+          <div class="divider"></div>
 
           <div class="row topgap">
             <button id="addStashBtn" class="btn btnPrimary" type="button">Add</button>
@@ -632,12 +679,42 @@
     const sessionStashLink = document.getElementById("sessionStashLink");
     const sessionTag = document.getElementById("sessionTag");
 
+    // NEW: STASH ICON elements
+    const stashIconInput = document.getElementById("stashIconInput");
+    const stashIconThumb = document.getElementById("stashIconThumb");
+    const stashIconDataUrl = document.getElementById("stashIconDataUrl");
+    const stashIconClear = document.getElementById("stashIconClear");
+
     function loadStash(){ try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); } catch { return []; } }
     function saveStash(items){
       localStorage.setItem(STASH_KEY, JSON.stringify(items));
       renderStash();
       renderStashLinkDropdown();
     }
+
+    // NEW: set stash icon helper
+    function setStashIcon(dataUrl){
+      stashIconDataUrl.value = dataUrl || "";
+      if (dataUrl){
+        stashIconThumb.src = dataUrl;
+        stashIconThumb.style.display = "block";
+      } else {
+        stashIconThumb.style.display = "none";
+        stashIconThumb.removeAttribute("src");
+      }
+    }
+
+    // NEW: stash icon input handlers
+    stashIconInput.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => setStashIcon(String(reader.result||""));
+      reader.readAsDataURL(f);
+      stashIconInput.value = "";
+    });
+    stashIconClear.onclick = () => setStashIcon("");
+
     function renderStash(){
       const items = loadStash();
       if (!items.length){
@@ -648,8 +725,14 @@
       items.forEach((it, i) => {
         const el = document.createElement("div");
         el.className = "item";
+
+        const iconHtml = it.iconDataUrl
+          ? `<img class="avatar" src="${escapeHtml(it.iconDataUrl)}" alt="Icon" />`
+          : `<div class="avatar avatarPlaceholder">🫙</div>`;
+
         el.innerHTML = `
           <div class="itemHead">
+            ${iconHtml}
             <div style="min-width:0; flex:1;">
               <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
               <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
@@ -659,6 +742,7 @@
             </div>
           </div>
         `;
+
         el.querySelector("button").onclick = () => {
           const ok = confirm("Delete this stash item?");
           if (!ok) return;
@@ -669,6 +753,7 @@
         stashList.appendChild(el);
       });
     }
+
     function renderStashLinkDropdown(){
       const items = loadStash();
       const current = sessionStashLink.value || "";
@@ -681,20 +766,34 @@
       });
       sessionStashLink.value = current;
     }
+
     addStashBtn.onclick = () => {
       const name = (stashName.value || "").trim();
       if (!name){ alert("Give it a name (even 'Unknown')."); return; }
-      const item = { id: uid("stash"), name, category: stashCategory.value, notes: (stashNotes.value||"").trim(), createdAt: Date.now() };
+
+      const item = {
+        id: uid("stash"),
+        name,
+        category: stashCategory.value,
+        notes: (stashNotes.value||"").trim(),
+        iconDataUrl: stashIconDataUrl.value || "",   // NEW
+        createdAt: Date.now()
+      };
+
       const items = loadStash();
       items.unshift(item);
       saveStash(items);
+
       stashName.value = "";
       stashNotes.value = "";
+      setStashIcon(""); // NEW: reset icon picker after Add
     };
+
     clearStashBtn.onclick = () => {
       const ok = confirm("Clear entire STASH on this device?");
       if (!ok) return;
       saveStash([]);
+      setStashIcon("");
     };
 
     // IndexedDB
@@ -805,7 +904,7 @@
     });
     smellReset.onclick = () => { smellSet = new Set(); smellOther.value = ""; renderSmell(); };
 
-    // Photo
+    // Photo (session)
     const photoInput = document.getElementById("photoInput");
     const photoThumb = document.getElementById("photoThumb");
     const photoDataUrl = document.getElementById("photoDataUrl");
