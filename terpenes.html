@@ -4,14 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>StoneyVibes v1 — Terpene Presence</title>
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css?v=2" />
 </head>
 
 <body>
   <div class="shell">
     <header>
       <h1 class="title">Terpene Presence — V1</h1>
-      <p class="sub">No decimals. No guessing lab %. Just <strong>presence</strong>, as you perceive it.</p>
+      <p class="sub">Presence only. Your perception.</p>
 
       <div class="nav">
         <button class="tab active" type="button" id="backBtn">← Back</button>
@@ -21,53 +21,38 @@
 
     <main class="pages" style="overflow-x:hidden;">
       <section class="page" style="min-width:100%;">
+
+        <!-- COLLAPSIBLE INFO -->
         <div class="card">
-          <h2>HOW TO USE</h2>
-          <div class="notice">
-            <strong>NP</strong> = Not Present<br/>
-            <strong>BG</strong> = Background (faint)<br/>
-            <strong>N</strong> = Noticeable (clear)<br/>
-            <strong>D</strong> = Dominant (leads the profile)
-          </div>
+          <h2 style="cursor:pointer;" id="infoToggle">HOW IT WORKS ▼</h2>
 
-          <div class="divider"></div>
+          <div id="infoBlock" style="display:none;">
 
-          <h2>WHAT THEY TEND TO FEEL LIKE</h2>
-          <p class="muted" style="margin:0; line-height:1.55;">
-            These are <em>common</em> associations—use them as a compass, not gospel.
-          </p>
+            <div class="notice">
+              <strong>NP</strong> = Not Present<br/>
+              <strong>BG</strong> = Background<br/>
+              <strong>N</strong> = Noticeable<br/>
+              <strong>D</strong> = Dominant
+            </div>
 
-          <div class="list" style="margin-top:10px;">
-            <div class="item">
-              <p class="itemTitle">Myrcene</p>
-              <p class="itemMeta">Often: heavy body, couchy, earthy/musky, “blanket” feel.</p>
+            <div class="divider"></div>
+
+            <div class="list" style="margin-top:10px;">
+              <div class="item"><p class="itemTitle">Myrcene</p><p class="itemMeta">Heavy body / earthy</p></div>
+              <div class="item"><p class="itemTitle">Limonene</p><p class="itemMeta">Lift / citrus brightness</p></div>
+              <div class="item"><p class="itemTitle">β-Caryophyllene</p><p class="itemMeta">Pepper / grounded</p></div>
+              <div class="item"><p class="itemTitle">α/β-Pinene</p><p class="itemMeta">Pine / clarity</p></div>
+              <div class="item"><p class="itemTitle">Linalool</p><p class="itemMeta">Floral / soft calm</p></div>
+              <div class="item"><p class="itemTitle">Terpinolene</p><p class="itemMeta">Sweet / airy</p></div>
             </div>
-            <div class="item">
-              <p class="itemTitle">Limonene</p>
-              <p class="itemMeta">Often: lift / brightness, citrus sharpness, mood-up, clean edge.</p>
-            </div>
-            <div class="item">
-              <p class="itemTitle">β-Caryophyllene</p>
-              <p class="itemMeta">Often: pepper/spice bite, warm “pressure”, grounded intensity.</p>
-            </div>
-            <div class="item">
-              <p class="itemTitle">α/β-Pinene</p>
-              <p class="itemMeta">Often: pine/forest, alert clarity, “sharp air”.</p>
-            </div>
-            <div class="item">
-              <p class="itemTitle">Linalool</p>
-              <p class="itemMeta">Often: soft floral, calm / soothing, gentler landing.</p>
-            </div>
-            <div class="item">
-              <p class="itemTitle">Terpinolene</p>
-              <p class="itemMeta">Often: sweet/herbal, airy head feel, “sparkly” top note.</p>
-            </div>
+
           </div>
         </div>
 
+        <!-- PRESENCE INPUT -->
         <div class="card">
           <h2>PRESENCE INPUT</h2>
-          <p class="muted" style="margin:0;">Pick one per terpene. Saved as a <span class="kbd">DRAFT</span> for your next Session.</p>
+          <p class="muted" style="margin:0;">Pick one per terpene.</p>
 
           <div class="divider"></div>
 
@@ -80,20 +65,35 @@
             </div>
 
             <div class="row topgap">
-              <span class="pillStatus"><span class="okDot"></span><span id="draftStatus">No draft yet.</span></span>
+              <span class="pillStatus">
+                <span class="okDot"></span>
+                <span id="draftStatus">No draft yet.</span>
+              </span>
             </div>
 
             <div class="divider"></div>
 
             <div class="notice">
-              Draft lives in <span class="kbd">localStorage</span> on this device only.
-              You can change it anytime. Nothing leaves the system.
+              Stored locally on this device only.
             </div>
           </form>
         </div>
+
       </section>
     </main>
   </div>
+
+  <script>
+    // Collapse toggle
+    const infoToggle = document.getElementById("infoToggle");
+    const infoBlock = document.getElementById("infoBlock");
+
+    infoToggle.onclick = () => {
+      const open = infoBlock.style.display === "block";
+      infoBlock.style.display = open ? "none" : "block";
+      infoToggle.textContent = open ? "HOW IT WORKS ▼" : "HOW IT WORKS ▲";
+    };
+  </script>
 
   <script src="./terpenes.js"></script>
 </body>
