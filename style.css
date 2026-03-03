@@ -454,3 +454,57 @@ body::after{
   position:relative;
   z-index:1;
 }
+/* ================================
+   ART LAYER v2.1 — MORE OBVIOUS
+   Overrides v2 intensities.
+================================ */
+
+/* stronger rails + bigger dots */
+body::before{
+  opacity:1;
+
+  background:
+    /* left rail (bigger + brighter) */
+    radial-gradient(circle at 6% 10%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 6% 18%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 6% 26%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 6% 34%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 6% 42%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 6% 50%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 6% 58%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 6% 66%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 6% 74%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 6% 82%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 6% 90%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+
+    /* right rail (bigger + brighter) */
+    radial-gradient(circle at 94% 12%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 94% 20%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 94% 28%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 94% 36%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 94% 44%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 94% 52%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 94% 60%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 94% 68%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 94% 76%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+    radial-gradient(circle at 94% 84%, rgba(233,238,245,0.16) 0 2px, transparent 4px),
+    radial-gradient(circle at 94% 92%, rgba(233,238,245,0.28) 0 2.2px, transparent 4px),
+
+    /* brighter edge glow */
+    radial-gradient(900px 1400px at 0% 50%, rgba(233,238,245,0.14), transparent 55%),
+    radial-gradient(900px 1400px at 100% 50%, rgba(233,238,245,0.14), transparent 55%);
+}
+
+/* stronger diagonal haze */
+body::after{
+  opacity:0.72;
+  background:
+    linear-gradient(
+      120deg,
+      transparent 18%,
+      rgba(90,255,170,0.10) 38%,
+      rgba(233,238,245,0.08) 50%,
+      rgba(255,180,90,0.08) 62%,
+      transparent 82%
+    );
+}
