@@ -403,6 +403,7 @@
           <h2>SESSION</h2>
           <p class="muted" style="margin:0;">Capture what you tried, what it smelled like, and how it landed.</p>
 
+          <!-- SESSION (stash + tag) -->
           <div class="row topgap">
             <label class="field">
               <span class="label">Pick from stash (optional)</span>
@@ -419,6 +420,7 @@
 
           <div class="divider"></div>
 
+          <!-- Sleep + Mood (kept as-is) -->
           <div class="grid2">
             <div class="terpRow">
               <p class="terpName">How’d you sleep last night?</p>
@@ -455,91 +457,90 @@
 
           <div class="divider"></div>
 
-          <div class="grid2">
-            <div class="photoBox">
-              <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
-              <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
+          <!-- PHOTO -->
+          <div class="photoBox">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
+            <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
 
-              <div class="row topgap">
-                <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                  📷 Take / Choose Photo
-                  <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
-                </label>
-                <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
-              </div>
-
-              <img id="photoThumb" class="thumb" alt="Photo preview" />
-              <input id="photoDataUrl" type="hidden" value="" />
+            <div class="row topgap">
+              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                📷 Take / Choose Photo
+                <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+              </label>
+              <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
             </div>
 
-            <div class="terpRow">
-              <p class="terpName">Rate it (1–5)</p>
-              <p class="terpHint">Your “run it again” math.</p>
-              <div class="ratingRow" id="rateRow"></div>
-              <input type="hidden" id="rateScore" value="" />
+            <img id="photoThumb" class="thumb" alt="Photo preview" />
+            <input id="photoDataUrl" type="hidden" value="" />
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- SMELL NOTES -->
+          <div class="terpRow">
+            <p class="terpName">Smell notes (multi-select)</p>
+            <p class="terpHint">Fast tags + optional one-word “Other”.</p>
+
+            <div class="row topgap" style="gap:8px;">
+              <button class="btn btnTiny chip" type="button" data-smell="SWEET">SWEET</button>
+              <button class="btn btnTiny chip" type="button" data-smell="EARTHY">EARTHY</button>
+              <button class="btn btnTiny chip" type="button" data-smell="PINEY">PINEY</button>
+              <button class="btn btnTiny chip" type="button" data-smell="CITRUS">CITRUS</button>
+              <button class="btn btnTiny chip" type="button" data-smell="SPICY">SPICY</button>
+              <button class="btn btnTiny chip" type="button" data-smell="PEPPERY">PEPPERY</button>
+              <button class="btn btnTiny chip" type="button" data-smell="GASSY">GASSY</button>
+              <button class="btn btnTiny chip" type="button" data-smell="FUNKY">FUNKY</button>
+              <button class="btn btnTiny chip" type="button" data-smell="SKUNKY">SKUNKY</button>
+            </div>
+
+            <div class="row topgap">
+              <label class="field" style="min-width:220px;">
+                <span class="label">Other (one word, optional)</span>
+                <input id="smellOther" class="input" type="text" placeholder="e.g., gym / raisins / metal" />
+              </label>
+              <button id="smellReset" class="btn btnTiny" type="button">Reset</button>
             </div>
           </div>
 
           <div class="divider"></div>
 
-          <div class="grid2">
-            <div class="terpRow">
-              <p class="terpName">Smell notes (multi-select)</p>
-              <p class="terpHint">Fast tags + optional one-word “Other”.</p>
+          <!-- SMELL AUDIO -->
+          <div class="terpRow">
+            <p class="terpName" style="margin:0;">Smell audio (optional)</p>
+            <p class="terpHint" style="margin-top:4px;">Talk it out if you want. If you don’t, skip it.</p>
 
-              <div class="row topgap" style="gap:8px;">
-                <button class="btn btnTiny chip" type="button" data-smell="SWEET">SWEET</button>
-                <button class="btn btnTiny chip" type="button" data-smell="EARTHY">EARTHY</button>
-                <button class="btn btnTiny chip" type="button" data-smell="PINEY">PINEY</button>
-                <button class="btn btnTiny chip" type="button" data-smell="CITRUS">CITRUS</button>
-                <button class="btn btnTiny chip" type="button" data-smell="SPICY">SPICY</button>
-                <button class="btn btnTiny chip" type="button" data-smell="PEPPERY">PEPPERY</button>
-                <button class="btn btnTiny chip" type="button" data-smell="GASSY">GASSY</button>
-                <button class="btn btnTiny chip" type="button" data-smell="FUNKY">FUNKY</button>
-                <button class="btn btnTiny chip" type="button" data-smell="SKUNKY">SKUNKY</button>
-              </div>
-
-              <div class="row topgap">
-                <label class="field" style="min-width:220px;">
-                  <span class="label">Other (one word, optional)</span>
-                  <input id="smellOther" class="input" type="text" placeholder="e.g., gym / raisins / metal" />
-                </label>
-                <button id="smellReset" class="btn btnTiny" type="button">Reset</button>
-              </div>
-
-              <div class="divider"></div>
-              <p class="terpName" style="margin:0;">Smell audio (optional)</p>
-              <p class="terpHint" style="margin-top:4px;">Talk it out if you want. If you don’t, skip it.</p>
-
-              <div class="row topgap">
-                <button id="smellRecBtn" class="btn btnPrimary" type="button">🎙️ Smell Record</button>
-                <button id="smellPauseBtn" class="btn" type="button" disabled>Pause</button>
-                <button id="smellStopBtn" class="btn" type="button" disabled>Stop</button>
-                <span id="smellStatusPill" class="pill"><span class="okDot"></span><span id="smellStatusText">Idle</span></span>
-              </div>
-
-              <div class="row topgap" id="smellIphoneFallback" style="display:none;">
-                <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                  🎧 Smell iPhone Mode
-                  <input id="smellFileAudio" type="file" accept="audio/*" capture style="display:none;" />
-                </label>
-                <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
-              </div>
-
-              <div class="row topgap">
-                <audio id="smellPreview" controls style="display:none;"></audio>
-              </div>
+            <div class="row topgap">
+              <button id="smellRecBtn" class="btn btnPrimary" type="button">🎙️ Smell Record</button>
+              <button id="smellPauseBtn" class="btn" type="button" disabled>Pause</button>
+              <button id="smellStopBtn" class="btn" type="button" disabled>Stop</button>
+              <span id="smellStatusPill" class="pill"><span class="okDot"></span><span id="smellStatusText">Idle</span></span>
             </div>
 
-            <div class="terpRow">
-              <p class="terpName">Terpene presence</p>
-              <p class="terpHint">Not %s. Just your read: Not present / Background / Noticeable / Dominant.</p>
-              <div id="terpeneBox" class="list" style="margin-top:10px;"></div>
+            <div class="row topgap" id="smellIphoneFallback" style="display:none;">
+              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                🎧 Smell iPhone Mode
+                <input id="smellFileAudio" type="file" accept="audio/*" capture style="display:none;" />
+              </label>
+              <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
+            </div>
+
+            <div class="row topgap">
+              <audio id="smellPreview" controls style="display:none;"></audio>
             </div>
           </div>
 
           <div class="divider"></div>
 
+          <!-- TERPENE PRESENCE -->
+          <div class="terpRow">
+            <p class="terpName">Terpene presence</p>
+            <p class="terpHint">Not %s. Just your read: Not present / Background / Noticeable / Dominant.</p>
+            <div id="terpeneBox" class="list" style="margin-top:10px;"></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- AUDIO NOTE -->
           <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">AUDIO NOTE (PARAMOUNT)</h2>
           <p class="muted" style="margin:6px 0 0 0;">Record first, then Save Session.</p>
 
@@ -564,6 +565,17 @@
 
           <div class="divider"></div>
 
+          <!-- RATE IT -->
+          <div class="terpRow">
+            <p class="terpName">Rate it (1–5)</p>
+            <p class="terpHint">Your “run it again” math.</p>
+            <div class="ratingRow" id="rateRow"></div>
+            <input type="hidden" id="rateScore" value="" />
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- SESSION LOG -->
           <div class="row between">
             <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">SESSION LOG</h2>
             <div class="row" style="gap:8px;">
@@ -1359,7 +1371,6 @@
         smellStopBtn.disabled = true;
         smellPauseBtn.disabled = true;
       } else {
-        // even if MediaRecorder exists, keep the iPhone fallbacks hidden until needed
         iphoneFallback.style.display = "none";
         smellIphoneFallback.style.display = "none";
       }
