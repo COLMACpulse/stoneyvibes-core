@@ -293,35 +293,6 @@
       border:1px solid var(--border);
     }
 
-    /* NEW: small stash icon preview */
-    .stashIconThumb{
-      width:84px;
-      height:84px;
-      border-radius:16px;
-      object-fit:cover;
-      display:none;
-      margin-top:10px;
-      border:1px solid var(--border);
-    }
-
-    /* NEW: stash list avatar */
-    .avatar{
-      width:44px;
-      height:44px;
-      border-radius:12px;
-      object-fit:cover;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,0.03);
-      flex:0 0 auto;
-    }
-    .avatarPlaceholder{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:18px;
-      color:rgba(233,238,245,0.60);
-    }
-
     .terpRow{
       border:1px solid var(--border);
       border-radius:14px;
@@ -412,24 +383,6 @@
               <input id="stashNotes" class="input" type="text" placeholder="One line. Keep it human." />
             </label>
           </div>
-
-          <!-- NEW: STASH ICON -->
-          <div class="divider"></div>
-          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH ICON (OPTIONAL)</h2>
-          <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library. This becomes the stash item’s icon.</p>
-
-          <div class="row topgap">
-            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-              📷 Choose Icon Photo
-              <input id="stashIconInput" type="file" accept="image/*" capture="environment" style="display:none;" />
-            </label>
-            <button id="stashIconClear" class="btn btnTiny" type="button">No icon</button>
-          </div>
-
-          <img id="stashIconThumb" class="stashIconThumb" alt="Stash icon preview" />
-          <input id="stashIconDataUrl" type="hidden" value="" />
-
-          <div class="divider"></div>
 
           <div class="row topgap">
             <button id="addStashBtn" class="btn btnPrimary" type="button">Add</button>
@@ -533,6 +486,7 @@
             <div class="terpRow">
               <p class="terpName">Smell notes (multi-select)</p>
               <p class="terpHint">Fast tags + optional one-word “Other”.</p>
+
               <div class="row topgap" style="gap:8px;">
                 <button class="btn btnTiny chip" type="button" data-smell="SWEET">SWEET</button>
                 <button class="btn btnTiny chip" type="button" data-smell="EARTHY">EARTHY</button>
@@ -544,12 +498,36 @@
                 <button class="btn btnTiny chip" type="button" data-smell="FUNKY">FUNKY</button>
                 <button class="btn btnTiny chip" type="button" data-smell="SKUNKY">SKUNKY</button>
               </div>
+
               <div class="row topgap">
                 <label class="field" style="min-width:220px;">
                   <span class="label">Other (one word, optional)</span>
                   <input id="smellOther" class="input" type="text" placeholder="e.g., gym / raisins / metal" />
                 </label>
                 <button id="smellReset" class="btn btnTiny" type="button">Reset</button>
+              </div>
+
+              <div class="divider"></div>
+              <p class="terpName" style="margin:0;">Smell audio (optional)</p>
+              <p class="terpHint" style="margin-top:4px;">Talk it out if you want. If you don’t, skip it.</p>
+
+              <div class="row topgap">
+                <button id="smellRecBtn" class="btn btnPrimary" type="button">🎙️ Smell Record</button>
+                <button id="smellPauseBtn" class="btn" type="button" disabled>Pause</button>
+                <button id="smellStopBtn" class="btn" type="button" disabled>Stop</button>
+                <span id="smellStatusPill" class="pill"><span class="okDot"></span><span id="smellStatusText">Idle</span></span>
+              </div>
+
+              <div class="row topgap" id="smellIphoneFallback" style="display:none;">
+                <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                  🎧 Smell iPhone Mode
+                  <input id="smellFileAudio" type="file" accept="audio/*" capture style="display:none;" />
+                </label>
+                <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
+              </div>
+
+              <div class="row topgap">
+                <audio id="smellPreview" controls style="display:none;"></audio>
               </div>
             </div>
 
@@ -679,42 +657,12 @@
     const sessionStashLink = document.getElementById("sessionStashLink");
     const sessionTag = document.getElementById("sessionTag");
 
-    // NEW: STASH ICON elements
-    const stashIconInput = document.getElementById("stashIconInput");
-    const stashIconThumb = document.getElementById("stashIconThumb");
-    const stashIconDataUrl = document.getElementById("stashIconDataUrl");
-    const stashIconClear = document.getElementById("stashIconClear");
-
     function loadStash(){ try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); } catch { return []; } }
     function saveStash(items){
       localStorage.setItem(STASH_KEY, JSON.stringify(items));
       renderStash();
       renderStashLinkDropdown();
     }
-
-    // NEW: set stash icon helper
-    function setStashIcon(dataUrl){
-      stashIconDataUrl.value = dataUrl || "";
-      if (dataUrl){
-        stashIconThumb.src = dataUrl;
-        stashIconThumb.style.display = "block";
-      } else {
-        stashIconThumb.style.display = "none";
-        stashIconThumb.removeAttribute("src");
-      }
-    }
-
-    // NEW: stash icon input handlers
-    stashIconInput.addEventListener("change", (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      const reader = new FileReader();
-      reader.onload = () => setStashIcon(String(reader.result||""));
-      reader.readAsDataURL(f);
-      stashIconInput.value = "";
-    });
-    stashIconClear.onclick = () => setStashIcon("");
-
     function renderStash(){
       const items = loadStash();
       if (!items.length){
@@ -725,14 +673,8 @@
       items.forEach((it, i) => {
         const el = document.createElement("div");
         el.className = "item";
-
-        const iconHtml = it.iconDataUrl
-          ? `<img class="avatar" src="${escapeHtml(it.iconDataUrl)}" alt="Icon" />`
-          : `<div class="avatar avatarPlaceholder">🫙</div>`;
-
         el.innerHTML = `
           <div class="itemHead">
-            ${iconHtml}
             <div style="min-width:0; flex:1;">
               <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
               <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
@@ -742,7 +684,6 @@
             </div>
           </div>
         `;
-
         el.querySelector("button").onclick = () => {
           const ok = confirm("Delete this stash item?");
           if (!ok) return;
@@ -753,7 +694,6 @@
         stashList.appendChild(el);
       });
     }
-
     function renderStashLinkDropdown(){
       const items = loadStash();
       const current = sessionStashLink.value || "";
@@ -766,34 +706,20 @@
       });
       sessionStashLink.value = current;
     }
-
     addStashBtn.onclick = () => {
       const name = (stashName.value || "").trim();
       if (!name){ alert("Give it a name (even 'Unknown')."); return; }
-
-      const item = {
-        id: uid("stash"),
-        name,
-        category: stashCategory.value,
-        notes: (stashNotes.value||"").trim(),
-        iconDataUrl: stashIconDataUrl.value || "",   // NEW
-        createdAt: Date.now()
-      };
-
+      const item = { id: uid("stash"), name, category: stashCategory.value, notes: (stashNotes.value||"").trim(), createdAt: Date.now() };
       const items = loadStash();
       items.unshift(item);
       saveStash(items);
-
       stashName.value = "";
       stashNotes.value = "";
-      setStashIcon(""); // NEW: reset icon picker after Add
     };
-
     clearStashBtn.onclick = () => {
       const ok = confirm("Clear entire STASH on this device?");
       if (!ok) return;
       saveStash([]);
-      setStashIcon("");
     };
 
     // IndexedDB
@@ -891,7 +817,7 @@
     });
     moodReset.onclick = () => { moodSet = new Set(); moodOther.value = ""; renderMood(); };
 
-    // Smell
+    // Smell tags
     const smellChips = Array.from(document.querySelectorAll("[data-smell]"));
     const smellOther = document.getElementById("smellOther");
     const smellReset = document.getElementById("smellReset");
@@ -904,7 +830,7 @@
     });
     smellReset.onclick = () => { smellSet = new Set(); smellOther.value = ""; renderSmell(); };
 
-    // Photo (session)
+    // Photo
     const photoInput = document.getElementById("photoInput");
     const photoThumb = document.getElementById("photoThumb");
     const photoDataUrl = document.getElementById("photoDataUrl");
@@ -978,7 +904,7 @@
       return out;
     }
 
-    // Audio + Pause
+    // AUDIO (SESSION)
     const recBtn = document.getElementById("recBtn");
     const pauseBtn = document.getElementById("pauseBtn");
     const stopBtn = document.getElementById("stopBtn");
@@ -1105,6 +1031,123 @@
       setStatus("idle","Ready to Save");
     });
 
+    // AUDIO (SMELL)
+    const smellRecBtn = document.getElementById("smellRecBtn");
+    const smellPauseBtn = document.getElementById("smellPauseBtn");
+    const smellStopBtn = document.getElementById("smellStopBtn");
+    const smellStatusPill = document.getElementById("smellStatusPill");
+    const smellStatusText = document.getElementById("smellStatusText");
+    const smellPreview = document.getElementById("smellPreview");
+    const smellIphoneFallback = document.getElementById("smellIphoneFallback");
+    const smellFileAudio = document.getElementById("smellFileAudio");
+
+    let smellRecorder = null;
+    let smellStream = null;
+    let smellChunks = [];
+    let pendingSmellBlob = null;
+
+    function setSmellStatus(mode, text){
+      smellStatusText.textContent = text;
+      const dot = smellStatusPill.querySelector("span");
+      dot.className = (mode === "rec") ? "recDot" : "okDot";
+    }
+
+    function toggleSmellPause(){
+      if (!smellRecorder) return;
+      try{
+        if (smellRecorder.state === "recording" && typeof smellRecorder.pause === "function"){
+          smellRecorder.pause();
+        } else if (smellRecorder.state === "paused" && typeof smellRecorder.resume === "function"){
+          smellRecorder.resume();
+        }
+      }catch(e){}
+    }
+
+    async function startSmellRecording(){
+      if (!("MediaRecorder" in window)){
+        smellIphoneFallback.style.display = "flex";
+        alert("In-browser recording isn’t supported here. Use Smell iPhone Mode.");
+        return;
+      }
+      try{ smellStream = await navigator.mediaDevices.getUserMedia({ audio:true }); }
+      catch(err){ alert("Microphone permission blocked. Allow mic access for this site."); return; }
+
+      smellChunks = [];
+      const mime = mimeChoice();
+      try{ smellRecorder = new MediaRecorder(smellStream, mime ? { mimeType:mime } : undefined); }
+      catch(err){
+        smellIphoneFallback.style.display = "flex";
+        alert("Recording not supported in this browser. Use Smell iPhone Mode.");
+        if (smellStream){ smellStream.getTracks().forEach(t=>t.stop()); smellStream=null; }
+        return;
+      }
+
+      smellRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) smellChunks.push(e.data); };
+
+      smellRecorder.onpause = () => {
+        smellPauseBtn.textContent = "Resume";
+        setSmellStatus("rec","Paused");
+      };
+      smellRecorder.onresume = () => {
+        smellPauseBtn.textContent = "Pause";
+        setSmellStatus("rec","Recording…");
+      };
+
+      smellRecorder.onstop = () => {
+        try{
+          pendingSmellBlob = new Blob(smellChunks, { type: smellRecorder.mimeType || "audio/webm" });
+          smellPreview.src = URL.createObjectURL(pendingSmellBlob);
+          smellPreview.style.display = "block";
+          setSmellStatus("idle","Ready");
+        } finally {
+          if (smellStream){ smellStream.getTracks().forEach(t=>t.stop()); smellStream=null; }
+          smellRecorder = null;
+          smellChunks = [];
+          smellPauseBtn.textContent = "Pause";
+          smellPauseBtn.disabled = true;
+        }
+      };
+
+      smellRecorder.start();
+
+      smellRecBtn.disabled = true;
+      smellStopBtn.disabled = false;
+
+      const pauseSupported = (typeof smellRecorder.pause === "function" && typeof smellRecorder.resume === "function");
+      smellPauseBtn.disabled = !pauseSupported;
+      smellPauseBtn.textContent = "Pause";
+
+      pendingSmellBlob = null;
+      smellPreview.style.display = "none";
+      smellPreview.removeAttribute("src");
+      setSmellStatus("rec","Recording…");
+    }
+
+    function stopSmellRecording(){
+      if (!smellRecorder) return;
+      try{ smellRecorder.stop(); } catch(e){}
+      smellRecBtn.disabled = false;
+      smellStopBtn.disabled = true;
+      smellPauseBtn.disabled = true;
+      smellPauseBtn.textContent = "Pause";
+      setSmellStatus("idle","Saving…");
+      setTimeout(()=> setSmellStatus("idle","Ready"), 250);
+    }
+
+    smellRecBtn.onclick = startSmellRecording;
+    smellStopBtn.onclick = stopSmellRecording;
+    smellPauseBtn.onclick = toggleSmellPause;
+
+    smellFileAudio.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      pendingSmellBlob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
+      smellPreview.src = URL.createObjectURL(pendingSmellBlob);
+      smellPreview.style.display = "block";
+      smellFileAudio.value = "";
+      setSmellStatus("idle","Ready");
+    });
+
     async function saveSession(){
       if (!pendingAudioBlob){ alert("Record audio first (or use iPhone Mode)."); return; }
 
@@ -1129,15 +1172,27 @@
         photoDataUrl: photoDataUrl.value || "",
         mimeType: pendingAudioBlob.type || "audio/*",
         audioBlob: pendingAudioBlob,
+        smellMimeType: pendingSmellBlob ? (pendingSmellBlob.type || "audio/*") : "",
+        smellAudioBlob: pendingSmellBlob || null
       };
 
       await dbPut(session);
 
-      // reset capture
+      // reset main capture
       pendingAudioBlob = null;
       preview.style.display = "none";
       preview.removeAttribute("src");
       setStatus("idle","Idle");
+
+      // reset smell capture
+      pendingSmellBlob = null;
+      smellPreview.style.display = "none";
+      smellPreview.removeAttribute("src");
+      setSmellStatus("idle","Idle");
+      smellRecBtn.disabled = false;
+      smellStopBtn.disabled = true;
+      smellPauseBtn.disabled = true;
+      smellPauseBtn.textContent = "Pause";
 
       sleepScore.value = "";
       rateScore.value = "";
@@ -1186,6 +1241,7 @@
         if (s.smellOther) bits.push("SMELL_OTHER:" + s.smellOther);
 
         const url = URL.createObjectURL(s.audioBlob);
+        const smellAudioUrl = (s.smellAudioBlob instanceof Blob) ? URL.createObjectURL(s.smellAudioBlob) : "";
 
         el.innerHTML = `
           <div class="itemHead">
@@ -1198,13 +1254,27 @@
               <button class="btn btnDanger" data-act="delete">Delete</button>
             </div>
           </div>
+
           ${s.photoDataUrl ? `<div class="topgap"><img src="${escapeHtml(s.photoDataUrl)}" alt="Photo" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; border:1px solid var(--border);" /></div>` : ""}
+
+          ${smellAudioUrl ? `
+            <div class="topgap">
+              <div class="muted" style="font-size:12px; margin-bottom:6px;">Smell audio</div>
+              <audio controls preload="none" src="${smellAudioUrl}" style="width:100%;"></audio>
+            </div>
+          ` : ""}
+
           <div class="topgap">
             <audio controls preload="none" src="${url}" style="width:100%;"></audio>
           </div>
         `;
 
-        el.querySelector('[data-act="play"]').onclick = () => el.querySelector("audio").play().catch(()=>{});
+        el.querySelector('[data-act="play"]').onclick = () => {
+          const audios = el.querySelectorAll("audio");
+          const main = audios[audios.length - 1];
+          main.play().catch(()=>{});
+        };
+
         el.querySelector('[data-act="delete"]').onclick = async () => {
           const ok = confirm("Delete this session from this device?");
           if (!ok) return;
@@ -1223,6 +1293,12 @@
       pendingAudioBlob = null;
       preview.style.display = "none";
       preview.removeAttribute("src");
+
+      pendingSmellBlob = null;
+      smellPreview.style.display = "none";
+      smellPreview.removeAttribute("src");
+      setSmellStatus("idle","Idle");
+
       await renderSessions();
       setStatus("idle","Idle");
     };
@@ -1235,7 +1311,7 @@
       const stash = loadStash();
       const sessions = await dbGetAll();
       const safeSessions = sessions.map(s => {
-        const { audioBlob, ...rest } = s;
+        const { audioBlob, smellAudioBlob, ...rest } = s;
         return rest;
       });
 
@@ -1259,6 +1335,12 @@
       renderStashLinkDropdown();
       await renderSessions();
       setStatus("idle","Idle");
+
+      pendingSmellBlob = null;
+      smellPreview.style.display = "none";
+      smellPreview.removeAttribute("src");
+      setSmellStatus("idle","Idle");
+
       alert("Wiped.");
     };
 
@@ -1271,9 +1353,19 @@
         recBtn.textContent = "🎙️ Record (Browser unavailable)";
         stopBtn.disabled = true;
         pauseBtn.disabled = true;
+
+        smellIphoneFallback.style.display = "flex";
+        smellRecBtn.textContent = "🎙️ Smell Record (Browser unavailable)";
+        smellStopBtn.disabled = true;
+        smellPauseBtn.disabled = true;
+      } else {
+        // even if MediaRecorder exists, keep the iPhone fallbacks hidden until needed
+        iphoneFallback.style.display = "none";
+        smellIphoneFallback.style.display = "none";
       }
 
       setStatus("idle","Idle");
+      setSmellStatus("idle","Idle");
       await renderSessions();
     })();
   </script>
