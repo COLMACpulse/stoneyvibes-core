@@ -1,3 +1,50 @@
+/* --- COMPACT TERPENE PRESENCE --- */
+.terpRowCompact{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(0,0,0,0.12);
+}
+.terpCompactLine{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+}
+.terpCompactName{
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:0.02em;
+  margin:0;
+}
+.scaleCompact{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.scaleCompact label{
+  display:inline-flex;
+  gap:6px;
+  align-items:center;
+  border:1px solid var(--border2);
+  background:rgba(255,255,255,0.06);
+  padding:6px 8px;
+  border-radius:10px;
+  cursor:pointer;
+  user-select:none;
+  font-size:12px;
+}
+.scaleCompact input{
+  transform: scale(0.95);
+}
+.terpLegend{
+  margin:6px 0 0 0;
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.35;
+}
+
 :root{
   --bg:#0b0d10;
   --text:#e9eef5;
