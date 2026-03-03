@@ -271,3 +271,17 @@ header{
     font-size:10px;
   }
 }
+/* ===== SESSION TERPENE ROW FIX ===== */
+
+.terpeneRow .row {
+  flex-wrap: nowrap;
+}
+
+.terpeneRow .btn {
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.terpeneRow .row {
+  gap: 6px;
+}
