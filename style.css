@@ -508,3 +508,70 @@ body::after{
       transparent 82%
     );
 }
+/* ================================
+   ART V3 — BOTANICAL PANEL VIBE
+   Delete this entire block to revert.
+================================ */
+
+/* Main textured depth */
+body{
+  background:
+    radial-gradient(1200px 800px at 20% 20%, rgba(255,255,255,0.06), transparent 60%),
+    radial-gradient(1000px 900px at 80% 80%, rgba(180,120,255,0.08), transparent 60%),
+    linear-gradient(180deg, #12141a 0%, #0b0d10 100%);
+}
+
+/* Subtle grain */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.25;
+
+  background-image:
+    radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
+  background-size:3px 3px;
+}
+
+/* Soft vignette */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+
+  background:
+    radial-gradient(circle at center,
+      transparent 40%,
+      rgba(0,0,0,0.45) 100%
+    );
+}
+
+/* Give cards subtle glow */
+.card{
+  backdrop-filter: blur(6px);
+  background: rgba(18,20,26,0.55);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+/* Add warm accent glow to active buttons */
+.btnPrimary{
+  background:rgba(255,200,120,0.12);
+  border-color:rgba(255,200,120,0.35);
+  box-shadow:0 0 12px rgba(255,200,120,0.15);
+}
+
+/* Slight purple accent for mood depth */
+.tab.active{
+  background:rgba(160,120,255,0.18);
+  border-color:rgba(160,120,255,0.35);
+}
+
+/* Ensure UI sits above art */
+.shell{
+  position:relative;
+  z-index:1;
+}
