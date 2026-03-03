@@ -373,3 +373,27 @@ audio{ width:100%; }
 @media (max-width: 420px){
   .field{ min-width: 160px; }
 }
+/* ===== TERPENE COMPRESSION ===== */
+
+#terpList .item {
+  padding: 6px 8px;
+  margin: 6px 0;
+  border-radius: 10px;
+}
+
+#terpList .itemHead {
+  gap: 8px;
+}
+
+#terpList .itemTitle {
+  font-size: 13px;
+}
+
+#terpList .btnTiny {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+#terpList .row.topgap {
+  margin-top: 4px;
+}
