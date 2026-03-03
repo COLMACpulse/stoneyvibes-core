@@ -1,49 +1,7 @@
-/* --- COMPACT TERPENE PRESENCE --- */
-.terpRowCompact{
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:10px;
-  background:rgba(0,0,0,0.12);
-}
-.terpCompactLine{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  align-items:center;
-  justify-content:space-between;
-}
-.terpCompactName{
-  font-weight:700;
-  font-size:13px;
-  letter-spacing:0.02em;
-  margin:0;
-}
-.scaleCompact{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-}
-.scaleCompact label{
-  display:inline-flex;
-  gap:6px;
-  align-items:center;
-  border:1px solid var(--border2);
-  background:rgba(255,255,255,0.06);
-  padding:6px 8px;
-  border-radius:10px;
-  cursor:pointer;
-  user-select:none;
-  font-size:12px;
-}
-.scaleCompact input{
-  transform: scale(0.95);
-}
-.terpLegend{
-  margin:6px 0 0 0;
-  font-size:11px;
-  color:var(--muted);
-  line-height:1.35;
-}
+/* ================================
+   STONEYVIBES CORE STYLE
+   FULL FILE — TERPENE COMPRESSED
+================================ */
 
 :root{
   --bg:#0b0d10;
@@ -75,45 +33,7 @@ body{
     radial-gradient(900px 700px at 40% 80%, rgba(255,180,90,0.05), transparent 60%),
     var(--bg);
   color:var(--text);
-  position:relative;
   overflow:hidden;
-}
-
-/* subtle “star rails” art layer (purely visual) */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:0;
-  opacity:0.9;
-  background:
-    radial-gradient(circle at 6% 10%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 18%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 26%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 34%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 42%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 50%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 58%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 66%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 74%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 82%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 6% 90%, var(--star) 0 1px, transparent 2px),
-
-    radial-gradient(circle at 94% 12%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 20%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 28%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 36%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 44%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 52%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 60%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 68%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 76%, var(--star) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 84%, var(--star2) 0 1px, transparent 2px),
-    radial-gradient(circle at 94% 92%, var(--star) 0 1px, transparent 2px),
-
-    radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.06), transparent 55%),
-    radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.06), transparent 55%);
 }
 
 .shell{
@@ -121,8 +41,6 @@ body::before{
   overflow:hidden;
   display:flex;
   flex-direction:column;
-  position:relative;
-  z-index:1;
 }
 
 header{
@@ -135,7 +53,6 @@ header{
 .title{
   margin:0;
   font-size:20px;
-  letter-spacing:0.02em;
 }
 .sub{
   margin:6px 0 0 0;
@@ -160,8 +77,6 @@ header{
   border-radius:999px;
   font-size:13px;
   cursor:pointer;
-  user-select:none;
-  -webkit-tap-highlight-color: transparent;
 }
 .tab.active{
   background:rgba(255,255,255,0.12);
@@ -172,7 +87,6 @@ header{
   margin-left:auto;
   font-size:12px;
   color:var(--muted);
-  opacity:0.85;
   white-space:nowrap;
 }
 
@@ -181,8 +95,6 @@ header{
   display:flex;
   overflow-x:auto;
   scroll-snap-type:x mandatory;
-  scroll-behavior:smooth;
-  -webkit-overflow-scrolling:touch;
 }
 .page{
   scroll-snap-align:start;
@@ -214,7 +126,6 @@ header{
   gap:10px;
   align-items:center;
 }
-.between{ justify-content:space-between; }
 .topgap{ margin-top:10px; }
 
 .btn{
@@ -225,55 +136,21 @@ header{
   padding:10px 12px;
   cursor:pointer;
   font-size:14px;
-  user-select:none;
-  -webkit-tap-highlight-color: transparent;
 }
-.btn:disabled{ opacity:0.5; cursor:not-allowed; }
 
 .btnDanger{
   border-color:var(--dangerB);
   background:var(--danger);
-}
-.btnOk{
-  border-color:var(--okB);
-  background:var(--ok);
 }
 
 .btnTiny{
   padding:6px 10px;
   border-radius:12px;
   font-size:12px;
-  opacity:0.95;
 }
 .btnTog.active{
   background:rgba(255,255,255,0.14);
   border-color:rgba(255,255,255,0.32);
-}
-
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  flex:1;
-  min-width:220px;
-}
-.label{
-  font-size:12px;
-  color:var(--muted);
-  letter-spacing:0.04em;
-}
-
-.input, .select{
-  width:100%;
-  border:1px solid var(--border);
-  background:rgba(0,0,0,0.25);
-  color:var(--text);
-  padding:10px 12px;
-  border-radius:14px;
-  outline:none;
-}
-.input:focus, .select:focus{
-  border-color:rgba(255,255,255,0.28);
 }
 
 .pillStatus{
@@ -287,14 +164,11 @@ header{
   align-items:center;
   gap:8px;
 }
-.okDot, .recDot{
-  width:8px; height:8px; border-radius:50%;
-  display:inline-block;
+.okDot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
   background:rgba(233,238,245,0.35);
-}
-.recDot{
-  background:rgba(255,90,90,0.85);
-  box-shadow:0 0 0 3px rgba(255,90,90,0.18);
 }
 
 .list{
@@ -303,40 +177,44 @@ header{
   gap:10px;
   margin-top:10px;
 }
+
 .item{
   border:1px solid var(--border);
   background:rgba(0,0,0,0.18);
   border-radius:14px;
   padding:10px;
 }
+
 .itemHead{
   display:flex;
   gap:10px;
   align-items:flex-start;
   justify-content:space-between;
 }
+
 .itemTitle{
   font-weight:600;
   font-size:14px;
   margin:0;
-  line-height:1.25;
 }
+
 .itemMeta{
   font-size:12px;
   color:var(--muted);
   margin:2px 0 0 0;
-  line-height:1.35;
 }
+
 .itemBtns{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
-  justify-content:flex-end;
 }
 
-audio{ width:100%; }
-
-.divider{ height:1px; background:var(--border); margin:12px 0; }
+.divider{
+  height:1px;
+  background:var(--border);
+  margin:12px 0;
+}
 
 .notice{
   border:1px dashed var(--border2);
@@ -345,55 +223,51 @@ audio{ width:100%; }
   padding:10px 12px;
   font-size:12px;
   color:var(--muted);
-  line-height:1.45;
-}
-.kbd{
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
-  padding: 2px 6px;
-  border:1px solid var(--border);
-  background: rgba(255,255,255,0.04);
-  border-radius: 8px;
-  color: var(--muted);
 }
 
-.audioDetails { margin-top: 6px; }
-.audioDetails summary {
-  cursor: pointer;
-  user-select: none;
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.06);
-}
-.audioDetails[open] summary { margin-bottom: 6px; }
+/* ================================
+   🔥 TERPENE HARD COMPRESSION
+   (Only affects terpList section)
+================================ */
 
-/* small-screen spacing */
-@media (max-width: 420px){
-  .field{ min-width: 160px; }
+#terpList {
+  gap:6px;
 }
-/* ===== TERPENE COMPRESSION ===== */
 
 #terpList .item {
-  padding: 6px 8px;
-  margin: 6px 0;
-  border-radius: 10px;
+  padding:6px 8px;
+  border-radius:10px;
 }
 
 #terpList .itemHead {
-  gap: 8px;
+  gap:6px;
+  align-items:center;
 }
 
 #terpList .itemTitle {
-  font-size: 13px;
+  font-size:13px;
+  line-height:1.1;
+}
+
+#terpList .itemMeta {
+  display:none;
 }
 
 #terpList .btnTiny {
-  padding: 4px 8px;
-  font-size: 11px;
+  padding:3px 7px;
+  font-size:11px;
 }
 
-#terpList .row.topgap {
-  margin-top: 4px;
+#terpList + .row.topgap {
+  margin-top:6px;
+}
+
+#terpForm .divider {
+  margin:8px 0;
+}
+
+@media (max-width: 420px){
+  .btnTiny{
+    font-size:10px;
+  }
 }
