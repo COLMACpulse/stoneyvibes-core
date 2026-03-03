@@ -333,3 +333,52 @@ header{
 .sessMore.open{
   display:block;
 }
+/* ================================
+   ART LAYER v1 — STAR RAILS (SAFE)
+   Purely visual. No layout impact.
+   Delete this whole block to revert.
+================================ */
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.9;
+
+  /* “rails” on left + right + light fog */
+  background:
+    radial-gradient(circle at 6% 10%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 18%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 26%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 34%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 42%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 50%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 58%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 66%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 74%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 82%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 6% 90%, var(--star) 0 1px, transparent 2px),
+
+    radial-gradient(circle at 94% 12%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 20%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 28%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 36%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 44%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 52%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 60%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 68%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 76%, var(--star) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 84%, var(--star2) 0 1px, transparent 2px),
+    radial-gradient(circle at 94% 92%, var(--star) 0 1px, transparent 2px),
+
+    radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.06), transparent 55%),
+    radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.06), transparent 55%);
+}
+
+/* Make sure app content sits above the art layer */
+.shell{
+  position:relative;
+  z-index:1;
+}
