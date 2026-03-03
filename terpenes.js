@@ -1,9 +1,13 @@
-/* terpenes.js — StoneyVibes v1
+/* terpenes.js — StoneyVibes v1 (CONDENSED UI)
    Presence-only terpene draft:
    NP = Not Present
    BG = Background
    N  = Noticeable
    D  = Dominant
+
+   Update:
+   - condensed single-row layout per terpene
+   - tap active level again = clears selection
 */
 
 (() => {
@@ -78,35 +82,42 @@
     terpList.innerHTML = "";
 
     const draft = loadDraft() || { values: {}, updatedAt: null };
+    const values = draft.values || {};
 
     for (const terp of TERPENES) {
-      const current = (draft.values && draft.values[terp.id]) ? draft.values[terp.id] : "";
+      const current = values[terp.id] || "";
 
       const el = document.createElement("div");
       el.className = "item";
 
       const btns = LEVELS.map((L) => {
         const active = current === L.v ? " active" : "";
-        return `<button class="btn btnTiny btnTog${active}" type="button" data-terp="${escapeHtml(terp.id)}" data-val="${escapeHtml(L.v)}">${escapeHtml(L.t)}</button>`;
+        return `
+          <button
+            class="btn btnTiny btnTog${active}"
+            type="button"
+            data-terp="${escapeHtml(terp.id)}"
+            data-val="${escapeHtml(L.v)}"
+            style="padding:6px 10px; min-width:42px;"
+          >${escapeHtml(L.t)}</button>
+        `;
       }).join("");
 
+      // CONDENSED: one row, label + buttons on same line
       el.innerHTML = `
-        <div class="itemHead">
-          <div style="min-width:0; flex:1;">
-            <p class="itemTitle">${escapeHtml(terp.label)}</p>
-            <p class="itemMeta">Pick one: NP / BG / N / D</p>
+        <div class="itemHead" style="align-items:center; gap:10px;">
+          <p class="itemTitle" style="margin:0; line-height:1.15;">${escapeHtml(terp.label)}</p>
+          <div class="itemBtns" style="gap:6px;">
+            ${btns}
           </div>
-        </div>
-        <div class="row topgap" style="gap:8px;">
-          ${btns}
         </div>
       `;
 
       terpList.appendChild(el);
     }
 
-    // bind handlers
-    const buttons = Array.from(document.querySelectorAll("[data-terp][data-val]"));
+    // bind handlers (scoped to this page)
+    const buttons = Array.from(terpList.querySelectorAll("[data-terp][data-val]"));
     buttons.forEach((b) => {
       b.onclick = () => {
         const terpId = b.getAttribute("data-terp");
@@ -115,13 +126,23 @@
 
         const draftNow = loadDraft() || { values: {}, updatedAt: null };
         draftNow.values = draftNow.values || {};
-        draftNow.values[terpId] = val;
+
+        const current = draftNow.values[terpId] || "";
+
+        // tap active again = clear
+        if (current === val) {
+          delete draftNow.values[terpId];
+        } else {
+          draftNow.values[terpId] = val;
+        }
+
         draftNow.updatedAt = Date.now();
         saveDraft(draftNow);
 
-        // update active state in that terp row
-        const rowBtns = Array.from(document.querySelectorAll(`[data-terp="${CSS.escape(terpId)}"]`));
-        rowBtns.forEach((x) => x.classList.toggle("active", x.getAttribute("data-val") === val));
+        // update active state for that terp row
+        const rowBtns = Array.from(terpList.querySelectorAll(`[data-terp="${CSS.escape(terpId)}"]`));
+        const newVal = draftNow.values[terpId] || "";
+        rowBtns.forEach((x) => x.classList.toggle("active", (x.getAttribute("data-val") || "") === newVal));
 
         setStatus(`Draft updated — ${nowStamp()}`);
       };
@@ -134,7 +155,9 @@
   function collectCurrentFromUI() {
     const out = {};
     for (const terp of TERPENES) {
-      const active = document.querySelector(`[data-terp="${CSS.escape(terp.id)}"].active`);
+      const active = terpList
+        ? terpList.querySelector(`[data-terp="${CSS.escape(terp.id)}"].active`)
+        : document.querySelector(`[data-terp="${CSS.escape(terp.id)}"].active`);
       if (active) out[terp.id] = active.getAttribute("data-val") || "";
     }
     return out;
@@ -143,7 +166,6 @@
   // nav
   if (backBtn) {
     backBtn.onclick = () => {
-      // back to app root
       window.location.href = "./index.html";
     };
   }
@@ -172,4 +194,3 @@
   // init
   render();
 })();
-
