@@ -382,3 +382,75 @@ body::before{
   position:relative;
   z-index:1;
 }
+/* ================================
+   ART LAYER v2 — SIGNAL FIELD
+   More visible. Still safe.
+   Delete this whole block to revert.
+================================ */
+
+/* STAR RAILS */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:1;
+
+  background:
+    /* left rail */
+    radial-gradient(circle at 6% 10%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 18%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 26%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 34%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 42%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 50%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 58%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 66%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 74%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 82%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 6% 90%, var(--star) 0 1.5px, transparent 3px),
+
+    /* right rail */
+    radial-gradient(circle at 94% 12%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 20%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 28%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 36%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 44%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 52%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 60%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 68%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 76%, var(--star) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 84%, var(--star2) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 94% 92%, var(--star) 0 1.5px, transparent 3px),
+
+    /* vertical glow edges */
+    radial-gradient(700px 1200px at 0% 50%, rgba(233,238,245,0.10), transparent 55%),
+    radial-gradient(700px 1200px at 100% 50%, rgba(233,238,245,0.10), transparent 55%);
+}
+
+/* DIAGONAL SIGNAL HAZE */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.45;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent 20%,
+      rgba(90,255,170,0.06) 40%,
+      rgba(233,238,245,0.05) 50%,
+      rgba(255,180,90,0.05) 60%,
+      transparent 80%
+    );
+}
+
+/* Ensure content sits above art */
+.shell{
+  position:relative;
+  z-index:1;
+}
