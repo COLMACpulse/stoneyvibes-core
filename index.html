@@ -476,6 +476,40 @@
 
           <div class="divider"></div>
 
+          <!-- VISUAL TRAITS (NEW) -->
+          <div class="terpRow">
+            <p class="terpName">Visual traits (multi-select)</p>
+            <p class="terpHint">Physical tells. No audio here. Tap fast. Includes HAIRY.</p>
+
+            <div class="row topgap" style="gap:8px;">
+              <button class="btn btnTiny chip" type="button" data-visual="FROSTY">FROSTY</button>
+              <button class="btn btnTiny chip" type="button" data-visual="DENSE">DENSE</button>
+              <button class="btn btnTiny chip" type="button" data-visual="AIRY">AIRY</button>
+              <button class="btn btnTiny chip" type="button" data-visual="STICKY">STICKY</button>
+              <button class="btn btnTiny chip" type="button" data-visual="DRY">DRY</button>
+              <button class="btn btnTiny chip" type="button" data-visual="OILY">OILY</button>
+              <button class="btn btnTiny chip" type="button" data-visual="HAIRY">HAIRY</button>
+              <button class="btn btnTiny chip" type="button" data-visual="PURPLE">PURPLE</button>
+              <button class="btn btnTiny chip" type="button" data-visual="BRIGHT_GREEN">BRIGHT GREEN</button>
+              <button class="btn btnTiny chip" type="button" data-visual="DARK_GREEN">DARK GREEN</button>
+              <button class="btn btnTiny chip" type="button" data-visual="ORANGE_HAIRS">ORANGE HAIRS</button>
+              <button class="btn btnTiny chip" type="button" data-visual="SEEDY">SEEDY</button>
+              <button class="btn btnTiny chip" type="button" data-visual="FOXTAIL">FOXTTAIL</button>
+              <button class="btn btnTiny chip" type="button" data-visual="TRIMMED">TRIMMED</button>
+              <button class="btn btnTiny chip" type="button" data-visual="LEAFY">LEAFY</button>
+            </div>
+
+            <div class="row topgap">
+              <label class="field" style="min-width:220px;">
+                <span class="label">Other (one word, optional)</span>
+                <input id="visualOther" class="input" type="text" placeholder="e.g., sparkly / sandy / stemmy" />
+              </label>
+              <button id="visualReset" class="btn btnTiny" type="button">Reset</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
           <!-- SMELL NOTES -->
           <div class="terpRow">
             <p class="terpName">Smell notes (multi-select)</p>
@@ -610,7 +644,7 @@
           <div class="divider"></div>
 
           <div class="notice">
-            Export excludes audio blobs (too big) but keeps your session metadata and terpene/smell/mood.
+            Export excludes audio blobs (too big) but keeps your session metadata and terpene/smell/mood/visuals.
           </div>
         </div>
       </section>
@@ -829,6 +863,19 @@
     });
     moodReset.onclick = () => { moodSet = new Set(); moodOther.value = ""; renderMood(); };
 
+    // Visual traits (NEW)
+    const visualChips = Array.from(document.querySelectorAll("[data-visual]"));
+    const visualOther = document.getElementById("visualOther");
+    const visualReset = document.getElementById("visualReset");
+    let visualSet = new Set();
+    function renderVisual(){ visualChips.forEach(b => b.classList.toggle("active", visualSet.has(b.getAttribute("data-visual")))); }
+    visualChips.forEach(b => b.onclick = () => {
+      const v = b.getAttribute("data-visual"); if (!v) return;
+      if (visualSet.has(v)) visualSet.delete(v); else visualSet.add(v);
+      renderVisual();
+    });
+    visualReset.onclick = () => { visualSet = new Set(); visualOther.value = ""; renderVisual(); };
+
     // Smell tags
     const smellChips = Array.from(document.querySelectorAll("[data-smell]"));
     const smellOther = document.getElementById("smellOther");
@@ -910,7 +957,7 @@
     function readTerpenePresence(){
       const out = {};
       TERPENES.forEach(t => {
-        const sel = document.querySelector(`input[name="terp_${t.key}"]:checked`);
+        const sel = document.querySelector(\`input[name="terp_\${t.key}"]:checked\`);
         out[t.key] = sel ? (sel.value || "") : "";
       });
       return out;
@@ -1177,6 +1224,10 @@
         sleep: sleepScore.value || "",
         mood: Array.from(moodSet),
         moodOther: (moodOther.value || "").trim(),
+
+        visuals: Array.from(visualSet),
+        visualOther: (visualOther.value || "").trim(),
+
         rate: rateScore.value || "",
         smell: Array.from(smellSet),
         smellOther: (smellOther.value || "").trim(),
@@ -1212,6 +1263,7 @@
       Array.from(rateRow.querySelectorAll("button")).forEach(x=>x.classList.remove("btnPrimary"));
 
       moodSet = new Set(); moodOther.value = ""; renderMood();
+      visualSet = new Set(); visualOther.value = ""; renderVisual();
       smellSet = new Set(); smellOther.value = ""; renderSmell();
       setPhoto("");
 
@@ -1249,6 +1301,10 @@
         if (s.rate) bits.push("RATE:"+s.rate);
         if (s.mood && s.mood.length) bits.push("MOOD:[" + s.mood.join(", ") + "]");
         if (s.moodOther) bits.push("MOOD_OTHER:" + s.moodOther);
+
+        if (s.visuals && s.visuals.length) bits.push("VISUAL:[" + s.visuals.join(", ") + "]");
+        if (s.visualOther) bits.push("VISUAL_OTHER:" + s.visualOther);
+
         if (s.smell && s.smell.length) bits.push("SMELL:[" + s.smell.join(", ") + "]");
         if (s.smellOther) bits.push("SMELL_OTHER:" + s.smellOther);
 
@@ -1377,6 +1433,9 @@
 
       setStatus("idle","Idle");
       setSmellStatus("idle","Idle");
+      renderMood();
+      renderVisual();
+      renderSmell();
       await renderSessions();
     })();
   </script>
