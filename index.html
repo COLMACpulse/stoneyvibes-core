@@ -354,6 +354,24 @@
       line-height:1.2;
       letter-spacing:0.02em;
     }
+
+    .aboutList{
+      margin:0;
+      padding-left:18px;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:13px;
+    }
+    .aboutList li + li{
+      margin-top:8px;
+    }
+    .aboutFooter{
+      margin-top:12px;
+      font-size:12px;
+      color:var(--muted);
+      opacity:0.9;
+      letter-spacing:0.04em;
+    }
   </style>
 </head>
 
@@ -681,7 +699,15 @@
       <section class="page" id="pageAbout">
         <div class="card">
           <h2>ABOUT</h2>
-          <p class="muted" style="margin:0;">Export or wipe. That’s it.</p>
+          <ul class="aboutList">
+            <li><strong style="color:var(--text);">StoneyVibes is a private session capture tool.</strong> It helps you observe how different cannabis samples actually land for you — not what the label says, and not what someone else claims.</li>
+            <li><strong style="color:var(--text);">It can capture:</strong> the sample, sleep quality, mood before, visual traits, smell notes, terpene presence by perception, voice notes, optional photos, and a simple “run it again?” rating.</li>
+            <li><strong style="color:var(--text);">Over time it becomes useful as a personal reference library.</strong> Patterns start to appear: what helps sleep, what sharpens thinking, what feels social, what feels heavy, and what you would rather skip.</li>
+            <li><strong style="color:var(--text);">Everything stays local on this device unless you export it.</strong> Nothing is shared unless you choose to move it.</li>
+            <li><strong style="color:var(--text);">Use it however it serves you best:</strong> as a logbook, a smell notebook, a personal cannabis map, or just a memory aid.</li>
+          </ul>
+
+          <div class="aboutFooter">VOLUME 1 — SESSION CAPTURE INSTRUMENT</div>
 
           <div class="divider"></div>
 
@@ -697,6 +723,7 @@
           </div>
         </div>
       </section>
+
     </main>
   </div>
 
