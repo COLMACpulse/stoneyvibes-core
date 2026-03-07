@@ -335,6 +335,25 @@
       user-select:none;
       font-size:12px;
     }
+
+    .miniTags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:8px;
+    }
+    .miniTag{
+      display:inline-flex;
+      align-items:center;
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      color:var(--muted);
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:11px;
+      line-height:1.2;
+      letter-spacing:0.02em;
+    }
   </style>
 </head>
 
@@ -376,6 +395,33 @@
               </select>
             </label>
           </div>
+
+          <div class="divider"></div>
+
+          <!-- STASH VISUAL TRAITS -->
+          <div class="terpRow">
+            <p class="terpName">Visual traits (stash identity)</p>
+            <p class="terpHint">Fast specimen tags + optional one-word “Other”.</p>
+
+            <div class="row topgap" style="gap:8px;">
+              <button class="btn btnTiny chip" type="button" data-stash-visual="FROSTY">FROSTY</button>
+              <button class="btn btnTiny chip" type="button" data-stash-visual="HAIRY">HAIRY</button>
+              <button class="btn btnTiny chip" type="button" data-stash-visual="DENSE">DENSE</button>
+              <button class="btn btnTiny chip" type="button" data-stash-visual="PALE_GREEN">PALE GREEN</button>
+              <button class="btn btnTiny chip" type="button" data-stash-visual="PURPLE">PURPLE</button>
+              <button class="btn btnTiny chip" type="button" data-stash-visual="ORANGE_HAIRS">ORANGE HAIRS</button>
+            </div>
+
+            <div class="row topgap">
+              <label class="field" style="min-width:220px;">
+                <span class="label">Other (one word, optional)</span>
+                <input id="stashVisualOther" class="input" type="text" placeholder="e.g., chunky / wiry / glittery" />
+              </label>
+              <button id="stashVisualReset" class="btn btnTiny" type="button">Reset</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
 
           <div class="row topgap">
             <label class="field">
@@ -705,6 +751,26 @@
     const stashList = document.getElementById("stashList");
     const sessionStashLink = document.getElementById("sessionStashLink");
     const sessionTag = document.getElementById("sessionTag");
+    const stashVisualChips = Array.from(document.querySelectorAll("[data-stash-visual]"));
+    const stashVisualOther = document.getElementById("stashVisualOther");
+    const stashVisualReset = document.getElementById("stashVisualReset");
+
+    let stashVisualSet = new Set();
+
+    function renderStashVisual(){
+      stashVisualChips.forEach(b => b.classList.toggle("active", stashVisualSet.has(b.getAttribute("data-stash-visual"))));
+    }
+    stashVisualChips.forEach(b => b.onclick = () => {
+      const v = b.getAttribute("data-stash-visual");
+      if (!v) return;
+      if (stashVisualSet.has(v)) stashVisualSet.delete(v); else stashVisualSet.add(v);
+      renderStashVisual();
+    });
+    stashVisualReset.onclick = () => {
+      stashVisualSet = new Set();
+      stashVisualOther.value = "";
+      renderStashVisual();
+    };
 
     function loadStash(){ try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); } catch { return []; } }
     function saveStash(items){
@@ -722,11 +788,21 @@
       items.forEach((it, i) => {
         const el = document.createElement("div");
         el.className = "item";
+
+        const tagBits = [];
+        if (Array.isArray(it.visuals) && it.visuals.length) tagBits.push(...it.visuals);
+        if (it.visualOther) tagBits.push(it.visualOther);
+
         el.innerHTML = `
           <div class="itemHead">
             <div style="min-width:0; flex:1;">
               <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
               <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
+              ${tagBits.length ? `
+                <div class="miniTags">
+                  ${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}
+                </div>
+              ` : ""}
             </div>
             <div class="itemBtns">
               <button class="btn btnDanger">Delete</button>
@@ -758,17 +834,31 @@
     addStashBtn.onclick = () => {
       const name = (stashName.value || "").trim();
       if (!name){ alert("Give it a name (even 'Unknown')."); return; }
-      const item = { id: uid("stash"), name, category: stashCategory.value, notes: (stashNotes.value||"").trim(), createdAt: Date.now() };
+      const item = {
+        id: uid("stash"),
+        name,
+        category: stashCategory.value,
+        notes: (stashNotes.value||"").trim(),
+        visuals: Array.from(stashVisualSet),
+        visualOther: (stashVisualOther.value || "").trim(),
+        createdAt: Date.now()
+      };
       const items = loadStash();
       items.unshift(item);
       saveStash(items);
       stashName.value = "";
       stashNotes.value = "";
+      stashVisualSet = new Set();
+      stashVisualOther.value = "";
+      renderStashVisual();
     };
     clearStashBtn.onclick = () => {
       const ok = confirm("Clear entire STASH on this device?");
       if (!ok) return;
       saveStash([]);
+      stashVisualSet = new Set();
+      stashVisualOther.value = "";
+      renderStashVisual();
     };
 
     // IndexedDB
@@ -1408,6 +1498,10 @@
       smellPreview.removeAttribute("src");
       setSmellStatus("idle","Idle");
 
+      stashVisualSet = new Set();
+      stashVisualOther.value = "";
+      renderStashVisual();
+
       alert("Wiped.");
     };
 
@@ -1434,6 +1528,7 @@
       setSmellStatus("idle","Idle");
 
       // make sure chip UIs are in sync
+      renderStashVisual();
       renderMood();
       renderVisual();
       renderSmell();
