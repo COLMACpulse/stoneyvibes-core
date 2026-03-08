@@ -372,6 +372,61 @@
       opacity:0.9;
       letter-spacing:0.04em;
     }
+
+    .playerWrap{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      border-radius:14px;
+      padding:10px;
+    }
+    .playerTop{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      justify-content:space-between;
+    }
+    .playerLeft{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+      flex:1;
+    }
+    .playerLabel{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.04em;
+      white-space:nowrap;
+    }
+    .playerBtn{
+      min-width:84px;
+    }
+    .playerTime{
+      font-size:12px;
+      color:var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space:nowrap;
+    }
+    .playerRange{
+      width:100%;
+      margin-top:10px;
+    }
+    .playerCanvas{
+      display:block;
+      width:100%;
+      height:54px;
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:rgba(0,0,0,0.18);
+    }
+    .srOnlyAudio{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+      width:1px;
+      height:1px;
+    }
   </style>
 </head>
 
@@ -837,6 +892,228 @@
     function resetCheckedValue(name){
       const first = document.querySelector(`input[name="${name}"][value=""]`);
       if (first) first.checked = true;
+    }
+
+    function formatClock(sec){
+      if (!Number.isFinite(sec) || sec < 0) sec = 0;
+      const whole = Math.floor(sec);
+      const m = Math.floor(whole / 60);
+      const s = whole % 60;
+      return `${m}:${String(s).padStart(2,"0")}`;
+    }
+
+    const playerRegistry = new Set();
+    let sharedAudioCtx = null;
+
+    function getAudioCtx(){
+      if (!sharedAudioCtx){
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        sharedAudioCtx = new Ctx();
+      }
+      return sharedAudioCtx;
+    }
+
+    function drawIdleCanvas(canvas){
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const width = Math.max(1, Math.floor(rect.width * dpr));
+      const height = Math.max(1, Math.floor(rect.height * dpr));
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.clearRect(0,0,width,height);
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      ctx.fillRect(0,0,width,height);
+
+      const bars = 32;
+      const gap = Math.max(2 * dpr, width * 0.004);
+      const barW = Math.max(3 * dpr, (width - gap * (bars + 1)) / bars);
+      const center = height / 2;
+
+      for (let i=0;i<bars;i++){
+        const x = gap + i * (barW + gap);
+        const amp = height * (0.08 + ((i % 5) * 0.012));
+        ctx.fillStyle = "rgba(233,238,245,0.22)";
+        ctx.fillRect(x, center - amp / 2, barW, amp);
+      }
+    }
+
+    function attachVisualizer(player){
+      if (player._vizReady) return;
+      const audio = player.querySelector("audio");
+      const canvas = player.querySelector(".playerCanvas");
+      if (!audio || !canvas) return;
+
+      drawIdleCanvas(canvas);
+
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+
+      try{
+        const source = ctx.createMediaElementSource(audio);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 128;
+        analyser.smoothingTimeConstant = 0.82;
+        source.connect(analyser);
+        analyser.connect(ctx.destination);
+
+        player._vizReady = true;
+        player._vizAnalyser = analyser;
+        player._vizData = new Uint8Array(analyser.frequencyBinCount);
+
+        const render = () => {
+          if (!player.isConnected) return;
+          const canvasRect = canvas.getBoundingClientRect();
+          const dpr = window.devicePixelRatio || 1;
+          const width = Math.max(1, Math.floor(canvasRect.width * dpr));
+          const height = Math.max(1, Math.floor(canvasRect.height * dpr));
+          if (canvas.width !== width) canvas.width = width;
+          if (canvas.height !== height) canvas.height = height;
+
+          const g = canvas.getContext("2d");
+          if (!g) return;
+
+          g.clearRect(0,0,width,height);
+          g.fillStyle = "rgba(255,255,255,0.04)";
+          g.fillRect(0,0,width,height);
+
+          const playing = !audio.paused && !audio.ended;
+          if (!playing){
+            drawIdleCanvas(canvas);
+            player._raf = requestAnimationFrame(render);
+            return;
+          }
+
+          analyser.getByteFrequencyData(player._vizData);
+
+          const bars = 32;
+          const gap = Math.max(2 * dpr, width * 0.004);
+          const barW = Math.max(3 * dpr, (width - gap * (bars + 1)) / bars);
+          const usableH = height * 0.86;
+          const baseline = height * 0.93;
+
+          for (let i=0;i<bars;i++){
+            const idx = Math.floor((i / bars) * player._vizData.length);
+            const v = player._vizData[idx] / 255;
+            const barH = Math.max(height * 0.08, usableH * v);
+            const x = gap + i * (barW + gap);
+            g.fillStyle = i % 4 === 0 ? "rgba(90,255,170,0.55)" : "rgba(233,238,245,0.4)";
+            g.fillRect(x, baseline - barH, barW, barH);
+          }
+
+          player._raf = requestAnimationFrame(render);
+        };
+
+        if (!player._raf){
+          player._raf = requestAnimationFrame(render);
+        }
+      }catch(err){
+        drawIdleCanvas(canvas);
+      }
+    }
+
+    function pauseOtherPlayers(exceptAudio){
+      playerRegistry.forEach(player => {
+        const a = player.querySelector("audio");
+        const btn = player.querySelector("[data-player-play]");
+        if (!a || a === exceptAudio) return;
+        if (!a.paused){
+          a.pause();
+        }
+        if (btn) btn.textContent = "Play";
+      });
+    }
+
+    function initCustomPlayers(scope=document){
+      const players = scope.querySelectorAll("[data-player]");
+      players.forEach(player => {
+        if (player.dataset.ready === "1") return;
+        player.dataset.ready = "1";
+        playerRegistry.add(player);
+
+        const audio = player.querySelector("audio");
+        const playBtn = player.querySelector("[data-player-play]");
+        const range = player.querySelector("[data-player-range]");
+        const elapsed = player.querySelector("[data-player-elapsed]");
+        const remain = player.querySelector("[data-player-remaining]");
+        const canvas = player.querySelector(".playerCanvas");
+
+        if (!audio || !playBtn || !range || !elapsed || !remain || !canvas) return;
+
+        const syncUI = () => {
+          const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+          const current = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+          range.max = duration > 0 ? String(duration) : "0";
+          range.value = String(Math.min(current, duration || 0));
+          elapsed.textContent = formatClock(current);
+          remain.textContent = `−${formatClock(Math.max(0, duration - current))}`;
+          playBtn.textContent = (!audio.paused && !audio.ended) ? "Pause" : "Play";
+        };
+
+        playBtn.onclick = async () => {
+          try{
+            const ctx = getAudioCtx();
+            if (ctx && ctx.state === "suspended") await ctx.resume();
+          }catch(e){}
+
+          attachVisualizer(player);
+
+          if (audio.paused || audio.ended){
+            pauseOtherPlayers(audio);
+            try{
+              await audio.play();
+            }catch(e){}
+          } else {
+            audio.pause();
+          }
+          syncUI();
+        };
+
+        range.addEventListener("input", () => {
+          if (!Number.isFinite(audio.duration)) return;
+          audio.currentTime = Number(range.value || "0");
+          syncUI();
+        });
+
+        audio.addEventListener("loadedmetadata", syncUI);
+        audio.addEventListener("durationchange", syncUI);
+        audio.addEventListener("timeupdate", syncUI);
+        audio.addEventListener("play", () => {
+          attachVisualizer(player);
+          syncUI();
+        });
+        audio.addEventListener("pause", syncUI);
+        audio.addEventListener("ended", () => {
+          syncUI();
+          drawIdleCanvas(canvas);
+        });
+
+        syncUI();
+        drawIdleCanvas(canvas);
+      });
+    }
+
+    function buildPlayerMarkup(label, url){
+      return `
+        <div class="playerWrap topgap" data-player>
+          <div class="playerTop">
+            <div class="playerLeft">
+              <button class="btn btnTiny btnPrimary playerBtn" type="button" data-player-play>Play</button>
+              <div class="playerLabel">${escapeHtml(label)}</div>
+            </div>
+            <div class="playerTime">
+              <span data-player-elapsed>0:00</span>
+              <span> / </span>
+              <span data-player-remaining>−0:00</span>
+            </div>
+          </div>
+          <input class="playerRange" data-player-range type="range" min="0" max="0" step="0.01" value="0" />
+          <canvas class="playerCanvas"></canvas>
+          <audio class="srOnlyAudio" preload="metadata" src="${url}"></audio>
+        </div>
+      `;
     }
 
     // STASH
@@ -1533,30 +1810,16 @@
               <p class="itemMeta">${escapeHtml(bits.join(" — "))}</p>
             </div>
             <div class="itemBtns">
-              <button class="btn btnOk" data-act="play">Play</button>
               <button class="btn btnDanger" data-act="delete">Delete</button>
             </div>
           </div>
 
           ${s.photoDataUrl ? `<div class="topgap"><img src="${escapeHtml(s.photoDataUrl)}" alt="Photo" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; border:1px solid var(--border);" /></div>` : ""}
 
-          ${smellAudioUrl ? `
-            <div class="topgap">
-              <div class="muted" style="font-size:12px; margin-bottom:6px;">Smell audio</div>
-              <audio controls preload="none" src="${smellAudioUrl}" style="width:100%;"></audio>
-            </div>
-          ` : ""}
+          ${smellAudioUrl ? buildPlayerMarkup("Smell audio", smellAudioUrl) : ""}
 
-          <div class="topgap">
-            <audio controls preload="none" src="${url}" style="width:100%;"></audio>
-          </div>
+          ${buildPlayerMarkup("Session audio", url)}
         `;
-
-        el.querySelector('[data-act="play"]').onclick = () => {
-          const audios = el.querySelectorAll("audio");
-          const main = audios[audios.length - 1];
-          main.play().catch(()=>{});
-        };
 
         el.querySelector('[data-act="delete"]').onclick = async () => {
           const ok = confirm("Delete this session from this device?");
@@ -1566,6 +1829,7 @@
         };
 
         sessionList.appendChild(el);
+        initCustomPlayers(el);
       }
     }
 
@@ -1660,6 +1924,7 @@
       renderSmell();
 
       await renderSessions();
+      initCustomPlayers();
     })();
   </script>
 </body>
