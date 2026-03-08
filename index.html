@@ -470,6 +470,40 @@
       background:rgba(90,255,170,0.55);
       border-color:rgba(90,255,170,0.38);
     }
+
+    .signalWrap{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:10px;
+    }
+    .signalBadge{
+      display:inline-flex;
+      align-items:center;
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      color:var(--muted);
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:11px;
+      line-height:1.2;
+      letter-spacing:0.03em;
+    }
+    .signalBadge.ok{
+      border-color:rgba(90,255,170,0.30);
+      background:rgba(90,255,170,0.10);
+      color:var(--text);
+    }
+    .signalBadge.warn{
+      border-color:rgba(255,180,90,0.34);
+      background:rgba(255,180,90,0.12);
+      color:var(--text);
+    }
+    .signalBadge.hot{
+      border-color:rgba(255,90,90,0.34);
+      background:rgba(255,90,90,0.12);
+      color:var(--text);
+    }
   </style>
 </head>
 
@@ -994,6 +1028,47 @@
       const n = Number(value || 0);
       if (!Number.isFinite(n) || n < 0) return 0;
       return Math.max(0, Math.min(5, Math.floor(n)));
+    }
+
+    function computeSmellSignal(passiveValue, activatedValue){
+      const passive = gaugeToLevel(passiveValue);
+      const activated = gaugeToLevel(activatedValue);
+      const delta = activated - passive;
+      const flags = [];
+
+      if (passive <= 1 && activated >= 3) flags.push("HIDDEN TERP BOMB");
+      if (passive >= 3 && activated >= 3) flags.push("LOUD OUT THE GATE");
+      if (passive <= 1 && activated <= 1) flags.push("FLAT / QUIET");
+      if (delta >= 2) flags.push("ACTIVATES HARD");
+      if (delta <= -2) flags.push("FRONT-LOADED");
+
+      return { passive, activated, delta, flags };
+    }
+
+    function buildSignalBadge(text, tone){
+      return `<span class="signalBadge ${tone}">${escapeHtml(text)}</span>`;
+    }
+
+    function buildSignalMarkup(session){
+      const sig = computeSmellSignal(
+        session.passiveSmellIntensity || "",
+        session.activatedSmellIntensity || ""
+      );
+
+      const deltaText = `DELTA ${sig.delta >= 0 ? "+" : ""}${sig.delta}`;
+      const parts = [buildSignalBadge(deltaText, sig.delta >= 2 ? "hot" : sig.delta <= -2 ? "warn" : "ok")];
+
+      sig.flags.forEach(flag => {
+        let tone = "ok";
+        if (flag === "HIDDEN TERP BOMB") tone = "hot";
+        else if (flag === "LOUD OUT THE GATE") tone = "warn";
+        else if (flag === "FLAT / QUIET") tone = "ok";
+        else if (flag === "ACTIVATES HARD") tone = "hot";
+        else if (flag === "FRONT-LOADED") tone = "warn";
+        parts.push(buildSignalBadge(flag, tone));
+      });
+
+      return `<div class="signalWrap">${parts.join("")}</div>`;
     }
 
     function buildFingerprintBars(label, level){
@@ -1868,6 +1943,10 @@
 
       tag = tag || (stashItem ? stashItem.name : "Session");
 
+      const passiveSmellIntensity = readCheckedValue("passiveSmellIntensity");
+      const activatedSmellIntensity = readCheckedValue("activatedSmellIntensity");
+      const smellSignal = computeSmellSignal(passiveSmellIntensity, activatedSmellIntensity);
+
       const session = {
         id: uid("sess"),
         createdAt: Date.now(),
@@ -1882,8 +1961,10 @@
         visualGaugeHairs: readCheckedValue("visualGaugeHairs"),
         visuals: Array.from(visualSet),
         visualOther: (visualOther.value || "").trim(),
-        passiveSmellIntensity: readCheckedValue("passiveSmellIntensity"),
-        activatedSmellIntensity: readCheckedValue("activatedSmellIntensity"),
+        passiveSmellIntensity,
+        activatedSmellIntensity,
+        smellDelta: smellSignal.delta,
+        smellFlags: smellSignal.flags,
         rate: rateScore.value || "",
         smell: Array.from(smellSet),
         smellOther: (smellOther.value || "").trim(),
@@ -1952,6 +2033,10 @@
 
         const title = (s.tag && s.tag.trim()) ? s.tag.trim() : "Session";
         const when = fmtTime(s.createdAt);
+        const derivedSignal = computeSmellSignal(
+          s.passiveSmellIntensity || "",
+          s.activatedSmellIntensity || ""
+        );
 
         const bits = [];
         bits.push(when);
@@ -1962,6 +2047,7 @@
         if (s.visualGaugeHairs) bits.push("HAIRS:"+s.visualGaugeHairs);
         if (s.passiveSmellIntensity) bits.push("PASSIVE_SMELL:"+s.passiveSmellIntensity);
         if (s.activatedSmellIntensity) bits.push("ACTIVATED_SMELL:"+s.activatedSmellIntensity);
+        bits.push("DELTA:" + (derivedSignal.delta >= 0 ? "+" : "") + derivedSignal.delta);
         if (s.rate) bits.push("RATE:"+s.rate);
         if (s.mood && s.mood.length) bits.push("MOOD:[" + s.mood.join(", ") + "]");
         if (s.moodOther) bits.push("MOOD_OTHER:" + s.moodOther);
@@ -1978,6 +2064,7 @@
             <div style="min-width:0; flex:1;">
               <p class="itemTitle">${escapeHtml(title)}</p>
               <p class="itemMeta">${escapeHtml(bits.join(" — "))}</p>
+              ${buildSignalMarkup(s)}
               ${buildFingerprintMarkup(s)}
             </div>
             <div class="itemBtns">
