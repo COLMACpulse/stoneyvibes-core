@@ -427,6 +427,49 @@
       width:1px;
       height:1px;
     }
+
+    .fpWrap{
+      margin-top:10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      border-radius:12px;
+      padding:8px;
+    }
+    .fpGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:8px 10px;
+    }
+    @media (min-width: 720px){
+      .fpGrid{
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    .fpCell{
+      min-width:0;
+    }
+    .fpLabel{
+      font-size:10px;
+      color:var(--muted);
+      letter-spacing:0.08em;
+      margin-bottom:4px;
+    }
+    .fpBars{
+      display:flex;
+      gap:3px;
+      align-items:center;
+    }
+    .fpBar{
+      flex:1;
+      height:8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.08);
+    }
+    .fpBar.on{
+      background:rgba(90,255,170,0.55);
+      border-color:rgba(90,255,170,0.38);
+    }
   </style>
 </head>
 
@@ -900,6 +943,62 @@
       const m = Math.floor(whole / 60);
       const s = whole % 60;
       return `${m}:${String(s).padStart(2,"0")}`;
+    }
+
+    function gaugeToLevel(value){
+      const map = {
+        "": 0,
+        "NONE": 0,
+        "LIGHT": 1,
+        "NOTICEABLE": 2,
+        "STRONG": 3,
+        "HEAVY": 4,
+        "LOUD": 4
+      };
+      return map[value || ""] ?? 0;
+    }
+
+    function ratingToLevel(value){
+      const n = Number(value || 0);
+      if (!Number.isFinite(n) || n < 0) return 0;
+      return Math.max(0, Math.min(5, Math.floor(n)));
+    }
+
+    function buildFingerprintBars(label, level){
+      const safe = Math.max(0, Math.min(5, Number(level || 0)));
+      return `
+        <div class="fpCell">
+          <div class="fpLabel">${escapeHtml(label)}</div>
+          <div class="fpBars">
+            ${Array.from({length:5}, (_, i) => `<span class="fpBar ${i < safe ? "on" : ""}"></span>`).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function buildFingerprintMarkup(session){
+      const frost = gaugeToLevel(session.visualGaugeFrost);
+      const density = gaugeToLevel(session.visualGaugeDensity);
+      const hairs = gaugeToLevel(session.visualGaugeHairs);
+      const passive = gaugeToLevel(session.passiveSmellIntensity);
+      const activated = gaugeToLevel(session.activatedSmellIntensity);
+      const rating = ratingToLevel(session.rate);
+
+      const total = frost + density + hairs + passive + activated + rating;
+      if (total === 0) return "";
+
+      return `
+        <div class="fpWrap">
+          <div class="fpGrid">
+            ${buildFingerprintBars("FROST", frost)}
+            ${buildFingerprintBars("DENSITY", density)}
+            ${buildFingerprintBars("HAIRS", hairs)}
+            ${buildFingerprintBars("PASSIVE", passive)}
+            ${buildFingerprintBars("ACTIVATED", activated)}
+            ${buildFingerprintBars("RATING", rating)}
+          </div>
+        </div>
+      `;
     }
 
     const playerRegistry = new Set();
@@ -1725,13 +1824,11 @@
 
       await dbPut(session);
 
-      // reset main capture
       pendingAudioBlob = null;
       preview.style.display = "none";
       preview.removeAttribute("src");
       setStatus("idle","Idle");
 
-      // reset smell capture
       pendingSmellBlob = null;
       smellPreview.style.display = "none";
       smellPreview.removeAttribute("src");
@@ -1808,6 +1905,7 @@
             <div style="min-width:0; flex:1;">
               <p class="itemTitle">${escapeHtml(title)}</p>
               <p class="itemMeta">${escapeHtml(bits.join(" — "))}</p>
+              ${buildFingerprintMarkup(s)}
             </div>
             <div class="itemBtns">
               <button class="btn btnDanger" data-act="delete">Delete</button>
@@ -1850,7 +1948,6 @@
       setStatus("idle","Idle");
     };
 
-    // Export / wipe
     const exportBtn = document.getElementById("exportBtn");
     const wipeBtn = document.getElementById("wipeBtn");
 
@@ -1917,7 +2014,6 @@
       setStatus("idle","Idle");
       setSmellStatus("idle","Idle");
 
-      // make sure chip UIs are in sync
       renderStashVisual();
       renderMood();
       renderVisual();
