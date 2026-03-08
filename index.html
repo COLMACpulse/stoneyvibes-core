@@ -540,30 +540,59 @@
 
           <div class="divider"></div>
 
-          <!-- VISUAL TRAITS (NEW) -->
+          <!-- VISUAL TRAITS -->
           <div class="terpRow">
-            <p class="terpName">Visual traits (multi-select)</p>
-            <p class="terpHint">Fast physical tags + optional one-word “Other”.</p>
+            <p class="terpName">Visual traits</p>
+            <p class="terpHint">Use gauges for degree. Use tags for direct physical signals.</p>
+
+            <div class="list" style="margin-top:10px;">
+              <div class="terpRow">
+                <p class="terpName">Frost</p>
+                <p class="terpHint">How frosty does it look?</p>
+                <div class="scale">
+                  <label><input type="radio" name="visualGaugeFrost" value="" checked /> — </label>
+                  <label><input type="radio" name="visualGaugeFrost" value="LIGHT" /> Light</label>
+                  <label><input type="radio" name="visualGaugeFrost" value="NOTICEABLE" /> Noticeable</label>
+                  <label><input type="radio" name="visualGaugeFrost" value="STRONG" /> Strong</label>
+                  <label><input type="radio" name="visualGaugeFrost" value="HEAVY" /> Heavy</label>
+                </div>
+              </div>
+
+              <div class="terpRow">
+                <p class="terpName">Density</p>
+                <p class="terpHint">How dense does it look?</p>
+                <div class="scale">
+                  <label><input type="radio" name="visualGaugeDensity" value="" checked /> — </label>
+                  <label><input type="radio" name="visualGaugeDensity" value="LIGHT" /> Light</label>
+                  <label><input type="radio" name="visualGaugeDensity" value="NOTICEABLE" /> Noticeable</label>
+                  <label><input type="radio" name="visualGaugeDensity" value="STRONG" /> Strong</label>
+                  <label><input type="radio" name="visualGaugeDensity" value="HEAVY" /> Heavy</label>
+                </div>
+              </div>
+
+              <div class="terpRow">
+                <p class="terpName">Hairs</p>
+                <p class="terpHint">How pronounced are the hairs?</p>
+                <div class="scale">
+                  <label><input type="radio" name="visualGaugeHairs" value="" checked /> — </label>
+                  <label><input type="radio" name="visualGaugeHairs" value="LIGHT" /> Light</label>
+                  <label><input type="radio" name="visualGaugeHairs" value="NOTICEABLE" /> Noticeable</label>
+                  <label><input type="radio" name="visualGaugeHairs" value="STRONG" /> Strong</label>
+                  <label><input type="radio" name="visualGaugeHairs" value="HEAVY" /> Heavy</label>
+                </div>
+              </div>
+            </div>
 
             <div class="row topgap" style="gap:8px;">
-              <button class="btn btnTiny chip" type="button" data-visual="FROSTY">FROSTY</button>
-              <button class="btn btnTiny chip" type="button" data-visual="HAIRY">HAIRY</button>
-              <button class="btn btnTiny chip" type="button" data-visual="DENSE">DENSE</button>
               <button class="btn btnTiny chip" type="button" data-visual="AIRY">AIRY</button>
-
               <button class="btn btnTiny chip" type="button" data-visual="STICKY">STICKY</button>
               <button class="btn btnTiny chip" type="button" data-visual="DRY">DRY</button>
-              <button class="btn btnTiny chip" type="button" data-visual="OILY">OILY</button>
               <button class="btn btnTiny chip" type="button" data-visual="LEAFY">LEAFY</button>
-
               <button class="btn btnTiny chip" type="button" data-visual="PURPLE">PURPLE</button>
+              <button class="btn btnTiny chip" type="button" data-visual="PALE_GREEN">PALE GREEN</button>
               <button class="btn btnTiny chip" type="button" data-visual="BRIGHT_GREEN">BRIGHT GREEN</button>
               <button class="btn btnTiny chip" type="button" data-visual="DARK_GREEN">DARK GREEN</button>
-
               <button class="btn btnTiny chip" type="button" data-visual="ORANGE_HAIRS">ORANGE HAIRS</button>
-              <button class="btn btnTiny chip" type="button" data-visual="FOXTAIL">FOXTAIL</button>
-              <button class="btn btnTiny chip" type="button" data-visual="SEEDY">SEEDY</button>
-              <button class="btn btnTiny chip" type="button" data-visual="TRIMMED">TRIMMED</button>
             </div>
 
             <div class="row topgap">
@@ -572,6 +601,38 @@
                 <input id="visualOther" class="input" type="text" placeholder="e.g., glittery / wiry / chunky" />
               </label>
               <button id="visualReset" class="btn btnTiny" type="button">Reset</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- SMELL INTENSITY -->
+          <div class="terpRow">
+            <p class="terpName">Smell intensity</p>
+            <p class="terpHint">Passive = jar open. Activated = broken nug.</p>
+
+            <div class="topgap">
+              <div class="label">Passive smell</div>
+              <div class="scale">
+                <label><input type="radio" name="passiveSmellIntensity" value="" checked /> — </label>
+                <label><input type="radio" name="passiveSmellIntensity" value="NONE" /> 0 None</label>
+                <label><input type="radio" name="passiveSmellIntensity" value="LIGHT" /> 1 Light</label>
+                <label><input type="radio" name="passiveSmellIntensity" value="NOTICEABLE" /> 2 Noticeable</label>
+                <label><input type="radio" name="passiveSmellIntensity" value="STRONG" /> 3 Strong</label>
+                <label><input type="radio" name="passiveSmellIntensity" value="LOUD" /> 4 Loud</label>
+              </div>
+            </div>
+
+            <div class="topgap">
+              <div class="label">Activated smell</div>
+              <div class="scale">
+                <label><input type="radio" name="activatedSmellIntensity" value="" checked /> — </label>
+                <label><input type="radio" name="activatedSmellIntensity" value="NONE" /> 0 None</label>
+                <label><input type="radio" name="activatedSmellIntensity" value="LIGHT" /> 1 Light</label>
+                <label><input type="radio" name="activatedSmellIntensity" value="NOTICEABLE" /> 2 Noticeable</label>
+                <label><input type="radio" name="activatedSmellIntensity" value="STRONG" /> 3 Strong</label>
+                <label><input type="radio" name="activatedSmellIntensity" value="LOUD" /> 4 Loud</label>
+              </div>
             </div>
           </div>
 
@@ -766,6 +827,16 @@
     }
     function uid(prefix){
       return (prefix||"id") + "_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+    }
+
+    function readCheckedValue(name){
+      const sel = document.querySelector(`input[name="${name}"]:checked`);
+      return sel ? (sel.value || "") : "";
+    }
+
+    function resetCheckedValue(name){
+      const first = document.querySelector(`input[name="${name}"][value=""]`);
+      if (first) first.checked = true;
     }
 
     // STASH
@@ -983,7 +1054,7 @@
     });
     moodReset.onclick = () => { moodSet = new Set(); moodOther.value = ""; renderMood(); };
 
-    // Visual traits (NEW)
+    // Visual traits
     const visualChips = Array.from(document.querySelectorAll("[data-visual]"));
     const visualOther = document.getElementById("visualOther");
     const visualReset = document.getElementById("visualReset");
@@ -994,7 +1065,14 @@
       if (visualSet.has(v)) visualSet.delete(v); else visualSet.add(v);
       renderVisual();
     });
-    visualReset.onclick = () => { visualSet = new Set(); visualOther.value = ""; renderVisual(); };
+    visualReset.onclick = () => {
+      visualSet = new Set();
+      visualOther.value = "";
+      renderVisual();
+      resetCheckedValue("visualGaugeFrost");
+      resetCheckedValue("visualGaugeDensity");
+      resetCheckedValue("visualGaugeHairs");
+    };
 
     // Smell tags
     const smellChips = Array.from(document.querySelectorAll("[data-smell]"));
@@ -1007,7 +1085,13 @@
       if (smellSet.has(v)) smellSet.delete(v); else smellSet.add(v);
       renderSmell();
     });
-    smellReset.onclick = () => { smellSet = new Set(); smellOther.value = ""; renderSmell(); };
+    smellReset.onclick = () => {
+      smellSet = new Set();
+      smellOther.value = "";
+      renderSmell();
+      resetCheckedValue("passiveSmellIntensity");
+      resetCheckedValue("activatedSmellIntensity");
+    };
 
     // Photo
     const photoInput = document.getElementById("photoInput");
@@ -1344,8 +1428,13 @@
         sleep: sleepScore.value || "",
         mood: Array.from(moodSet),
         moodOther: (moodOther.value || "").trim(),
+        visualGaugeFrost: readCheckedValue("visualGaugeFrost"),
+        visualGaugeDensity: readCheckedValue("visualGaugeDensity"),
+        visualGaugeHairs: readCheckedValue("visualGaugeHairs"),
         visuals: Array.from(visualSet),
         visualOther: (visualOther.value || "").trim(),
+        passiveSmellIntensity: readCheckedValue("passiveSmellIntensity"),
+        activatedSmellIntensity: readCheckedValue("activatedSmellIntensity"),
         rate: rateScore.value || "",
         smell: Array.from(smellSet),
         smellOther: (smellOther.value || "").trim(),
@@ -1383,6 +1472,11 @@
       moodSet = new Set(); moodOther.value = ""; renderMood();
       visualSet = new Set(); visualOther.value = ""; renderVisual();
       smellSet = new Set(); smellOther.value = ""; renderSmell();
+      resetCheckedValue("visualGaugeFrost");
+      resetCheckedValue("visualGaugeDensity");
+      resetCheckedValue("visualGaugeHairs");
+      resetCheckedValue("passiveSmellIntensity");
+      resetCheckedValue("activatedSmellIntensity");
       setPhoto("");
 
       TERPENES.forEach(t => {
@@ -1416,6 +1510,11 @@
         bits.push(when);
         if (s.stashName) bits.push(s.stashName);
         if (s.sleep) bits.push("SLEEP:"+s.sleep);
+        if (s.visualGaugeFrost) bits.push("FROST:"+s.visualGaugeFrost);
+        if (s.visualGaugeDensity) bits.push("DENSITY:"+s.visualGaugeDensity);
+        if (s.visualGaugeHairs) bits.push("HAIRS:"+s.visualGaugeHairs);
+        if (s.passiveSmellIntensity) bits.push("PASSIVE_SMELL:"+s.passiveSmellIntensity);
+        if (s.activatedSmellIntensity) bits.push("ACTIVATED_SMELL:"+s.activatedSmellIntensity);
         if (s.rate) bits.push("RATE:"+s.rate);
         if (s.mood && s.mood.length) bits.push("MOOD:[" + s.mood.join(", ") + "]");
         if (s.moodOther) bits.push("MOOD_OTHER:" + s.moodOther);
