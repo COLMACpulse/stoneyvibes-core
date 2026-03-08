@@ -512,6 +512,10 @@
             </label>
           </div>
 
+          <div class="row topgap">
+            <button id="stashUnknownBtn" class="btn btnTiny" type="button">Unknown +</button>
+          </div>
+
           <div class="divider"></div>
 
           <!-- STASH VISUAL TRAITS -->
@@ -578,6 +582,10 @@
               <span class="label">Sample name (optional)</span>
               <input id="sessionTag" class="input" type="text" placeholder="If it’s not in stash yet." />
             </label>
+          </div>
+
+          <div class="row topgap">
+            <button id="sessionUnknownBtn" class="btn btnTiny" type="button">Unknown +</button>
           </div>
 
           <div class="divider"></div>
@@ -927,6 +935,30 @@
       return (prefix||"id") + "_" + Math.random().toString(16).slice(2) + "_" + Date.now();
     }
 
+    function normalizeLabel(str){
+      return String(str || "").trim().replace(/\s+/g," ").toUpperCase();
+    }
+
+    function alphaLabel(n){
+      let out = "";
+      let x = Math.max(1, Number(n) || 1);
+      while (x > 0){
+        x -= 1;
+        out = String.fromCharCode(65 + (x % 26)) + out;
+        x = Math.floor(x / 26);
+      }
+      return out || "A";
+    }
+
+    function nextDistinctUnknown(existingNames, prefix){
+      const seen = new Set((existingNames || []).map(normalizeLabel).filter(Boolean));
+      let i = 1;
+      while (seen.has(`${prefix} ${alphaLabel(i)}`)){
+        i += 1;
+      }
+      return `${prefix} ${alphaLabel(i)}`;
+    }
+
     function readCheckedValue(name){
       const sel = document.querySelector(`input[name="${name}"]:checked`);
       return sel ? (sel.value || "") : "";
@@ -1222,9 +1254,11 @@
     const stashNotes = document.getElementById("stashNotes");
     const addStashBtn = document.getElementById("addStashBtn");
     const clearStashBtn = document.getElementById("clearStashBtn");
+    const stashUnknownBtn = document.getElementById("stashUnknownBtn");
     const stashList = document.getElementById("stashList");
     const sessionStashLink = document.getElementById("sessionStashLink");
     const sessionTag = document.getElementById("sessionTag");
+    const sessionUnknownBtn = document.getElementById("sessionUnknownBtn");
     const stashVisualChips = Array.from(document.querySelectorAll("[data-stash-visual]"));
     const stashVisualOther = document.getElementById("stashVisualOther");
     const stashVisualReset = document.getElementById("stashVisualReset");
@@ -1252,6 +1286,16 @@
       renderStash();
       renderStashLinkDropdown();
     }
+
+    function getNextUnknownStashName(){
+      return nextDistinctUnknown(loadStash().map(x => x.name), "UNKNOWN");
+    }
+
+    async function getNextUnknownSessionTag(){
+      const sessions = await dbGetAll();
+      return nextDistinctUnknown(sessions.map(x => x.tag), "UNKNOWN SESSION");
+    }
+
     function renderStash(){
       const items = loadStash();
       if (!items.length){
@@ -1293,6 +1337,7 @@
         stashList.appendChild(el);
       });
     }
+
     function renderStashLinkDropdown(){
       const items = loadStash();
       const current = sessionStashLink.value || "";
@@ -1305,9 +1350,27 @@
       });
       sessionStashLink.value = current;
     }
+
+    stashUnknownBtn.onclick = () => {
+      stashName.value = getNextUnknownStashName();
+      stashName.focus();
+      stashName.setSelectionRange(stashName.value.length, stashName.value.length);
+    };
+
+    sessionUnknownBtn.onclick = async () => {
+      sessionTag.value = await getNextUnknownSessionTag();
+      sessionTag.focus();
+      sessionTag.setSelectionRange(sessionTag.value.length, sessionTag.value.length);
+    };
+
     addStashBtn.onclick = () => {
-      const name = (stashName.value || "").trim();
+      let name = (stashName.value || "").trim();
       if (!name){ alert("Give it a name (even 'Unknown')."); return; }
+
+      if (normalizeLabel(name) === "UNKNOWN"){
+        name = getNextUnknownStashName();
+      }
+
       const item = {
         id: uid("stash"),
         name,
@@ -1326,6 +1389,7 @@
       stashVisualOther.value = "";
       renderStashVisual();
     };
+
     clearStashBtn.onclick = () => {
       const ok = confirm("Clear entire STASH on this device?");
       if (!ok) return;
@@ -1793,7 +1857,16 @@
       const stashId = sessionStashLink.value || "";
       const stashItems = loadStash();
       const stashItem = stashItems.find(x => x.id=== stashId);
-      const tag = (sessionTag.value || "").trim() || (stashItem ? stashItem.name : "Session");
+
+      let tag = (sessionTag.value || "").trim();
+
+      if (!stashItem && !tag){
+        tag = await getNextUnknownSessionTag();
+      } else if (!stashItem && normalizeLabel(tag) === "UNKNOWN"){
+        tag = await getNextUnknownSessionTag();
+      }
+
+      tag = tag || (stashItem ? stashItem.name : "Session");
 
       const session = {
         id: uid("sess"),
