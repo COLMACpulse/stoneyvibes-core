@@ -293,93 +293,6 @@
       border:1px solid var(--border);
     }
 
-    .stashThumb{
-      width:72px;
-      height:72px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      object-fit:cover;
-      background:rgba(255,255,255,0.04);
-      flex:0 0 72px;
-    }
-    .stashThumbPlaceholder{
-      width:72px;
-      height:72px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,0.04);
-      color:var(--muted);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:11px;
-      letter-spacing:0.06em;
-      flex:0 0 72px;
-      text-align:center;
-      padding:6px;
-    }
-    .stashCard{
-      cursor:pointer;
-      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
-    }
-    .stashCard:hover{
-      border-color:rgba(255,255,255,0.22);
-      transform:translateY(-1px);
-    }
-    .stashCard.active{
-      border-color:rgba(90,255,170,0.35);
-      background:rgba(90,255,170,0.06);
-    }
-    .stashCardMain{
-      display:flex;
-      gap:12px;
-      align-items:flex-start;
-      min-width:0;
-      flex:1;
-    }
-    .stashCardBody{
-      min-width:0;
-      flex:1;
-    }
-    .detailPhoto{
-      width:100%;
-      max-height:340px;
-      object-fit:cover;
-      border-radius:12px;
-      border:1px solid var(--border);
-      display:block;
-    }
-    .detailGrid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (min-width: 820px){
-      .detailGrid{
-        grid-template-columns:1.15fr 1fr;
-      }
-    }
-    .detailBlock{
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:10px;
-      background:rgba(0,0,0,0.12);
-    }
-    .detailLabel{
-      font-size:11px;
-      letter-spacing:0.08em;
-      color:var(--muted);
-      margin-bottom:6px;
-    }
-    .detailValue{
-      font-size:14px;
-      line-height:1.45;
-      color:var(--text);
-      white-space:pre-wrap;
-      word-break:break-word;
-    }
-
     .terpRow{
       border:1px solid var(--border);
       border-radius:14px;
@@ -591,6 +504,119 @@
       background:rgba(255,90,90,0.12);
       color:var(--text);
     }
+
+    .stashRow{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .stashThumbWrap{
+      flex:0 0 78px;
+      width:78px;
+      height:78px;
+    }
+    .stashThumb{
+      width:78px;
+      height:78px;
+      border-radius:12px;
+      object-fit:cover;
+      border:1px solid var(--border);
+      display:block;
+      background:rgba(255,255,255,0.04);
+    }
+    .stashThumbPlaceholder{
+      width:78px;
+      height:78px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      font-size:11px;
+      text-align:center;
+      padding:6px;
+      line-height:1.15;
+    }
+    .stashBody{
+      min-width:0;
+      flex:1;
+      cursor:pointer;
+    }
+    .stashBody:active{
+      opacity:0.9;
+    }
+
+    .stashDetail{
+      display:none;
+      margin-top:12px;
+    }
+    .stashDetail.active{
+      display:block;
+    }
+    .stashDetailHero{
+      width:100%;
+      max-height:280px;
+      object-fit:cover;
+      border-radius:14px;
+      border:1px solid var(--border);
+      display:block;
+      background:rgba(255,255,255,0.04);
+    }
+    .stashDetailPlaceholder{
+      width:100%;
+      min-height:180px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+      padding:18px;
+    }
+    .stashStats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .stashStat{
+      display:inline-flex;
+      align-items:center;
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.06);
+      color:var(--muted);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      line-height:1.2;
+    }
+    .linkedSessionCard{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      border-radius:12px;
+      padding:10px;
+      margin-top:10px;
+    }
+    .linkedSessionTitle{
+      margin:0;
+      font-size:13px;
+      font-weight:700;
+      color:var(--text);
+    }
+    .linkedSessionMeta{
+      margin:4px 0 0 0;
+      font-size:12px;
+      line-height:1.35;
+      color:var(--muted);
+      white-space:pre-wrap;
+    }
   </style>
 </head>
 
@@ -642,7 +668,7 @@
           <!-- STASH PHOTO -->
           <div class="photoBox">
             <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH PHOTO (OPTIONAL)</h2>
-            <p class="muted" style="margin:6px 0 0 0;">Give the stash entry a visual identity.</p>
+            <p class="muted" style="margin:6px 0 0 0;">This is the visual anchor for the stash entry itself.</p>
 
             <div class="row topgap">
               <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
@@ -695,16 +721,23 @@
             <button id="clearStashBtn" class="btn btnDanger" type="button">Clear</button>
           </div>
 
-          <div class="divider"></div>
-          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH LIST</h2>
-          <div id="stashList" class="list">
-            <div class="muted">No stash items yet.</div>
+          <div id="stashDetail" class="stashDetail">
+            <div class="divider"></div>
+
+            <div class="row between">
+              <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH DETAIL</h2>
+              <button id="stashDetailBackBtn" class="btn btnTiny" type="button">Back to lineup</button>
+            </div>
+
+            <div id="stashDetailBody" class="topgap"></div>
           </div>
 
-          <div class="divider"></div>
-          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH DETAIL</h2>
-          <div id="stashDetail" class="list">
-            <div class="muted">Tap a stash entry to inspect it.</div>
+          <div id="stashListWrap">
+            <div class="divider"></div>
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH LIST</h2>
+            <div id="stashList" class="list">
+              <div class="muted">No stash items yet.</div>
+            </div>
           </div>
         </div>
       </section>
@@ -1219,6 +1252,13 @@
       `;
     }
 
+    function stashThumbMarkup(photoDataUrl, altText){
+      if (photoDataUrl){
+        return `<img class="stashThumb" src="${escapeHtml(photoDataUrl)}" alt="${escapeHtml(altText || "Stash photo")}" />`;
+      }
+      return `<div class="stashThumbPlaceholder">NO<br>PHOTO</div>`;
+    }
+
     const playerRegistry = new Set();
     let sharedAudioCtx = null;
 
@@ -1442,7 +1482,10 @@
     const clearStashBtn = document.getElementById("clearStashBtn");
     const stashUnknownBtn = document.getElementById("stashUnknownBtn");
     const stashList = document.getElementById("stashList");
+    const stashListWrap = document.getElementById("stashListWrap");
     const stashDetail = document.getElementById("stashDetail");
+    const stashDetailBody = document.getElementById("stashDetailBody");
+    const stashDetailBackBtn = document.getElementById("stashDetailBackBtn");
     const sessionStashLink = document.getElementById("sessionStashLink");
     const sessionTag = document.getElementById("sessionTag");
     const sessionUnknownBtn = document.getElementById("sessionUnknownBtn");
@@ -1456,6 +1499,21 @@
 
     let stashVisualSet = new Set();
     let selectedStashId = "";
+
+    function renderStashVisual(){
+      stashVisualChips.forEach(b => b.classList.toggle("active", stashVisualSet.has(b.getAttribute("data-stash-visual"))));
+    }
+    stashVisualChips.forEach(b => b.onclick = () => {
+      const v = b.getAttribute("data-stash-visual");
+      if (!v) return;
+      if (stashVisualSet.has(v)) stashVisualSet.delete(v); else stashVisualSet.add(v);
+      renderStashVisual();
+    });
+    stashVisualReset.onclick = () => {
+      stashVisualSet = new Set();
+      stashVisualOther.value = "";
+      renderStashVisual();
+    };
 
     function setStashPhoto(dataUrl){
       stashPhotoDataUrl.value = dataUrl || "";
@@ -1478,26 +1536,14 @@
     });
     stashPhotoClear.onclick = () => setStashPhoto("");
 
-    function renderStashVisual(){
-      stashVisualChips.forEach(b => b.classList.toggle("active", stashVisualSet.has(b.getAttribute("data-stash-visual"))));
-    }
-    stashVisualChips.forEach(b => b.onclick = () => {
-      const v = b.getAttribute("data-stash-visual");
-      if (!v) return;
-      if (stashVisualSet.has(v)) stashVisualSet.delete(v); else stashVisualSet.add(v);
-      renderStashVisual();
-    });
-    stashVisualReset.onclick = () => {
-      stashVisualSet = new Set();
-      stashVisualOther.value = "";
-      renderStashVisual();
-    };
-
     function loadStash(){ try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); } catch { return []; } }
     function saveStash(items){
       localStorage.setItem(STASH_KEY, JSON.stringify(items));
       renderStash();
       renderStashLinkDropdown();
+      if (selectedStashId){
+        renderSelectedStashDetail();
+      }
     }
 
     function getNextUnknownStashName(){
@@ -1509,128 +1555,161 @@
       return nextDistinctUnknown(sessions.map(x => x.tag), "UNKNOWN SESSION");
     }
 
-    function pickStashPhotoMarkup(dataUrl, altText){
-      if (dataUrl){
-        return `<img class="stashThumb" src="${escapeHtml(dataUrl)}" alt="${escapeHtml(altText)}" />`;
-      }
-      return `<div class="stashThumbPlaceholder">NO PHOTO</div>`;
+    function openStashDetail(id){
+      selectedStashId = id || "";
+      renderSelectedStashDetail();
     }
 
-    function renderStashDetail(){
+    function closeStashDetail(){
+      selectedStashId = "";
+      stashDetail.classList.remove("active");
+      stashDetailBody.innerHTML = "";
+      stashListWrap.style.display = "block";
+    }
+
+    stashDetailBackBtn.onclick = closeStashDetail;
+
+    async function renderSelectedStashDetail(){
       const items = loadStash();
-      if (!items.length){
-        stashDetail.innerHTML = '<div class="muted">Tap a stash entry to inspect it.</div>';
+      const stash = items.find(x => x.id === selectedStashId);
+      if (!stash){
+        closeStashDetail();
         return;
       }
 
-      let selected = items.find(x => x.id === selectedStashId);
-      if (!selected){
-        selected = items[0];
-        selectedStashId = selected.id;
-      }
+      const sessions = await dbGetAll();
+      const linked = sessions
+        .filter(s => String(s.stashId || "") === String(stash.id))
+        .sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
 
       const tagBits = [];
-      if (Array.isArray(selected.visuals) && selected.visuals.length) tagBits.push(...selected.visuals);
-      if (selected.visualOther) tagBits.push(selected.visualOther);
+      if (Array.isArray(stash.visuals) && stash.visuals.length) tagBits.push(...stash.visuals);
+      if (stash.visualOther) tagBits.push(stash.visualOther);
 
-      stashDetail.innerHTML = `
-        <div class="item">
-          <div class="itemHead">
-            <div style="min-width:0; flex:1;">
-              <p class="itemTitle">${escapeHtml(selected.name || "Unnamed")}</p>
-              <p class="itemMeta">${escapeHtml(selected.category || "FLOWER")} — saved ${escapeHtml(fmtTime(selected.createdAt || Date.now()))}</p>
-            </div>
+      const lastSession = linked.length ? fmtTime(linked[0].createdAt) : "No linked sessions yet";
+
+      stashDetailBody.innerHTML = `
+        ${stash.photoDataUrl
+          ? `<img class="stashDetailHero" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash.name || "Stash photo")}" />`
+          : `<div class="stashDetailPlaceholder">NO STASH PHOTO YET</div>`
+        }
+
+        <div class="topgap">
+          <p class="itemTitle" style="font-size:18px; margin:0;">${escapeHtml(stash.name || "Unnamed")}</p>
+          <p class="itemMeta" style="margin-top:6px;">${escapeHtml(stash.category || "FLOWER")}${stash.notes ? " — " + escapeHtml(stash.notes) : ""}</p>
+        </div>
+
+        <div class="stashStats">
+          <span class="stashStat">Sessions: ${linked.length}</span>
+          <span class="stashStat">Last session: ${escapeHtml(lastSession)}</span>
+        </div>
+
+        ${tagBits.length ? `
+          <div class="miniTags">
+            ${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}
           </div>
+        ` : ""}
 
-          <div class="detailGrid">
-            <div class="detailBlock">
-              ${selected.photoDataUrl
-                ? `<img class="detailPhoto" src="${escapeHtml(selected.photoDataUrl)}" alt="${escapeHtml(selected.name || "Stash photo")}" />`
-                : `<div class="stashThumbPlaceholder" style="width:100%; height:240px; border-radius:12px;">NO PHOTO</div>`
-              }
-            </div>
+        <div class="divider"></div>
 
-            <div class="detailBlock">
-              <div class="detailLabel">NOTES</div>
-              <div class="detailValue">${escapeHtml(selected.notes || "No notes yet.")}</div>
+        <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">LINKED SESSIONS</h2>
+        <div id="stashLinkedSessions">
+          ${
+            linked.length
+            ? linked.map(s => {
+                const derivedSignal = computeSmellSignal(
+                  s.passiveSmellIntensity || "",
+                  s.activatedSmellIntensity || ""
+                );
+                const bits = [];
+                bits.push(fmtTime(s.createdAt));
+                if (s.rate) bits.push("RATE:" + s.rate);
+                if (s.visualGaugeFrost) bits.push("FROST:" + s.visualGaugeFrost);
+                if (s.visualGaugeDensity) bits.push("DENSITY:" + s.visualGaugeDensity);
+                if (s.visualGaugeHairs) bits.push("HAIRS:" + s.visualGaugeHairs);
+                if (s.passiveSmellIntensity) bits.push("PASSIVE:" + s.passiveSmellIntensity);
+                if (s.activatedSmellIntensity) bits.push("ACTIVATED:" + s.activatedSmellIntensity);
+                bits.push("DELTA:" + (derivedSignal.delta >= 0 ? "+" : "") + derivedSignal.delta);
+                if (s.smell && s.smell.length) bits.push("SMELL:[" + s.smell.join(", ") + "]");
+                if (s.smellOther) bits.push("SMELL_OTHER:" + s.smellOther);
 
-              <div class="divider"></div>
-
-              <div class="detailLabel">VISUAL TAGS</div>
-              ${tagBits.length
-                ? `<div class="miniTags">${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}</div>`
-                : `<div class="detailValue muted">No visual tags yet.</div>`
-              }
-            </div>
-          </div>
+                return `
+                  <div class="linkedSessionCard">
+                    <p class="linkedSessionTitle">${escapeHtml((s.tag && s.tag.trim()) ? s.tag.trim() : "Session")}</p>
+                    <p class="linkedSessionMeta">${escapeHtml(bits.join(" — "))}</p>
+                    ${buildSignalMarkup(s)}
+                  </div>
+                `;
+              }).join("")
+            : `<div class="muted topgap">No linked sessions yet.</div>`
+          }
         </div>
       `;
+
+      stashListWrap.style.display = "none";
+      stashDetail.classList.add("active");
     }
 
     function renderStash(){
       const items = loadStash();
       if (!items.length){
         stashList.innerHTML = '<div class="muted">No stash items yet.</div>';
-        stashDetail.innerHTML = '<div class="muted">Tap a stash entry to inspect it.</div>';
-        selectedStashId = "";
         return;
       }
-
-      if (!items.some(x => x.id === selectedStashId)){
-        selectedStashId = items[0].id;
-      }
-
       stashList.innerHTML = "";
       items.forEach((it, i) => {
         const el = document.createElement("div");
-        el.className = "item stashCard" + (it.id === selectedStashId ? " active" : "");
+        el.className = "item";
 
         const tagBits = [];
         if (Array.isArray(it.visuals) && it.visuals.length) tagBits.push(...it.visuals);
         if (it.visualOther) tagBits.push(it.visualOther);
-                el.innerHTML = `
-          <div class="itemHead">
-            <div class="stashCardMain">
-              ${pickStashPhotoMarkup(it.photoDataUrl, it.name || "Stash photo")}
-              <div class="stashCardBody">
-                <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
-                <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
-                ${tagBits.length ? `
-                  <div class="miniTags">
-                    ${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}
-                  </div>
-                ` : ""}
-              </div>
+
+        el.innerHTML = `
+          <div class="stashRow">
+            <div class="stashThumbWrap">
+              ${stashThumbMarkup(it.photoDataUrl || "", it.name || "Stash photo")}
             </div>
+
+            <div class="stashBody" data-open="${escapeHtml(it.id)}">
+              <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
+              <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
+              ${
+                tagBits.length
+                ? `<div class="miniTags">
+                    ${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}
+                  </div>`
+                : ""
+              }
+            </div>
+
             <div class="itemBtns">
-              <button class="btn btnDanger" data-act="delete" type="button">Delete</button>
+              <button class="btn btnDanger" data-delete="${escapeHtml(it.id)}">Delete</button>
             </div>
           </div>
         `;
 
-        el.addEventListener("click", (e) => {
-          const target = e.target;
-          if (target && target.closest('[data-act="delete"]')) return;
-          selectedStashId = it.id;
-          renderStash();
-        });
+        const body = el.querySelector('[data-open]');
+        const del = el.querySelector('[data-delete]');
 
-        el.querySelector('[data-act="delete"]').onclick = (e) => {
+        body.onclick = () => openStashDetail(it.id);
+        del.onclick = (e) => {
           e.stopPropagation();
           const ok = confirm("Delete this stash item?");
           if (!ok) return;
           const updated = loadStash();
           updated.splice(i,1);
           if (selectedStashId === it.id){
-            selectedStashId = updated[0]?.id || "";
+            selectedStashId = "";
           }
           saveStash(updated);
+          if (!selectedStashId){
+            closeStashDetail();
+          }
         };
 
         stashList.appendChild(el);
       });
-
-      renderStashDetail();
     }
 
     function renderStashLinkDropdown(){
@@ -1678,26 +1757,25 @@
       };
       const items = loadStash();
       items.unshift(item);
-      selectedStashId = item.id;
       saveStash(items);
-
       stashName.value = "";
       stashNotes.value = "";
       stashVisualSet = new Set();
       stashVisualOther.value = "";
       setStashPhoto("");
       renderStashVisual();
+      closeStashDetail();
     };
 
     clearStashBtn.onclick = () => {
       const ok = confirm("Clear entire STASH on this device?");
       if (!ok) return;
-      selectedStashId = "";
       saveStash([]);
       stashVisualSet = new Set();
       stashVisualOther.value = "";
       setStashPhoto("");
       renderStashVisual();
+      closeStashDetail();
     };
 
     // IndexedDB
@@ -2151,8 +2229,7 @@
       smellFileAudio.value = "";
       setSmellStatus("idle","Ready");
     });
-
-    async function saveSession(){
+        async function saveSession(){
       if (!pendingAudioBlob){ alert("Record audio first (or use iPhone Mode)."); return; }
 
       const stashId = sessionStashLink.value || "";
@@ -2242,6 +2319,9 @@
       sessionStashLink.value = "";
 
       await renderSessions();
+      if (selectedStashId){
+        await renderSelectedStashDetail();
+      }
     }
     saveSessionBtn.onclick = saveSession;
 
@@ -2310,6 +2390,9 @@
           if (!ok) return;
           await dbDelete(s.id);
           await renderSessions();
+          if (selectedStashId){
+            await renderSelectedStashDetail();
+          }
         };
 
         sessionList.appendChild(el);
@@ -2331,6 +2414,9 @@
       setSmellStatus("idle","Idle");
 
       await renderSessions();
+      if (selectedStashId){
+        await renderSelectedStashDetail();
+      }
       setStatus("idle","Idle");
     };
 
@@ -2361,7 +2447,6 @@
       if (!ok) return;
       localStorage.removeItem(STASH_KEY);
       await dbClear();
-      selectedStashId = "";
       renderStash();
       renderStashLinkDropdown();
       await renderSessions();
@@ -2376,6 +2461,7 @@
       stashVisualOther.value = "";
       setStashPhoto("");
       renderStashVisual();
+      closeStashDetail();
 
       alert("Wiped.");
     };
@@ -2406,9 +2492,11 @@
       renderMood();
       renderVisual();
       renderSmell();
+      setStashPhoto("");
 
       await renderSessions();
       initCustomPlayers();
+      closeStashDetail();
     })();
   </script>
 </body>
