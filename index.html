@@ -1059,13 +1059,17 @@
 
           <div class="row topgap">
             <button id="exportBtn" class="btn btnPrimary" type="button">Export JSON</button>
+            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+              Import JSON
+              <input id="importJsonInput" type="file" accept="application/json,.json" style="display:none;" />
+            </label>
             <button id="wipeBtn" class="btn btnDanger" type="button">Wipe Local Data</button>
           </div>
 
           <div class="divider"></div>
 
           <div class="notice">
-            Export excludes audio blobs (too big) but keeps your session metadata and terpene/smell/mood.
+            Export excludes audio blobs (too big) but keeps your stash data and session metadata. Import restores stash and session metadata from a StoneyVibes JSON export, but not audio files.
           </div>
         </div>
       </section>
@@ -2229,7 +2233,106 @@
       smellFileAudio.value = "";
       setSmellStatus("idle","Ready");
     });
-        async function saveSession(){
+
+    function normalizeImportedStashEntry(raw, fallbackIndex){
+      return {
+        id: String(raw.id || uid("stash")),
+        name: String(raw.name || `IMPORTED ${fallbackIndex + 1}`),
+        category: String(raw.category || "FLOWER"),
+        notes: String(raw.notes || ""),
+        visuals: Array.isArray(raw.visuals) ? raw.visuals.map(v => String(v)) : [],
+        visualOther: String(raw.visualOther || ""),
+        photoDataUrl: String(raw.photoDataUrl || ""),
+        createdAt: Number(raw.createdAt || Date.now())
+      };
+    }
+
+    function normalizeImportedSessionEntry(raw, fallbackIndex){
+      const passiveSmellIntensity = String(raw.passiveSmellIntensity || "");
+      const activatedSmellIntensity = String(raw.activatedSmellIntensity || "");
+      const smellSignal = computeSmellSignal(passiveSmellIntensity, activatedSmellIntensity);
+
+      return {
+        id: String(raw.id || uid("sess")),
+        createdAt: Number(raw.createdAt || Date.now()),
+        stashId: String(raw.stashId || ""),
+        stashName: String(raw.stashName || ""),
+        tag: String(raw.tag || `Imported Session ${fallbackIndex + 1}`),
+        sleep: String(raw.sleep || ""),
+        mood: Array.isArray(raw.mood) ? raw.mood.map(v => String(v)) : [],
+        moodOther: String(raw.moodOther || ""),
+        visualGaugeFrost: String(raw.visualGaugeFrost || ""),
+        visualGaugeDensity: String(raw.visualGaugeDensity || ""),
+        visualGaugeHairs: String(raw.visualGaugeHairs || ""),
+        visuals: Array.isArray(raw.visuals) ? raw.visuals.map(v => String(v)) : [],
+        visualOther: String(raw.visualOther || ""),
+        passiveSmellIntensity,
+        activatedSmellIntensity,
+        smellDelta: Number.isFinite(Number(raw.smellDelta)) ? Number(raw.smellDelta) : smellSignal.delta,
+        smellFlags: Array.isArray(raw.smellFlags) ? raw.smellFlags.map(v => String(v)) : smellSignal.flags,
+        rate: String(raw.rate || ""),
+        smell: Array.isArray(raw.smell) ? raw.smell.map(v => String(v)) : [],
+        smellOther: String(raw.smellOther || ""),
+        terpenes: (raw.terpenes && typeof raw.terpenes === "object") ? raw.terpenes : {},
+        photoDataUrl: String(raw.photoDataUrl || ""),
+        mimeType: "",
+        audioBlob: null,
+        smellMimeType: "",
+        smellAudioBlob: null
+      };
+    }
+
+    async function replaceFromImportedJson(payload){
+      const importedStash = Array.isArray(payload.stash)
+        ? payload.stash.map((entry, idx) => normalizeImportedStashEntry(entry, idx))
+        : [];
+
+      const importedSessions = Array.isArray(payload.sessions)
+        ? payload.sessions.map((entry, idx) => normalizeImportedSessionEntry(entry, idx))
+        : [];
+
+      localStorage.setItem(STASH_KEY, JSON.stringify(importedStash));
+      await dbClear();
+
+      for (const session of importedSessions){
+        await dbPut(session);
+      }
+
+      selectedStashId = "";
+      renderStash();
+      renderStashLinkDropdown();
+      await renderSessions();
+      closeStashDetail();
+    }
+        async function importFromFile(file){
+      const text = await file.text();
+      let payload = null;
+
+      try{
+        payload = JSON.parse(text);
+      }catch(err){
+        alert("That file is not valid JSON.");
+        return;
+      }
+
+      if (!payload || typeof payload !== "object"){
+        alert("Import file is invalid.");
+        return;
+      }
+
+      const ok = confirm("Replace current local stash and session metadata with imported JSON?");
+      if (!ok) return;
+
+      try{
+        await replaceFromImportedJson(payload);
+        alert("Import complete. Audio files are not restored from JSON export.");
+      }catch(err){
+        console.error(err);
+        alert("Import failed.");
+      }
+    }
+
+    async function saveSession(){
       if (!pendingAudioBlob){ alert("Record audio first (or use iPhone Mode)."); return; }
 
       const stashId = sessionStashLink.value || "";
@@ -2362,8 +2465,10 @@
         if (s.smell && s.smell.length) bits.push("SMELL:[" + s.smell.join(", ") + "]");
         if (s.smellOther) bits.push("SMELL_OTHER:" + s.smellOther);
 
-        const url = URL.createObjectURL(s.audioBlob);
-        const smellAudioUrl = (s.smellAudioBlob instanceof Blob) ? URL.createObjectURL(s.smellAudioBlob) : "";
+        const hasAudio = s.audioBlob instanceof Blob;
+        const hasSmellAudio = s.smellAudioBlob instanceof Blob;
+        const url = hasAudio ? URL.createObjectURL(s.audioBlob) : "";
+        const smellAudioUrl = hasSmellAudio ? URL.createObjectURL(s.smellAudioBlob) : "";
 
         el.innerHTML = `
           <div class="itemHead">
@@ -2380,9 +2485,9 @@
 
           ${s.photoDataUrl ? `<div class="topgap"><img src="${escapeHtml(s.photoDataUrl)}" alt="Photo" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; border:1px solid var(--border);" /></div>` : ""}
 
-          ${smellAudioUrl ? buildPlayerMarkup("Smell audio", smellAudioUrl) : ""}
+          ${hasSmellAudio ? buildPlayerMarkup("Smell audio", smellAudioUrl) : ""}
 
-          ${buildPlayerMarkup("Session audio", url)}
+          ${hasAudio ? buildPlayerMarkup("Session audio", url) : `<div class="notice topgap">Imported session metadata only — no audio file attached.</div>`}
         `;
 
         el.querySelector('[data-act="delete"]').onclick = async () => {
@@ -2421,6 +2526,7 @@
     };
 
     const exportBtn = document.getElementById("exportBtn");
+    const importJsonInput = document.getElementById("importJsonInput");
     const wipeBtn = document.getElementById("wipeBtn");
 
     exportBtn.onclick = async () => {
@@ -2441,6 +2547,13 @@
       a.click();
       a.remove();
     };
+
+    importJsonInput.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      await importFromFile(f);
+      importJsonInput.value = "";
+    });
 
     wipeBtn.onclick = async () => {
       const ok = confirm("Wipe ALL local data (stash + sessions) on this device? This is irreversible.");
