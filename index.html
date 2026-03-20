@@ -293,6 +293,93 @@
       border:1px solid var(--border);
     }
 
+    .stashThumb{
+      width:72px;
+      height:72px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      object-fit:cover;
+      background:rgba(255,255,255,0.04);
+      flex:0 0 72px;
+    }
+    .stashThumbPlaceholder{
+      width:72px;
+      height:72px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:11px;
+      letter-spacing:0.06em;
+      flex:0 0 72px;
+      text-align:center;
+      padding:6px;
+    }
+    .stashCard{
+      cursor:pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+    .stashCard:hover{
+      border-color:rgba(255,255,255,0.22);
+      transform:translateY(-1px);
+    }
+    .stashCard.active{
+      border-color:rgba(90,255,170,0.35);
+      background:rgba(90,255,170,0.06);
+    }
+    .stashCardMain{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      min-width:0;
+      flex:1;
+    }
+    .stashCardBody{
+      min-width:0;
+      flex:1;
+    }
+    .detailPhoto{
+      width:100%;
+      max-height:340px;
+      object-fit:cover;
+      border-radius:12px;
+      border:1px solid var(--border);
+      display:block;
+    }
+    .detailGrid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (min-width: 820px){
+      .detailGrid{
+        grid-template-columns:1.15fr 1fr;
+      }
+    }
+    .detailBlock{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px;
+      background:rgba(0,0,0,0.12);
+    }
+    .detailLabel{
+      font-size:11px;
+      letter-spacing:0.08em;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .detailValue{
+      font-size:14px;
+      line-height:1.45;
+      color:var(--text);
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+
     .terpRow{
       border:1px solid var(--border);
       border-radius:14px;
@@ -552,6 +639,25 @@
 
           <div class="divider"></div>
 
+          <!-- STASH PHOTO -->
+          <div class="photoBox">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH PHOTO (OPTIONAL)</h2>
+            <p class="muted" style="margin:6px 0 0 0;">Give the stash entry a visual identity.</p>
+
+            <div class="row topgap">
+              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                📷 Take / Choose Stash Photo
+                <input id="stashPhotoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+              </label>
+              <button id="stashPhotoClear" class="btn btnTiny" type="button">No photo</button>
+            </div>
+
+            <img id="stashPhotoThumb" class="thumb" alt="Stash photo preview" />
+            <input id="stashPhotoDataUrl" type="hidden" value="" />
+          </div>
+
+          <div class="divider"></div>
+
           <!-- STASH VISUAL TRAITS -->
           <div class="terpRow">
             <p class="terpName">Visual traits (stash identity)</p>
@@ -594,6 +700,12 @@
           <div id="stashList" class="list">
             <div class="muted">No stash items yet.</div>
           </div>
+
+          <div class="divider"></div>
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH DETAIL</h2>
+          <div id="stashDetail" class="list">
+            <div class="muted">Tap a stash entry to inspect it.</div>
+          </div>
         </div>
       </section>
 
@@ -624,7 +736,7 @@
 
           <div class="divider"></div>
 
-          <!-- Sleep + Mood (kept as-is) -->
+          <!-- Sleep + Mood -->
           <div class="grid2">
             <div class="terpRow">
               <p class="terpName">How’d you sleep last night?</p>
@@ -924,7 +1036,6 @@
           </div>
         </div>
       </section>
-
     </main>
   </div>
 
@@ -1331,14 +1442,41 @@
     const clearStashBtn = document.getElementById("clearStashBtn");
     const stashUnknownBtn = document.getElementById("stashUnknownBtn");
     const stashList = document.getElementById("stashList");
+    const stashDetail = document.getElementById("stashDetail");
     const sessionStashLink = document.getElementById("sessionStashLink");
     const sessionTag = document.getElementById("sessionTag");
     const sessionUnknownBtn = document.getElementById("sessionUnknownBtn");
     const stashVisualChips = Array.from(document.querySelectorAll("[data-stash-visual]"));
     const stashVisualOther = document.getElementById("stashVisualOther");
     const stashVisualReset = document.getElementById("stashVisualReset");
+    const stashPhotoInput = document.getElementById("stashPhotoInput");
+    const stashPhotoThumb = document.getElementById("stashPhotoThumb");
+    const stashPhotoDataUrl = document.getElementById("stashPhotoDataUrl");
+    const stashPhotoClear = document.getElementById("stashPhotoClear");
 
     let stashVisualSet = new Set();
+    let selectedStashId = "";
+
+    function setStashPhoto(dataUrl){
+      stashPhotoDataUrl.value = dataUrl || "";
+      if (dataUrl){
+        stashPhotoThumb.src = dataUrl;
+        stashPhotoThumb.style.display = "block";
+      } else {
+        stashPhotoThumb.style.display = "none";
+        stashPhotoThumb.removeAttribute("src");
+      }
+    }
+
+    stashPhotoInput.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => setStashPhoto(String(reader.result || ""));
+      reader.readAsDataURL(f);
+      stashPhotoInput.value = "";
+    });
+    stashPhotoClear.onclick = () => setStashPhoto("");
 
     function renderStashVisual(){
       stashVisualChips.forEach(b => b.classList.toggle("active", stashVisualSet.has(b.getAttribute("data-stash-visual"))));
@@ -1371,46 +1509,128 @@
       return nextDistinctUnknown(sessions.map(x => x.tag), "UNKNOWN SESSION");
     }
 
+    function pickStashPhotoMarkup(dataUrl, altText){
+      if (dataUrl){
+        return `<img class="stashThumb" src="${escapeHtml(dataUrl)}" alt="${escapeHtml(altText)}" />`;
+      }
+      return `<div class="stashThumbPlaceholder">NO PHOTO</div>`;
+    }
+
+    function renderStashDetail(){
+      const items = loadStash();
+      if (!items.length){
+        stashDetail.innerHTML = '<div class="muted">Tap a stash entry to inspect it.</div>';
+        return;
+      }
+
+      let selected = items.find(x => x.id === selectedStashId);
+      if (!selected){
+        selected = items[0];
+        selectedStashId = selected.id;
+      }
+
+      const tagBits = [];
+      if (Array.isArray(selected.visuals) && selected.visuals.length) tagBits.push(...selected.visuals);
+      if (selected.visualOther) tagBits.push(selected.visualOther);
+
+      stashDetail.innerHTML = `
+        <div class="item">
+          <div class="itemHead">
+            <div style="min-width:0; flex:1;">
+              <p class="itemTitle">${escapeHtml(selected.name || "Unnamed")}</p>
+              <p class="itemMeta">${escapeHtml(selected.category || "FLOWER")} — saved ${escapeHtml(fmtTime(selected.createdAt || Date.now()))}</p>
+            </div>
+          </div>
+
+          <div class="detailGrid">
+            <div class="detailBlock">
+              ${selected.photoDataUrl
+                ? `<img class="detailPhoto" src="${escapeHtml(selected.photoDataUrl)}" alt="${escapeHtml(selected.name || "Stash photo")}" />`
+                : `<div class="stashThumbPlaceholder" style="width:100%; height:240px; border-radius:12px;">NO PHOTO</div>`
+              }
+            </div>
+
+            <div class="detailBlock">
+              <div class="detailLabel">NOTES</div>
+              <div class="detailValue">${escapeHtml(selected.notes || "No notes yet.")}</div>
+
+              <div class="divider"></div>
+
+              <div class="detailLabel">VISUAL TAGS</div>
+              ${tagBits.length
+                ? `<div class="miniTags">${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}</div>`
+                : `<div class="detailValue muted">No visual tags yet.</div>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     function renderStash(){
       const items = loadStash();
       if (!items.length){
         stashList.innerHTML = '<div class="muted">No stash items yet.</div>';
+        stashDetail.innerHTML = '<div class="muted">Tap a stash entry to inspect it.</div>';
+        selectedStashId = "";
         return;
       }
+
+      if (!items.some(x => x.id === selectedStashId)){
+        selectedStashId = items[0].id;
+      }
+
       stashList.innerHTML = "";
       items.forEach((it, i) => {
         const el = document.createElement("div");
-        el.className = "item";
+        el.className = "item stashCard" + (it.id === selectedStashId ? " active" : "");
 
         const tagBits = [];
         if (Array.isArray(it.visuals) && it.visuals.length) tagBits.push(...it.visuals);
         if (it.visualOther) tagBits.push(it.visualOther);
-
-        el.innerHTML = `
+                el.innerHTML = `
           <div class="itemHead">
-            <div style="min-width:0; flex:1;">
-              <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
-              <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
-              ${tagBits.length ? `
-                <div class="miniTags">
-                  ${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}
-                </div>
-              ` : ""}
+            <div class="stashCardMain">
+              ${pickStashPhotoMarkup(it.photoDataUrl, it.name || "Stash photo")}
+              <div class="stashCardBody">
+                <p class="itemTitle">${escapeHtml(it.name || "Unnamed")}</p>
+                <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
+                ${tagBits.length ? `
+                  <div class="miniTags">
+                    ${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}
+                  </div>
+                ` : ""}
+              </div>
             </div>
             <div class="itemBtns">
-              <button class="btn btnDanger">Delete</button>
+              <button class="btn btnDanger" data-act="delete" type="button">Delete</button>
             </div>
           </div>
         `;
-        el.querySelector("button").onclick = () => {
+
+        el.addEventListener("click", (e) => {
+          const target = e.target;
+          if (target && target.closest('[data-act="delete"]')) return;
+          selectedStashId = it.id;
+          renderStash();
+        });
+
+        el.querySelector('[data-act="delete"]').onclick = (e) => {
+          e.stopPropagation();
           const ok = confirm("Delete this stash item?");
           if (!ok) return;
           const updated = loadStash();
           updated.splice(i,1);
+          if (selectedStashId === it.id){
+            selectedStashId = updated[0]?.id || "";
+          }
           saveStash(updated);
         };
+
         stashList.appendChild(el);
       });
+
+      renderStashDetail();
     }
 
     function renderStashLinkDropdown(){
@@ -1453,24 +1673,30 @@
         notes: (stashNotes.value||"").trim(),
         visuals: Array.from(stashVisualSet),
         visualOther: (stashVisualOther.value || "").trim(),
+        photoDataUrl: stashPhotoDataUrl.value || "",
         createdAt: Date.now()
       };
       const items = loadStash();
       items.unshift(item);
+      selectedStashId = item.id;
       saveStash(items);
+
       stashName.value = "";
       stashNotes.value = "";
       stashVisualSet = new Set();
       stashVisualOther.value = "";
+      setStashPhoto("");
       renderStashVisual();
     };
 
     clearStashBtn.onclick = () => {
       const ok = confirm("Clear entire STASH on this device?");
       if (!ok) return;
+      selectedStashId = "";
       saveStash([]);
       stashVisualSet = new Set();
       stashVisualOther.value = "";
+      setStashPhoto("");
       renderStashVisual();
     };
 
@@ -2135,6 +2361,7 @@
       if (!ok) return;
       localStorage.removeItem(STASH_KEY);
       await dbClear();
+      selectedStashId = "";
       renderStash();
       renderStashLinkDropdown();
       await renderSessions();
@@ -2147,6 +2374,7 @@
 
       stashVisualSet = new Set();
       stashVisualOther.value = "";
+      setStashPhoto("");
       renderStashVisual();
 
       alert("Wiped.");
