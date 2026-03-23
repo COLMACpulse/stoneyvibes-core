@@ -1115,26 +1115,32 @@
             <div class="terpRow">
               <p class="terpName">BEST FOR SLEEP</p>
               <p id="patternSleep" class="patternMeta">No sleep signal yet.</p>
+              <button id="patternSleepOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
             </div>
             <div class="terpRow">
               <p class="terpName">BEST FOR CALM</p>
               <p id="patternCalm" class="patternMeta">No calm signal yet.</p>
+              <button id="patternCalmOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
             </div>
             <div class="terpRow">
               <p class="terpName">BEST FOR CREATIVE</p>
               <p id="patternCreative" class="patternMeta">No creative signal yet.</p>
+              <button id="patternCreativeOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
             </div>
             <div class="terpRow">
               <p class="terpName">BEST FOR FOCUS / CLEAR</p>
               <p id="patternFocus" class="patternMeta">No focus signal yet.</p>
+              <button id="patternFocusOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
             </div>
             <div class="terpRow">
               <p class="terpName">BEST FOR FUN / SOCIAL</p>
               <p id="patternFun" class="patternMeta">No fun signal yet.</p>
+              <button id="patternFunOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
             </div>
             <div class="terpRow">
               <p class="terpName">MOST CONSISTENT</p>
               <p id="patternConsistent" class="patternMeta">No consistency signal yet.</p>
+              <button id="patternConsistentOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
             </div>
           </div>
         </div>
@@ -1696,6 +1702,15 @@
 
       const lastSession = linked.length ? fmtTime(linked[0].createdAt) : "No linked sessions yet";
 
+      const summary = stashPatternSummary(stash.id, linked);
+      const avgRate = averageRate(linked);
+      const bestLanes = buildBestLanes(summary, linked.length);
+      const cautionBits = [];
+      if (linked.length && (summary.weird / linked.length) > 0.33) cautionBits.push("Can trend weird if the setup is off");
+      if (linked.length && (summary.sleep / linked.length) > 0.4) cautionBits.push("Shows recurring sleep support");
+      if (linked.length && (summary.focus / linked.length) > 0.4) cautionBits.push("Can stay clearer than average");
+      if (!cautionBits.length && linked.length) cautionBits.push("Still early. Let more sessions sharpen the read");
+
       stashDetailBody.innerHTML = `
         ${stash.photoDataUrl
           ? `<img class="stashDetailHero" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash.name || "Stash photo")}" />`
@@ -1710,6 +1725,8 @@
         <div class="stashStats">
           <span class="stashStat">Sessions: ${linked.length}</span>
           <span class="stashStat">Last session: ${escapeHtml(lastSession)}</span>
+          <span class="stashStat">Avg rating: ${avgRate || "—"}</span>
+          <span class="stashStat">Confidence: ${confidenceLabel(linked.length)}</span>
         </div>
 
         ${tagBits.length ? `
@@ -1717,6 +1734,40 @@
             ${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}
           </div>
         ` : ""}
+
+        <div class="divider"></div>
+
+        <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PATTERN SUMMARY</h2>
+        <div class="topgap">
+          ${
+            linked.length
+            ? `
+              <div class="stashStats">
+                <span class="stashStat">Sleep: ${Math.round((summary.sleep / linked.length) * 100)}%</span>
+                <span class="stashStat">Calm: ${Math.round((summary.calm / linked.length) * 100)}%</span>
+                <span class="stashStat">Creative: ${Math.round((summary.creative / linked.length) * 100)}%</span>
+                <span class="stashStat">Focus / Clear: ${Math.round((summary.focus / linked.length) * 100)}%</span>
+                <span class="stashStat">Fun / Social: ${Math.round((summary.fun / linked.length) * 100)}%</span>
+              </div>
+              ${bestLanes.length ? `
+                <div class="miniTags topgap">
+                  ${bestLanes.map(x => `<span class="miniTag">Best lane: ${escapeHtml(x.label)}</span>`).join("")}
+                </div>
+              ` : ""}
+              <p class="itemMeta topgap">Watch: ${escapeHtml(cautionBits.join(" • "))}</p>
+            `
+            : `<div class="muted topgap">No pattern signal yet. Link this stash to a few sessions and it will start telling the truth.</div>`
+          }
+        </div>
+
+        <div class="divider"></div>
+
+        <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">ASK ABOUT THIS STASH</h2>
+        <div class="miniTags topgap">
+          <button class="btn btnTiny" type="button" data-ask-stash="like">What do I tend to like about this?</button>
+          <button class="btn btnTiny" type="button" data-ask-stash="when">When does this work best?</button>
+          <button class="btn btnTiny" type="button" data-ask-stash="watch">What should I watch out for?</button>
+        </div>
 
         <div class="divider"></div>
 
@@ -1754,6 +1805,38 @@
         </div>
       `;
 
+      stashDetailBody.querySelectorAll("[data-ask-stash]").forEach(btn => {
+        btn.onclick = () => {
+          goToPage(2);
+          if (btn.getAttribute("data-ask-stash") === "like"){
+            askInput.value = `${stash.name}: what do I tend to like about this?`;
+            askReply.textContent = linked.length
+              ? `${stash.name} — current read:
+
+Best lanes: ${bestLanes.length ? bestLanes.map(x => x.label).join(", ") : "not enough signal yet"}.
+Average rating: ${avgRate || "—"}.
+Confidence: ${confidenceLabel(linked.length)}.`
+              : `${stash.name} does not have enough linked sessions yet.`;
+          }
+          if (btn.getAttribute("data-ask-stash") === "when"){
+            askInput.value = `${stash.name}: when does this work best?`;
+            askReply.textContent = linked.length
+              ? `${stash.name} — current read:
+
+Best use lanes right now: ${bestLanes.length ? bestLanes.map(x => x.label).join(", ") : "not enough signal yet"}.
+Last session: ${lastSession}.`
+              : `${stash.name} does not have enough linked sessions yet.`;
+          }
+          if (btn.getAttribute("data-ask-stash") === "watch"){
+            askInput.value = `${stash.name}: what should I watch out for?`;
+            askReply.textContent = linked.length
+              ? `${stash.name} — watch:
+
+${cautionBits.join(" • ")}`
+              : `${stash.name} does not have enough linked sessions yet to generate a useful caution read.`;
+          }
+        };
+      });
       stashListWrap.style.display = "none";
       stashDetail.classList.add("active");
     }
@@ -2644,6 +2727,12 @@
     const patternFocus = document.getElementById("patternFocus");
     const patternFun = document.getElementById("patternFun");
     const patternConsistent = document.getElementById("patternConsistent");
+    const patternSleepOpen = document.getElementById("patternSleepOpen");
+    const patternCalmOpen = document.getElementById("patternCalmOpen");
+    const patternCreativeOpen = document.getElementById("patternCreativeOpen");
+    const patternFocusOpen = document.getElementById("patternFocusOpen");
+    const patternFunOpen = document.getElementById("patternFunOpen");
+    const patternConsistentOpen = document.getElementById("patternConsistentOpen");
     const askPromptTonight = document.getElementById("askPromptTonight");
     const askPromptSleep = document.getElementById("askPromptSleep");
     const askPromptConsistent = document.getElementById("askPromptConsistent");
@@ -2740,6 +2829,61 @@
       return { rows, bestSleep, bestCalm, bestCreative, bestFocus, bestFun, mostConsistent, weirdest, sessions };
     }
 
+
+    function confidenceLabel(count){
+      if (count >= 8) return "HIGH";
+      if (count >= 3) return "MED";
+      return "LOW";
+    }
+
+    function averageRate(linked){
+      const nums = linked.map(s => parseRateValue(s.rate)).filter(Boolean);
+      if (!nums.length) return "";
+      return (nums.reduce((a,b)=>a+b,0) / nums.length).toFixed(1);
+    }
+
+    function stashPatternSummary(stashId, linked){
+      const stats = {
+        sleep:0, calm:0, creative:0, focus:0, fun:0, weird:0, total:0
+      };
+      linked.forEach(s => {
+        stats.total += sessionOutcomeScore(s);
+        if (parseSleepValue(s.sleep) >= 4) stats.sleep += 1;
+        if (includesAny(s.mood, ["CALM","MELLOW"])) stats.calm += 1;
+        if (includesAny(s.mood, ["CREATIVE"])) stats.creative += 1;
+        if (includesAny(s.mood, ["FOCUSED","CLEAR"])) stats.focus += 1;
+        if (includesAny(s.mood, ["SOCIAL","MELLOW"])) stats.fun += 1;
+        if (includesAny(s.mood, ["PISSED","NOT_GREAT","WIRED"])) stats.weird += 1;
+      });
+      return stats;
+    }
+
+    function buildBestLanes(stats, count){
+      const rows = [
+        {label:"SLEEP", value: count ? stats.sleep / count : 0},
+        {label:"CALM", value: count ? stats.calm / count : 0},
+        {label:"CREATIVE", value: count ? stats.creative / count : 0},
+        {label:"FOCUS / CLEAR", value: count ? stats.focus / count : 0},
+        {label:"FUN / SOCIAL", value: count ? stats.fun / count : 0}
+      ].sort((a,b)=>b.value-a.value).filter(x=>x.value>0);
+      return rows.slice(0,3);
+    }
+
+    function wirePatternButton(btn, row){
+      if (!btn) return;
+      if (!row){
+        btn.style.display = "none";
+        btn.onclick = null;
+        return;
+      }
+      btn.style.display = "inline-flex";
+      btn.textContent = "Open stash card";
+      btn.onclick = () => {
+        goToPage(0);
+        openStashDetail(row.id);
+      };
+    }
+
     function formatPatternLine(row, mode){
       if (!row) return "No signal yet.";
       if (mode === "sleep") return `${row.name} — sleep-positive in ${Math.round((row.sleepGood / row.count) * 100)}% of logged sessions (${row.count} total).`;
@@ -2758,6 +2902,13 @@
       patternFocus.textContent = formatPatternLine(stats.bestFocus, "focus");
       patternFun.textContent = formatPatternLine(stats.bestFun, "fun");
       patternConsistent.textContent = formatPatternLine(stats.mostConsistent, "consistent");
+
+      wirePatternButton(patternSleepOpen, stats.bestSleep);
+      wirePatternButton(patternCalmOpen, stats.bestCalm);
+      wirePatternButton(patternCreativeOpen, stats.bestCreative);
+      wirePatternButton(patternFocusOpen, stats.bestFocus);
+      wirePatternButton(patternFunOpen, stats.bestFun);
+      wirePatternButton(patternConsistentOpen, stats.mostConsistent);
     }
 
         async function tonightModeAnswer(goalRaw){
