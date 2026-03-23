@@ -617,6 +617,41 @@
       color:var(--muted);
       white-space:pre-wrap;
     }
+
+    .askPromptGrid{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .askReply{
+      white-space:pre-wrap;
+      line-height:1.45;
+      font-size:14px;
+      color:var(--text);
+    }
+    .patternGrid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    @media (min-width: 820px){
+      .patternGrid{ grid-template-columns: repeat(3, 1fr); }
+    }
+    .patternValue{
+      font-size:16px;
+      font-weight:700;
+      line-height:1.3;
+      margin:0;
+    }
+    .patternMeta{
+      margin:6px 0 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+
   </style>
 </head>
 
@@ -629,6 +664,7 @@
       <div class="nav">
         <button class="tab active" id="tabStash" type="button">STASH</button>
         <button class="tab" id="tabSessions" type="button">SESSIONS</button>
+        <button class="tab" id="tabAsk" type="button">ASK</button>
         <button class="tab" id="tabAbout" type="button">ABOUT</button>
         <div class="hint">← swipe →</div>
       </div>
@@ -1042,6 +1078,57 @@
         </div>
       </section>
 
+      <!-- PAGE 3: ASK -->
+      <section class="page" id="pageAsk">
+        <div class="card">
+          <h2>ASK</h2>
+          <p class="muted" style="margin:0;">Interrogate your own system. Layer 1 reads your stash + sessions + simple pattern math.</p>
+
+          <div class="row topgap">
+            <label class="field">
+              <span class="label">Question</span>
+              <input id="askInput" class="input" type="text" placeholder="What should I use tonight? / What helps me sleep? / Why did that hit weird?" />
+            </label>
+          </div>
+
+          <div class="askPromptGrid">
+            <button id="askPromptTonight" class="btn btnTiny" type="button">Tonight</button>
+            <button id="askPromptSleep" class="btn btnTiny" type="button">Sleep</button>
+            <button id="askPromptConsistent" class="btn btnTiny" type="button">Consistent</button>
+            <button id="askPromptWeird" class="btn btnTiny" type="button">Hit weird</button>
+          </div>
+
+          <div class="row topgap">
+            <button id="askBtn" class="btn btnPrimary" type="button">Ask</button>
+            <button id="tonightModeBtn" class="btn btnOk" type="button">Tonight Mode</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">ANSWER</h2>
+          <div id="askReply" class="askReply topgap muted">No answer yet.</div>
+
+          <div class="divider"></div>
+
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PATTERN SURFACE</h2>
+          <div class="patternGrid">
+            <div class="terpRow">
+              <p class="terpName">BEST FOR SLEEP</p>
+              <p id="patternSleep" class="patternMeta">No sleep signal yet.</p>
+            </div>
+            <div class="terpRow">
+              <p class="terpName">BEST FOR CALM</p>
+              <p id="patternCalm" class="patternMeta">No calm signal yet.</p>
+            </div>
+            <div class="terpRow">
+              <p class="terpName">MOST CONSISTENT</p>
+              <p id="patternConsistent" class="patternMeta">No consistency signal yet.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
       <section class="page" id="pageAbout">
         <div class="card">
           <h2>ABOUT</h2>
@@ -1080,12 +1167,14 @@
     const pages = document.getElementById("pages");
     const tabStash = document.getElementById("tabStash");
     const tabSessions = document.getElementById("tabSessions");
+    const tabAsk = document.getElementById("tabAsk");
     const tabAbout = document.getElementById("tabAbout");
 
     function setActiveTab(which){
-      [tabStash, tabSessions, tabAbout].forEach(t => t.classList.remove("active"));
+      [tabStash, tabSessions, tabAsk, tabAbout].forEach(t => t.classList.remove("active"));
       if (which === "stash") tabStash.classList.add("active");
       if (which === "sessions") tabSessions.classList.add("active");
+      if (which === "ask") tabAsk.classList.add("active");
       if (which === "about") tabAbout.classList.add("active");
     }
     function scrollToPage(idx){
@@ -1093,12 +1182,14 @@
     }
     tabStash.onclick = () => scrollToPage(0);
     tabSessions.onclick = () => scrollToPage(1);
-    tabAbout.onclick = () => scrollToPage(2);
+    tabAsk.onclick = () => scrollToPage(2);
+    tabAbout.onclick = () => scrollToPage(3);
     pages.addEventListener("scroll", () => {
       const idx = Math.round(pages.scrollLeft / pages.clientWidth);
       if (idx === 0) setActiveTab("stash");
       if (idx === 1) setActiveTab("sessions");
-      if (idx === 2) setActiveTab("about");
+      if (idx === 2) setActiveTab("ask");
+      if (idx === 3) setActiveTab("about");
     });
 
     function escapeHtml(str){
@@ -1545,6 +1636,7 @@
       localStorage.setItem(STASH_KEY, JSON.stringify(items));
       renderStash();
       renderStashLinkDropdown();
+      renderAskPatterns();
       if (selectedStashId){
         renderSelectedStashDetail();
       }
@@ -2302,6 +2394,7 @@
       renderStash();
       renderStashLinkDropdown();
       await renderSessions();
+      await renderAskPatterns();
       closeStashDetail();
     }
         async function importFromFile(file){
@@ -2422,6 +2515,7 @@
       sessionStashLink.value = "";
 
       await renderSessions();
+      await renderAskPatterns();
       if (selectedStashId){
         await renderSelectedStashDetail();
       }
@@ -2519,11 +2613,218 @@
       setSmellStatus("idle","Idle");
 
       await renderSessions();
+      await renderAskPatterns();
       if (selectedStashId){
         await renderSelectedStashDetail();
       }
       setStatus("idle","Idle");
     };
+
+
+    // ASK / LAYER 1
+    const askInput = document.getElementById("askInput");
+    const askBtn = document.getElementById("askBtn");
+    const tonightModeBtn = document.getElementById("tonightModeBtn");
+    const askReply = document.getElementById("askReply");
+    const patternSleep = document.getElementById("patternSleep");
+    const patternCalm = document.getElementById("patternCalm");
+    const patternConsistent = document.getElementById("patternConsistent");
+    const askPromptTonight = document.getElementById("askPromptTonight");
+    const askPromptSleep = document.getElementById("askPromptSleep");
+    const askPromptConsistent = document.getElementById("askPromptConsistent");
+    const askPromptWeird = document.getElementById("askPromptWeird");
+
+    function parseSleepValue(v){
+      const n = Number(v || 0);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function parseRateValue(v){
+      const n = Number(v || 0);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function includesAny(arr, vals){
+      const set = new Set((arr || []).map(x => String(x || "").toUpperCase()));
+      return vals.some(v => set.has(String(v).toUpperCase()));
+    }
+
+    function sessionOutcomeScore(s){
+      let score = 0;
+      const rate = parseRateValue(s.rate);
+      const sleep = parseSleepValue(s.sleep);
+
+      if (rate) score += (rate - 3) * 1.15;
+      if (sleep) score += (sleep - 3) * 0.85;
+
+      if (includesAny(s.mood, ["CALM","MELLOW","FOCUSED","SOCIAL"])) score += 0.6;
+      if (includesAny(s.mood, ["PISSED","NOT_GREAT","WIRED","FOGGY","HEAVY"])) score -= 0.4;
+
+      if (includesAny(s.smell, ["CITRUS"])) score += 0.15;
+      if (includesAny(s.smell, ["GASSY","EARTHY","SKUNKY"])) score += 0.1;
+
+      const delta = Number(s.smellDelta || 0);
+      if (delta >= 2) score += 0.2;
+      if (delta <= -2) score -= 0.15;
+
+      return score;
+    }
+
+    function stashLabelForSession(s){
+      if (s.stashId){
+        const match = loadStash().find(x => String(x.id) === String(s.stashId));
+        if (match) return match.name;
+      }
+      if (s.tag && s.tag.trim()) return s.tag.trim();
+      return "Unknown";
+    }
+
+    async function computePatternStats(){
+      const sessions = await dbGetAll();
+      const buckets = new Map();
+
+      sessions.forEach(s => {
+        const key = String(s.stashId || "") || `tag:${String(s.tag || "").trim().toUpperCase()}`;
+        if (!key) return;
+        if (!buckets.has(key)){
+          buckets.set(key, {
+            key,
+            name: stashLabelForSession(s),
+            count: 0,
+            total: 0,
+            calm: 0,
+            weird: 0,
+            sleepGood: 0
+          });
+        }
+        const b = buckets.get(key);
+        b.count += 1;
+        b.total += sessionOutcomeScore(s);
+
+        if (includesAny(s.mood, ["CALM","MELLOW"])) b.calm += 1;
+        if (includesAny(s.mood, ["PISSED","NOT_GREAT","WIRED"])) b.weird += 1;
+        if (parseSleepValue(s.sleep) >= 4) b.sleepGood += 1;
+      });
+
+      const rows = Array.from(buckets.values()).filter(x => x.count > 0);
+
+      const bestSleep = rows.slice().sort((a,b) =>
+        ((b.sleepGood / b.count) - (a.sleepGood / a.count)) || (b.count - a.count)
+      )[0] || null;
+
+      const bestCalm = rows.slice().sort((a,b) =>
+        ((b.calm / b.count) - (a.calm / a.count)) || (b.count - a.count)
+      )[0] || null;
+
+      const mostConsistent = rows.slice().sort((a,b) =>
+        ((b.total / b.count) - (a.total / a.count)) || (b.count - a.count)
+      )[0] || null;
+
+      const weirdest = rows.slice().sort((a,b) =>
+        ((b.weird / b.count) - (a.weird / a.count)) || (b.count - a.count)
+      )[0] || null;
+
+      return { rows, bestSleep, bestCalm, mostConsistent, weirdest, sessions };
+    }
+
+    function formatPatternLine(row, mode){
+      if (!row) return "No signal yet.";
+      if (mode === "sleep"){
+        return `${row.name} — sleep-positive in ${Math.round((row.sleepGood / row.count) * 100)}% of logged sessions (${row.count} total).`;
+      }
+      if (mode === "calm"){
+        return `${row.name} — calm shows up in ${Math.round((row.calm / row.count) * 100)}% of logged sessions (${row.count} total).`;
+      }
+      return `${row.name} — strongest average outcome score across ${row.count} logged session${row.count === 1 ? "" : "s"}.`;
+    }
+
+    async function renderAskPatterns(){
+      const stats = await computePatternStats();
+      patternSleep.textContent = formatPatternLine(stats.bestSleep, "sleep");
+      patternCalm.textContent = formatPatternLine(stats.bestCalm, "calm");
+      patternConsistent.textContent = formatPatternLine(stats.mostConsistent, "consistent");
+    }
+
+    async function tonightModeAnswer(goalRaw){
+      const goal = String(goalRaw || "CALM").trim().toUpperCase();
+      const stats = await computePatternStats();
+      if (!stats.rows.length){
+        return "I do not have enough personal signal yet. Add stash, log a few sessions, then ask again.";
+      }
+
+      const scored = stats.rows.map(r => {
+        let score = r.total / r.count;
+        if (goal === "SLEEP") score += (r.sleepGood / r.count) * 2.2;
+        if (goal === "CALM") score += (r.calm / r.count) * 2.0;
+        if (goal === "FUN" || goal === "SOCIAL") score += ((r.total / r.count) > 0 ? 0.45 : 0);
+        if (goal === "FOCUS") score += ((r.calm / r.count) * 0.6);
+        score -= (r.weird / r.count) * 1.6;
+        return { ...r, pickScore: score };
+      }).sort((a,b) => b.pickScore - a.pickScore).slice(0,3);
+
+      return `TONIGHT MODE — ${goal}
+
+${scored.map((r, i) => `${i + 1}. ${r.name} — score ${r.pickScore.toFixed(2)} from ${r.count} logged session${r.count === 1 ? "" : "s"}`).join("\n")}
+
+Read this correctly: this is guidance from your own logs, not a promise.`;
+    }
+
+    async function answerAsk(q){
+      const query = String(q || "").trim().toLowerCase();
+      const stats = await computePatternStats();
+      const stashCount = loadStash().length;
+
+      if (!query){
+        return "Ask sharper and I will answer sharper. Try: What should I use tonight? / What helps me sleep? / What has been most consistent? / Why did that hit weird?";
+      }
+
+      if (!stats.sessions.length && !stashCount){
+        return "You have no stash or session data yet. This layer gets real once it can read your own history.";
+      }
+
+      if (query.includes("tonight")) return tonightModeAnswer("CALM");
+      if (query.includes("sleep")){
+        return stats.bestSleep
+          ? `Best current sleep signal: ${stats.bestSleep.name}.\n\nWhy: ${Math.round((stats.bestSleep.sleepGood / stats.bestSleep.count) * 100)}% of its logged sessions landed as good sleep outcomes.`
+          : "No sleep signal yet. Log a few sessions with sleep scores first.";
+      }
+      if (query.includes("calm")){
+        return stats.bestCalm
+          ? `Best current calm signal: ${stats.bestCalm.name}.\n\nWhy: calm/mellow shows up in ${Math.round((stats.bestCalm.calm / stats.bestCalm.count) * 100)}% of its logged sessions.`
+          : "No calm signal yet. Log more sessions.";
+      }
+      if (query.includes("consistent") || query.includes("liked") || query.includes("recently")){
+        return stats.mostConsistent
+          ? `Most consistent positive signal: ${stats.mostConsistent.name}.\n\nWhy: it has the strongest average outcome score across your logged sessions.`
+          : "No consistency read yet.";
+      }
+      if (query.includes("weird") || query.includes("edgy") || query.includes("anx")){
+        if (stats.weirdest && (stats.weirdest.weird / stats.weirdest.count) > 0){
+          return `Strongest current "hit weird" signal: ${stats.weirdest.name}.\n\nWhy: it has the highest concentration of wired / pissed / not-great patterns in your logs.\n\nOther likely contributors: dose overshoot, bad starting mood, or fast-delivery formats.`;
+        }
+        return "I do not yet see a strong negative pattern in your logs.";
+      }
+
+      return `Clean read right now:\n\n- Best for sleep: ${stats.bestSleep ? stats.bestSleep.name : "no signal yet"}\n- Best for calm: ${stats.bestCalm ? stats.bestCalm.name : "no signal yet"}\n- Most consistent: ${stats.mostConsistent ? stats.mostConsistent.name : "no signal yet"}\n\nAsk me something tighter.`;
+    }
+
+    askPromptTonight.onclick = () => { askInput.value = "What should I use tonight?"; };
+    askPromptSleep.onclick = () => { askInput.value = "What helps me sleep?"; };
+    askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
+    askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
+
+    askBtn.onclick = async () => {
+      askReply.textContent = "Thinking…";
+      askReply.textContent = await answerAsk(askInput.value);
+    };
+
+    tonightModeBtn.onclick = async () => {
+      const goal = prompt("Tonight goal? Type one: CALM / SLEEP / FUN / FOCUS / SOCIAL", "CALM");
+      if (!goal) return;
+      askReply.textContent = "Thinking…";
+      askReply.textContent = await tonightModeAnswer(goal);
+    };
+
 
     const exportBtn = document.getElementById("exportBtn");
     const importJsonInput = document.getElementById("importJsonInput");
@@ -2563,6 +2864,8 @@
       renderStash();
       renderStashLinkDropdown();
       await renderSessions();
+      await renderAskPatterns();
+      await renderAskPatterns();
       setStatus("idle","Idle");
 
       pendingSmellBlob = null;
@@ -2608,6 +2911,7 @@
       setStashPhoto("");
 
       await renderSessions();
+      await renderAskPatterns();
       initCustomPlayers();
       closeStashDetail();
     })();
