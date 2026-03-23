@@ -1454,7 +1454,6 @@
             <button id="askPromptConsistent" class="btn btnTiny" type="button">Consistent</button>
             <button id="askPromptWeird" class="btn btnTiny" type="button">Hit weird</button>
             <button id="askPromptTranscript" class="btn btnTiny" type="button">Transcript</button>
-            <button id="askPromptBlend" class="btn btnTiny" type="button">Blend</button>
           </div>
 
           <div class="row topgap">
@@ -3195,7 +3194,6 @@ ${cautionBits.join(" • ")}`
     const askPromptConsistent = document.getElementById("askPromptConsistent");
     const askPromptWeird = document.getElementById("askPromptWeird");
     const askPromptTranscript = document.getElementById("askPromptTranscript");
-    const askPromptBlend = document.getElementById("askPromptBlend");
 
     function parseSleepValue(v){
       const n = Number(v || 0);
@@ -3376,87 +3374,6 @@ ${cautionBits.join(" • ")}`
       wirePatternButton(patternConsistentOpen, stats.mostConsistent);
     }
 
-    function chooseBlendPair(goal, stats){
-      const rows = stats.rows || [];
-      if (rows.length < 2) return null;
-
-      const sortedBy = (fn) => rows.slice().sort((a,b) => fn(b) - fn(a) || (b.count - a.count));
-
-      let primary = null;
-      let secondary = null;
-      let ratio = "85/15";
-      let why = "";
-      let watch = "";
-
-      if (goal === "SLEEP"){
-        primary = stats.bestSleep || stats.mostConsistent || rows[0];
-        secondary = sortedBy(r => (r.focus / r.count) - (r.weird / r.count)).find(r => r.key !== primary.key) || null;
-        ratio = secondary ? "85/15" : "100/0";
-        why = secondary
-          ? `${primary.name} carries the heavier sleep lane. ${secondary.name} is the lighter support so the whole thing does not get too muddy.`
-          : `${primary.name} is the strongest current sleep lane in your logs.`;
-        watch = "If you already trend foggy at night, keep the support item light.";
-      } else if (goal === "FOCUS"){
-        primary = stats.bestFocus || stats.mostConsistent || rows[0];
-        secondary = sortedBy(r => (r.calm / r.count) + (r.total / r.count) - (r.weird / r.count)).find(r => r.key !== primary.key) || null;
-        ratio = secondary ? "70/30" : "100/0";
-        why = secondary
-          ? `${primary.name} carries the clearer lane. ${secondary.name} adds steadiness without trying to take over.`
-          : `${primary.name} is the strongest current focus / clear lane in your logs.`;
-        watch = "Too much support can pull a clear setup into heavy territory.";
-      } else if (goal === "FUN" or goal == "SOCIAL"){
-        primary = stats.bestFun || stats.mostConsistent || rows[0];
-        secondary = sortedBy(r => (r.calm / r.count) - (r.weird / r.count)).find(r => r.key !== primary.key) || null;
-        ratio = secondary ? "85/15" : "100/0";
-        why = secondary
-          ? `${primary.name} drives the fun / social side. ${secondary.name} helps keep the whole thing from getting sloppy.`
-          : `${primary.name} is the strongest current fun / social lane in your logs.`;
-        watch = "If you are already wired, keep the fun lane lighter than you think.";
-      } else if (goal === "CREATIVE"){
-        primary = stats.bestCreative || stats.mostConsistent || rows[0];
-        secondary = sortedBy(r => (r.focus / r.count) + (r.calm / r.count) - (r.weird / r.count)).find(r => r.key !== primary.key) || null;
-        ratio = secondary ? "70/30" : "100/0";
-        why = secondary
-          ? `${primary.name} carries the creative edge. ${secondary.name} helps keep the head more organized.`
-          : `${primary.name} is the strongest current creative lane in your logs.`;
-        watch = "If the support starts flattening the vibe, back it down.";
-      } else {
-        primary = stats.bestCalm || stats.mostConsistent || rows[0];
-        secondary = sortedBy(r => (r.focus / r.count) + (r.fun / r.count) - (r.weird / r.count)).find(r => r.key !== primary.key) || null;
-        ratio = secondary ? "85/15" : "100/0";
-        why = secondary
-          ? `${primary.name} carries the calm lane. ${secondary.name} is the correction lane to keep it from getting too flat or foggy.`
-          : `${primary.name} is the strongest current calm lane in your logs.`;
-        watch = "If the primary already feels balanced on its own, skip the blend and keep it simple.";
-      }
-
-      if (!primary) return null;
-      return { primary, secondary, ratio, why, watch };
-    }
-
-    function formatBlendAnswer(goal, bundle){
-      if (!bundle) return "No blend signal yet. Log more stash-linked sessions first.";
-      const secondaryLine = bundle.secondary ? bundle.secondary.name : "No support item yet";
-      return `BLEND SUGGESTION — ${goal}
-
-PRIMARY:
-${bundle.primary.name}
-
-SECONDARY:
-${secondaryLine}
-
-RATIO:
-${bundle.ratio}
-
-WHY:
-${bundle.why}
-
-WATCH:
-${bundle.watch}
-
-Read this correctly: this is a history-based suggestion, not a promise.`;
-    }
-
         async function tonightModeAnswer(goalRaw){
       const goal = String(goalRaw || "CALM").trim().toUpperCase();
       const stats = await computePatternStats();
@@ -3470,24 +3387,13 @@ Read this correctly: this is a history-based suggestion, not a promise.`;
         if (goal === "CALM") score += (r.calm / r.count) * 2.0;
         if (goal === "FUN" || goal === "SOCIAL") score += ((r.total / r.count) > 0 ? 0.45 : 0);
         if (goal === "FOCUS") score += ((r.calm / r.count) * 0.6);
-        if (goal === "CREATIVE") score += (r.creative / r.count) * 1.9;
         score -= (r.weird / r.count) * 1.6;
         return { ...r, pickScore: score };
       }).sort((a,b) => b.pickScore - a.pickScore).slice(0,3);
 
-      const blend = chooseBlendPair(goal, stats);
       return `TONIGHT MODE — ${goal}
 
 ${scored.map((r, i) => `${i + 1}. ${r.name} — score ${r.pickScore.toFixed(2)} from ${r.count} logged session${r.count === 1 ? "" : "s"}`).join("\n")}
-
-OPTIONAL BLEND:
-${blend ? `${blend.primary.name} + ${blend.secondary ? blend.secondary.name : "—"} @ ${blend.ratio}` : "No blend signal yet."}
-
-WHY:
-${blend ? blend.why : "Single-item recommendation is stronger than forcing a blend right now."}
-
-WATCH:
-${blend ? blend.watch : "No signal yet."}
 
 Read this correctly: this is guidance from your own logs, not a promise.`;
     }
@@ -3571,16 +3477,6 @@ Mode: ${String(latest.transcriptMode || "AUDIO_ONLY").replaceAll("_"," ")}
 ${latest.transcriptSummary ? "\nSummary: " + latest.transcriptSummary : ""}
 ${latest.transcriptText ? "\nTranscript: " + latest.transcriptText.slice(0, 280) + (latest.transcriptText.length > 280 ? "…" : "") : ""}`;
       }
-      if (query.includes("blend") || query.includes("mix") || query.includes("combo")){
-        let goal = "CALM";
-        if (query.includes("sleep")) goal = "SLEEP";
-        else if (query.includes("focus") || query.includes("clear")) goal = "FOCUS";
-        else if (query.includes("fun") || query.includes("social")) goal = "FUN";
-        else if (query.includes("creative") || query.includes("create")) goal = "CREATIVE";
-
-        const blend = chooseBlendPair(goal, stats);
-        return formatBlendAnswer(goal, blend);
-      }
 
       return `Clean read right now:
 
@@ -3599,7 +3495,6 @@ Ask me something tighter.`;
     askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
     askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
     if (askPromptTranscript) askPromptTranscript.onclick = () => { askInput.value = "Show me transcript memory"; };
-    if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     askBtn.onclick = async () => {
       askReply.textContent = "Thinking…";
