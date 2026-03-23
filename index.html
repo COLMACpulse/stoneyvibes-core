@@ -182,6 +182,12 @@
       color:var(--muted);
       letter-spacing:0.04em;
     }
+    textarea.input{
+      resize:vertical;
+      min-height:96px;
+      font-family:inherit;
+    }
+
     .input, .select{
       width:100%;
       border:1px solid var(--border);
@@ -1363,6 +1369,42 @@
 
           <div class="divider"></div>
 
+          <!-- TRANSCRIPT OPTIONS -->
+          <div class="terpRow">
+            <p class="terpName">Transcript options</p>
+            <p class="terpHint">Optional text memory for this session. Manual for now. No hidden processing.</p>
+
+            <div class="topgap">
+              <div class="label">Transcript mode</div>
+              <div class="scale">
+                <label><input type="radio" name="transcriptMode" value="AUDIO_ONLY" checked /> Audio only</label>
+                <label><input type="radio" name="transcriptMode" value="AUDIO_PLUS_TRANSCRIPT" /> Audio + transcript</label>
+                <label><input type="radio" name="transcriptMode" value="AUDIO_PLUS_TRANSCRIPT_SUMMARY" /> Audio + transcript + summary</label>
+                <label><input type="radio" name="transcriptMode" value="SUMMARY_ONLY" /> Summary only</label>
+              </div>
+            </div>
+
+            <div class="row topgap">
+              <label class="field">
+                <span class="label">Transcript (optional)</span>
+                <textarea id="transcriptText" class="input" rows="5" placeholder="Paste or type transcript here."></textarea>
+              </label>
+            </div>
+
+            <div class="row topgap">
+              <label class="field">
+                <span class="label">Summary (optional)</span>
+                <textarea id="transcriptSummary" class="input" rows="3" placeholder="Short human summary of what mattered."></textarea>
+              </label>
+            </div>
+
+            <div class="notice topgap">
+              Transcript scaffolding only. This pass stores user-provided transcript text and summary locally so ASK and future pattern layers can use it later.
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
           <!-- RATE IT -->
           <div class="terpRow">
             <p class="terpName">Rate it (1–5)</p>
@@ -1411,6 +1453,7 @@
             <button id="askPromptSleep" class="btn btnTiny" type="button">Sleep</button>
             <button id="askPromptConsistent" class="btn btnTiny" type="button">Consistent</button>
             <button id="askPromptWeird" class="btn btnTiny" type="button">Hit weird</button>
+            <button id="askPromptTranscript" class="btn btnTiny" type="button">Transcript</button>
           </div>
 
           <div class="row topgap">
@@ -2579,6 +2622,8 @@ ${cautionBits.join(" • ")}`
     const saveSessionBtn = document.getElementById("saveSessionBtn");
     const clearSessionsBtn = document.getElementById("clearSessionsBtn");
     const sessionList = document.getElementById("sessionList");
+    const transcriptText = document.getElementById("transcriptText");
+    const transcriptSummary = document.getElementById("transcriptSummary");
 
     let mediaRecorder = null;
     let mediaStream = null;
@@ -2852,6 +2897,9 @@ ${cautionBits.join(" • ")}`
         smellOther: String(raw.smellOther || ""),
         terpenes: (raw.terpenes && typeof raw.terpenes === "object") ? raw.terpenes : {},
         photoDataUrl: String(raw.photoDataUrl || ""),
+        transcriptMode: String(raw.transcriptMode || "AUDIO_ONLY"),
+        transcriptText: String(raw.transcriptText || ""),
+        transcriptSummary: String(raw.transcriptSummary || ""),
         mimeType: "",
         audioBlob: null,
         smellMimeType: "",
@@ -2954,6 +3002,9 @@ ${cautionBits.join(" • ")}`
         smellOther: (smellOther.value || "").trim(),
         terpenes: readTerpenePresence(),
         photoDataUrl: photoDataUrl.value || "",
+        transcriptMode: readTranscriptMode(),
+        transcriptText: (transcriptText?.value || "").trim(),
+        transcriptSummary: (transcriptSummary?.value || "").trim(),
         mimeType: pendingAudioBlob.type || "audio/*",
         audioBlob: pendingAudioBlob,
         smellMimeType: pendingSmellBlob ? (pendingSmellBlob.type || "audio/*") : "",
@@ -2998,6 +3049,10 @@ ${cautionBits.join(" • ")}`
 
       sessionTag.value = "";
       sessionStashLink.value = "";
+      if (transcriptText) transcriptText.value = "";
+      if (transcriptSummary) transcriptSummary.value = "";
+      const transcriptDefault = document.querySelector('input[name="transcriptMode"][value="AUDIO_ONLY"]');
+      if (transcriptDefault) transcriptDefault.checked = true;
 
       await renderSessions();
       await renderAskPatterns();
@@ -3066,6 +3121,17 @@ ${cautionBits.join(" • ")}`
 
           ${hasSmellAudio ? buildPlayerMarkup("Smell audio", smellAudioUrl) : ""}
 
+          ${
+            (s.transcriptText || s.transcriptSummary)
+            ? `<div class="terpRow topgap">
+                <p class="terpName">Transcript memory</p>
+                <p class="terpHint">Mode: ${escapeHtml(String(s.transcriptMode || "AUDIO_ONLY").replaceAll("_"," "))}</p>
+                ${s.transcriptText ? `<div class="itemMeta" style="margin-top:8px; color:var(--text);">${escapeHtml(s.transcriptText)}</div>` : ""}
+                ${s.transcriptSummary ? `<div class="notice topgap">${escapeHtml(s.transcriptSummary)}</div>` : ""}
+              </div>`
+            : ""
+          }
+
           ${hasAudio ? buildPlayerMarkup("Session audio", url) : `<div class="notice topgap">Imported session metadata only — no audio file attached.</div>`}
         `;
 
@@ -3127,6 +3193,7 @@ ${cautionBits.join(" • ")}`
     const askPromptSleep = document.getElementById("askPromptSleep");
     const askPromptConsistent = document.getElementById("askPromptConsistent");
     const askPromptWeird = document.getElementById("askPromptWeird");
+    const askPromptTranscript = document.getElementById("askPromptTranscript");
 
     function parseSleepValue(v){
       const n = Number(v || 0);
@@ -3137,6 +3204,12 @@ ${cautionBits.join(" • ")}`
       const n = Number(v || 0);
       return Number.isFinite(n) ? n : 0;
     }
+
+    function readTranscriptMode(){
+      const sel = document.querySelector('input[name="transcriptMode"]:checked');
+      return sel ? (sel.value || "AUDIO_ONLY") : "AUDIO_ONLY";
+    }
+
 
     function includesAny(arr, vals){
       const set = new Set((arr || []).map(x => String(x || "").toUpperCase()));
@@ -3392,6 +3465,19 @@ Other likely contributors: dose overshoot, bad starting mood, or fast-delivery f
         return "I do not yet see a strong negative pattern in your logs.";
       }
 
+      if (query.includes("transcript") || query.includes("voice note") || query.includes("summary")){
+        const sessionsWithText = stats.sessions.filter(s => (s.transcriptText || s.transcriptSummary));
+        if (!sessionsWithText.length){
+          return "No transcript memory yet. Add transcript or summary text to sessions and this layer will have more to work with.";
+        }
+        const latest = sessionsWithText.sort((a,b) => (b.createdAt||0) - (a.createdAt||0))[0];
+        return `Latest transcript-backed session: ${latest.tag || "Session"}.
+
+Mode: ${String(latest.transcriptMode || "AUDIO_ONLY").replaceAll("_"," ")}
+${latest.transcriptSummary ? "\nSummary: " + latest.transcriptSummary : ""}
+${latest.transcriptText ? "\nTranscript: " + latest.transcriptText.slice(0, 280) + (latest.transcriptText.length > 280 ? "…" : "") : ""}`;
+      }
+
       return `Clean read right now:
 
 - Best for sleep: ${stats.bestSleep ? stats.bestSleep.name : "no signal yet"}
@@ -3408,6 +3494,7 @@ Ask me something tighter.`;
     askPromptSleep.onclick = () => { askInput.value = "What helps me sleep?"; };
     askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
     askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
+    if (askPromptTranscript) askPromptTranscript.onclick = () => { askInput.value = "Show me transcript memory"; };
 
     askBtn.onclick = async () => {
       askReply.textContent = "Thinking…";
