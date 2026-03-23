@@ -962,6 +962,16 @@
       text-align:right;
     }
 
+
+    .transcriptGrid{ display:grid; grid-template-columns:1fr; gap:10px; }
+    @media (min-width: 820px){ .transcriptGrid{ grid-template-columns:1fr 1fr; } }
+    .transcriptHint{ font-size:12px; color:var(--muted); line-height:1.45; }
+    .transcriptArea{ min-height:108px; resize:vertical; }
+    .transcriptSummaryArea{ min-height:88px; resize:vertical; }
+    .blendCard{ border:1px solid var(--border); background:rgba(255,255,255,0.04); border-radius:14px; padding:10px; margin-top:10px; }
+    .blendTitle{ margin:0; font-size:13px; font-weight:700; letter-spacing:0.04em; }
+    .blendMeta{ margin:6px 0 0 0; font-size:12px; color:var(--muted); line-height:1.45; white-space:pre-wrap; }
+
   </style>
 </head>
 
@@ -1363,6 +1373,35 @@
 
           <div class="divider"></div>
 
+          <div class="terpRow">
+            <p class="terpName">Transcript options</p>
+            <p class="terpHint">Manual for now. This prepares the memory layer for stronger search, recall, and later automation.</p>
+            <div class="row topgap">
+              <label class="field">
+                <span class="label">Transcript mode</span>
+                <select id="transcriptMode" class="select">
+                  <option value="AUDIO_ONLY">Audio only</option>
+                  <option value="AUDIO_PLUS_TRANSCRIPT">Audio + transcript</option>
+                  <option value="AUDIO_TRANSCRIPT_SUMMARY">Audio + transcript + summary</option>
+                  <option value="SUMMARY_ONLY">Summary only</option>
+                </select>
+              </label>
+            </div>
+            <div class="transcriptGrid topgap">
+              <label class="field">
+                <span class="label">Transcript</span>
+                <textarea id="transcriptText" class="input transcriptArea" placeholder="Optional. Drop the raw or cleaned transcript here."></textarea>
+              </label>
+              <label class="field">
+                <span class="label">Summary</span>
+                <textarea id="transcriptSummary" class="input transcriptSummaryArea" placeholder="Optional. Tight recap of what mattered."></textarea>
+              </label>
+            </div>
+            <div class="transcriptHint topgap">Ask can read this later. Keep it human. No need to over-format it.</div>
+          </div>
+
+          <div class="divider"></div>
+
           <!-- RATE IT -->
           <div class="terpRow">
             <p class="terpName">Rate it (1–5)</p>
@@ -1411,6 +1450,7 @@
             <button id="askPromptSleep" class="btn btnTiny" type="button">Sleep</button>
             <button id="askPromptConsistent" class="btn btnTiny" type="button">Consistent</button>
             <button id="askPromptWeird" class="btn btnTiny" type="button">Hit weird</button>
+            <button id="askPromptBlend" class="btn btnTiny" type="button">Blend</button>
           </div>
 
           <div class="row topgap">
@@ -2579,6 +2619,9 @@ ${cautionBits.join(" • ")}`
     const saveSessionBtn = document.getElementById("saveSessionBtn");
     const clearSessionsBtn = document.getElementById("clearSessionsBtn");
     const sessionList = document.getElementById("sessionList");
+    const transcriptMode = document.getElementById("transcriptMode");
+    const transcriptText = document.getElementById("transcriptText");
+    const transcriptSummary = document.getElementById("transcriptSummary");
 
     let mediaRecorder = null;
     let mediaStream = null;
@@ -2811,6 +2854,15 @@ ${cautionBits.join(" • ")}`
       setSmellStatus("idle","Ready");
     });
 
+    function syncTranscriptModeUI(){
+      const mode = String(transcriptMode.value || "AUDIO_ONLY");
+      const showTranscript = mode === "AUDIO_PLUS_TRANSCRIPT" || mode === "AUDIO_TRANSCRIPT_SUMMARY";
+      const showSummary = mode === "AUDIO_TRANSCRIPT_SUMMARY" || mode === "SUMMARY_ONLY";
+      transcriptText.parentElement.style.display = showTranscript ? "flex" : "none";
+      transcriptSummary.parentElement.style.display = showSummary ? "flex" : "none";
+    }
+    transcriptMode.addEventListener("change", syncTranscriptModeUI);
+
     function normalizeImportedStashEntry(raw, fallbackIndex){
       return {
         id: String(raw.id || uid("stash")),
@@ -2855,7 +2907,10 @@ ${cautionBits.join(" • ")}`
         mimeType: "",
         audioBlob: null,
         smellMimeType: "",
-        smellAudioBlob: null
+        smellAudioBlob: null,
+        transcriptMode: String(raw.transcriptMode || "AUDIO_ONLY"),
+        transcriptText: String(raw.transcriptText || ""),
+        transcriptSummary: String(raw.transcriptSummary || "")
       };
     }
 
@@ -2957,7 +3012,10 @@ ${cautionBits.join(" • ")}`
         mimeType: pendingAudioBlob.type || "audio/*",
         audioBlob: pendingAudioBlob,
         smellMimeType: pendingSmellBlob ? (pendingSmellBlob.type || "audio/*") : "",
-        smellAudioBlob: pendingSmellBlob || null
+        smellAudioBlob: pendingSmellBlob || null,
+        transcriptMode: String(transcriptMode.value || "AUDIO_ONLY"),
+        transcriptText: String(transcriptText.value || "").trim(),
+        transcriptSummary: String(transcriptSummary.value || "").trim()
       };
 
       await dbPut(session);
@@ -2998,6 +3056,10 @@ ${cautionBits.join(" • ")}`
 
       sessionTag.value = "";
       sessionStashLink.value = "";
+      transcriptMode.value = "AUDIO_ONLY";
+      transcriptText.value = "";
+      transcriptSummary.value = "";
+      syncTranscriptModeUI();
 
       await renderSessions();
       await renderAskPatterns();
@@ -3064,6 +3126,13 @@ ${cautionBits.join(" • ")}`
 
           ${s.photoDataUrl ? `<div class="topgap"><img src="${escapeHtml(s.photoDataUrl)}" alt="Photo" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; border:1px solid var(--border);" /></div>` : ""}
 
+          ${(s.transcriptText || s.transcriptSummary) ? `
+            <div class="blendCard">
+              <p class="blendTitle">Transcript memory</p>
+              ${s.transcriptSummary ? `<p class="blendMeta"><strong>Summary:</strong> ${escapeHtml(s.transcriptSummary)}</p>` : ""}
+              ${s.transcriptText ? `<p class="blendMeta"><strong>Transcript:</strong> ${escapeHtml(s.transcriptText)}</p>` : ""}
+            </div>` : ""}
+
           ${hasSmellAudio ? buildPlayerMarkup("Smell audio", smellAudioUrl) : ""}
 
           ${hasAudio ? buildPlayerMarkup("Session audio", url) : `<div class="notice topgap">Imported session metadata only — no audio file attached.</div>`}
@@ -3127,6 +3196,7 @@ ${cautionBits.join(" • ")}`
     const askPromptSleep = document.getElementById("askPromptSleep");
     const askPromptConsistent = document.getElementById("askPromptConsistent");
     const askPromptWeird = document.getElementById("askPromptWeird");
+    const askPromptBlend = document.getElementById("askPromptBlend");
 
     function parseSleepValue(v){
       const n = Number(v || 0);
@@ -3183,6 +3253,7 @@ ${cautionBits.join(" • ")}`
         if (!buckets.has(key)){
           buckets.set(key, {
             key,
+            id: String(s.stashId || ""),
             name: stashLabelForSession(s),
             count: 0,
             total: 0,
@@ -3266,6 +3337,11 @@ ${cautionBits.join(" • ")}`
         btn.onclick = null;
         return;
       }
+      if (!row.id){
+        btn.style.display = "none";
+        btn.onclick = null;
+        return;
+      }
       btn.style.display = "inline-flex";
       btn.textContent = "Open stash card";
       btn.onclick = () => {
@@ -3301,7 +3377,61 @@ ${cautionBits.join(" • ")}`
       wirePatternButton(patternConsistentOpen, stats.mostConsistent);
     }
 
-        async function tonightModeAnswer(goalRaw){
+    function goalFit(row, goal){
+      const calm = row.calm / row.count;
+      const sleep = row.sleepGood / row.count;
+      const creative = row.creative / row.count;
+      const focus = row.focus / row.count;
+      const fun = row.fun / row.count;
+      const weird = row.weird / row.count;
+      const consistent = row.total / row.count;
+      let score = consistent - (weird * 1.6);
+      if (goal === "SLEEP") score += sleep * 2.3 + calm * 0.4 - focus * 0.2;
+      else if (goal === "CALM") score += calm * 2.0 + sleep * 0.3 + focus * 0.25;
+      else if (goal === "CREATIVE") score += creative * 2.0 + fun * 0.35 - sleep * 0.25;
+      else if (goal === "FOCUS") score += focus * 2.0 + calm * 0.35 - sleep * 0.3;
+      else if (goal === "FUN" || goal === "SOCIAL") score += fun * 2.0 + creative * 0.35 - sleep * 0.2;
+      return score;
+    }
+
+    function buildBlendSuggestion(goal, stats){
+      const eligible = stats.rows.filter(r => r.id);
+      if (eligible.length < 2) return null;
+      const ranked = eligible.map(r => ({...r, fit: goalFit(r, goal)})).sort((a,b)=>b.fit-a.fit);
+      const primary = ranked[0];
+      const others = ranked.slice(1);
+      let support = null;
+      let ratio = "85/15";
+      let why = "";
+      let watch = "Keep the support lane light until you trust the combo.";
+
+      if (goal === "CALM") {
+        support = others.sort((a,b)=>((b.focus/b.count)-(a.focus/a.count)) || (b.fit-a.fit))[0];
+        ratio = "85/15";
+        why = support ? `${primary.name} carries the calm lane; ${support.name} may help keep it clearer.` : `${primary.name} already owns the calm lane.`;
+      } else if (goal === "SLEEP") {
+        support = others.sort((a,b)=>((b.calm/b.count)-(a.calm/a.count)) || (b.fit-a.fit))[0];
+        ratio = "90/10";
+        why = support ? `${primary.name} carries sleep support; ${support.name} can soften the landing without overcomplicating it.` : `${primary.name} already owns the sleep lane.`;
+      } else if (goal === "CREATIVE") {
+        support = others.sort((a,b)=>((b.focus/b.count)-(a.focus/a.count)) || (b.fit-a.fit))[0];
+        ratio = "80/20";
+        why = support ? `${primary.name} pushes the creative lane; ${support.name} may keep it from getting sloppy.` : `${primary.name} already owns the creative lane.`;
+      } else if (goal === "FOCUS") {
+        support = others.sort((a,b)=>((b.calm/b.count)-(a.calm/a.count)) || (b.fit-a.fit))[0];
+        ratio = "85/15";
+        why = support ? `${primary.name} carries the focus lane; ${support.name} may smooth the edges.` : `${primary.name} already owns the focus lane.`;
+      } else {
+        support = others.sort((a,b)=>((b.calm/b.count)-(a.calm/a.count)) || (b.fit-a.fit))[0];
+        ratio = "80/20";
+        why = support ? `${primary.name} carries fun/social energy; ${support.name} may keep it from running hot.` : `${primary.name} already owns the fun lane.`;
+      }
+
+      if (!support || support.id === primary.id) return null;
+      return { primary, support, ratio, why, watch };
+    }
+
+    async function tonightModeAnswer(goalRaw){
       const goal = String(goalRaw || "CALM").trim().toUpperCase();
       const stats = await computePatternStats();
       if (!stats.rows.length){
@@ -3339,6 +3469,40 @@ Read this correctly: this is guidance from your own logs, not a promise.`;
       }
 
       if (query.includes("tonight")) return tonightModeAnswer("CALM");
+      if (query.includes("blend") || query.includes("mix") || query.includes("combo")){
+        const goal = query.includes("sleep") ? "SLEEP" : query.includes("focus") || query.includes("clear") ? "FOCUS" : query.includes("creative") || query.includes("create") ? "CREATIVE" : query.includes("fun") || query.includes("social") ? "FUN" : "CALM";
+        const blend = buildBlendSuggestion(goal, stats);
+        if (!blend){
+          return `I do not have a trustworthy blend read yet.
+
+Best move for now: single-item primary = ${stats.mostConsistent ? stats.mostConsistent.name : "not enough signal"}.`;
+        }
+        return `Blend suggestion — ${goal}
+
+PRIMARY:
+${blend.primary.name}
+
+SECONDARY:
+${blend.support.name}
+
+RATIO:
+${blend.ratio}
+
+WHY:
+${blend.why}
+
+WATCH:
+${blend.watch}`;
+      }
+      if (query.includes("transcript") || query.includes("voice note") || query.includes("audio note")){
+        const transcriptHits = stats.sessions.filter(s => (s.transcriptText || s.transcriptSummary)).slice(-5).reverse();
+        if (!transcriptHits.length) return "No transcript memory yet. Add transcript text or summary to a few sessions and Ask will be able to read them.";
+        return `Transcript memory is live.
+
+Recent transcript-backed sessions:
+${transcriptHits.map(s => `- ${(s.tag && s.tag.trim()) ? s.tag.trim() : "Session"}: ${s.transcriptSummary || s.transcriptText.slice(0,120)}`).join("
+")}`;
+      }
       if (query.includes("sleep")){
         return stats.bestSleep
           ? `Best current sleep signal: ${stats.bestSleep.name}.
@@ -3408,6 +3572,7 @@ Ask me something tighter.`;
     askPromptSleep.onclick = () => { askInput.value = "What helps me sleep?"; };
     askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
     askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
+    askPromptBlend.onclick = () => { askInput.value = "What blend do you suggest for calm but still clear?"; };
 
     askBtn.onclick = async () => {
       askReply.textContent = "Thinking…";
@@ -3505,6 +3670,7 @@ Ask me something tighter.`;
       renderVisual();
       renderSmell();
       setStashPhoto("");
+      syncTranscriptModeUI();
 
       await renderSessions();
       await renderAskPatterns();
