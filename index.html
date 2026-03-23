@@ -706,10 +706,14 @@
             <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH PHOTO (OPTIONAL)</h2>
             <p class="muted" style="margin:6px 0 0 0;">This is the visual anchor for the stash entry itself.</p>
 
-            <div class="row topgap">
+            <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
               <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                📷 Take / Choose Stash Photo
-                <input id="stashPhotoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+                📷 Take Stash Photo
+                <input id="stashPhotoCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+              </label>
+              <label class="btn btnTiny" style="display:inline-flex; align-items:center; gap:10px;">
+                🖼️ Choose Existing Photo
+                <input id="stashPhotoLibraryInput" type="file" accept="image/*" style="display:none;" />
               </label>
               <button id="stashPhotoClear" class="btn btnTiny" type="button">No photo</button>
             </div>
@@ -1605,7 +1609,8 @@
     const stashVisualChips = Array.from(document.querySelectorAll("[data-stash-visual]"));
     const stashVisualOther = document.getElementById("stashVisualOther");
     const stashVisualReset = document.getElementById("stashVisualReset");
-    const stashPhotoInput = document.getElementById("stashPhotoInput");
+    const stashPhotoCameraInput = document.getElementById("stashPhotoCameraInput");
+    const stashPhotoLibraryInput = document.getElementById("stashPhotoLibraryInput");
     const stashPhotoThumb = document.getElementById("stashPhotoThumb");
     const stashPhotoDataUrl = document.getElementById("stashPhotoDataUrl");
     const stashPhotoClear = document.getElementById("stashPhotoClear");
@@ -1639,14 +1644,25 @@
       }
     }
 
-    stashPhotoInput.addEventListener("change", (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
+    function handleStashPhotoFile(file){
+      if (!file) return;
       const reader = new FileReader();
       reader.onload = () => setStashPhoto(String(reader.result || ""));
-      reader.readAsDataURL(f);
-      stashPhotoInput.value = "";
+      reader.readAsDataURL(file);
+    }
+
+    stashPhotoCameraInput.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      handleStashPhotoFile(f);
+      stashPhotoCameraInput.value = "";
     });
+
+    stashPhotoLibraryInput.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      handleStashPhotoFile(f);
+      stashPhotoLibraryInput.value = "";
+    });
+
     stashPhotoClear.onclick = () => setStashPhoto("");
 
     function loadStash(){ try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); } catch { return []; } }
