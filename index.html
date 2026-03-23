@@ -1121,6 +1121,18 @@
               <p id="patternCalm" class="patternMeta">No calm signal yet.</p>
             </div>
             <div class="terpRow">
+              <p class="terpName">BEST FOR CREATIVE</p>
+              <p id="patternCreative" class="patternMeta">No creative signal yet.</p>
+            </div>
+            <div class="terpRow">
+              <p class="terpName">BEST FOR FOCUS / CLEAR</p>
+              <p id="patternFocus" class="patternMeta">No focus signal yet.</p>
+            </div>
+            <div class="terpRow">
+              <p class="terpName">BEST FOR FUN / SOCIAL</p>
+              <p id="patternFun" class="patternMeta">No fun signal yet.</p>
+            </div>
+            <div class="terpRow">
               <p class="terpName">MOST CONSISTENT</p>
               <p id="patternConsistent" class="patternMeta">No consistency signal yet.</p>
             </div>
@@ -2628,6 +2640,9 @@
     const askReply = document.getElementById("askReply");
     const patternSleep = document.getElementById("patternSleep");
     const patternCalm = document.getElementById("patternCalm");
+    const patternCreative = document.getElementById("patternCreative");
+    const patternFocus = document.getElementById("patternFocus");
+    const patternFun = document.getElementById("patternFun");
     const patternConsistent = document.getElementById("patternConsistent");
     const askPromptTonight = document.getElementById("askPromptTonight");
     const askPromptSleep = document.getElementById("askPromptSleep");
@@ -2694,7 +2709,10 @@
             total: 0,
             calm: 0,
             weird: 0,
-            sleepGood: 0
+            sleepGood: 0,
+            creative: 0,
+            focus: 0,
+            fun: 0
           });
         }
         const b = buckets.get(key);
@@ -2702,39 +2720,33 @@
         b.total += sessionOutcomeScore(s);
 
         if (includesAny(s.mood, ["CALM","MELLOW"])) b.calm += 1;
+        if (includesAny(s.mood, ["CREATIVE"])) b.creative += 1;
+        if (includesAny(s.mood, ["FOCUSED","CLEAR"])) b.focus += 1;
+        if (includesAny(s.mood, ["SOCIAL","MELLOW"])) b.fun += 1;
         if (includesAny(s.mood, ["PISSED","NOT_GREAT","WIRED"])) b.weird += 1;
         if (parseSleepValue(s.sleep) >= 4) b.sleepGood += 1;
       });
 
       const rows = Array.from(buckets.values()).filter(x => x.count > 0);
 
-      const bestSleep = rows.slice().sort((a,b) =>
-        ((b.sleepGood / b.count) - (a.sleepGood / a.count)) || (b.count - a.count)
-      )[0] || null;
+      const bestSleep = rows.slice().sort((a,b) => ((b.sleepGood / b.count) - (a.sleepGood / a.count)) || (b.count - a.count))[0] || null;
+      const bestCalm = rows.slice().sort((a,b) => ((b.calm / b.count) - (a.calm / a.count)) || (b.count - a.count))[0] || null;
+      const bestCreative = rows.slice().sort((a,b) => ((b.creative / b.count) - (a.creative / a.count)) || (b.count - a.count))[0] || null;
+      const bestFocus = rows.slice().sort((a,b) => ((b.focus / b.count) - (a.focus / a.count)) || (b.count - a.count))[0] || null;
+      const bestFun = rows.slice().sort((a,b) => ((b.fun / b.count) - (a.fun / a.count)) || (b.count - a.count))[0] || null;
+      const mostConsistent = rows.slice().sort((a,b) => ((b.total / b.count) - (a.total / a.count)) || (b.count - a.count))[0] || null;
+      const weirdest = rows.slice().sort((a,b) => ((b.weird / b.count) - (a.weird / a.count)) || (b.count - a.count))[0] || null;
 
-      const bestCalm = rows.slice().sort((a,b) =>
-        ((b.calm / b.count) - (a.calm / a.count)) || (b.count - a.count)
-      )[0] || null;
-
-      const mostConsistent = rows.slice().sort((a,b) =>
-        ((b.total / b.count) - (a.total / a.count)) || (b.count - a.count)
-      )[0] || null;
-
-      const weirdest = rows.slice().sort((a,b) =>
-        ((b.weird / b.count) - (a.weird / a.count)) || (b.count - a.count)
-      )[0] || null;
-
-      return { rows, bestSleep, bestCalm, mostConsistent, weirdest, sessions };
+      return { rows, bestSleep, bestCalm, bestCreative, bestFocus, bestFun, mostConsistent, weirdest, sessions };
     }
 
     function formatPatternLine(row, mode){
       if (!row) return "No signal yet.";
-      if (mode === "sleep"){
-        return `${row.name} — sleep-positive in ${Math.round((row.sleepGood / row.count) * 100)}% of logged sessions (${row.count} total).`;
-      }
-      if (mode === "calm"){
-        return `${row.name} — calm shows up in ${Math.round((row.calm / row.count) * 100)}% of logged sessions (${row.count} total).`;
-      }
+      if (mode === "sleep") return `${row.name} — sleep-positive in ${Math.round((row.sleepGood / row.count) * 100)}% of logged sessions (${row.count} total).`;
+      if (mode === "calm") return `${row.name} — calm shows up in ${Math.round((row.calm / row.count) * 100)}% of logged sessions (${row.count} total).`;
+      if (mode === "creative") return `${row.name} — creative shows up in ${Math.round((row.creative / row.count) * 100)}% of logged sessions (${row.count} total).`;
+      if (mode === "focus") return `${row.name} — focused / clear shows up in ${Math.round((row.focus / row.count) * 100)}% of logged sessions (${row.count} total).`;
+      if (mode === "fun") return `${row.name} — fun / social shows up in ${Math.round((row.fun / row.count) * 100)}% of logged sessions (${row.count} total).`;
       return `${row.name} — strongest average outcome score across ${row.count} logged session${row.count === 1 ? "" : "s"}.`;
     }
 
@@ -2742,10 +2754,13 @@
       const stats = await computePatternStats();
       patternSleep.textContent = formatPatternLine(stats.bestSleep, "sleep");
       patternCalm.textContent = formatPatternLine(stats.bestCalm, "calm");
+      patternCreative.textContent = formatPatternLine(stats.bestCreative, "creative");
+      patternFocus.textContent = formatPatternLine(stats.bestFocus, "focus");
+      patternFun.textContent = formatPatternLine(stats.bestFun, "fun");
       patternConsistent.textContent = formatPatternLine(stats.mostConsistent, "consistent");
     }
 
-    async function tonightModeAnswer(goalRaw){
+        async function tonightModeAnswer(goalRaw){
       const goal = String(goalRaw || "CALM").trim().toUpperCase();
       const stats = await computePatternStats();
       if (!stats.rows.length){
@@ -2775,7 +2790,7 @@ Read this correctly: this is guidance from your own logs, not a promise.`;
       const stashCount = loadStash().length;
 
       if (!query){
-        return "Ask sharper and I will answer sharper. Try: What should I use tonight? / What helps me sleep? / What has been most consistent? / Why did that hit weird?";
+        return "Ask sharper and I will answer sharper. Try: What should I use tonight? / What helps me sleep? / What helps me focus? / What helps me create? / What has been most consistent? / Why did that hit weird?";
       }
 
       if (!stats.sessions.length && !stashCount){
@@ -2785,30 +2800,70 @@ Read this correctly: this is guidance from your own logs, not a promise.`;
       if (query.includes("tonight")) return tonightModeAnswer("CALM");
       if (query.includes("sleep")){
         return stats.bestSleep
-          ? `Best current sleep signal: ${stats.bestSleep.name}.\n\nWhy: ${Math.round((stats.bestSleep.sleepGood / stats.bestSleep.count) * 100)}% of its logged sessions landed as good sleep outcomes.`
+          ? `Best current sleep signal: ${stats.bestSleep.name}.
+
+Why: ${Math.round((stats.bestSleep.sleepGood / stats.bestSleep.count) * 100)}% of its logged sessions landed as good sleep outcomes.`
           : "No sleep signal yet. Log a few sessions with sleep scores first.";
       }
-      if (query.includes("calm")){
+      if (query.includes("calm") || query.includes("chill")){
         return stats.bestCalm
-          ? `Best current calm signal: ${stats.bestCalm.name}.\n\nWhy: calm/mellow shows up in ${Math.round((stats.bestCalm.calm / stats.bestCalm.count) * 100)}% of its logged sessions.`
+          ? `Best current calm signal: ${stats.bestCalm.name}.
+
+Why: calm/mellow shows up in ${Math.round((stats.bestCalm.calm / stats.bestCalm.count) * 100)}% of its logged sessions.`
           : "No calm signal yet. Log more sessions.";
+      }
+      if (query.includes("creative") || query.includes("create")){
+        return stats.bestCreative
+          ? `Best current creative signal: ${stats.bestCreative.name}.
+
+Why: creative shows up in ${Math.round((stats.bestCreative.creative / stats.bestCreative.count) * 100)}% of its logged sessions.`
+          : "No creative signal yet. Log more sessions with creative outcomes.";
+      }
+      if (query.includes("focus") || query.includes("clear")){
+        return stats.bestFocus
+          ? `Best current focus / clear signal: ${stats.bestFocus.name}.
+
+Why: focused or clear shows up in ${Math.round((stats.bestFocus.focus / stats.bestFocus.count) * 100)}% of its logged sessions.`
+          : "No focus signal yet. Log more sessions with focused or clear outcomes.";
+      }
+      if (query.includes("fun") || query.includes("social")){
+        return stats.bestFun
+          ? `Best current fun / social signal: ${stats.bestFun.name}.
+
+Why: fun/social shows up in ${Math.round((stats.bestFun.fun / stats.bestFun.count) * 100)}% of its logged sessions.`
+          : "No fun signal yet. Log more sessions with social or mellow outcomes.";
       }
       if (query.includes("consistent") || query.includes("liked") || query.includes("recently")){
         return stats.mostConsistent
-          ? `Most consistent positive signal: ${stats.mostConsistent.name}.\n\nWhy: it has the strongest average outcome score across your logged sessions.`
+          ? `Most consistent positive signal: ${stats.mostConsistent.name}.
+
+Why: it has the strongest average outcome score across your logged sessions.`
           : "No consistency read yet.";
       }
       if (query.includes("weird") || query.includes("edgy") || query.includes("anx")){
         if (stats.weirdest && (stats.weirdest.weird / stats.weirdest.count) > 0){
-          return `Strongest current "hit weird" signal: ${stats.weirdest.name}.\n\nWhy: it has the highest concentration of wired / pissed / not-great patterns in your logs.\n\nOther likely contributors: dose overshoot, bad starting mood, or fast-delivery formats.`;
+          return `Strongest current "hit weird" signal: ${stats.weirdest.name}.
+
+Why: it has the highest concentration of wired / pissed / not-great patterns in your logs.
+
+Other likely contributors: dose overshoot, bad starting mood, or fast-delivery formats.`;
         }
         return "I do not yet see a strong negative pattern in your logs.";
       }
 
-      return `Clean read right now:\n\n- Best for sleep: ${stats.bestSleep ? stats.bestSleep.name : "no signal yet"}\n- Best for calm: ${stats.bestCalm ? stats.bestCalm.name : "no signal yet"}\n- Most consistent: ${stats.mostConsistent ? stats.mostConsistent.name : "no signal yet"}\n\nAsk me something tighter.`;
+      return `Clean read right now:
+
+- Best for sleep: ${stats.bestSleep ? stats.bestSleep.name : "no signal yet"}
+- Best for calm: ${stats.bestCalm ? stats.bestCalm.name : "no signal yet"}
+- Best for creative: ${stats.bestCreative ? stats.bestCreative.name : "no signal yet"}
+- Best for focus / clear: ${stats.bestFocus ? stats.bestFocus.name : "no signal yet"}
+- Best for fun / social: ${stats.bestFun ? stats.bestFun.name : "no signal yet"}
+- Most consistent: ${stats.mostConsistent ? stats.mostConsistent.name : "no signal yet"}
+
+Ask me something tighter.`;
     }
 
-    askPromptTonight.onclick = () => { askInput.value = "What should I use tonight?"; };
+        askPromptTonight.onclick = () => { askInput.value = "What should I use tonight?"; };
     askPromptSleep.onclick = () => { askInput.value = "What helps me sleep?"; };
     askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
     askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
