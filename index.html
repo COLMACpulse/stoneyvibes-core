@@ -1065,43 +1065,73 @@
       border:1px solid rgba(255,255,255,0.10);
     }
 
-    .fpDiscWrap{
+    .laneBlock{
       border:1px solid rgba(255,255,255,0.10);
-      border-radius:16px;
-      padding:12px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+      border-radius:14px;
+      padding:10px;
+      background:rgba(255,255,255,0.03);
     }
-    .fpDiscHead{
+    .laneHead{
       display:flex;
-      align-items:flex-start;
+      align-items:center;
       justify-content:space-between;
       gap:10px;
       margin-bottom:8px;
     }
-    .terpeneDisc{
-      display:block;
-      width:min(100%, 320px);
-      aspect-ratio:1 / 1;
-      margin:0 auto;
-      border-radius:16px;
-      background:
-        radial-gradient(circle at 50% 50%, rgba(93,50,65,0.10), transparent 54%),
-        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border:1px solid rgba(255,255,255,0.08);
+    .laneTitle{
+      margin:0;
+      font-size:12px;
+      letter-spacing:0.10em;
+      color:var(--text);
+      text-transform:uppercase;
     }
-    .fpDiscLegend{
+    .laneValue{
+      font-size:11px;
+      letter-spacing:0.06em;
+      color:var(--muted);
+      text-transform:uppercase;
+    }
+    .laneDots{
+      display:grid;
+      grid-auto-flow:column;
+      grid-auto-columns:1fr;
+      gap:8px;
+      align-items:center;
+    }
+    .laneDot{
+      height:16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.16);
+      background:rgba(255,255,255,0.05);
+      cursor:pointer;
+      transition:background .15s ease, border-color .15s ease, transform .15s ease, opacity .15s ease;
+      min-width:28px;
+    }
+    .laneDot:hover{ transform:translateY(-1px); }
+    .laneDot.active{
+      background:rgba(205,184,222,0.42);
+      border-color:rgba(205,184,222,0.70);
+    }
+    .laneDot.level1.active{ background:rgba(205,184,222,0.18); }
+    .laneDot.level2.active{ background:rgba(205,184,222,0.28); }
+    .laneDot.level3.active{ background:rgba(205,184,222,0.38); }
+    .laneDot.level4.active{ background:rgba(205,184,222,0.50); }
+    .laneLegend{
       margin-top:8px;
       display:grid;
-      grid-template-columns: repeat(4, 1fr);
       gap:8px;
-      max-width:320px;
-      margin-left:auto;
-      margin-right:auto;
       color:var(--muted);
       font-size:10px;
-      letter-spacing:0.10em;
+      letter-spacing:0.08em;
       text-transform:uppercase;
       text-align:center;
+    }
+    .laneLegend.l5{ grid-template-columns:repeat(5,1fr); }
+    .laneLegend.l4{ grid-template-columns:repeat(4,1fr); }
+    .terpLaneList{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
     }
 
   </style>
@@ -1382,40 +1412,71 @@
             <p class="terpName">Visual traits</p>
             <p class="terpHint">Use gauges for degree. Use tags for direct physical signals.</p>
 
+
             <div class="list" style="margin-top:10px;">
-              <div class="terpRow">
-                <p class="terpName">Frost</p>
-                <p class="terpHint">How frosty does it look?</p>
-                <div class="scale">
-                  <label><input type="radio" name="visualGaugeFrost" value="" checked /> — </label>
-                  <label><input type="radio" name="visualGaugeFrost" value="LIGHT" /> Light</label>
-                  <label><input type="radio" name="visualGaugeFrost" value="NOTICEABLE" /> Noticeable</label>
-                  <label><input type="radio" name="visualGaugeFrost" value="STRONG" /> Strong</label>
-                  <label><input type="radio" name="visualGaugeFrost" value="HEAVY" /> Heavy</label>
+              <div class="laneBlock" data-lane-group="visualGaugeFrost" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Frost</p>
+                  <span class="laneValue" data-lane-value>—</span>
+                </div>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+                </div>
+                <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="visualGaugeFrost" value="" checked />
+                  <input type="radio" name="visualGaugeFrost" value="LIGHT" />
+                  <input type="radio" name="visualGaugeFrost" value="NOTICEABLE" />
+                  <input type="radio" name="visualGaugeFrost" value="STRONG" />
+                  <input type="radio" name="visualGaugeFrost" value="HEAVY" />
                 </div>
               </div>
 
-              <div class="terpRow">
-                <p class="terpName">Density</p>
-                <p class="terpHint">How dense does it look?</p>
-                <div class="scale">
-                  <label><input type="radio" name="visualGaugeDensity" value="" checked /> — </label>
-                  <label><input type="radio" name="visualGaugeDensity" value="LIGHT" /> Light</label>
-                  <label><input type="radio" name="visualGaugeDensity" value="NOTICEABLE" /> Noticeable</label>
-                  <label><input type="radio" name="visualGaugeDensity" value="STRONG" /> Strong</label>
-                  <label><input type="radio" name="visualGaugeDensity" value="HEAVY" /> Heavy</label>
+              <div class="laneBlock" data-lane-group="visualGaugeDensity" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Density</p>
+                  <span class="laneValue" data-lane-value>—</span>
+                </div>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+                </div>
+                <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="visualGaugeDensity" value="" checked />
+                  <input type="radio" name="visualGaugeDensity" value="LIGHT" />
+                  <input type="radio" name="visualGaugeDensity" value="NOTICEABLE" />
+                  <input type="radio" name="visualGaugeDensity" value="STRONG" />
+                  <input type="radio" name="visualGaugeDensity" value="HEAVY" />
                 </div>
               </div>
 
-              <div class="terpRow">
-                <p class="terpName">Hairs</p>
-                <p class="terpHint">How pronounced are the hairs?</p>
-                <div class="scale">
-                  <label><input type="radio" name="visualGaugeHairs" value="" checked /> — </label>
-                  <label><input type="radio" name="visualGaugeHairs" value="LIGHT" /> Light</label>
-                  <label><input type="radio" name="visualGaugeHairs" value="NOTICEABLE" /> Noticeable</label>
-                  <label><input type="radio" name="visualGaugeHairs" value="STRONG" /> Strong</label>
-                  <label><input type="radio" name="visualGaugeHairs" value="HEAVY" /> Heavy</label>
+              <div class="laneBlock" data-lane-group="visualGaugeHairs" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Hairs</p>
+                  <span class="laneValue" data-lane-value>—</span>
+                </div>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+                </div>
+                <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="visualGaugeHairs" value="" checked />
+                  <input type="radio" name="visualGaugeHairs" value="LIGHT" />
+                  <input type="radio" name="visualGaugeHairs" value="NOTICEABLE" />
+                  <input type="radio" name="visualGaugeHairs" value="STRONG" />
+                  <input type="radio" name="visualGaugeHairs" value="HEAVY" />
                 </div>
               </div>
             </div>
@@ -1444,31 +1505,58 @@
           <div class="divider"></div>
 
           <!-- SMELL INTENSITY -->
+
           <div class="terpRow">
             <p class="terpName">Smell intensity</p>
             <p class="terpHint">Passive = jar open. Activated = broken nug.</p>
 
-            <div class="topgap">
-              <div class="label">Passive smell</div>
-              <div class="scale">
-                <label><input type="radio" name="passiveSmellIntensity" value="" checked /> — </label>
-                <label><input type="radio" name="passiveSmellIntensity" value="NONE" /> 0 None</label>
-                <label><input type="radio" name="passiveSmellIntensity" value="LIGHT" /> 1 Light</label>
-                <label><input type="radio" name="passiveSmellIntensity" value="NOTICEABLE" /> 2 Noticeable</label>
-                <label><input type="radio" name="passiveSmellIntensity" value="STRONG" /> 3 Strong</label>
-                <label><input type="radio" name="passiveSmellIntensity" value="LOUD" /> 4 Loud</label>
+            <div class="list" style="margin-top:10px;">
+              <div class="laneBlock" data-lane-group="passiveSmellIntensity" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Passive smell</p>
+                  <span class="laneValue" data-lane-value>—</span>
+                </div>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="NONE"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="LOUD"></button>
+                </div>
+                <div class="laneLegend" style="grid-template-columns:repeat(6,1fr);"><span>—</span><span>None</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Loud</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="passiveSmellIntensity" value="" checked />
+                  <input type="radio" name="passiveSmellIntensity" value="NONE" />
+                  <input type="radio" name="passiveSmellIntensity" value="LIGHT" />
+                  <input type="radio" name="passiveSmellIntensity" value="NOTICEABLE" />
+                  <input type="radio" name="passiveSmellIntensity" value="STRONG" />
+                  <input type="radio" name="passiveSmellIntensity" value="LOUD" />
+                </div>
               </div>
-            </div>
 
-            <div class="topgap">
-              <div class="label">Activated smell</div>
-              <div class="scale">
-                <label><input type="radio" name="activatedSmellIntensity" value="" checked /> — </label>
-                <label><input type="radio" name="activatedSmellIntensity" value="NONE" /> 0 None</label>
-                <label><input type="radio" name="activatedSmellIntensity" value="LIGHT" /> 1 Light</label>
-                <label><input type="radio" name="activatedSmellIntensity" value="NOTICEABLE" /> 2 Noticeable</label>
-                <label><input type="radio" name="activatedSmellIntensity" value="STRONG" /> 3 Strong</label>
-                <label><input type="radio" name="activatedSmellIntensity" value="LOUD" /> 4 Loud</label>
+              <div class="laneBlock" data-lane-group="activatedSmellIntensity" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Activated smell</p>
+                  <span class="laneValue" data-lane-value>—</span>
+                </div>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="NONE"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="LOUD"></button>
+                </div>
+                <div class="laneLegend" style="grid-template-columns:repeat(6,1fr);"><span>—</span><span>None</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Loud</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="activatedSmellIntensity" value="" checked />
+                  <input type="radio" name="activatedSmellIntensity" value="NONE" />
+                  <input type="radio" name="activatedSmellIntensity" value="LIGHT" />
+                  <input type="radio" name="activatedSmellIntensity" value="NOTICEABLE" />
+                  <input type="radio" name="activatedSmellIntensity" value="STRONG" />
+                  <input type="radio" name="activatedSmellIntensity" value="LOUD" />
+                </div>
               </div>
             </div>
           </div>
@@ -1534,22 +1622,7 @@
           <div class="terpRow">
             <p class="terpName">Terpene presence</p>
             <p class="terpHint">Not %s. Just your read: Not present / Background / Noticeable / Dominant.</p>
-            
-            <div class="fpDiscWrap topgap">
-              <div class="fpDiscHead">
-                <div>
-                  <p class="terpName">Fingerprint disc</p>
-                  <p class="terpHint">Live terpene identity shape. Fixed lanes. Fixed scale.</p>
-                </div>
-              </div>
-              <canvas id="terpeneFingerprintDisc" class="terpeneDisc" width="320" height="320" aria-label="Terpene fingerprint disc"></canvas>
-              <div class="fpDiscLegend">
-                <span>NP</span><span>BG</span><span>N</span><span>D</span>
-              </div>
-            </div>
-
             <div id="terpeneBox" class="list" style="margin-top:10px;"></div>
-
           </div>
 
           <div class="divider"></div>
@@ -2777,6 +2850,9 @@ ${cautionBits.join(" • ")}`
       resetCheckedValue("visualGaugeFrost");
       resetCheckedValue("visualGaugeDensity");
       resetCheckedValue("visualGaugeHairs");
+      syncLaneControl("visualGaugeFrost");
+      syncLaneControl("visualGaugeDensity");
+      syncLaneControl("visualGaugeHairs");
     };
 
     // Smell tags
@@ -2796,6 +2872,8 @@ ${cautionBits.join(" • ")}`
       renderSmell();
       resetCheckedValue("passiveSmellIntensity");
       resetCheckedValue("activatedSmellIntensity");
+      syncLaneControl("passiveSmellIntensity");
+      syncLaneControl("activatedSmellIntensity");
     };
 
     // Photo
@@ -2837,37 +2915,42 @@ ${cautionBits.join(" • ")}`
     ];
     function buildTerpenes(){
       terpeneBox.innerHTML = "";
+      const legend = document.createElement("div");
+      legend.className = "laneLegend l4";
+      legend.style.maxWidth = "420px";
+      legend.innerHTML = "<span>NP</span><span>BG</span><span>N</span><span>D</span>";
+      terpeneBox.appendChild(legend);
+
       TERPENES.forEach(t => {
         const row = document.createElement("div");
-        row.className = "terpRow";
+        row.className = "laneBlock";
+        row.setAttribute("data-lane-group", `terp_${t.key}`);
+        row.setAttribute("data-default", "");
         row.innerHTML = `
-          <div class="terpTop">
+          <div class="laneHead">
             <div style="min-width:0; flex:1;">
-              <p class="terpName">${escapeHtml(t.name)}</p>
-              <p class="terpHint">${escapeHtml(t.hint)}</p>
+              <p class="laneTitle">${escapeHtml(t.name)}</p>
+              <p class="terpHint" style="margin-top:4px;">${escapeHtml(t.hint)}</p>
             </div>
+            <span class="laneValue" data-lane-value>—</span>
           </div>
-          <div class="scale">
-            ${PRESENCE.map(p => {
-              const id = `terp_${t.key}_${p.val||"NONE"}`;
-              return `
-                <label for="${id}">
-                  <input id="${id}" type="radio" name="terp_${t.key}" value="${escapeHtml(p.val)}" ${p.val==="" ? "checked" : ""}/>
-                  ${escapeHtml(p.label)}
-                </label>
-              `;
-            }).join("")}
+          <div class="laneDots">
+            <button class="laneDot level1 active" type="button" data-lane-btn data-value=""></button>
+            <button class="laneDot level2" type="button" data-lane-btn data-value="BACKGROUND"></button>
+            <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+            <button class="laneDot level4" type="button" data-lane-btn data-value="DOMINANT"></button>
+          </div>
+          <div style="display:none;">
+            <input type="radio" name="terp_${t.key}" value="" checked/>
+            <input type="radio" name="terp_${t.key}" value="BACKGROUND"/>
+            <input type="radio" name="terp_${t.key}" value="NOTICEABLE"/>
+            <input type="radio" name="terp_${t.key}" value="DOMINANT"/>
           </div>
         `;
         terpeneBox.appendChild(row);
       });
     }
     buildTerpenes();
-    document.addEventListener("change", (e) => {
-      const target = e.target;
-      if (target && target.name && String(target.name).startsWith("terp_")) drawTerpeneFingerprintDisc();
-    });
-    window.addEventListener("resize", drawTerpeneFingerprintDisc);
     function readTerpenePresence(){
       const out = {};
       TERPENES.forEach(t => {
@@ -2878,148 +2961,47 @@ ${cautionBits.join(" • ")}`
     }
 
 
-    const terpeneFingerprintDisc = document.getElementById("terpeneFingerprintDisc");
-
-    function terpPresenceToLevel(v){
+    function laneDisplayLabel(value){
       const map = {
-        "": 0,
-        "NOT_PRESENT": 0,
-        "BACKGROUND": 1,
-        "NOTICEABLE": 2,
-        "DOMINANT": 3
+        "": "—",
+        "NONE": "None",
+        "LIGHT": "Light",
+        "NOTICEABLE": "Noticeable",
+        "STRONG": "Strong",
+        "HEAVY": "Heavy",
+        "LOUD": "Loud",
+        "BACKGROUND": "Background",
+        "DOMINANT": "Dominant"
       };
-      return map[String(v || "").toUpperCase()] ?? 0;
+      return map[String(value || "").toUpperCase()] ?? String(value || "—");
     }
 
-    function terpShortLabel(key){
-      const map = {
-        MYRCENE: "MYR",
-        CARYOPHYLLENE: "CARY",
-        LIMONENE: "LIMO",
-        PINENE: "PINE",
-        LINALOOL: "LINA",
-        TERPINOLENE: "TERP"
-      };
-      return map[String(key || "").toUpperCase()] || String(key || "").slice(0,4).toUpperCase();
+    function syncLaneControl(groupName){
+      const wrap = document.querySelector(`[data-lane-group="${groupName}"]`);
+      if (!wrap) return;
+      const current = readCheckedValue(groupName);
+      wrap.querySelectorAll("[data-lane-btn]").forEach(btn => {
+        btn.classList.toggle("active", String(btn.getAttribute("data-value") || "") === String(current || ""));
+      });
+      const valueEl = wrap.querySelector("[data-lane-value]");
+      if (valueEl) valueEl.textContent = laneDisplayLabel(current);
     }
 
-    function drawTerpeneFingerprintDisc(){
-      if (!terpeneFingerprintDisc) return;
+    function setLaneControl(groupName, value){
+      const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+      radios.forEach(r => { r.checked = String(r.value || "") === String(value || ""); });
+      syncLaneControl(groupName);
+      if (String(groupName).startsWith("terp_")) drawTerpeneFingerprintDisc();
+    }
 
-      const canvas = terpeneFingerprintDisc;
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const size = Math.max(220, Math.floor(Math.min(rect.width || 320, 320) * dpr));
-      if (canvas.width !== size) canvas.width = size;
-      if (canvas.height !== size) canvas.height = size;
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const w = canvas.width;
-      const h = canvas.height;
-      const cx = w / 2;
-      const cy = h / 2;
-      const maxVal = 3;
-      const outer = Math.min(w, h) * 0.34;
-      const labelR = outer + (w * 0.08);
-      const lanes = TERPENES.map(t => ({
-        key: t.key,
-        label: terpShortLabel(t.key),
-        value: terpPresenceToLevel(readTerpenePresence()[t.key])
-      }));
-
-      ctx.clearRect(0, 0, w, h);
-
-      const grad = ctx.createRadialGradient(cx, cy, outer * 0.1, cx, cy, outer * 1.15);
-      grad.addColorStop(0, "rgba(93,50,65,0.14)");
-      grad.addColorStop(0.55, "rgba(111,133,104,0.04)");
-      grad.addColorStop(1, "rgba(11,13,16,0)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
-
-      // Guide rings
-      for (let ring = 1; ring <= maxVal; ring++){
-        const rr = outer * (ring / maxVal);
-        ctx.beginPath();
-        lanes.forEach((_, i) => {
-          const angle = (-Math.PI / 2) + (Math.PI * 2 * i / lanes.length);
-          const x = cx + Math.cos(angle) * rr;
-          const y = cy + Math.sin(angle) * rr;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+    function initLaneControls(scope=document){
+      scope.querySelectorAll("[data-lane-group]").forEach(wrap => {
+        const groupName = wrap.getAttribute("data-lane-group");
+        wrap.querySelectorAll("[data-lane-btn]").forEach(btn => {
+          btn.onclick = () => setLaneControl(groupName, btn.getAttribute("data-value") || "");
         });
-        ctx.closePath();
-        ctx.strokeStyle = ring === maxVal ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.08)";
-        ctx.lineWidth = Math.max(1, w * 0.0035);
-        ctx.stroke();
-      }
-
-      // Axes
-      lanes.forEach((lane, i) => {
-        const angle = (-Math.PI / 2) + (Math.PI * 2 * i / lanes.length);
-        const x = cx + Math.cos(angle) * outer;
-        const y = cy + Math.sin(angle) * outer;
-
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(x, y);
-        ctx.strokeStyle = "rgba(255,255,255,0.10)";
-        ctx.lineWidth = Math.max(1, w * 0.003);
-        ctx.stroke();
-
-        const lx = cx + Math.cos(angle) * labelR;
-        const ly = cy + Math.sin(angle) * labelR;
-        ctx.fillStyle = "rgba(233,238,245,0.84)";
-        ctx.font = `${Math.floor(w * 0.035)}px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif`;
-        ctx.textAlign = lx < cx - 4 ? "right" : (lx > cx + 4 ? "left" : "center");
-        ctx.textBaseline = ly < cy - 4 ? "bottom" : (ly > cy + 4 ? "top" : "middle");
-        ctx.fillText(lane.label, lx, ly);
+        syncLaneControl(groupName);
       });
-
-      // Data polygon
-      ctx.beginPath();
-      lanes.forEach((lane, i) => {
-        const angle = (-Math.PI / 2) + (Math.PI * 2 * i / lanes.length);
-        const rr = outer * (lane.value / maxVal);
-        const x = cx + Math.cos(angle) * rr;
-        const y = cy + Math.sin(angle) * rr;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.closePath();
-
-      const polyFill = ctx.createLinearGradient(cx - outer, cy - outer, cx + outer, cy + outer);
-      polyFill.addColorStop(0, "rgba(93,50,65,0.30)");
-      polyFill.addColorStop(0.5, "rgba(188,154,214,0.16)");
-      polyFill.addColorStop(1, "rgba(111,133,104,0.20)");
-      ctx.fillStyle = polyFill;
-      ctx.strokeStyle = "rgba(205,184,222,0.88)";
-      ctx.lineWidth = Math.max(2, w * 0.0065);
-      ctx.fill();
-      ctx.stroke();
-
-      // Node points
-      lanes.forEach((lane, i) => {
-        const angle = (-Math.PI / 2) + (Math.PI * 2 * i / lanes.length);
-        const rr = outer * (lane.value / maxVal);
-        const x = cx + Math.cos(angle) * rr;
-        const y = cy + Math.sin(angle) * rr;
-
-        ctx.beginPath();
-        ctx.arc(x, y, Math.max(3, w * 0.012), 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(233,238,245,0.95)";
-        ctx.fill();
-        ctx.strokeStyle = "rgba(93,50,65,0.75)";
-        ctx.lineWidth = Math.max(1, w * 0.004);
-        ctx.stroke();
-      });
-
-      // Center anchor
-      ctx.beginPath();
-      ctx.arc(cx, cy, Math.max(4, w * 0.013), 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(233,238,245,0.80)";
-      ctx.fill();
     }
 
     // AUDIO (SESSION)
@@ -3673,15 +3655,19 @@ ${cautionBits.join(" • ")}`
       resetCheckedValue("visualGaugeFrost");
       resetCheckedValue("visualGaugeDensity");
       resetCheckedValue("visualGaugeHairs");
+      syncLaneControl("visualGaugeFrost");
+      syncLaneControl("visualGaugeDensity");
+      syncLaneControl("visualGaugeHairs");
       resetCheckedValue("passiveSmellIntensity");
       resetCheckedValue("activatedSmellIntensity");
+      syncLaneControl("passiveSmellIntensity");
+      syncLaneControl("activatedSmellIntensity");
       setPhoto("");
 
       TERPENES.forEach(t => {
         const first = document.querySelector(`input[name="terp_${t.key}"][value=""]`);
         if (first) first.checked = true;
       });
-      drawTerpeneFingerprintDisc();
 
       sessionTag.value = "";
       sessionStashLink.value = "";
@@ -4420,7 +4406,6 @@ Ask me something tighter.`;
       renderVisual();
       renderSmell();
       setStashPhoto("");
-      drawTerpeneFingerprintDisc();
 
       await renderSessions();
       await renderAskPatterns();
