@@ -975,6 +975,96 @@
       text-align:right;
     }
 
+
+    .snapshotPanel{
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:16px;
+      padding:12px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .snapshotHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .snapshotValuePill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:124px;
+      padding:7px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(255,255,255,0.07);
+      color:var(--text);
+      font-size:12px;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+    }
+    .snapshotScale{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:6px;
+      margin-top:10px;
+      color:var(--muted);
+      font-size:10px;
+      letter-spacing:0.05em;
+      text-transform:uppercase;
+      text-align:center;
+    }
+    .snapshotScale span{
+      padding:4px 3px;
+      border-radius:999px;
+      border:1px solid transparent;
+      background:rgba(255,255,255,0.03);
+      line-height:1.15;
+    }
+    .snapshotScale span.active{
+      color:var(--text);
+      border-color:rgba(255,255,255,0.16);
+      background:rgba(255,255,255,0.10);
+    }
+    input.snapshotSlider{
+      -webkit-appearance:none;
+      appearance:none;
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(90,255,170,0.24), rgba(255,255,255,0.12) 50%, rgba(255,180,90,0.24));
+      border:1px solid rgba(255,255,255,0.10);
+      outline:none;
+      margin-top:8px;
+    }
+    input.snapshotSlider::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      appearance:none;
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      background:var(--text);
+      border:2px solid rgba(11,13,16,0.55);
+      box-shadow:0 3px 12px rgba(0,0,0,0.35);
+      cursor:pointer;
+    }
+    input.snapshotSlider::-moz-range-thumb{
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      background:var(--text);
+      border:2px solid rgba(11,13,16,0.55);
+      box-shadow:0 3px 12px rgba(0,0,0,0.35);
+      cursor:pointer;
+    }
+    input.snapshotSlider::-moz-range-track{
+      height:14px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(90,255,170,0.24), rgba(255,255,255,0.12) 50%, rgba(255,180,90,0.24));
+      border:1px solid rgba(255,255,255,0.10);
+    }
+
   </style>
 </head>
 
@@ -1173,45 +1263,51 @@
           <!-- FEELING SNAPSHOT -->
           <div class="terpRow">
             <p class="terpName">Feeling snapshot</p>
-            <p class="terpHint">Fast state capture. Optional. Center = neutral.</p>
+            <p class="terpHint">Fast state capture. Optional. The app stores the math, but you see the vibe.</p>
 
             <div class="list" style="margin-top:10px;">
-              <div class="terpRow">
-                <div class="row between" style="gap:10px;">
+              <div class="snapshotPanel">
+                <div class="snapshotHead">
                   <p class="terpName">Calm ↔ Wired</p>
-                  <span id="snapshotCalmWiredValue" class="miniTag">0</span>
+                  <span id="snapshotCalmWiredValue" class="snapshotValuePill">Balanced</span>
                 </div>
-                <input id="snapshotCalmWired" class="playerRange" type="range" min="-2" max="2" step="1" value="0" />
-                <div class="row between muted" style="font-size:12px;">
-                  <span>CALM</span>
-                  <span>NEUTRAL</span>
-                  <span>WIRED</span>
+                <input id="snapshotCalmWired" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
+                <div id="snapshotCalmWiredScale" class="snapshotScale">
+                  <span data-value="-2">Very Calm</span>
+                  <span data-value="-1">Calm</span>
+                  <span data-value="0">Balanced</span>
+                  <span data-value="1">Wired</span>
+                  <span data-value="2">Very Wired</span>
                 </div>
               </div>
 
-              <div class="terpRow">
-                <div class="row between" style="gap:10px;">
+              <div class="snapshotPanel">
+                <div class="snapshotHead">
                   <p class="terpName">Clear ↔ Foggy</p>
-                  <span id="snapshotClearFoggyValue" class="miniTag">0</span>
+                  <span id="snapshotClearFoggyValue" class="snapshotValuePill">Balanced</span>
                 </div>
-                <input id="snapshotClearFoggy" class="playerRange" type="range" min="-2" max="2" step="1" value="0" />
-                <div class="row between muted" style="font-size:12px;">
-                  <span>CLEAR</span>
-                  <span>NEUTRAL</span>
-                  <span>FOGGY</span>
+                <input id="snapshotClearFoggy" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
+                <div id="snapshotClearFoggyScale" class="snapshotScale">
+                  <span data-value="-2">Very Clear</span>
+                  <span data-value="-1">Clear</span>
+                  <span data-value="0">Balanced</span>
+                  <span data-value="1">Foggy</span>
+                  <span data-value="2">Very Foggy</span>
                 </div>
               </div>
 
-              <div class="terpRow">
-                <div class="row between" style="gap:10px;">
+              <div class="snapshotPanel">
+                <div class="snapshotHead">
                   <p class="terpName">Social ↔ Solo</p>
-                  <span id="snapshotSocialSoloValue" class="miniTag">0</span>
+                  <span id="snapshotSocialSoloValue" class="snapshotValuePill">Balanced</span>
                 </div>
-                <input id="snapshotSocialSolo" class="playerRange" type="range" min="-2" max="2" step="1" value="0" />
-                <div class="row between muted" style="font-size:12px;">
-                  <span>SOCIAL</span>
-                  <span>NEUTRAL</span>
-                  <span>SOLO</span>
+                <input id="snapshotSocialSolo" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
+                <div id="snapshotSocialSoloScale" class="snapshotScale">
+                  <span data-value="-2">Very Social</span>
+                  <span data-value="-1">Social</span>
+                  <span data-value="0">Balanced</span>
+                  <span data-value="1">Solo</span>
+                  <span data-value="2">Very Solo</span>
                 </div>
               </div>
             </div>
@@ -2545,6 +2641,9 @@ ${cautionBits.join(" • ")}`
     const snapshotCalmWiredValue = document.getElementById("snapshotCalmWiredValue");
     const snapshotClearFoggyValue = document.getElementById("snapshotClearFoggyValue");
     const snapshotSocialSoloValue = document.getElementById("snapshotSocialSoloValue");
+    const snapshotCalmWiredScale = document.getElementById("snapshotCalmWiredScale");
+    const snapshotClearFoggyScale = document.getElementById("snapshotClearFoggyScale");
+    const snapshotSocialSoloScale = document.getElementById("snapshotSocialSoloScale");
     const snapshotResetBtn = document.getElementById("snapshotResetBtn");
     let moodSet = new Set();
     function renderMood(){ moodChips.forEach(b => b.classList.toggle("active", moodSet.has(b.getAttribute("data-mood")))); }
@@ -2555,10 +2654,35 @@ ${cautionBits.join(" • ")}`
     });
     moodReset.onclick = () => { moodSet = new Set(); moodOther.value = ""; renderMood(); };
 
+    function snapshotLabel(kind, value){
+      const v = Number(value || 0);
+      const map = {
+        calmWired: { "-2":"Very Calm", "-1":"Calm", "0":"Balanced", "1":"Wired", "2":"Very Wired" },
+        clearFoggy: { "-2":"Very Clear", "-1":"Clear", "0":"Balanced", "1":"Foggy", "2":"Very Foggy" },
+        socialSolo: { "-2":"Very Social", "-1":"Social", "0":"Balanced", "1":"Solo", "2":"Very Solo" }
+      };
+      return map[kind]?.[String(v)] || "Balanced";
+    }
+
+    function updateSnapshotScale(scaleEl, value){
+      if (!scaleEl) return;
+      scaleEl.querySelectorAll('[data-value]').forEach(node => {
+        node.classList.toggle('active', String(value) === node.getAttribute('data-value'));
+      });
+    }
+
     function updateSnapshotBadges(){
-      if (snapshotCalmWiredValue) snapshotCalmWiredValue.textContent = String(snapshotCalmWired?.value || "0");
-      if (snapshotClearFoggyValue) snapshotClearFoggyValue.textContent = String(snapshotClearFoggy?.value || "0");
-      if (snapshotSocialSoloValue) snapshotSocialSoloValue.textContent = String(snapshotSocialSolo?.value || "0");
+      const calmValue = Number(snapshotCalmWired?.value || 0);
+      const clearValue = Number(snapshotClearFoggy?.value || 0);
+      const socialValue = Number(snapshotSocialSolo?.value || 0);
+
+      if (snapshotCalmWiredValue) snapshotCalmWiredValue.textContent = snapshotLabel('calmWired', calmValue);
+      if (snapshotClearFoggyValue) snapshotClearFoggyValue.textContent = snapshotLabel('clearFoggy', clearValue);
+      if (snapshotSocialSoloValue) snapshotSocialSoloValue.textContent = snapshotLabel('socialSolo', socialValue);
+
+      updateSnapshotScale(snapshotCalmWiredScale, calmValue);
+      updateSnapshotScale(snapshotClearFoggyScale, clearValue);
+      updateSnapshotScale(snapshotSocialSoloScale, socialValue);
     }
 
     function readFeelingSnapshot(){
@@ -3400,9 +3524,9 @@ ${cautionBits.join(" • ")}`
         if (s.moodOther) bits.push("MOOD_OTHER:" + s.moodOther);
         if (s.feelingSnapshot && typeof s.feelingSnapshot === "object") {
           const fs = s.feelingSnapshot;
-          if (Number(fs.calmWired || 0) !== 0) bits.push("CALM↔WIRED:" + fs.calmWired);
-          if (Number(fs.clearFoggy || 0) !== 0) bits.push("CLEAR↔FOGGY:" + fs.clearFoggy);
-          if (Number(fs.socialSolo || 0) !== 0) bits.push("SOCIAL↔SOLO:" + fs.socialSolo);
+          if (Number(fs.calmWired || 0) !== 0) bits.push("CALM↔WIRED:" + snapshotLabel('calmWired', fs.calmWired));
+          if (Number(fs.clearFoggy || 0) !== 0) bits.push("CLEAR↔FOGGY:" + snapshotLabel('clearFoggy', fs.clearFoggy));
+          if (Number(fs.socialSolo || 0) !== 0) bits.push("SOCIAL↔SOLO:" + snapshotLabel('socialSolo', fs.socialSolo));
         }
         if (s.visuals && s.visuals.length) bits.push("VISUAL:[" + s.visuals.join(", ") + "]");
         if (s.visualOther) bits.push("VISUAL_OTHER:" + s.visualOther);
