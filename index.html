@@ -165,6 +165,13 @@
       font-size:12px;
       opacity:0.95;
     }
+    #stashDetailBackBtn{
+      padding:12px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:700;
+      letter-spacing:0.02em;
+    }
     .chip.active{
       background:rgba(255,255,255,0.14);
       border-color:rgba(255,255,255,0.32);
@@ -1083,7 +1090,7 @@
 
             <div class="row between">
               <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH DETAIL</h2>
-              <button id="stashDetailBackBtn" class="btn btnTiny" type="button">Back to lineup</button>
+              <button id="stashDetailBackBtn" class="btn btnPrimary" type="button">← Back to lineup</button>
             </div>
 
             <div id="stashDetailBody" class="topgap"></div>
@@ -3553,7 +3560,47 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       wirePatternButton(patternConsistentOpen, stats.mostConsistent);
     }
 
-        async function tonightModeAnswer(goalRaw){
+
+    function positiveBlendScore(n){
+      const x = Number(n || 0);
+      if (!Number.isFinite(x)) return 0.05;
+      return Math.max(0.05, x);
+    }
+
+    function buildGramBlendParts(rows, scoreKey, totalGrams=1){
+      const safeRows = (rows || []).filter(Boolean);
+      if (!safeRows.length) return [];
+
+      const weights = safeRows.map(r => positiveBlendScore(r[scoreKey]));
+      const totalWeight = weights.reduce((a,b) => a + b, 0) || 1;
+
+      let remaining = Math.round(totalGrams * 100);
+      return safeRows.map((row, idx) => {
+        const pctRaw = (weights[idx] / totalWeight) * 100;
+        let gramsHundredths;
+        if (idx === safeRows.length - 1){
+          gramsHundredths = remaining;
+        } else {
+          gramsHundredths = Math.round((weights[idx] / totalWeight) * totalGrams * 100);
+          gramsHundredths = Math.max(0, Math.min(remaining, gramsHundredths));
+          remaining -= gramsHundredths;
+        }
+        const grams = gramsHundredths / 100;
+        const pct = grams / totalGrams * 100;
+        return {
+          ...row,
+          grams,
+          pct,
+          matchScore: row[scoreKey],
+        };
+      });
+    }
+
+    function formatBlendLine(part, idx){
+      return `${idx + 1}. ${part.name} — ${part.grams.toFixed(2)}g (${Math.round(part.pct)}%) | match score ${part.matchScore.toFixed(2)} | ${part.count} logged session${part.count === 1 ? "" : "s"}`;
+    }
+
+    async function tonightModeAnswer(goalRaw){
       const goal = String(goalRaw || "CALM").trim().toUpperCase();
       const stats = await computePatternStats();
       if (!stats.rows.length){
@@ -3570,11 +3617,17 @@ const askPromptBlend = document.getElementById("askPromptBlend");
         return { ...r, pickScore: score };
       }).sort((a,b) => b.pickScore - a.pickScore).slice(0,3);
 
+      const blendParts = buildGramBlendParts(scored, "pickScore", 1);
+
       return `TONIGHT MODE — ${goal}
 
-${scored.map((r, i) => `${i + 1}. ${r.name} — score ${r.pickScore.toFixed(2)} from ${r.count} logged session${r.count === 1 ? "" : "s"}`).join("\n")}
+Top matches:
+${scored.map((r, i) => `${i + 1}. ${r.name} — match score ${r.pickScore.toFixed(2)} from ${r.count} logged session${r.count === 1 ? "" : "s"}`).join("\n")}
 
-Read this correctly: this is guidance from your own logs, not a promise.`;
+1.00g exploratory split:
+${blendParts.map(formatBlendLine).join("\n")}
+
+Read this correctly: match score is ranking only. Grams and percentages are the actual split suggestion.`;
     }
 
 
@@ -3670,6 +3723,7 @@ Read this correctly: this is guidance from your own logs, not a promise.`;
       return complement - weirdPenalty - sameTopPenalty + confidence;
     }
 
+
     async function answerBlend(query){
       const goal = chooseBlendGoal(query);
       const stats = await computePatternStats();
@@ -3681,64 +3735,36 @@ Read this correctly: this is guidance from your own logs, not a promise.`;
 
       const ranked = rows
         .map(r => ({ ...r, blendBaseScore: scoreBlendRow(r, goal) }))
-        .sort((a,b) => b.blendBaseScore - a.blendBaseScore);
+        .sort((a,b) => b.blendBaseScore - a.blendBaseScore)
+        .slice(0,3);
 
-      const primary = ranked[0];
-      const secondary = ranked
-        .map(r => ({ ...r, supportScore: supportBlendScore(primary, r, goal) }))
-        .filter(r => r.key !== primary.key)
-        .sort((a,b) => b.supportScore - a.supportScore)[0] || null;
+      const parts = buildGramBlendParts(ranked, "blendBaseScore", 1);
 
-      if (!secondary || rows.length < 2){
-        const lanes = bestLanesForRow(primary).filter(x => x.value > 0).slice(0,2);
+      if (parts.length === 1){
+        const solo = parts[0];
+        const lanes = bestLanesForRow(solo).filter(x => x.value > 0).slice(0,2);
         return `BLEND READ — ${goal}
 
 I only have enough grounded signal for one real component right now.
 
-Best current single: ${primary.name}
+Solo pick:
+${solo.name} — 1.00g (100%)
 Best lanes: ${lanes.length ? lanes.map(x => laneLabel(x.key)).join(", ") : "still early"}
-Confidence: ${confidenceLabel(primary.count)} (${primary.count} logged session${primary.count === 1 ? "" : "s"})
+Match score: ${solo.matchScore.toFixed(2)}
+Confidence: ${confidenceLabel(solo.count)} (${solo.count} logged session${solo.count === 1 ? "" : "s"})
 
-Use this as a solo pick for now. A true blend needs more than one real candidate in your logs.`;
+A true blend needs more than one real candidate in your logs.`;
       }
-
-      const spread = primary.blendBaseScore - secondary.blendBaseScore;
-      let primaryPct = 60;
-      if (spread >= 0.9) primaryPct = 75;
-      else if (spread >= 0.45) primaryPct = 65;
-      else if (spread <= 0.15) primaryPct = 55;
-      const secondaryPct = 100 - primaryPct;
-
-      const primaryLanes = bestLanesForRow(primary).filter(x => x.value > 0).slice(0,2);
-      const secondaryLanes = bestLanesForRow(secondary).filter(x => x.value > 0).slice(0,2);
-
-      const why = [];
-      if (goal === "CALM") why.push("leaning toward calm-first support");
-      if (goal === "SLEEP") why.push("leaning toward sleep-first support");
-      if (goal === "FOCUS") why.push("leaning toward clearer / steadier support");
-      if (goal === "CREATIVE") why.push("leaning toward creative lift with less chaos");
-      if (goal === "FUN") why.push("leaning toward social / fun lift");
-      if (laneRate(primary, "weird") > 0.25) why.push("primary gets cut back slightly because it can hit weird");
-      if (laneRate(secondary, "weird") > 0.25) why.push("support component is not pushed too hard because it can hit weird");
-      if (!why.length) why.push("best two-component signal from your current logs");
 
       return `BLEND READ — ${goal}
 
-Try:
-${primary.name} ${primaryPct}% + ${secondary.name} ${secondaryPct}%
-
-Primary:
-${primary.name} — best lanes: ${primaryLanes.length ? primaryLanes.map(x => laneLabel(x.key)).join(", ") : "early signal"} — confidence ${confidenceLabel(primary.count)} (${primary.count} session${primary.count === 1 ? "" : "s"})
-
-Support:
-${secondary.name} — best lanes: ${secondaryLanes.length ? secondaryLanes.map(x => laneLabel(x.key)).join(", ") : "early signal"} — confidence ${confidenceLabel(secondary.count)} (${secondary.count} session${secondary.count === 1 ? "" : "s"})
-
-Why this split:
-${why.join(" • ")}
+1.00g blend:
+${parts.map(formatBlendLine).join("\n")}
 
 Grounding:
-This is based on your own logged outcomes only. It is a pattern read, not a promise.`;
+These match scores rank fit for your target. The grams and percentages are the actual proportional split suggestion. Based on your own logged outcomes only.`;
     }
+
 
     async function answerAsk(q){
       const query = String(q || "").trim().toLowerCase();
