@@ -1065,6 +1065,45 @@
       border:1px solid rgba(255,255,255,0.10);
     }
 
+    .fpDiscWrap{
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:16px;
+      padding:12px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+    }
+    .fpDiscHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .terpeneDisc{
+      display:block;
+      width:min(100%, 320px);
+      aspect-ratio:1 / 1;
+      margin:0 auto;
+      border-radius:16px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(93,50,65,0.10), transparent 54%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.08);
+    }
+    .fpDiscLegend{
+      margin-top:8px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:8px;
+      max-width:320px;
+      margin-left:auto;
+      margin-right:auto;
+      color:var(--muted);
+      font-size:10px;
+      letter-spacing:0.10em;
+      text-transform:uppercase;
+      text-align:center;
+    }
+
   </style>
 </head>
 
@@ -1495,7 +1534,22 @@
           <div class="terpRow">
             <p class="terpName">Terpene presence</p>
             <p class="terpHint">Not %s. Just your read: Not present / Background / Noticeable / Dominant.</p>
+            
+            <div class="fpDiscWrap topgap">
+              <div class="fpDiscHead">
+                <div>
+                  <p class="terpName">Fingerprint disc</p>
+                  <p class="terpHint">Live terpene identity shape. Fixed lanes. Fixed scale.</p>
+                </div>
+              </div>
+              <canvas id="terpeneFingerprintDisc" class="terpeneDisc" width="320" height="320" aria-label="Terpene fingerprint disc"></canvas>
+              <div class="fpDiscLegend">
+                <span>NP</span><span>BG</span><span>N</span><span>D</span>
+              </div>
+            </div>
+
             <div id="terpeneBox" class="list" style="margin-top:10px;"></div>
+
           </div>
 
           <div class="divider"></div>
@@ -2809,6 +2863,11 @@ ${cautionBits.join(" • ")}`
       });
     }
     buildTerpenes();
+    document.addEventListener("change", (e) => {
+      const target = e.target;
+      if (target && target.name && String(target.name).startsWith("terp_")) drawTerpeneFingerprintDisc();
+    });
+    window.addEventListener("resize", drawTerpeneFingerprintDisc);
     function readTerpenePresence(){
       const out = {};
       TERPENES.forEach(t => {
@@ -2816,6 +2875,151 @@ ${cautionBits.join(" • ")}`
         out[t.key] = sel ? (sel.value || "") : "";
       });
       return out;
+    }
+
+
+    const terpeneFingerprintDisc = document.getElementById("terpeneFingerprintDisc");
+
+    function terpPresenceToLevel(v){
+      const map = {
+        "": 0,
+        "NOT_PRESENT": 0,
+        "BACKGROUND": 1,
+        "NOTICEABLE": 2,
+        "DOMINANT": 3
+      };
+      return map[String(v || "").toUpperCase()] ?? 0;
+    }
+
+    function terpShortLabel(key){
+      const map = {
+        MYRCENE: "MYR",
+        CARYOPHYLLENE: "CARY",
+        LIMONENE: "LIMO",
+        PINENE: "PINE",
+        LINALOOL: "LINA",
+        TERPINOLENE: "TERP"
+      };
+      return map[String(key || "").toUpperCase()] || String(key || "").slice(0,4).toUpperCase();
+    }
+
+    function drawTerpeneFingerprintDisc(){
+      if (!terpeneFingerprintDisc) return;
+
+      const canvas = terpeneFingerprintDisc;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const size = Math.max(220, Math.floor(Math.min(rect.width || 320, 320) * dpr));
+      if (canvas.width !== size) canvas.width = size;
+      if (canvas.height !== size) canvas.height = size;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const maxVal = 3;
+      const outer = Math.min(w, h) * 0.34;
+      const labelR = outer + (w * 0.08);
+      const lanes = TERPENES.map(t => ({
+        key: t.key,
+        label: terpShortLabel(t.key),
+        value: terpPresenceToLevel(readTerpenePresence()[t.key])
+      }));
+
+      ctx.clearRect(0, 0, w, h);
+
+      const grad = ctx.createRadialGradient(cx, cy, outer * 0.1, cx, cy, outer * 1.15);
+      grad.addColorStop(0, "rgba(93,50,65,0.14)");
+      grad.addColorStop(0.55, "rgba(111,133,104,0.04)");
+      grad.addColorStop(1, "rgba(11,13,16,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Guide rings
+      for (let ring = 1; ring <= maxVal; ring++){
+        const rr = outer * (ring / maxVal);
+        ctx.beginPath();
+        lanes.forEach((_, i) => {
+          const angle = (-Math.PI / 2) + (Math.PI * 2 * i / lanes.length);
+          const x = cx + Math.cos(angle) * rr;
+          const y = cy + Math.sin(angle) * rr;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        ctx.strokeStyle = ring === maxVal ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.08)";
+        ctx.lineWidth = Math.max(1, w * 0.0035);
+        ctx.stroke();
+      }
+
+      // Axes
+      lanes.forEach((lane, i) => {
+        const angle = (-Math.PI / 2) + (Math.PI * 2 * i / lanes.length);
+        const x = cx + Math.cos(angle) * outer;
+        const y = cy + Math.sin(angle) * outer;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = "rgba(255,255,255,0.10)";
+        ctx.lineWidth = Math.max(1, w * 0.003);
+        ctx.stroke();
+
+        const lx = cx + Math.cos(angle) * labelR;
+        const ly = cy + Math.sin(angle) * labelR;
+        ctx.fillStyle = "rgba(233,238,245,0.84)";
+        ctx.font = `${Math.floor(w * 0.035)}px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif`;
+        ctx.textAlign = lx < cx - 4 ? "right" : (lx > cx + 4 ? "left" : "center");
+        ctx.textBaseline = ly < cy - 4 ? "bottom" : (ly > cy + 4 ? "top" : "middle");
+        ctx.fillText(lane.label, lx, ly);
+      });
+
+      // Data polygon
+      ctx.beginPath();
+      lanes.forEach((lane, i) => {
+        const angle = (-Math.PI / 2) + (Math.PI * 2 * i / lanes.length);
+        const rr = outer * (lane.value / maxVal);
+        const x = cx + Math.cos(angle) * rr;
+        const y = cy + Math.sin(angle) * rr;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+
+      const polyFill = ctx.createLinearGradient(cx - outer, cy - outer, cx + outer, cy + outer);
+      polyFill.addColorStop(0, "rgba(93,50,65,0.30)");
+      polyFill.addColorStop(0.5, "rgba(188,154,214,0.16)");
+      polyFill.addColorStop(1, "rgba(111,133,104,0.20)");
+      ctx.fillStyle = polyFill;
+      ctx.strokeStyle = "rgba(205,184,222,0.88)";
+      ctx.lineWidth = Math.max(2, w * 0.0065);
+      ctx.fill();
+      ctx.stroke();
+
+      // Node points
+      lanes.forEach((lane, i) => {
+        const angle = (-Math.PI / 2) + (Math.PI * 2 * i / lanes.length);
+        const rr = outer * (lane.value / maxVal);
+        const x = cx + Math.cos(angle) * rr;
+        const y = cy + Math.sin(angle) * rr;
+
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(3, w * 0.012), 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(233,238,245,0.95)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(93,50,65,0.75)";
+        ctx.lineWidth = Math.max(1, w * 0.004);
+        ctx.stroke();
+      });
+
+      // Center anchor
+      ctx.beginPath();
+      ctx.arc(cx, cy, Math.max(4, w * 0.013), 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(233,238,245,0.80)";
+      ctx.fill();
     }
 
     // AUDIO (SESSION)
@@ -2946,13 +3150,12 @@ ${cautionBits.join(" • ")}`
       preview.removeAttribute("src");
       setStatus("rec","Session recording…");
 
-      // Transcript is opportunistic: try it, but never let it block audio.
-      try{ maybeStartAutoTranscript(); }catch(e){}
+      maybeStartAutoTranscript();
     }
 
     function stopRecording(){
       if (!mediaRecorder) return;
-      try{ maybeStopAutoTranscript(); }catch(e){}
+      maybeStopAutoTranscript();
       try{ mediaRecorder.stop(); } catch(e){}
       recBtn.disabled = false;
       stopBtn.disabled = true;
@@ -3478,6 +3681,7 @@ ${cautionBits.join(" • ")}`
         const first = document.querySelector(`input[name="terp_${t.key}"][value=""]`);
         if (first) first.checked = true;
       });
+      drawTerpeneFingerprintDisc();
 
       sessionTag.value = "";
       sessionStashLink.value = "";
@@ -4216,6 +4420,7 @@ Ask me something tighter.`;
       renderVisual();
       renderSmell();
       setStashPhoto("");
+      drawTerpeneFingerprintDisc();
 
       await renderSessions();
       await renderAskPatterns();
