@@ -1372,7 +1372,7 @@
           <!-- TRANSCRIPT OPTIONS -->
           <div class="terpRow">
             <p class="terpName">Transcript options</p>
-            <p class="terpHint">Optional text memory for this session. Manual stays valid. Live browser speech is a helper, not the truth layer.</p>
+            <p class="terpHint">Optional text memory for this session. Manual for now. No hidden processing.</p>
 
             <div class="topgap">
               <div class="label">Transcript mode</div>
@@ -1385,20 +1385,9 @@
             </div>
 
             <div class="row topgap">
-              <button id="transcriptRecBtn" class="btn btnPrimary" type="button">📝 Live Transcript</button>
-              <button id="transcriptStopBtn" class="btn" type="button" disabled>Stop</button>
-              <button id="transcriptResetBtn" class="btn btnTiny" type="button">Reset</button>
-              <span id="transcriptStatusPill" class="pill"><span class="okDot"></span><span id="transcriptStatusText">Idle</span></span>
-            </div>
-
-            <div class="notice topgap" id="transcriptAssistNotice">
-              Browser speech can help draft transcript text, but manual typing/paste is still the clean truth path. If browser speech is weak here, paste your own words and keep moving.
-            </div>
-
-            <div class="row topgap">
               <label class="field">
                 <span class="label">Transcript (optional)</span>
-                <textarea id="transcriptText" class="input" rows="5" placeholder="Paste, type, or use live transcript here."></textarea>
+                <textarea id="transcriptText" class="input" rows="5" placeholder="Paste or type transcript here."></textarea>
               </label>
             </div>
 
@@ -1410,7 +1399,7 @@
             </div>
 
             <div class="notice topgap">
-              Transcript stays local. Live speech is assistive only. Saved session keeps the current transcript text exactly as you see it here.
+              Transcript scaffolding only. This pass stores user-provided transcript text and summary locally so ASK and future pattern layers can use it later.
             </div>
           </div>
 
@@ -1651,7 +1640,6 @@
         "HEAVY": 4,
         "LOUD": 4
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       return map[value || ""] ?? 0;
     }
 
@@ -1674,7 +1662,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       if (delta <= -2) flags.push("FRONT-LOADED");
 
       return { passive, activated, delta, flags };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
     function buildSignalBadge(text, tone){
@@ -1769,8 +1756,7 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
     function patternBarRow(label, ratio, accent){
       const pct = Math.max(0, Math.min(100, Math.round((ratio || 0) * 100)));
       return `
-        <div class="patternBarRow" style="--specAccent:${accent};
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };">
+        <div class="patternBarRow" style="--specAccent:${accent};">
           <div class="patternBarLabel">${escapeHtml(label)}</div>
           <div class="patternBarTrack"><div class="patternBarFill" style="width:${pct}%;"></div></div>
           <div class="patternBarPct">${pct}%</div>
@@ -1889,7 +1875,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
 
           player._raf = requestAnimationFrame(render);
         };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         if (!player._raf){
           player._raf = requestAnimationFrame(render);
@@ -1936,7 +1921,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
           remain.textContent = `−${formatClock(Math.max(0, duration - current))}`;
           playBtn.textContent = (!audio.paused && !audio.ended) ? "Pause" : "Play";
         };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         playBtn.onclick = async () => {
           try{
@@ -1956,7 +1940,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
           }
           syncUI();
         };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         range.addEventListener("input", () => {
           if (!Number.isFinite(audio.duration)) return;
@@ -2045,7 +2028,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       stashVisualOther.value = "";
       renderStashVisual();
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     function setStashPhoto(dataUrl){
       stashPhotoDataUrl.value = dataUrl || "";
@@ -2143,8 +2125,7 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       const accent = getSpecimenTone(stash);
 
       stashDetailBody.innerHTML = `
-        <div class="stashDetailCard" style="--specAccent:${accent};
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };">
+        <div class="stashDetailCard" style="--specAccent:${accent};">
           <div class="specimenGhostLeaf"></div>
           <div class="detailHeroShell">
             ${
@@ -2281,7 +2262,6 @@ ${cautionBits.join(" • ")}`
               : `${stash.name} does not have enough linked sessions yet to generate a useful caution read.`;
           }
         };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       });
       stashListWrap.style.display = "none";
       stashDetail.classList.add("active");
@@ -2307,8 +2287,7 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
         el.innerHTML = `
           <div class="specimenGhostLeaf"></div>
           <div class="stashRow">
-            <div class="stashThumbWrap" style="--specAccent:${accent};
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };">
+            <div class="stashThumbWrap" style="--specAccent:${accent};">
               ${stashThumbMarkup(it.photoDataUrl || "", it.name || "Stash photo")}
             </div>
 
@@ -2318,8 +2297,7 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
                 ${tagBits.length ? `<span class="specimenLabel">${escapeHtml(String(tagBits[0]).replaceAll("_"," "))}</span>` : ""}
               </div>
               <p class="specimenName">${escapeHtml(it.name || "Unnamed")}</p>
-              <div class="specimenRule" style="--specAccent:${accent};
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };"></div>
+              <div class="specimenRule" style="--specAccent:${accent};"></div>
               <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
               ${
                 tagBits.length
@@ -2354,7 +2332,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
             closeStashDetail();
           }
         };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         stashList.appendChild(el);
       });
@@ -2378,14 +2355,12 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       stashName.focus();
       stashName.setSelectionRange(stashName.value.length, stashName.value.length);
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     sessionUnknownBtn.onclick = async () => {
       sessionTag.value = await getNextUnknownSessionTag();
       sessionTag.focus();
       sessionTag.setSelectionRange(sessionTag.value.length, sessionTag.value.length);
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     addStashBtn.onclick = () => {
       let name = (stashName.value || "").trim();
@@ -2405,7 +2380,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
         photoDataUrl: stashPhotoDataUrl.value || "",
         createdAt: Date.now()
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       const items = loadStash();
       items.unshift(item);
       saveStash(items);
@@ -2417,7 +2391,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       renderStashVisual();
       closeStashDetail();
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     clearStashBtn.onclick = () => {
       const ok = confirm("Clear entire STASH on this device?");
@@ -2429,7 +2402,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       renderStashVisual();
       closeStashDetail();
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     // IndexedDB
     const DB_NAME = "stoneyvibes_db_v1";
@@ -2446,7 +2418,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
             store.createIndex("createdAt", "createdAt", { unique:false });
           }
         };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
         req.onsuccess = () => resolve(req.result);
         req.onerror = () => reject(req.error);
       });
@@ -2508,7 +2479,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
           Array.from(container.querySelectorAll("button")).forEach(x => x.classList.remove("btnPrimary"));
           b.classList.add("btnPrimary");
         };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
         container.appendChild(b);
       }
     }
@@ -2527,7 +2497,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       renderMood();
     });
     moodReset.onclick = () => { moodSet = new Set(); moodOther.value = ""; renderMood(); };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     // Visual traits
     const visualChips = Array.from(document.querySelectorAll("[data-visual]"));
@@ -2548,7 +2517,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       resetCheckedValue("visualGaugeDensity");
       resetCheckedValue("visualGaugeHairs");
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     // Smell tags
     const smellChips = Array.from(document.querySelectorAll("[data-smell]"));
@@ -2568,7 +2536,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       resetCheckedValue("passiveSmellIntensity");
       resetCheckedValue("activatedSmellIntensity");
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     // Photo
     const photoInput = document.getElementById("photoInput");
@@ -2637,7 +2604,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
     buildTerpenes();
     function readTerpenePresence(){
       const out = {};
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       TERPENES.forEach(t => {
         const sel = document.querySelector(`input[name="terp_${t.key}"]:checked`);
         out[t.key] = sel ? (sel.value || "") : "";
@@ -2659,11 +2625,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
     const sessionList = document.getElementById("sessionList");
     const transcriptText = document.getElementById("transcriptText");
     const transcriptSummary = document.getElementById("transcriptSummary");
-    const transcriptRecBtn = document.getElementById("transcriptRecBtn");
-    const transcriptStopBtn = document.getElementById("transcriptStopBtn");
-    const transcriptResetBtn = document.getElementById("transcriptResetBtn");
-    const transcriptStatusPill = document.getElementById("transcriptStatusPill");
-    const transcriptStatusText = document.getElementById("transcriptStatusText");
 
     let mediaRecorder = null;
     let mediaStream = null;
@@ -2714,18 +2675,15 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       }
 
       mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       mediaRecorder.onpause = () => {
         pauseBtn.textContent = "Resume";
         setStatus("rec","Paused");
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       mediaRecorder.onresume = () => {
         pauseBtn.textContent = "Pause";
         setStatus("rec","Recording…");
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       mediaRecorder.onstop = () => {
         try{
@@ -2741,7 +2699,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
           pauseBtn.disabled = true;
         }
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       mediaRecorder.start();
 
@@ -2835,18 +2792,15 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       }
 
       smellRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) smellChunks.push(e.data); };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       smellRecorder.onpause = () => {
         smellPauseBtn.textContent = "Resume";
         setSmellStatus("rec","Paused");
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       smellRecorder.onresume = () => {
         smellPauseBtn.textContent = "Pause";
         setSmellStatus("rec","Recording…");
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       smellRecorder.onstop = () => {
         try{
@@ -2862,7 +2816,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
           smellPauseBtn.disabled = true;
         }
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       smellRecorder.start();
 
@@ -2904,65 +2857,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       setSmellStatus("idle","Ready");
     });
 
-    let transcriptEngine = null;
-
-    function setTranscriptStatus(mode){
-      const textMap = {
-        idle: "Idle",
-        recording: "Listening…",
-        restarting: "Restarting…",
-        stopped: "Stopped",
-        unsupported: "Browser speech unavailable",
-        "error:not-allowed": "Mic permission blocked",
-        "error:service-not-allowed": "Speech service blocked",
-        "error:network": "Speech network issue",
-        "error:audio-capture": "No mic input",
-        "error:no-speech": "No speech heard",
-        "error:aborted": "Transcript aborted",
-        "error:start_failed": "Start failed",
-        "error:restart_failed": "Restart failed"
-      };
-      transcriptStatusText.textContent = textMap[mode] || mode.replace(/^error:/, "Error: ");
-      const dot = transcriptStatusPill.querySelector("span");
-      dot.className = mode === "recording" ? "recDot" : "okDot";
-    }
-
-    function initTranscriptEngine(){
-      transcriptEngine = createTranscriptEngine((data) => {
-        if (!transcriptText) return;
-        transcriptText.value = data.fullText;
-      }, (status) => {
-        setTranscriptStatus(status);
-        const active = status === "recording" || status === "restarting";
-        transcriptRecBtn.disabled = active;
-        transcriptStopBtn.disabled = !active;
-      });
-
-      setTranscriptStatus("idle");
-
-      if (!transcriptEngine.supported()){
-        transcriptRecBtn.disabled = true;
-        transcriptStopBtn.disabled = true;
-        setTranscriptStatus("unsupported");
-      }
-
-      transcriptRecBtn.onclick = () => {
-        if (!transcriptEngine || !transcriptEngine.supported()) return;
-        transcriptEngine.start(transcriptText.value || "");
-      };
-
-      transcriptStopBtn.onclick = () => {
-        if (!transcriptEngine) return;
-        transcriptEngine.stop();
-      };
-
-      transcriptResetBtn.onclick = () => {
-        if (transcriptEngine) transcriptEngine.reset("");
-        transcriptText.value = "";
-        setTranscriptStatus(transcriptEngine && transcriptEngine.supported() ? "idle" : "unsupported");
-      };
-    }
-
     function normalizeImportedStashEntry(raw, fallbackIndex){
       return {
         id: String(raw.id || uid("stash")),
@@ -2974,7 +2868,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
         photoDataUrl: String(raw.photoDataUrl || ""),
         createdAt: Number(raw.createdAt || Date.now())
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
     function normalizeImportedSessionEntry(raw, fallbackIndex){
@@ -3006,7 +2899,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
         terpenes: (raw.terpenes && typeof raw.terpenes === "object") ? raw.terpenes : {},
         photoDataUrl: String(raw.photoDataUrl || ""),
         transcriptMode: String(raw.transcriptMode || "AUDIO_ONLY"),
-        transcriptSource: String(raw.transcriptSource || "MANUAL"),
         transcriptText: String(raw.transcriptText || ""),
         transcriptSummary: String(raw.transcriptSummary || ""),
         mimeType: "",
@@ -3014,7 +2906,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
         smellMimeType: "",
         smellAudioBlob: null
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
     async function replaceFromImportedJson(payload){
@@ -3113,7 +3004,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
         terpenes: readTerpenePresence(),
         photoDataUrl: photoDataUrl.value || "",
         transcriptMode: readTranscriptMode(),
-        transcriptSource: (transcriptEngine && transcriptEngine.supported()) ? "MANUAL_OR_LIVE" : "MANUAL",
         transcriptText: (transcriptText?.value || "").trim(),
         transcriptSummary: (transcriptSummary?.value || "").trim(),
         mimeType: pendingAudioBlob.type || "audio/*",
@@ -3121,7 +3011,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
         smellMimeType: pendingSmellBlob ? (pendingSmellBlob.type || "audio/*") : "",
         smellAudioBlob: pendingSmellBlob || null
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       await dbPut(session);
 
@@ -3129,9 +3018,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       preview.style.display = "none";
       preview.removeAttribute("src");
       setStatus("idle","Idle");
-
-      if (transcriptEngine) transcriptEngine.stop();
-      setTranscriptStatus(transcriptEngine && transcriptEngine.supported() ? "idle" : "unsupported");
 
       pendingSmellBlob = null;
       smellPreview.style.display = "none";
@@ -3240,7 +3126,7 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
             (s.transcriptText || s.transcriptSummary)
             ? `<div class="terpRow topgap">
                 <p class="terpName">Transcript memory</p>
-                <p class="terpHint">Mode: ${escapeHtml(String(s.transcriptMode || "AUDIO_ONLY").replaceAll("_"," "))}${s.transcriptSource ? " — Source: " + escapeHtml(String(s.transcriptSource).replaceAll("_"," ")) : ""}</p>
+                <p class="terpHint">Mode: ${escapeHtml(String(s.transcriptMode || "AUDIO_ONLY").replaceAll("_"," "))}</p>
                 ${s.transcriptText ? `<div class="itemMeta" style="margin-top:8px; color:var(--text);">${escapeHtml(s.transcriptText)}</div>` : ""}
                 ${s.transcriptSummary ? `<div class="notice topgap">${escapeHtml(s.transcriptSummary)}</div>` : ""}
               </div>`
@@ -3259,7 +3145,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
             await renderSelectedStashDetail();
           }
         };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         sessionList.appendChild(el);
         initCustomPlayers(el);
@@ -3286,7 +3171,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       }
       setStatus("idle","Idle");
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
 
     // ASK / LAYER 1
@@ -3326,144 +3210,6 @@ const askPromptBlend = document.getElementById("askPromptBlend");
     function readTranscriptMode(){
       const sel = document.querySelector('input[name="transcriptMode"]:checked');
       return sel ? (sel.value || "AUDIO_ONLY") : "AUDIO_ONLY";
-    }
-
-
-    function createTranscriptEngine(onUpdate, onStatus){
-      let recognition = null;
-      let isRecording = false;
-      let shouldRestart = false;
-      let finalText = "";
-      let interimText = "";
-
-      function supported(){
-        return ("webkitSpeechRecognition" in window) || ("SpeechRecognition" in window);
-      }
-
-      function emit(){
-        onUpdate && onUpdate({
-          finalText,
-          interimText,
-          fullText: `${finalText}${interimText ? (finalText ? " " : "") + interimText : ""}`.trim(),
-          isRecording
-        });
-      }
-
-      function teardown(){
-        if (!recognition) return;
-        recognition.onstart = null;
-        recognition.onend = null;
-        recognition.onerror = null;
-        recognition.onresult = null;
-      }
-
-      function bind(){
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        recognition.onstart = () => {
-          isRecording = true;
-          onStatus && onStatus("recording");
-          emit();
-        };
-
-        recognition.onend = () => {
-          isRecording = false;
-          emit();
-
-          if (shouldRestart){
-            onStatus && onStatus("restarting");
-            setTimeout(() => {
-              if (!shouldRestart) return;
-              try{
-                teardown();
-                bind();
-                recognition.start();
-              }catch(err){
-                onStatus && onStatus("error:restart_failed");
-              }
-            }, 250);
-            return;
-          }
-
-          onStatus && onStatus("stopped");
-        };
-
-        recognition.onerror = (event) => {
-          const code = String(event?.error || "unknown");
-          if (code === "not-allowed" || code === "service-not-allowed"){
-            shouldRestart = false;
-          }
-          onStatus && onStatus(`error:${code}`);
-        };
-
-        recognition.onresult = (event) => {
-          interimText = "";
-          for (let i = event.resultIndex; i < event.results.length; i++){
-            const chunk = String(event.results[i][0]?.transcript || "").trim();
-            if (!chunk) continue;
-
-            if (event.results[i].isFinal){
-              finalText = `${finalText} ${chunk}`.trim();
-            } else {
-              interimText = `${interimText} ${chunk}`.trim();
-            }
-          }
-          emit();
-        };
-      }
-
-      function start(seedText=""){
-        if (!supported()){
-          onStatus && onStatus("unsupported");
-          return false;
-        }
-
-        if (isRecording) return true;
-
-        finalText = String(seedText || "").trim();
-        interimText = "";
-        shouldRestart = true;
-
-        try{
-          teardown();
-          bind();
-          recognition.start();
-          return true;
-        }catch(err){
-          onStatus && onStatus("error:start_failed");
-          return false;
-        }
-      }
-
-      function stop(){
-        shouldRestart = false;
-        if (recognition && isRecording){
-          try{ recognition.stop(); }catch(err){}
-        } else {
-          onStatus && onStatus("stopped");
-        }
-      }
-
-      function reset(nextText=""){
-        finalText = String(nextText || "").trim();
-        interimText = "";
-        emit();
-      }
-
-      function getState(){
-        return {
-          supported: supported(),
-          isRecording,
-          finalText,
-          interimText,
-          fullText: `${finalText}${interimText ? (finalText ? " " : "") + interimText : ""}`.trim()
-        };
-      }
-
-      return { start, stop, reset, getState, supported };
     }
 
 
@@ -3546,7 +3292,6 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       const weirdest = rows.slice().sort((a,b) => ((b.weird / b.count) - (a.weird / a.count)) || (b.count - a.count))[0] || null;
 
       return { rows, bestSleep, bestCalm, bestCreative, bestFocus, bestFun, mostConsistent, weirdest, sessions };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
 
@@ -3566,7 +3311,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       const stats = {
         sleep:0, calm:0, creative:0, focus:0, fun:0, weird:0, total:0
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       linked.forEach(s => {
         stats.total += sessionOutcomeScore(s);
         if (parseSleepValue(s.sleep) >= 4) stats.sleep += 1;
@@ -3603,7 +3347,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
         goToPage(0);
         openStashDetail(row.id);
       };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
     function formatPatternLine(row, mode){
@@ -3648,7 +3391,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
         if (goal === "FOCUS") score += ((r.calm / r.count) * 0.6);
         score -= (r.weird / r.count) * 1.6;
         return { ...r, pickScore: score };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       }).sort((a,b) => b.pickScore - a.pickScore).slice(0,3);
 
       return `TONIGHT MODE — ${goal}
@@ -3656,6 +3398,169 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
 ${scored.map((r, i) => `${i + 1}. ${r.name} — score ${r.pickScore.toFixed(2)} from ${r.count} logged session${r.count === 1 ? "" : "s"}`).join("\n")}
 
 Read this correctly: this is guidance from your own logs, not a promise.`;
+    }
+
+
+    function laneRate(row, lane){
+      if (!row || !row.count) return 0;
+      if (lane === "sleep") return row.sleepGood / row.count;
+      if (lane === "calm") return row.calm / row.count;
+      if (lane === "creative") return row.creative / row.count;
+      if (lane === "focus") return row.focus / row.count;
+      if (lane === "fun") return row.fun / row.count;
+      if (lane === "weird") return row.weird / row.count;
+      return 0;
+    }
+
+    function laneLabel(lane){
+      const map = {
+        sleep: "sleep",
+        calm: "calm",
+        creative: "creative",
+        focus: "focus / clear",
+        fun: "fun / social"
+      };
+      return map[lane] || lane;
+    }
+
+    function bestLanesForRow(row){
+      return [
+        { key:"sleep", value: laneRate(row, "sleep") },
+        { key:"calm", value: laneRate(row, "calm") },
+        { key:"creative", value: laneRate(row, "creative") },
+        { key:"focus", value: laneRate(row, "focus") },
+        { key:"fun", value: laneRate(row, "fun") }
+      ].sort((a,b) => b.value - a.value);
+    }
+
+    function chooseBlendGoal(query){
+      const q = String(query || "").toLowerCase();
+      if (q.includes("sleep")) return "SLEEP";
+      if (q.includes("focus") || q.includes("clear")) return "FOCUS";
+      if (q.includes("creative") || q.includes("create")) return "CREATIVE";
+      if (q.includes("fun") || q.includes("social")) return "FUN";
+      return "CALM";
+    }
+
+    function scoreBlendRow(row, goal){
+      const avg = row.count ? (row.total / row.count) : 0;
+      const weirdPenalty = laneRate(row, "weird") * 1.6;
+
+      let laneBoost = 0;
+      if (goal === "SLEEP") laneBoost += laneRate(row, "sleep") * 2.4 + laneRate(row, "calm") * 0.6;
+      if (goal === "CALM") laneBoost += laneRate(row, "calm") * 2.2 + laneRate(row, "sleep") * 0.4;
+      if (goal === "FOCUS") laneBoost += laneRate(row, "focus") * 2.2 + laneRate(row, "calm") * 0.3;
+      if (goal === "CREATIVE") laneBoost += laneRate(row, "creative") * 2.2 + laneRate(row, "fun") * 0.3;
+      if (goal === "FUN") laneBoost += laneRate(row, "fun") * 2.2 + laneRate(row, "creative") * 0.3;
+
+      return avg + laneBoost - weirdPenalty + Math.min(0.35, row.count * 0.04);
+    }
+
+    function supportBlendScore(primary, candidate, goal){
+      if (!candidate || candidate.key === primary.key) return -999;
+
+      const primaryLanes = bestLanesForRow(primary);
+      const candidateLanes = bestLanesForRow(candidate);
+
+      const primaryTop = primaryLanes[0]?.key || "calm";
+      const candidateTop = candidateLanes[0]?.key || "calm";
+      const sameTopPenalty = primaryTop === candidateTop ? 0.18 : 0;
+
+      let complement = 0;
+      if (goal === "CALM"){
+        complement += laneRate(candidate, "calm") * 1.3;
+        complement += laneRate(candidate, "sleep") * 0.8;
+        complement += laneRate(candidate, "focus") * 0.35;
+      } else if (goal === "SLEEP"){
+        complement += laneRate(candidate, "sleep") * 1.4;
+        complement += laneRate(candidate, "calm") * 0.8;
+      } else if (goal === "FOCUS"){
+        complement += laneRate(candidate, "focus") * 1.3;
+        complement += laneRate(candidate, "calm") * 0.45;
+      } else if (goal === "CREATIVE"){
+        complement += laneRate(candidate, "creative") * 1.3;
+        complement += laneRate(candidate, "fun") * 0.4;
+        complement += laneRate(candidate, "calm") * 0.2;
+      } else if (goal === "FUN"){
+        complement += laneRate(candidate, "fun") * 1.3;
+        complement += laneRate(candidate, "creative") * 0.5;
+        complement += laneRate(candidate, "calm") * 0.2;
+      }
+
+      const weirdPenalty = laneRate(candidate, "weird") * 1.2;
+      const confidence = Math.min(0.3, candidate.count * 0.035);
+
+      return complement - weirdPenalty - sameTopPenalty + confidence;
+    }
+
+    async function answerBlend(query){
+      const goal = chooseBlendGoal(query);
+      const stats = await computePatternStats();
+      const rows = stats.rows.filter(r => r.count > 0);
+
+      if (!rows.length){
+        return "BLEND READ\n\nI do not have enough real session signal yet. Log a few sessions first, then I can ground a blend in your own data.";
+      }
+
+      const ranked = rows
+        .map(r => ({ ...r, blendBaseScore: scoreBlendRow(r, goal) }))
+        .sort((a,b) => b.blendBaseScore - a.blendBaseScore);
+
+      const primary = ranked[0];
+      const secondary = ranked
+        .map(r => ({ ...r, supportScore: supportBlendScore(primary, r, goal) }))
+        .filter(r => r.key !== primary.key)
+        .sort((a,b) => b.supportScore - a.supportScore)[0] || null;
+
+      if (!secondary || rows.length < 2){
+        const lanes = bestLanesForRow(primary).filter(x => x.value > 0).slice(0,2);
+        return `BLEND READ — ${goal}
+
+I only have enough grounded signal for one real component right now.
+
+Best current single: ${primary.name}
+Best lanes: ${lanes.length ? lanes.map(x => laneLabel(x.key)).join(", ") : "still early"}
+Confidence: ${confidenceLabel(primary.count)} (${primary.count} logged session${primary.count === 1 ? "" : "s"})
+
+Use this as a solo pick for now. A true blend needs more than one real candidate in your logs.`;
+      }
+
+      const spread = primary.blendBaseScore - secondary.blendBaseScore;
+      let primaryPct = 60;
+      if (spread >= 0.9) primaryPct = 75;
+      else if (spread >= 0.45) primaryPct = 65;
+      else if (spread <= 0.15) primaryPct = 55;
+      const secondaryPct = 100 - primaryPct;
+
+      const primaryLanes = bestLanesForRow(primary).filter(x => x.value > 0).slice(0,2);
+      const secondaryLanes = bestLanesForRow(secondary).filter(x => x.value > 0).slice(0,2);
+
+      const why = [];
+      if (goal === "CALM") why.push("leaning toward calm-first support");
+      if (goal === "SLEEP") why.push("leaning toward sleep-first support");
+      if (goal === "FOCUS") why.push("leaning toward clearer / steadier support");
+      if (goal === "CREATIVE") why.push("leaning toward creative lift with less chaos");
+      if (goal === "FUN") why.push("leaning toward social / fun lift");
+      if (laneRate(primary, "weird") > 0.25) why.push("primary gets cut back slightly because it can hit weird");
+      if (laneRate(secondary, "weird") > 0.25) why.push("support component is not pushed too hard because it can hit weird");
+      if (!why.length) why.push("best two-component signal from your current logs");
+
+      return `BLEND READ — ${goal}
+
+Try:
+${primary.name} ${primaryPct}% + ${secondary.name} ${secondaryPct}%
+
+Primary:
+${primary.name} — best lanes: ${primaryLanes.length ? primaryLanes.map(x => laneLabel(x.key)).join(", ") : "early signal"} — confidence ${confidenceLabel(primary.count)} (${primary.count} session${primary.count === 1 ? "" : "s"})
+
+Support:
+${secondary.name} — best lanes: ${secondaryLanes.length ? secondaryLanes.map(x => laneLabel(x.key)).join(", ") : "early signal"} — confidence ${confidenceLabel(secondary.count)} (${secondary.count} session${secondary.count === 1 ? "" : "s"})
+
+Why this split:
+${why.join(" • ")}
+
+Grounding:
+This is based on your own logged outcomes only. It is a pattern read, not a promise.`;
     }
 
     async function answerAsk(q){
@@ -3726,7 +3631,7 @@ Other likely contributors: dose overshoot, bad starting mood, or fast-delivery f
       }
 
       if (query.includes("blend") || query.includes("mix") || query.includes("combo")){
-        return "BLEND READY — basic mode active";
+        return await answerBlend(query);
       }
 
       if (query.includes("transcript") || query.includes("voice note") || query.includes("summary")){
@@ -3755,21 +3660,16 @@ Ask me something tighter.`;
     }
 
         askPromptTonight.onclick = () => { askInput.value = "What should I use tonight?"; };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     askPromptSleep.onclick = () => { askInput.value = "What helps me sleep?"; };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     if (askPromptTranscript) askPromptTranscript.onclick = () => { askInput.value = "Show me transcript memory"; };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
+    if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     askBtn.onclick = async () => {
       askReply.textContent = "Thinking…";
       askReply.textContent = await answerAsk(askInput.value);
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     tonightModeBtn.onclick = async () => {
       const goal = prompt("Tonight goal? Type one: CALM / SLEEP / FUN / FOCUS / SOCIAL", "CALM");
@@ -3777,7 +3677,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       askReply.textContent = "Thinking…";
       askReply.textContent = await tonightModeAnswer(goal);
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
 
     const exportBtn = document.getElementById("exportBtn");
@@ -3793,7 +3692,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       });
 
       const payload = { exportedAt: new Date().toISOString(), version:"V1", stash, sessions: safeSessions };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
 
       const a = document.createElement("a");
@@ -3803,7 +3701,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       a.click();
       a.remove();
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     importJsonInput.addEventListener("change", async (e) => {
       const f = e.target.files && e.target.files[0];
@@ -3835,14 +3732,8 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       renderStashVisual();
       closeStashDetail();
 
-      if (transcriptEngine) transcriptEngine.reset("");
-      if (transcriptText) transcriptText.value = "";
-      if (transcriptSummary) transcriptSummary.value = "";
-      setTranscriptStatus(transcriptEngine && transcriptEngine.supported() ? "idle" : "unsupported");
-
       alert("Wiped.");
     };
-if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     (async function init(){
       renderStash();
@@ -3871,7 +3762,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       renderVisual();
       renderSmell();
       setStashPhoto("");
-      initTranscriptEngine();
 
       await renderSessions();
       await renderAskPatterns();
@@ -3879,8 +3769,6 @@ if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blen
       closeStashDetail();
     })();
   </script>
-
-
 
 </body>
 </html>
