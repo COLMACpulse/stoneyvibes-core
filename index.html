@@ -3599,5 +3599,23 @@ Ask me something tighter.`;
       closeStashDetail();
     })();
   </script>
+
+<script>
+(function(){
+  try{
+    const askInput = document.getElementById("askInput");
+    const askPromptWeird = document.getElementById("askPromptWeird");
+    const askPromptTranscript = document.getElementById("askPromptTranscript");
+    const askPromptBlend = document.getElementById("askPromptBlend");
+
+    if (askPromptWeird && askInput) askPromptWeird.onclick = () => askInput.value = "Hit weird";
+    if (askPromptTranscript && askInput) askPromptTranscript.onclick = () => askInput.value = "Show me transcript memory";
+    if (askPromptBlend && askInput) askPromptBlend.onclick = () => askInput.value = "What blend should I try tonight?";
+  }catch(e){
+    console.error("SAFE BIND FAIL", e);
+  }
+})();
+</script>
+
 </body>
 </html>
