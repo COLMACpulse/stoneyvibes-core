@@ -2843,6 +2843,41 @@ ${cautionBits.join(" • ")}`
     let mediaStream = null;
     let chunks = [];
     let pendingAudioBlob = null;
+    let pendingAudioUrl = "";
+
+    function revokePendingAudioUrl(){
+      if (pendingAudioUrl){
+        try{ URL.revokeObjectURL(pendingAudioUrl); }catch(e){}
+        pendingAudioUrl = "";
+      }
+    }
+
+    function releaseSessionRecorder(){
+      if (mediaStream){
+        try{ mediaStream.getTracks().forEach(t => t.stop()); }catch(e){}
+        mediaStream = null;
+      }
+      mediaRecorder = null;
+      chunks = [];
+      recBtn.disabled = false;
+      stopBtn.disabled = true;
+      pauseBtn.disabled = true;
+      pauseBtn.textContent = "Pause";
+    }
+
+    function setSessionPreviewBlob(blob){
+      revokePendingAudioUrl();
+      pendingAudioBlob = blob || null;
+      if (pendingAudioBlob){
+        pendingAudioUrl = URL.createObjectURL(pendingAudioBlob);
+        preview.src = pendingAudioUrl;
+        preview.style.display = "block";
+      } else {
+        preview.style.display = "none";
+        preview.removeAttribute("src");
+      }
+    }
+
 
     function setStatus(mode, text){
       statusText.textContent = text;
@@ -2887,30 +2922,60 @@ ${cautionBits.join(" • ")}`
     }
 
     async function startRecording(){
-      if (!("MediaRecorder" in window)){
+      if (mediaRecorder || mediaStream){
+        return;
+      }
+
+      if (!("MediaRecorder" in window) || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
         iphoneFallback.style.display = "flex";
         alert("In-browser recording isn’t supported here. Use iPhone Mode.");
         return;
       }
-      try{ mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true }); }
-      catch(err){ alert("Microphone permission blocked. Allow mic access for this site."); return; }
 
-      chunks = [];
-      const mime = mimeChoice();
-      try{ mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined); }
-      catch(err){
+      recBtn.disabled = true;
+      stopBtn.disabled = true;
+      pauseBtn.disabled = true;
+      pauseBtn.textContent = "Pause";
+      setStatus("idle","Opening mic…");
+
+      try{
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      } catch(err){
+        recBtn.disabled = false;
         iphoneFallback.style.display = "flex";
-        alert("Recording not supported in this browser. Use iPhone Mode.");
-        if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+        setStatus("idle","Mic blocked");
+        alert("Microphone permission blocked. Allow mic access for this site.");
         return;
       }
 
-      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
+      chunks = [];
+      const mime = mimeChoice();
+
+      try{
+        mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined);
+      } catch(err){
+        iphoneFallback.style.display = "flex";
+        releaseSessionRecorder();
+        setStatus("idle","Recorder unavailable");
+        alert("Recording not supported in this browser. Use iPhone Mode.");
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onerror = () => {
+        maybeStopAutoTranscript();
+        releaseSessionRecorder();
+        setStatus("idle","Recorder error");
+      };
 
       mediaRecorder.onpause = () => {
         pauseBtn.textContent = "Resume";
         setStatus("rec","Paused");
       };
+
       mediaRecorder.onresume = () => {
         pauseBtn.textContent = "Pause";
         setStatus("rec","Recording…");
@@ -2918,47 +2983,58 @@ ${cautionBits.join(" • ")}`
 
       mediaRecorder.onstop = () => {
         try{
-          pendingAudioBlob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
-          preview.src = URL.createObjectURL(pendingAudioBlob);
-          preview.style.display = "block";
-          setStatus("idle","Session ready to save");
+          if (chunks.length){
+            const blob = new Blob(chunks, { type: (mediaRecorder && mediaRecorder.mimeType) || mime || "audio/webm" });
+            setSessionPreviewBlob(blob);
+            setStatus("idle","Session ready to save");
+          } else {
+            setSessionPreviewBlob(null);
+            setStatus("idle","No audio captured");
+          }
         } finally {
           maybeStopAutoTranscript();
-          if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
-          mediaRecorder = null;
-          chunks = [];
-          pauseBtn.textContent = "Pause";
-          pauseBtn.disabled = true;
+          releaseSessionRecorder();
         }
       };
 
-      mediaRecorder.start();
+      try{
+        mediaRecorder.start();
+      } catch(err){
+        maybeStopAutoTranscript();
+        releaseSessionRecorder();
+        setStatus("idle","Start failed");
+        alert("Recording failed to start.");
+        return;
+      }
 
-      recBtn.disabled = true;
       stopBtn.disabled = false;
-
       const pauseSupported = (typeof mediaRecorder.pause === "function" && typeof mediaRecorder.resume === "function");
       pauseBtn.disabled = !pauseSupported;
       pauseBtn.textContent = "Pause";
 
-      pendingAudioBlob = null;
-      preview.style.display = "none";
-      preview.removeAttribute("src");
+      setSessionPreviewBlob(null);
       setStatus("rec","Session recording…");
-
       maybeStartAutoTranscript();
     }
 
     function stopRecording(){
       if (!mediaRecorder) return;
-      maybeStopAutoTranscript();
-      try{ mediaRecorder.stop(); } catch(e){}
-      recBtn.disabled = false;
+
       stopBtn.disabled = true;
       pauseBtn.disabled = true;
       pauseBtn.textContent = "Pause";
       setStatus("idle","Stopping session…");
-      setTimeout(()=> setStatus("idle","Session ready to save"), 350);
+
+      maybeStopAutoTranscript();
+
+      try{
+        if (mediaRecorder.state === "recording" || mediaRecorder.state === "paused"){
+          mediaRecorder.stop();
+        }
+      } catch(e){
+        releaseSessionRecorder();
+        setStatus("idle","Stop failed");
+      }
     }
 
     recBtn.onclick = startRecording;
@@ -2968,9 +3044,8 @@ ${cautionBits.join(" • ")}`
     fileAudio.addEventListener("change", async (e) => {
       const f = e.target.files && e.target.files[0];
       if (!f) return;
-      pendingAudioBlob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
-      preview.src = URL.createObjectURL(pendingAudioBlob);
-      preview.style.display = "block";
+      const blob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
+      setSessionPreviewBlob(blob);
       fileAudio.value = "";
       setStatus("idle","Session ready to save");
     });
@@ -3443,9 +3518,7 @@ ${cautionBits.join(" • ")}`
 
       await dbPut(session);
 
-      pendingAudioBlob = null;
-      preview.style.display = "none";
-      preview.removeAttribute("src");
+      setSessionPreviewBlob(null);
       setStatus("idle","Idle");
 
       pendingSmellBlob = null;
@@ -3587,9 +3660,7 @@ ${cautionBits.join(" • ")}`
       const ok = confirm("Clear ALL sessions on this device?");
       if (!ok) return;
       await dbClear();
-      pendingAudioBlob = null;
-      preview.style.display = "none";
-      preview.removeAttribute("src");
+      setSessionPreviewBlob(null);
 
       pendingSmellBlob = null;
       smellPreview.style.display = "none";
