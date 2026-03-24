@@ -1362,7 +1362,7 @@
               <div class="terpRow">
                 <p class="terpName">Frost</p>
                 <p class="terpHint">How frosty does it look?</p>
-                <div class="scale">
+                <div class="scale compact">
                   <label><input type="radio" name="visualGaugeFrost" value="" checked /> — </label>
                   <label><input type="radio" name="visualGaugeFrost" value="LIGHT" /> Light</label>
                   <label><input type="radio" name="visualGaugeFrost" value="NOTICEABLE" /> Noticeable</label>
@@ -1374,7 +1374,7 @@
               <div class="terpRow">
                 <p class="terpName">Density</p>
                 <p class="terpHint">How dense does it look?</p>
-                <div class="scale">
+                <div class="scale compact">
                   <label><input type="radio" name="visualGaugeDensity" value="" checked /> — </label>
                   <label><input type="radio" name="visualGaugeDensity" value="LIGHT" /> Light</label>
                   <label><input type="radio" name="visualGaugeDensity" value="NOTICEABLE" /> Noticeable</label>
@@ -1386,7 +1386,7 @@
               <div class="terpRow">
                 <p class="terpName">Hairs</p>
                 <p class="terpHint">How pronounced are the hairs?</p>
-                <div class="scale">
+                <div class="scale compact">
                   <label><input type="radio" name="visualGaugeHairs" value="" checked /> — </label>
                   <label><input type="radio" name="visualGaugeHairs" value="LIGHT" /> Light</label>
                   <label><input type="radio" name="visualGaugeHairs" value="NOTICEABLE" /> Noticeable</label>
@@ -1426,7 +1426,7 @@
 
             <div class="topgap">
               <div class="label">Passive smell</div>
-              <div class="scale">
+              <div class="scale compact">
                 <label><input type="radio" name="passiveSmellIntensity" value="" checked /> — </label>
                 <label><input type="radio" name="passiveSmellIntensity" value="NONE" /> 0 None</label>
                 <label><input type="radio" name="passiveSmellIntensity" value="LIGHT" /> 1 Light</label>
@@ -1438,7 +1438,7 @@
 
             <div class="topgap">
               <div class="label">Activated smell</div>
-              <div class="scale">
+              <div class="scale compact">
                 <label><input type="radio" name="activatedSmellIntensity" value="" checked /> — </label>
                 <label><input type="radio" name="activatedSmellIntensity" value="NONE" /> 0 None</label>
                 <label><input type="radio" name="activatedSmellIntensity" value="LIGHT" /> 1 Light</label>
@@ -2800,7 +2800,7 @@ ${cautionBits.join(" • ")}`
       terpeneBox.innerHTML = "";
       TERPENES.forEach(t => {
         const row = document.createElement("div");
-        row.className = "terpRow";
+        row.className = "terpRow compactRow";
         row.innerHTML = `
           <div class="terpTop">
             <div style="min-width:0; flex:1;">
@@ -2808,7 +2808,7 @@ ${cautionBits.join(" • ")}`
               <p class="terpHint">${escapeHtml(t.hint)}</p>
             </div>
           </div>
-          <div class="scale">
+          <div class="scale compact">
             ${PRESENCE.map(p => {
               const id = `terp_${t.key}_${p.val||"NONE"}`;
               return `
