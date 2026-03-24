@@ -165,13 +165,6 @@
       font-size:12px;
       opacity:0.95;
     }
-    #stashDetailBackBtn{
-      padding:12px 16px;
-      border-radius:14px;
-      font-size:14px;
-      font-weight:700;
-      letter-spacing:0.02em;
-    }
     .chip.active{
       background:rgba(255,255,255,0.14);
       border-color:rgba(255,255,255,0.32);
@@ -975,94 +968,54 @@
       text-align:right;
     }
 
-
-    .snapshotPanel{
-      border:1px solid rgba(255,255,255,0.10);
-      border-radius:16px;
-      padding:12px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    .nextLikeWrap{
+      display:none;
+      margin-top:10px;
     }
-    .snapshotHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:8px;
-    }
-    .snapshotValuePill{
+    .nextLikeToggle{
       display:inline-flex;
       align-items:center;
-      justify-content:center;
-      min-width:124px;
-      padding:7px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.14);
-      background:rgba(255,255,255,0.07);
-      color:var(--text);
-      font-size:12px;
-      letter-spacing:0.04em;
-      text-transform:uppercase;
-    }
-    .snapshotScale{
-      display:grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap:6px;
-      margin-top:10px;
+      gap:8px;
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,0.04);
       color:var(--muted);
-      font-size:10px;
-      letter-spacing:0.05em;
-      text-transform:uppercase;
-      text-align:center;
-    }
-    .snapshotScale span{
-      padding:4px 3px;
+      padding:8px 10px;
       border-radius:999px;
-      border:1px solid transparent;
-      background:rgba(255,255,255,0.03);
-      line-height:1.15;
+      font-size:12px;
+      letter-spacing:0.02em;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .snapshotScale span.active{
+    .nextLikeToggle.active{
       color:var(--text);
-      border-color:rgba(255,255,255,0.16);
-      background:rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.08);
+      border-color:rgba(255,255,255,0.24);
     }
-    input.snapshotSlider{
-      -webkit-appearance:none;
-      appearance:none;
-      width:100%;
-      height:14px;
-      border-radius:999px;
-      background:linear-gradient(90deg, rgba(90,255,170,0.24), rgba(255,255,255,0.12) 50%, rgba(255,180,90,0.24));
-      border:1px solid rgba(255,255,255,0.10);
-      outline:none;
+    .nextLikePanel{
+      display:none;
       margin-top:8px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.03);
+      border-radius:14px;
+      padding:10px 12px;
     }
-    input.snapshotSlider::-webkit-slider-thumb{
-      -webkit-appearance:none;
-      appearance:none;
-      width:24px;
-      height:24px;
-      border-radius:50%;
-      background:var(--text);
-      border:2px solid rgba(11,13,16,0.55);
-      box-shadow:0 3px 12px rgba(0,0,0,0.35);
-      cursor:pointer;
+    .nextLikePanel.active{
+      display:block;
     }
-    input.snapshotSlider::-moz-range-thumb{
-      width:24px;
-      height:24px;
-      border-radius:50%;
-      background:var(--text);
-      border:2px solid rgba(11,13,16,0.55);
-      box-shadow:0 3px 12px rgba(0,0,0,0.35);
-      cursor:pointer;
+    .nextLikeLine{
+      font-size:13px;
+      line-height:1.4;
+      color:var(--text);
     }
-    input.snapshotSlider::-moz-range-track{
-      height:14px;
-      border-radius:999px;
-      background:linear-gradient(90deg, rgba(90,255,170,0.24), rgba(255,255,255,0.12) 50%, rgba(255,180,90,0.24));
-      border:1px solid rgba(255,255,255,0.10);
+    .nextLikeLine + .nextLikeLine{
+      margin-top:6px;
+    }
+    .nextLikeMeta{
+      margin-top:8px;
+      font-size:11px;
+      line-height:1.35;
+      color:var(--muted);
     }
 
   </style>
@@ -1180,7 +1133,7 @@
 
             <div class="row between">
               <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH DETAIL</h2>
-              <button id="stashDetailBackBtn" class="btn btnPrimary" type="button">← Back to lineup</button>
+              <button id="stashDetailBackBtn" class="btn btnTiny" type="button">Back to lineup</button>
             </div>
 
             <div id="stashDetailBody" class="topgap"></div>
@@ -1255,65 +1208,6 @@
                 </label>
                 <button id="moodReset" class="btn btnTiny" type="button">Reset</button>
               </div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- FEELING SNAPSHOT -->
-          <div class="terpRow">
-            <p class="terpName">Feeling snapshot</p>
-            <p class="terpHint">Fast state capture. Optional. The app stores the math, but you see the vibe.</p>
-
-            <div class="list" style="margin-top:10px;">
-              <div class="snapshotPanel">
-                <div class="snapshotHead">
-                  <p class="terpName">Calm ↔ Wired</p>
-                  <span id="snapshotCalmWiredValue" class="snapshotValuePill">Balanced</span>
-                </div>
-                <input id="snapshotCalmWired" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
-                <div id="snapshotCalmWiredScale" class="snapshotScale">
-                  <span data-value="-2">Very Calm</span>
-                  <span data-value="-1">Calm</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="1">Wired</span>
-                  <span data-value="2">Very Wired</span>
-                </div>
-              </div>
-
-              <div class="snapshotPanel">
-                <div class="snapshotHead">
-                  <p class="terpName">Clear ↔ Foggy</p>
-                  <span id="snapshotClearFoggyValue" class="snapshotValuePill">Balanced</span>
-                </div>
-                <input id="snapshotClearFoggy" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
-                <div id="snapshotClearFoggyScale" class="snapshotScale">
-                  <span data-value="-2">Very Clear</span>
-                  <span data-value="-1">Clear</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="1">Foggy</span>
-                  <span data-value="2">Very Foggy</span>
-                </div>
-              </div>
-
-              <div class="snapshotPanel">
-                <div class="snapshotHead">
-                  <p class="terpName">Social ↔ Solo</p>
-                  <span id="snapshotSocialSoloValue" class="snapshotValuePill">Balanced</span>
-                </div>
-                <input id="snapshotSocialSolo" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
-                <div id="snapshotSocialSoloScale" class="snapshotScale">
-                  <span data-value="-2">Very Social</span>
-                  <span data-value="-1">Social</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="1">Solo</span>
-                  <span data-value="2">Very Solo</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="row topgap">
-              <button id="snapshotResetBtn" class="btn btnTiny" type="button">Reset snapshot</button>
             </div>
           </div>
 
@@ -1502,12 +1396,12 @@
 
           <!-- AUDIO NOTE -->
           <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">AUDIO NOTE (PARAMOUNT)</h2>
-          <p class="muted" style="margin:6px 0 0 0;">One-button session path: start session, talk, stop session, save.</p>
+          <p class="muted" style="margin:6px 0 0 0;">Record first, then Save Session.</p>
 
           <div class="row topgap">
-            <button id="recBtn" class="btn btnPrimary" type="button">▶️ Start Session</button>
+            <button id="recBtn" class="btn btnPrimary" type="button">🎙️ Record</button>
             <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
-            <button id="stopBtn" class="btn btnOk" type="button" disabled>■ Stop Session</button>
+            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
             <span id="statusPill" class="pill"><span class="okDot"></span><span id="statusText">Idle</span></span>
           </div>
 
@@ -1525,27 +1419,37 @@
 
           <div class="divider"></div>
 
-          <!-- TRANSCRIPT -->
+          <!-- TRANSCRIPT OPTIONS -->
           <div class="terpRow">
-            <p class="terpName">Transcript</p>
-            <p class="terpHint">Default path: Start Session kicks off audio and, when supported, live transcript automatically. You can still edit the raw transcript before saving.</p>
+            <p class="terpName">Transcript options</p>
+            <p class="terpHint">Optional text memory for this session. Manual for now. No hidden processing.</p>
 
-            <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
-              <button id="transcriptLiveBtn" class="btn btnPrimary" type="button">Live Transcript</button>
-              <button id="transcriptStopBtn" class="btn" type="button" disabled>Stop</button>
-              <button id="transcriptResetBtn" class="btn btnTiny" type="button">Reset</button>
-              <span id="transcriptStatusPill" class="pill"><span class="okDot"></span><span id="transcriptStatusText">Idle</span></span>
-            </div>
-
-            <div class="notice topgap">
-              Start Session will try to fill this box automatically while you talk. If live transcript is not supported here, audio still records normally and you can paste or type raw text later.
+            <div class="topgap">
+              <div class="label">Transcript mode</div>
+              <div class="scale">
+                <label><input type="radio" name="transcriptMode" value="AUDIO_ONLY" checked /> Audio only</label>
+                <label><input type="radio" name="transcriptMode" value="AUDIO_PLUS_TRANSCRIPT" /> Audio + transcript</label>
+                <label><input type="radio" name="transcriptMode" value="AUDIO_PLUS_TRANSCRIPT_SUMMARY" /> Audio + transcript + summary</label>
+                <label><input type="radio" name="transcriptMode" value="SUMMARY_ONLY" /> Summary only</label>
+              </div>
             </div>
 
             <div class="row topgap">
               <label class="field">
-                <span class="label">Transcript</span>
-                <textarea id="transcriptText" class="input" rows="7" placeholder="Live transcript appears here when available. You can also paste or edit it manually."></textarea>
+                <span class="label">Transcript (optional)</span>
+                <textarea id="transcriptText" class="input" rows="5" placeholder="Paste or type transcript here."></textarea>
               </label>
+            </div>
+
+            <div class="row topgap">
+              <label class="field">
+                <span class="label">Summary (optional)</span>
+                <textarea id="transcriptSummary" class="input" rows="3" placeholder="Short human summary of what mattered."></textarea>
+              </label>
+            </div>
+
+            <div class="notice topgap">
+              Transcript scaffolding only. This pass stores user-provided transcript text and summary locally so ASK and future pattern layers can use it later.
             </div>
           </div>
 
@@ -1568,6 +1472,11 @@
               <button id="saveSessionBtn" class="btn btnOk" type="button">Save Session</button>
               <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear</button>
             </div>
+          </div>
+
+          <div id="nextLikeWrap" class="nextLikeWrap" aria-live="polite">
+            <button id="nextLikeToggle" class="nextLikeToggle" type="button">Next time, you might like</button>
+            <div id="nextLikePanel" class="nextLikePanel"></div>
           </div>
 
           <div id="sessionList" class="list">
@@ -1786,6 +1695,7 @@
         "HEAVY": 4,
         "LOUD": 4
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       return map[value || ""] ?? 0;
     }
 
@@ -1808,6 +1718,7 @@
       if (delta <= -2) flags.push("FRONT-LOADED");
 
       return { passive, activated, delta, flags };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
     function buildSignalBadge(text, tone){
@@ -1902,7 +1813,8 @@
     function patternBarRow(label, ratio, accent){
       const pct = Math.max(0, Math.min(100, Math.round((ratio || 0) * 100)));
       return `
-        <div class="patternBarRow" style="--specAccent:${accent};">
+        <div class="patternBarRow" style="--specAccent:${accent};
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };">
           <div class="patternBarLabel">${escapeHtml(label)}</div>
           <div class="patternBarTrack"><div class="patternBarFill" style="width:${pct}%;"></div></div>
           <div class="patternBarPct">${pct}%</div>
@@ -2021,6 +1933,7 @@
 
           player._raf = requestAnimationFrame(render);
         };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         if (!player._raf){
           player._raf = requestAnimationFrame(render);
@@ -2067,6 +1980,7 @@
           remain.textContent = `−${formatClock(Math.max(0, duration - current))}`;
           playBtn.textContent = (!audio.paused && !audio.ended) ? "Pause" : "Play";
         };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         playBtn.onclick = async () => {
           try{
@@ -2086,6 +2000,7 @@
           }
           syncUI();
         };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         range.addEventListener("input", () => {
           if (!Number.isFinite(audio.duration)) return;
@@ -2174,6 +2089,7 @@
       stashVisualOther.value = "";
       renderStashVisual();
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     function setStashPhoto(dataUrl){
       stashPhotoDataUrl.value = dataUrl || "";
@@ -2271,7 +2187,8 @@
       const accent = getSpecimenTone(stash);
 
       stashDetailBody.innerHTML = `
-        <div class="stashDetailCard" style="--specAccent:${accent};">
+        <div class="stashDetailCard" style="--specAccent:${accent};
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };">
           <div class="specimenGhostLeaf"></div>
           <div class="detailHeroShell">
             ${
@@ -2408,6 +2325,7 @@ ${cautionBits.join(" • ")}`
               : `${stash.name} does not have enough linked sessions yet to generate a useful caution read.`;
           }
         };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       });
       stashListWrap.style.display = "none";
       stashDetail.classList.add("active");
@@ -2433,7 +2351,8 @@ ${cautionBits.join(" • ")}`
         el.innerHTML = `
           <div class="specimenGhostLeaf"></div>
           <div class="stashRow">
-            <div class="stashThumbWrap" style="--specAccent:${accent};">
+            <div class="stashThumbWrap" style="--specAccent:${accent};
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };">
               ${stashThumbMarkup(it.photoDataUrl || "", it.name || "Stash photo")}
             </div>
 
@@ -2443,7 +2362,8 @@ ${cautionBits.join(" • ")}`
                 ${tagBits.length ? `<span class="specimenLabel">${escapeHtml(String(tagBits[0]).replaceAll("_"," "))}</span>` : ""}
               </div>
               <p class="specimenName">${escapeHtml(it.name || "Unnamed")}</p>
-              <div class="specimenRule" style="--specAccent:${accent};"></div>
+              <div class="specimenRule" style="--specAccent:${accent};
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };"></div>
               <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
               ${
                 tagBits.length
@@ -2478,6 +2398,7 @@ ${cautionBits.join(" • ")}`
             closeStashDetail();
           }
         };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         stashList.appendChild(el);
       });
@@ -2501,12 +2422,14 @@ ${cautionBits.join(" • ")}`
       stashName.focus();
       stashName.setSelectionRange(stashName.value.length, stashName.value.length);
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     sessionUnknownBtn.onclick = async () => {
       sessionTag.value = await getNextUnknownSessionTag();
       sessionTag.focus();
       sessionTag.setSelectionRange(sessionTag.value.length, sessionTag.value.length);
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     addStashBtn.onclick = () => {
       let name = (stashName.value || "").trim();
@@ -2526,6 +2449,7 @@ ${cautionBits.join(" • ")}`
         photoDataUrl: stashPhotoDataUrl.value || "",
         createdAt: Date.now()
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       const items = loadStash();
       items.unshift(item);
       saveStash(items);
@@ -2537,6 +2461,7 @@ ${cautionBits.join(" • ")}`
       renderStashVisual();
       closeStashDetail();
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     clearStashBtn.onclick = () => {
       const ok = confirm("Clear entire STASH on this device?");
@@ -2548,6 +2473,7 @@ ${cautionBits.join(" • ")}`
       renderStashVisual();
       closeStashDetail();
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     // IndexedDB
     const DB_NAME = "stoneyvibes_db_v1";
@@ -2564,6 +2490,7 @@ ${cautionBits.join(" • ")}`
             store.createIndex("createdAt", "createdAt", { unique:false });
           }
         };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
         req.onsuccess = () => resolve(req.result);
         req.onerror = () => reject(req.error);
       });
@@ -2625,6 +2552,7 @@ ${cautionBits.join(" • ")}`
           Array.from(container.querySelectorAll("button")).forEach(x => x.classList.remove("btnPrimary"));
           b.classList.add("btnPrimary");
         };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
         container.appendChild(b);
       }
     }
@@ -2635,16 +2563,6 @@ ${cautionBits.join(" • ")}`
     const moodChips = Array.from(document.querySelectorAll("[data-mood]"));
     const moodOther = document.getElementById("moodOther");
     const moodReset = document.getElementById("moodReset");
-    const snapshotCalmWired = document.getElementById("snapshotCalmWired");
-    const snapshotClearFoggy = document.getElementById("snapshotClearFoggy");
-    const snapshotSocialSolo = document.getElementById("snapshotSocialSolo");
-    const snapshotCalmWiredValue = document.getElementById("snapshotCalmWiredValue");
-    const snapshotClearFoggyValue = document.getElementById("snapshotClearFoggyValue");
-    const snapshotSocialSoloValue = document.getElementById("snapshotSocialSoloValue");
-    const snapshotCalmWiredScale = document.getElementById("snapshotCalmWiredScale");
-    const snapshotClearFoggyScale = document.getElementById("snapshotClearFoggyScale");
-    const snapshotSocialSoloScale = document.getElementById("snapshotSocialSoloScale");
-    const snapshotResetBtn = document.getElementById("snapshotResetBtn");
     let moodSet = new Set();
     function renderMood(){ moodChips.forEach(b => b.classList.toggle("active", moodSet.has(b.getAttribute("data-mood")))); }
     moodChips.forEach(b => b.onclick = () => {
@@ -2653,57 +2571,7 @@ ${cautionBits.join(" • ")}`
       renderMood();
     });
     moodReset.onclick = () => { moodSet = new Set(); moodOther.value = ""; renderMood(); };
-
-    function snapshotLabel(kind, value){
-      const v = Number(value || 0);
-      const map = {
-        calmWired: { "-2":"Very Calm", "-1":"Calm", "0":"Balanced", "1":"Wired", "2":"Very Wired" },
-        clearFoggy: { "-2":"Very Clear", "-1":"Clear", "0":"Balanced", "1":"Foggy", "2":"Very Foggy" },
-        socialSolo: { "-2":"Very Social", "-1":"Social", "0":"Balanced", "1":"Solo", "2":"Very Solo" }
-      };
-      return map[kind]?.[String(v)] || "Balanced";
-    }
-
-    function updateSnapshotScale(scaleEl, value){
-      if (!scaleEl) return;
-      scaleEl.querySelectorAll('[data-value]').forEach(node => {
-        node.classList.toggle('active', String(value) === node.getAttribute('data-value'));
-      });
-    }
-
-    function updateSnapshotBadges(){
-      const calmValue = Number(snapshotCalmWired?.value || 0);
-      const clearValue = Number(snapshotClearFoggy?.value || 0);
-      const socialValue = Number(snapshotSocialSolo?.value || 0);
-
-      if (snapshotCalmWiredValue) snapshotCalmWiredValue.textContent = snapshotLabel('calmWired', calmValue);
-      if (snapshotClearFoggyValue) snapshotClearFoggyValue.textContent = snapshotLabel('clearFoggy', clearValue);
-      if (snapshotSocialSoloValue) snapshotSocialSoloValue.textContent = snapshotLabel('socialSolo', socialValue);
-
-      updateSnapshotScale(snapshotCalmWiredScale, calmValue);
-      updateSnapshotScale(snapshotClearFoggyScale, clearValue);
-      updateSnapshotScale(snapshotSocialSoloScale, socialValue);
-    }
-
-    function readFeelingSnapshot(){
-      return {
-        calmWired: Number(snapshotCalmWired?.value || 0),
-        clearFoggy: Number(snapshotClearFoggy?.value || 0),
-        socialSolo: Number(snapshotSocialSolo?.value || 0)
-      };
-    }
-
-    function resetFeelingSnapshot(){
-      if (snapshotCalmWired) snapshotCalmWired.value = "0";
-      if (snapshotClearFoggy) snapshotClearFoggy.value = "0";
-      if (snapshotSocialSolo) snapshotSocialSolo.value = "0";
-      updateSnapshotBadges();
-    }
-
-    [snapshotCalmWired, snapshotClearFoggy, snapshotSocialSolo].forEach(el => {
-      if (el) el.addEventListener("input", updateSnapshotBadges);
-    });
-    if (snapshotResetBtn) snapshotResetBtn.onclick = resetFeelingSnapshot;
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     // Visual traits
     const visualChips = Array.from(document.querySelectorAll("[data-visual]"));
@@ -2724,6 +2592,7 @@ ${cautionBits.join(" • ")}`
       resetCheckedValue("visualGaugeDensity");
       resetCheckedValue("visualGaugeHairs");
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     // Smell tags
     const smellChips = Array.from(document.querySelectorAll("[data-smell]"));
@@ -2743,6 +2612,7 @@ ${cautionBits.join(" • ")}`
       resetCheckedValue("passiveSmellIntensity");
       resetCheckedValue("activatedSmellIntensity");
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     // Photo
     const photoInput = document.getElementById("photoInput");
@@ -2811,6 +2681,7 @@ ${cautionBits.join(" • ")}`
     buildTerpenes();
     function readTerpenePresence(){
       const out = {};
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       TERPENES.forEach(t => {
         const sel = document.querySelector(`input[name="terp_${t.key}"]:checked`);
         out[t.key] = sel ? (sel.value || "") : "";
@@ -2830,15 +2701,12 @@ ${cautionBits.join(" • ")}`
     const saveSessionBtn = document.getElementById("saveSessionBtn");
     const clearSessionsBtn = document.getElementById("clearSessionsBtn");
     const sessionList = document.getElementById("sessionList");
+    const nextLikeWrap = document.getElementById("nextLikeWrap");
+    const nextLikeToggle = document.getElementById("nextLikeToggle");
+    const nextLikePanel = document.getElementById("nextLikePanel");
     const transcriptText = document.getElementById("transcriptText");
-    const transcriptSummary = null;
-    const transcriptLiveBtn = document.getElementById("transcriptLiveBtn");
-    const transcriptStopBtn = document.getElementById("transcriptStopBtn");
-    const transcriptResetBtn = document.getElementById("transcriptResetBtn");
-    const transcriptStatusPill = document.getElementById("transcriptStatusPill");
-    const transcriptStatusText = document.getElementById("transcriptStatusText");
+    const transcriptSummary = document.getElementById("transcriptSummary");
 
-    let transcriptEngine = null;
     let mediaRecorder = null;
     let mediaStream = null;
     let chunks = [];
@@ -2855,24 +2723,6 @@ ${cautionBits.join(" • ")}`
         if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
       }
       return "";
-    }
-
-    function maybeStartAutoTranscript(){
-      const engine = ensureTranscriptEngine();
-      if (!engine || !engine.supported()) return false;
-      try{
-        engine.start(transcriptText.value || "");
-        return true;
-      }catch(err){
-        return false;
-      }
-    }
-
-    function maybeStopAutoTranscript(){
-      if (!transcriptEngine) return;
-      try{
-        transcriptEngine.stop();
-      }catch(err){}
     }
 
     function togglePause(){
@@ -2906,24 +2756,26 @@ ${cautionBits.join(" • ")}`
       }
 
       mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       mediaRecorder.onpause = () => {
         pauseBtn.textContent = "Resume";
         setStatus("rec","Paused");
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       mediaRecorder.onresume = () => {
         pauseBtn.textContent = "Pause";
         setStatus("rec","Recording…");
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       mediaRecorder.onstop = () => {
         try{
           pendingAudioBlob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
           preview.src = URL.createObjectURL(pendingAudioBlob);
           preview.style.display = "block";
-          setStatus("idle","Session ready to save");
+          setStatus("idle","Ready to Save");
         } finally {
-          maybeStopAutoTranscript();
           if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
           mediaRecorder = null;
           chunks = [];
@@ -2931,6 +2783,7 @@ ${cautionBits.join(" • ")}`
           pauseBtn.disabled = true;
         }
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       mediaRecorder.start();
 
@@ -2944,21 +2797,18 @@ ${cautionBits.join(" • ")}`
       pendingAudioBlob = null;
       preview.style.display = "none";
       preview.removeAttribute("src");
-      setStatus("rec","Session recording…");
-
-      maybeStartAutoTranscript();
+      setStatus("rec","Recording…");
     }
 
     function stopRecording(){
       if (!mediaRecorder) return;
-      maybeStopAutoTranscript();
       try{ mediaRecorder.stop(); } catch(e){}
       recBtn.disabled = false;
       stopBtn.disabled = true;
       pauseBtn.disabled = true;
       pauseBtn.textContent = "Pause";
-      setStatus("idle","Stopping session…");
-      setTimeout(()=> setStatus("idle","Session ready to save"), 350);
+      setStatus("idle","Saving…");
+      setTimeout(()=> setStatus("idle","Ready to Save"), 350);
     }
 
     recBtn.onclick = startRecording;
@@ -2972,7 +2822,7 @@ ${cautionBits.join(" • ")}`
       preview.src = URL.createObjectURL(pendingAudioBlob);
       preview.style.display = "block";
       fileAudio.value = "";
-      setStatus("idle","Session ready to save");
+      setStatus("idle","Ready to Save");
     });
 
     // AUDIO (SMELL)
@@ -3027,15 +2877,18 @@ ${cautionBits.join(" • ")}`
       }
 
       smellRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) smellChunks.push(e.data); };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       smellRecorder.onpause = () => {
         smellPauseBtn.textContent = "Resume";
         setSmellStatus("rec","Paused");
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       smellRecorder.onresume = () => {
         smellPauseBtn.textContent = "Pause";
         setSmellStatus("rec","Recording…");
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       smellRecorder.onstop = () => {
         try{
@@ -3051,6 +2904,7 @@ ${cautionBits.join(" • ")}`
           smellPauseBtn.disabled = true;
         }
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       smellRecorder.start();
 
@@ -3092,194 +2946,6 @@ ${cautionBits.join(" • ")}`
       setSmellStatus("idle","Ready");
     });
 
-    function setTranscriptStatus(mode, text){
-      transcriptStatusText.textContent = text;
-      const dot = transcriptStatusPill.querySelector("span");
-      dot.className = (mode === "rec") ? "recDot" : "okDot";
-
-      if (mode === "rec"){
-        transcriptLiveBtn.disabled = true;
-        transcriptStopBtn.disabled = false;
-      } else if (mode === "unsupported"){
-        transcriptLiveBtn.disabled = true;
-        transcriptStopBtn.disabled = true;
-      } else {
-        transcriptLiveBtn.disabled = false;
-        transcriptStopBtn.disabled = true;
-      }
-    }
-
-    function normalizeTranscriptSeed(str){
-      return String(str || "").replace(/\s+/g, " ").trim();
-    }
-
-    function createTranscriptEngine(onUpdate, onStatus){
-      let recognition = null;
-      let isRecording = false;
-      let shouldRestart = false;
-      let finalText = "";
-      let interimText = "";
-
-      function supported(){
-        return ("webkitSpeechRecognition" in window) || ("SpeechRecognition" in window);
-      }
-
-      function emit(){
-        const fullText = [finalText.trim(), interimText.trim()].filter(Boolean).join(" ").trim();
-        onUpdate && onUpdate({
-          finalText: finalText.trim(),
-          interimText: interimText.trim(),
-          fullText,
-          isRecording
-        });
-      }
-
-      function start(seedText){
-        if (!supported()){
-          onStatus && onStatus("unsupported");
-          return;
-        }
-
-        if (isRecording) return;
-
-        finalText = normalizeTranscriptSeed(seedText);
-        interimText = "";
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = "en-US";
-
-        shouldRestart = true;
-
-        recognition.onstart = () => {
-          isRecording = true;
-          onStatus && onStatus("recording");
-          emit();
-        };
-
-        recognition.onresult = (event) => {
-          interimText = "";
-
-          for (let i = event.resultIndex; i < event.results.length; i++){
-            const piece = String(event.results[i][0]?.transcript || "").trim();
-            if (!piece) continue;
-
-            if (event.results[i].isFinal){
-              finalText = [finalText, piece].filter(Boolean).join(" ").trim();
-            } else {
-              interimText = [interimText, piece].filter(Boolean).join(" ").trim();
-            }
-          }
-
-          emit();
-        };
-
-        recognition.onerror = (event) => {
-          const err = String(event.error || "unknown");
-          if (err === "not-allowed" || err === "service-not-allowed"){
-            shouldRestart = false;
-            isRecording = false;
-          }
-          onStatus && onStatus("error:" + err);
-        };
-
-        recognition.onend = () => {
-          isRecording = false;
-          interimText = "";
-          emit();
-
-          if (shouldRestart){
-            onStatus && onStatus("restarting");
-            setTimeout(() => {
-              try{
-                recognition && recognition.start();
-              }catch(e){
-                onStatus && onStatus("stopped");
-              }
-            }, 250);
-            return;
-          }
-
-          onStatus && onStatus("stopped");
-        };
-
-        try{
-          recognition.start();
-        }catch(err){
-          onStatus && onStatus("error:start-failed");
-        }
-      }
-
-      function stop(){
-        shouldRestart = false;
-        if (recognition && isRecording){
-          try{ recognition.stop(); }catch(e){}
-        } else {
-          onStatus && onStatus("stopped");
-        }
-      }
-
-      function reset(){
-        finalText = "";
-        interimText = "";
-        emit();
-      }
-
-      return { start, stop, reset, supported };
-    }
-
-    function ensureTranscriptEngine(){
-      if (transcriptEngine) return transcriptEngine;
-
-      transcriptEngine = createTranscriptEngine((data) => {
-        transcriptText.value = data.fullText || "";
-      }, (status) => {
-        const map = {
-          "recording": ["rec", "Listening…"],
-          "restarting": ["rec", "Restarting…"],
-          "stopped": ["idle", "Stopped"],
-          "unsupported": ["unsupported", "Unsupported here"],
-          "error:not-allowed": ["idle", "Mic denied"],
-          "error:service-not-allowed": ["idle", "Mic denied"],
-          "error:network": ["idle", "Network issue"],
-          "error:no-speech": ["idle", "No speech heard"],
-          "error:audio-capture": ["idle", "No mic source"],
-          "error:start-failed": ["idle", "Start failed"]
-        };
-        const pair = map[status] || (String(status).startsWith("error:") ? ["idle", status.replace("error:", "Error: ")] : ["idle", status]);
-        setTranscriptStatus(pair[0], pair[1]);
-      });
-
-      if (!transcriptEngine.supported()){
-        setTranscriptStatus("unsupported", "Unsupported here");
-      }
-
-      return transcriptEngine;
-    }
-
-    transcriptLiveBtn.onclick = () => {
-      const engine = ensureTranscriptEngine();
-      if (!engine.supported()){
-        setTranscriptStatus("unsupported", "Unsupported here");
-        return;
-      }
-
-      engine.start(transcriptText.value || "");
-    };
-
-    transcriptStopBtn.onclick = () => {
-      if (!transcriptEngine) return;
-      transcriptEngine.stop();
-    };
-
-    transcriptResetBtn.onclick = () => {
-      if (transcriptEngine) transcriptEngine.reset();
-      transcriptText.value = "";
-      setTranscriptStatus("idle", "Idle");
-    };
-
     function normalizeImportedStashEntry(raw, fallbackIndex){
       return {
         id: String(raw.id || uid("stash")),
@@ -3291,6 +2957,7 @@ ${cautionBits.join(" • ")}`
         photoDataUrl: String(raw.photoDataUrl || ""),
         createdAt: Number(raw.createdAt || Date.now())
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
     function normalizeImportedSessionEntry(raw, fallbackIndex){
@@ -3307,13 +2974,6 @@ ${cautionBits.join(" • ")}`
         sleep: String(raw.sleep || ""),
         mood: Array.isArray(raw.mood) ? raw.mood.map(v => String(v)) : [],
         moodOther: String(raw.moodOther || ""),
-        feelingSnapshot: (raw.feelingSnapshot && typeof raw.feelingSnapshot === "object")
-          ? {
-              calmWired: Number(raw.feelingSnapshot.calmWired || 0),
-              clearFoggy: Number(raw.feelingSnapshot.clearFoggy || 0),
-              socialSolo: Number(raw.feelingSnapshot.socialSolo || 0)
-            }
-          : { calmWired: 0, clearFoggy: 0, socialSolo: 0 },
         visualGaugeFrost: String(raw.visualGaugeFrost || ""),
         visualGaugeDensity: String(raw.visualGaugeDensity || ""),
         visualGaugeHairs: String(raw.visualGaugeHairs || ""),
@@ -3328,13 +2988,15 @@ ${cautionBits.join(" • ")}`
         smellOther: String(raw.smellOther || ""),
         terpenes: (raw.terpenes && typeof raw.terpenes === "object") ? raw.terpenes : {},
         photoDataUrl: String(raw.photoDataUrl || ""),
-        transcriptMode: String(raw.transcriptMode || "AUDIO_PLUS_TRANSCRIPT"),
+        transcriptMode: String(raw.transcriptMode || "AUDIO_ONLY"),
         transcriptText: String(raw.transcriptText || ""),
+        transcriptSummary: String(raw.transcriptSummary || ""),
         mimeType: "",
         audioBlob: null,
         smellMimeType: "",
         smellAudioBlob: null
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
     async function replaceFromImportedJson(payload){
@@ -3418,7 +3080,6 @@ ${cautionBits.join(" • ")}`
         sleep: sleepScore.value || "",
         mood: Array.from(moodSet),
         moodOther: (moodOther.value || "").trim(),
-        feelingSnapshot: readFeelingSnapshot(),
         visualGaugeFrost: readCheckedValue("visualGaugeFrost"),
         visualGaugeDensity: readCheckedValue("visualGaugeDensity"),
         visualGaugeHairs: readCheckedValue("visualGaugeHairs"),
@@ -3435,11 +3096,13 @@ ${cautionBits.join(" • ")}`
         photoDataUrl: photoDataUrl.value || "",
         transcriptMode: readTranscriptMode(),
         transcriptText: (transcriptText?.value || "").trim(),
+        transcriptSummary: (transcriptSummary?.value || "").trim(),
         mimeType: pendingAudioBlob.type || "audio/*",
         audioBlob: pendingAudioBlob,
         smellMimeType: pendingSmellBlob ? (pendingSmellBlob.type || "audio/*") : "",
         smellAudioBlob: pendingSmellBlob || null
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
       await dbPut(session);
 
@@ -3463,7 +3126,6 @@ ${cautionBits.join(" • ")}`
       Array.from(rateRow.querySelectorAll("button")).forEach(x=>x.classList.remove("btnPrimary"));
 
       moodSet = new Set(); moodOther.value = ""; renderMood();
-      resetFeelingSnapshot();
       visualSet = new Set(); visualOther.value = ""; renderVisual();
       smellSet = new Set(); smellOther.value = ""; renderSmell();
       resetCheckedValue("visualGaugeFrost");
@@ -3481,12 +3143,19 @@ ${cautionBits.join(" • ")}`
       sessionTag.value = "";
       sessionStashLink.value = "";
       if (transcriptText) transcriptText.value = "";
+      if (transcriptSummary) transcriptSummary.value = "";
+      const transcriptDefault = document.querySelector('input[name="transcriptMode"][value="AUDIO_ONLY"]');
+      if (transcriptDefault) transcriptDefault.checked = true;
 
       await renderSessions();
       await renderAskPatterns();
       if (selectedStashId){
         await renderSelectedStashDetail();
       }
+
+      const nextLike = await buildNextLikeFeedback(session);
+      if (nextLike) showNextLike(nextLike.lines, nextLike.meta);
+      else hideNextLike();
     }
     saveSessionBtn.onclick = saveSession;
 
@@ -3522,12 +3191,6 @@ ${cautionBits.join(" • ")}`
         if (s.rate) bits.push("RATE:"+s.rate);
         if (s.mood && s.mood.length) bits.push("MOOD:[" + s.mood.join(", ") + "]");
         if (s.moodOther) bits.push("MOOD_OTHER:" + s.moodOther);
-        if (s.feelingSnapshot && typeof s.feelingSnapshot === "object") {
-          const fs = s.feelingSnapshot;
-          if (Number(fs.calmWired || 0) !== 0) bits.push("CALM↔WIRED:" + snapshotLabel('calmWired', fs.calmWired));
-          if (Number(fs.clearFoggy || 0) !== 0) bits.push("CLEAR↔FOGGY:" + snapshotLabel('clearFoggy', fs.clearFoggy));
-          if (Number(fs.socialSolo || 0) !== 0) bits.push("SOCIAL↔SOLO:" + snapshotLabel('socialSolo', fs.socialSolo));
-        }
         if (s.visuals && s.visuals.length) bits.push("VISUAL:[" + s.visuals.join(", ") + "]");
         if (s.visualOther) bits.push("VISUAL_OTHER:" + s.visualOther);
         if (s.smell && s.smell.length) bits.push("SMELL:[" + s.smell.join(", ") + "]");
@@ -3556,11 +3219,12 @@ ${cautionBits.join(" • ")}`
           ${hasSmellAudio ? buildPlayerMarkup("Smell audio", smellAudioUrl) : ""}
 
           ${
-            (s.transcriptText)
+            (s.transcriptText || s.transcriptSummary)
             ? `<div class="terpRow topgap">
                 <p class="terpName">Transcript memory</p>
-                <p class="terpHint">Saved raw transcript</p>
+                <p class="terpHint">Mode: ${escapeHtml(String(s.transcriptMode || "AUDIO_ONLY").replaceAll("_"," "))}</p>
                 ${s.transcriptText ? `<div class="itemMeta" style="margin-top:8px; color:var(--text);">${escapeHtml(s.transcriptText)}</div>` : ""}
+                ${s.transcriptSummary ? `<div class="notice topgap">${escapeHtml(s.transcriptSummary)}</div>` : ""}
               </div>`
             : ""
           }
@@ -3577,6 +3241,7 @@ ${cautionBits.join(" • ")}`
             await renderSelectedStashDetail();
           }
         };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
         sessionList.appendChild(el);
         initCustomPlayers(el);
@@ -3601,8 +3266,10 @@ ${cautionBits.join(" • ")}`
       if (selectedStashId){
         await renderSelectedStashDetail();
       }
+      hideNextLike();
       setStatus("idle","Idle");
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
 
     // ASK / LAYER 1
@@ -3640,7 +3307,8 @@ const askPromptBlend = document.getElementById("askPromptBlend");
     }
 
     function readTranscriptMode(){
-      return "AUDIO_PLUS_TRANSCRIPT";
+      const sel = document.querySelector('input[name="transcriptMode"]:checked');
+      return sel ? (sel.value || "AUDIO_ONLY") : "AUDIO_ONLY";
     }
 
 
@@ -3689,8 +3357,6 @@ const askPromptBlend = document.getElementById("askPromptBlend");
         if (!buckets.has(key)){
           buckets.set(key, {
             key,
-            stashId: String(s.stashId || ""),
-            tag: String(s.tag || "").trim(),
             name: stashLabelForSession(s),
             count: 0,
             total: 0,
@@ -3725,6 +3391,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       const weirdest = rows.slice().sort((a,b) => ((b.weird / b.count) - (a.weird / a.count)) || (b.count - a.count))[0] || null;
 
       return { rows, bestSleep, bestCalm, bestCreative, bestFocus, bestFun, mostConsistent, weirdest, sessions };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
 
@@ -3744,6 +3411,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       const stats = {
         sleep:0, calm:0, creative:0, focus:0, fun:0, weird:0, total:0
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       linked.forEach(s => {
         stats.total += sessionOutcomeScore(s);
         if (parseSleepValue(s.sleep) >= 4) stats.sleep += 1;
@@ -3769,7 +3437,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
 
     function wirePatternButton(btn, row){
       if (!btn) return;
-      if (!row || !row.stashId){
+      if (!row){
         btn.style.display = "none";
         btn.onclick = null;
         return;
@@ -3778,8 +3446,9 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       btn.textContent = "Open stash card";
       btn.onclick = () => {
         goToPage(0);
-        setTimeout(() => openStashDetail(row.stashId), 160);
+        openStashDetail(row.id);
       };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     }
 
     function formatPatternLine(row, mode){
@@ -3791,6 +3460,89 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       if (mode === "fun") return `${row.name} — fun / social shows up in ${Math.round((row.fun / row.count) * 100)}% of logged sessions (${row.count} total).`;
       return `${row.name} — strongest average outcome score across ${row.count} logged session${row.count === 1 ? "" : "s"}.`;
     }
+
+    function hideNextLike(){
+      if (!nextLikeWrap || !nextLikeToggle || !nextLikePanel) return;
+      nextLikeWrap.style.display = "none";
+      nextLikeToggle.classList.remove("active");
+      nextLikePanel.classList.remove("active");
+      nextLikePanel.innerHTML = "";
+    }
+
+    function showNextLike(lines, meta){
+      if (!nextLikeWrap || !nextLikeToggle || !nextLikePanel) return;
+      if (!Array.isArray(lines) || !lines.length){
+        hideNextLike();
+        return;
+      }
+      nextLikeWrap.style.display = "block";
+      nextLikeToggle.classList.remove("active");
+      nextLikePanel.classList.remove("active");
+      nextLikePanel.innerHTML = `
+        ${lines.map(line => `<div class="nextLikeLine">${escapeHtml(line)}</div>`).join("")}
+        ${meta ? `<div class="nextLikeMeta">${escapeHtml(meta)}</div>` : ""}
+      `;
+    }
+
+    if (nextLikeToggle){
+      nextLikeToggle.onclick = () => {
+        const active = nextLikePanel.classList.toggle("active");
+        nextLikeToggle.classList.toggle("active", active);
+      };
+    }
+
+    async function buildNextLikeFeedback(savedSession){
+      if (!savedSession) return null;
+
+      const calmWired = Number(savedSession.snapshotCalmWired || 0);
+      const clearFoggy = Number(savedSession.snapshotClearFoggy || 0);
+      const socialSolo = Number(savedSession.snapshotSocialSolo || 0);
+      const intensity = Math.max(Math.abs(calmWired), Math.abs(clearFoggy), Math.abs(socialSolo));
+
+      if (intensity <= 0) return null;
+
+      const stats = await computePatternStats();
+      if (!stats.rows.length) return null;
+
+      const currentName = stashLabelForSession(savedSession);
+
+      const picks = [];
+      if (calmWired >= 1 && stats.bestCalm) picks.push({ row: stats.bestCalm, why: "for more calm support" });
+      if (calmWired <= -1 && stats.bestFun) picks.push({ row: stats.bestFun, why: "if you want a little more lift" });
+      if (clearFoggy >= 1 && stats.bestFocus) picks.push({ row: stats.bestFocus, why: "for a clearer lane" });
+      if (clearFoggy <= -1 && stats.bestCreative) picks.push({ row: stats.bestCreative, why: "if you want more drift / creative looseness" });
+      if (socialSolo >= 1 && stats.bestFun) picks.push({ row: stats.bestFun, why: "for more social support" });
+      if (socialSolo <= -1 && stats.bestCalm) picks.push({ row: stats.bestCalm, why: "if you want to keep it quieter" });
+
+      const unique = [];
+      const seen = new Set();
+      for (const pick of picks){
+        const key = String(pick?.row?.key || "");
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        unique.push(pick);
+      }
+
+      if (!unique.length) return null;
+
+      const plusLines = unique
+        .filter(p => p.row && p.row.name && p.row.name !== currentName)
+        .slice(0, 2)
+        .map(p => `+0.10g ${p.row.name} ${p.why}`);
+
+      const lines = [...plusLines];
+      if (currentName && lines.length){
+        lines.push(`-0.10g ${currentName} if you want to pull this session's lane back a bit`);
+      }
+
+      if (!lines.length) return null;
+
+      return {
+        lines: lines.slice(0, 2),
+        meta: "Optional tweak only. This stays quiet unless you open it."
+      };
+    }
+
 
     async function renderAskPatterns(){
       const stats = await computePatternStats();
@@ -3809,47 +3561,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       wirePatternButton(patternConsistentOpen, stats.mostConsistent);
     }
 
-
-    function positiveBlendScore(n){
-      const x = Number(n || 0);
-      if (!Number.isFinite(x)) return 0.05;
-      return Math.max(0.05, x);
-    }
-
-    function buildGramBlendParts(rows, scoreKey, totalGrams=1){
-      const safeRows = (rows || []).filter(Boolean);
-      if (!safeRows.length) return [];
-
-      const weights = safeRows.map(r => positiveBlendScore(r[scoreKey]));
-      const totalWeight = weights.reduce((a,b) => a + b, 0) || 1;
-
-      let remaining = Math.round(totalGrams * 100);
-      return safeRows.map((row, idx) => {
-        const pctRaw = (weights[idx] / totalWeight) * 100;
-        let gramsHundredths;
-        if (idx === safeRows.length - 1){
-          gramsHundredths = remaining;
-        } else {
-          gramsHundredths = Math.round((weights[idx] / totalWeight) * totalGrams * 100);
-          gramsHundredths = Math.max(0, Math.min(remaining, gramsHundredths));
-          remaining -= gramsHundredths;
-        }
-        const grams = gramsHundredths / 100;
-        const pct = grams / totalGrams * 100;
-        return {
-          ...row,
-          grams,
-          pct,
-          matchScore: row[scoreKey],
-        };
-      });
-    }
-
-    function formatBlendLine(part, idx){
-      return `${idx + 1}. ${part.name} — ${part.grams.toFixed(2)}g (${Math.round(part.pct)}%) | match score ${part.matchScore.toFixed(2)} | ${part.count} logged session${part.count === 1 ? "" : "s"}`;
-    }
-
-    async function tonightModeAnswer(goalRaw){
+        async function tonightModeAnswer(goalRaw){
       const goal = String(goalRaw || "CALM").trim().toUpperCase();
       const stats = await computePatternStats();
       if (!stats.rows.length){
@@ -3864,156 +3576,15 @@ const askPromptBlend = document.getElementById("askPromptBlend");
         if (goal === "FOCUS") score += ((r.calm / r.count) * 0.6);
         score -= (r.weird / r.count) * 1.6;
         return { ...r, pickScore: score };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       }).sort((a,b) => b.pickScore - a.pickScore).slice(0,3);
-
-      const blendParts = buildGramBlendParts(scored, "pickScore", 1);
 
       return `TONIGHT MODE — ${goal}
 
-Top matches:
-${scored.map((r, i) => `${i + 1}. ${r.name} — match score ${r.pickScore.toFixed(2)} from ${r.count} logged session${r.count === 1 ? "" : "s"}`).join("\n")}
+${scored.map((r, i) => `${i + 1}. ${r.name} — score ${r.pickScore.toFixed(2)} from ${r.count} logged session${r.count === 1 ? "" : "s"}`).join("\n")}
 
-1.00g exploratory split:
-${blendParts.map(formatBlendLine).join("\n")}
-
-Read this correctly: match score is ranking only. Grams and percentages are the actual split suggestion.`;
+Read this correctly: this is guidance from your own logs, not a promise.`;
     }
-
-
-    function laneRate(row, lane){
-      if (!row || !row.count) return 0;
-      if (lane === "sleep") return row.sleepGood / row.count;
-      if (lane === "calm") return row.calm / row.count;
-      if (lane === "creative") return row.creative / row.count;
-      if (lane === "focus") return row.focus / row.count;
-      if (lane === "fun") return row.fun / row.count;
-      if (lane === "weird") return row.weird / row.count;
-      return 0;
-    }
-
-    function laneLabel(lane){
-      const map = {
-        sleep: "sleep",
-        calm: "calm",
-        creative: "creative",
-        focus: "focus / clear",
-        fun: "fun / social"
-      };
-      return map[lane] || lane;
-    }
-
-    function bestLanesForRow(row){
-      return [
-        { key:"sleep", value: laneRate(row, "sleep") },
-        { key:"calm", value: laneRate(row, "calm") },
-        { key:"creative", value: laneRate(row, "creative") },
-        { key:"focus", value: laneRate(row, "focus") },
-        { key:"fun", value: laneRate(row, "fun") }
-      ].sort((a,b) => b.value - a.value);
-    }
-
-    function chooseBlendGoal(query){
-      const q = String(query || "").toLowerCase();
-      if (q.includes("sleep")) return "SLEEP";
-      if (q.includes("focus") || q.includes("clear")) return "FOCUS";
-      if (q.includes("creative") || q.includes("create")) return "CREATIVE";
-      if (q.includes("fun") || q.includes("social")) return "FUN";
-      return "CALM";
-    }
-
-    function scoreBlendRow(row, goal){
-      const avg = row.count ? (row.total / row.count) : 0;
-      const weirdPenalty = laneRate(row, "weird") * 1.6;
-
-      let laneBoost = 0;
-      if (goal === "SLEEP") laneBoost += laneRate(row, "sleep") * 2.4 + laneRate(row, "calm") * 0.6;
-      if (goal === "CALM") laneBoost += laneRate(row, "calm") * 2.2 + laneRate(row, "sleep") * 0.4;
-      if (goal === "FOCUS") laneBoost += laneRate(row, "focus") * 2.2 + laneRate(row, "calm") * 0.3;
-      if (goal === "CREATIVE") laneBoost += laneRate(row, "creative") * 2.2 + laneRate(row, "fun") * 0.3;
-      if (goal === "FUN") laneBoost += laneRate(row, "fun") * 2.2 + laneRate(row, "creative") * 0.3;
-
-      return avg + laneBoost - weirdPenalty + Math.min(0.35, row.count * 0.04);
-    }
-
-    function supportBlendScore(primary, candidate, goal){
-      if (!candidate || candidate.key === primary.key) return -999;
-
-      const primaryLanes = bestLanesForRow(primary);
-      const candidateLanes = bestLanesForRow(candidate);
-
-      const primaryTop = primaryLanes[0]?.key || "calm";
-      const candidateTop = candidateLanes[0]?.key || "calm";
-      const sameTopPenalty = primaryTop === candidateTop ? 0.18 : 0;
-
-      let complement = 0;
-      if (goal === "CALM"){
-        complement += laneRate(candidate, "calm") * 1.3;
-        complement += laneRate(candidate, "sleep") * 0.8;
-        complement += laneRate(candidate, "focus") * 0.35;
-      } else if (goal === "SLEEP"){
-        complement += laneRate(candidate, "sleep") * 1.4;
-        complement += laneRate(candidate, "calm") * 0.8;
-      } else if (goal === "FOCUS"){
-        complement += laneRate(candidate, "focus") * 1.3;
-        complement += laneRate(candidate, "calm") * 0.45;
-      } else if (goal === "CREATIVE"){
-        complement += laneRate(candidate, "creative") * 1.3;
-        complement += laneRate(candidate, "fun") * 0.4;
-        complement += laneRate(candidate, "calm") * 0.2;
-      } else if (goal === "FUN"){
-        complement += laneRate(candidate, "fun") * 1.3;
-        complement += laneRate(candidate, "creative") * 0.5;
-        complement += laneRate(candidate, "calm") * 0.2;
-      }
-
-      const weirdPenalty = laneRate(candidate, "weird") * 1.2;
-      const confidence = Math.min(0.3, candidate.count * 0.035);
-
-      return complement - weirdPenalty - sameTopPenalty + confidence;
-    }
-
-
-    async function answerBlend(query){
-      const goal = chooseBlendGoal(query);
-      const stats = await computePatternStats();
-      const rows = stats.rows.filter(r => r.count > 0);
-
-      if (!rows.length){
-        return "BLEND READ\n\nI do not have enough real session signal yet. Log a few sessions first, then I can ground a blend in your own data.";
-      }
-
-      const ranked = rows
-        .map(r => ({ ...r, blendBaseScore: scoreBlendRow(r, goal) }))
-        .sort((a,b) => b.blendBaseScore - a.blendBaseScore)
-        .slice(0,3);
-
-      const parts = buildGramBlendParts(ranked, "blendBaseScore", 1);
-
-      if (parts.length === 1){
-        const solo = parts[0];
-        const lanes = bestLanesForRow(solo).filter(x => x.value > 0).slice(0,2);
-        return `BLEND READ — ${goal}
-
-I only have enough grounded signal for one real component right now.
-
-Solo pick:
-${solo.name} — 1.00g (100%)
-Best lanes: ${lanes.length ? lanes.map(x => laneLabel(x.key)).join(", ") : "still early"}
-Match score: ${solo.matchScore.toFixed(2)}
-Confidence: ${confidenceLabel(solo.count)} (${solo.count} logged session${solo.count === 1 ? "" : "s"})
-
-A true blend needs more than one real candidate in your logs.`;
-      }
-
-      return `BLEND READ — ${goal}
-
-1.00g blend:
-${parts.map(formatBlendLine).join("\n")}
-
-Grounding:
-These match scores rank fit for your target. The grams and percentages are the actual proportional split suggestion. Based on your own logged outcomes only.`;
-    }
-
 
     async function answerAsk(q){
       const query = String(q || "").trim().toLowerCase();
@@ -4083,18 +3654,20 @@ Other likely contributors: dose overshoot, bad starting mood, or fast-delivery f
       }
 
       if (query.includes("blend") || query.includes("mix") || query.includes("combo")){
-        return await answerBlend(query);
+        return "BLEND READY — basic mode active";
       }
 
       if (query.includes("transcript") || query.includes("voice note") || query.includes("summary")){
-        const sessionsWithText = stats.sessions.filter(s => (s.transcriptText));
+        const sessionsWithText = stats.sessions.filter(s => (s.transcriptText || s.transcriptSummary));
         if (!sessionsWithText.length){
-          return "No transcript memory yet. Save a session with transcript text and this layer will have more to work with.";
+          return "No transcript memory yet. Add transcript or summary text to sessions and this layer will have more to work with.";
         }
         const latest = sessionsWithText.sort((a,b) => (b.createdAt||0) - (a.createdAt||0))[0];
         return `Latest transcript-backed session: ${latest.tag || "Session"}.
 
-${latest.transcriptText ? "Transcript: " + latest.transcriptText.slice(0, 280) + (latest.transcriptText.length > 280 ? "…" : "") : ""}`;
+Mode: ${String(latest.transcriptMode || "AUDIO_ONLY").replaceAll("_"," ")}
+${latest.transcriptSummary ? "\nSummary: " + latest.transcriptSummary : ""}
+${latest.transcriptText ? "\nTranscript: " + latest.transcriptText.slice(0, 280) + (latest.transcriptText.length > 280 ? "…" : "") : ""}`;
       }
 
       return `Clean read right now:
@@ -4110,16 +3683,21 @@ Ask me something tighter.`;
     }
 
         askPromptTonight.onclick = () => { askInput.value = "What should I use tonight?"; };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     askPromptSleep.onclick = () => { askInput.value = "What helps me sleep?"; };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
     if (askPromptTranscript) askPromptTranscript.onclick = () => { askInput.value = "Show me transcript memory"; };
-    if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     askBtn.onclick = async () => {
       askReply.textContent = "Thinking…";
       askReply.textContent = await answerAsk(askInput.value);
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     tonightModeBtn.onclick = async () => {
       const goal = prompt("Tonight goal? Type one: CALM / SLEEP / FUN / FOCUS / SOCIAL", "CALM");
@@ -4127,6 +3705,7 @@ Ask me something tighter.`;
       askReply.textContent = "Thinking…";
       askReply.textContent = await tonightModeAnswer(goal);
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
 
     const exportBtn = document.getElementById("exportBtn");
@@ -4142,6 +3721,7 @@ Ask me something tighter.`;
       });
 
       const payload = { exportedAt: new Date().toISOString(), version:"V1", stash, sessions: safeSessions };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
 
       const a = document.createElement("a");
@@ -4151,6 +3731,7 @@ Ask me something tighter.`;
       a.click();
       a.remove();
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     importJsonInput.addEventListener("change", async (e) => {
       const f = e.target.files && e.target.files[0];
@@ -4169,6 +3750,7 @@ Ask me something tighter.`;
       await renderSessions();
       await renderAskPatterns();
       await renderAskPatterns();
+      hideNextLike();
       setStatus("idle","Idle");
 
       pendingSmellBlob = null;
@@ -4184,6 +3766,7 @@ Ask me something tighter.`;
 
       alert("Wiped.");
     };
+if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
 
     (async function init(){
       renderStash();
@@ -4191,7 +3774,7 @@ Ask me something tighter.`;
 
       if (!("MediaRecorder" in window)){
         iphoneFallback.style.display = "flex";
-        recBtn.textContent = "▶️ Start Session (Browser unavailable)";
+        recBtn.textContent = "🎙️ Record (Browser unavailable)";
         stopBtn.disabled = true;
         pauseBtn.disabled = true;
 
@@ -4206,22 +3789,38 @@ Ask me something tighter.`;
 
       setStatus("idle","Idle");
       setSmellStatus("idle","Idle");
-      setTranscriptStatus("idle","Idle");
-      ensureTranscriptEngine();
 
       renderStashVisual();
       renderMood();
-      resetFeelingSnapshot();
       renderVisual();
       renderSmell();
       setStashPhoto("");
 
       await renderSessions();
       await renderAskPatterns();
+      hideNextLike();
       initCustomPlayers();
       closeStashDetail();
     })();
   </script>
 
+<script>
+(function(){
+  try{
+    const askInput = document.getElementById("askInput");
+    const askPromptWeird = document.getElementById("askPromptWeird");
+    const askPromptTranscript = document.getElementById("askPromptTranscript");
+const askPromptBlend = document.getElementById("askPromptBlend");
+    const askPromptBlend = document.getElementById("askPromptBlend");
+
+    if (askPromptWeird && askInput) askPromptWeird.onclick = () => askInput.value = "Hit weird";
+    if (askPromptTranscript && askInput) askPromptTranscript.onclick = () => askInput.value = "Show me transcript memory";
+    if (askPromptBlend && askInput) askPromptBlend.onclick = () => askInput.value = "What blend should I try tonight?";
+  }catch(e){
+    console.error("SAFE BIND FAIL", e);
+  }
+})();
+</script>
+
 </body>
-</html>
+</htm
