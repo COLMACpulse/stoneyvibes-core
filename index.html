@@ -1065,22 +1065,94 @@
       border:1px solid rgba(255,255,255,0.10);
     }
 
-  
-.laneDots{display:flex;gap:8px}
-.laneDot{
-  flex:1;
-  height:18px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,0.2);
-  background:rgba(255,255,255,0.06);
-  cursor:pointer;
-}
-.laneDot.active{
-  background:rgba(180,120,255,0.5);
-  border-color:rgba(180,120,255,0.9);
-}
+    .segGrid{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+    .segRow{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:8px;
+      background:rgba(255,255,255,0.03);
+    }
+    .segHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .segTitle{
+      margin:0;
+      font-size:12px;
+      letter-spacing:0.10em;
+      text-transform:uppercase;
+      color:var(--text);
+    }
+    .segHint{
+      margin:4px 0 0 0;
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.3;
+    }
+    .segValue{
+      font-size:11px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .segScale{
+      display:grid;
+      gap:0;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:12px;
+      overflow:hidden;
+      background:rgba(255,255,255,0.03);
+    }
+    .segScale.l5{ grid-template-columns:repeat(5, minmax(0,1fr)); }
+    .segScale.l6{ grid-template-columns:repeat(6, minmax(0,1fr)); }
+    .segScale.l4{ grid-template-columns:repeat(4, minmax(0,1fr)); }
+    .segScale input{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+    }
+    .segScale label{
+      min-width:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:9px 6px;
+      border-right:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.03);
+      color:var(--muted);
+      cursor:pointer;
+      user-select:none;
+      font-size:11px;
+      line-height:1.1;
+      letter-spacing:0.04em;
+      transition:background .15s ease, color .15s ease, box-shadow .15s ease;
+    }
+    .segScale label:last-of-type{
+      border-right:none;
+    }
+    .segScale input:checked + label{
+      background:rgba(188,154,214,0.20);
+      color:var(--text);
+      box-shadow:inset 0 0 0 1px rgba(205,184,222,0.35);
+    }
+    .segLegend{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:10px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+    }
 
-</style>
+  </style>
 </head>
 
 <body>
@@ -1280,118 +1352,67 @@
             <p class="terpName">Feeling snapshot</p>
             <p class="terpHint">Fast state capture. Optional. The app stores the math, but you see the vibe.</p>
 
-            <div class="list" style="margin-top:10px;">
-              <div class="snapshotPanel">
-                <div class="snapshotHead">
-                  <p class="terpName">Calm ↔ Wired</p>
-                  <span id="snapshotCalmWiredValue" class="snapshotValuePill">Balanced</span>
+            <div class="segGrid">
+              <div class="segRow">
+                <div class="segHead">
+                  <div style="min-width:0; flex:1;">
+                    <p class="segTitle">Frost</p>
+                    <p class="segHint">How frosty does it look?</p>
+                  </div>
                 </div>
-                <input id="snapshotCalmWired" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
-                <div id="snapshotCalmWiredScale" class="snapshotScale">
-                  <span data-value="-2">Very Calm</span>
-                  <span data-value="-1">Calm</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="1">Wired</span>
-                  <span data-value="2">Very Wired</span>
-                </div>
-              </div>
-
-              <div class="snapshotPanel">
-                <div class="snapshotHead">
-                  <p class="terpName">Clear ↔ Foggy</p>
-                  <span id="snapshotClearFoggyValue" class="snapshotValuePill">Balanced</span>
-                </div>
-                <input id="snapshotClearFoggy" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
-                <div id="snapshotClearFoggyScale" class="snapshotScale">
-                  <span data-value="-2">Very Clear</span>
-                  <span data-value="-1">Clear</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="1">Foggy</span>
-                  <span data-value="2">Very Foggy</span>
+                <div class="segScale l5">
+                  <input id="visualGaugeFrost_none" type="radio" name="visualGaugeFrost" value="" checked />
+                  <label for="visualGaugeFrost_none">—</label>
+                  <input id="visualGaugeFrost_light" type="radio" name="visualGaugeFrost" value="LIGHT" />
+                  <label for="visualGaugeFrost_light">Light</label>
+                  <input id="visualGaugeFrost_noticeable" type="radio" name="visualGaugeFrost" value="NOTICEABLE" />
+                  <label for="visualGaugeFrost_noticeable">Noticeable</label>
+                  <input id="visualGaugeFrost_strong" type="radio" name="visualGaugeFrost" value="STRONG" />
+                  <label for="visualGaugeFrost_strong">Strong</label>
+                  <input id="visualGaugeFrost_heavy" type="radio" name="visualGaugeFrost" value="HEAVY" />
+                  <label for="visualGaugeFrost_heavy">Heavy</label>
                 </div>
               </div>
 
-              <div class="snapshotPanel">
-                <div class="snapshotHead">
-                  <p class="terpName">Social ↔ Solo</p>
-                  <span id="snapshotSocialSoloValue" class="snapshotValuePill">Balanced</span>
+              <div class="segRow">
+                <div class="segHead">
+                  <div style="min-width:0; flex:1;">
+                    <p class="segTitle">Density</p>
+                    <p class="segHint">How dense does it look?</p>
+                  </div>
                 </div>
-                <input id="snapshotSocialSolo" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
-                <div id="snapshotSocialSoloScale" class="snapshotScale">
-                  <span data-value="-2">Very Social</span>
-                  <span data-value="-1">Social</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="1">Solo</span>
-                  <span data-value="2">Very Solo</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="row topgap">
-              <button id="snapshotResetBtn" class="btn btnTiny" type="button">Reset snapshot</button>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- PHOTO -->
-          <div class="photoBox">
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
-            <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
-
-            <div class="row topgap">
-              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                📷 Take / Choose Photo
-                <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
-              </label>
-              <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
-            </div>
-
-            <img id="photoThumb" class="thumb" alt="Photo preview" />
-            <input id="photoDataUrl" type="hidden" value="" />
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- VISUAL TRAITS -->
-          <div class="terpRow">
-            <p class="terpName">Visual traits</p>
-            <p class="terpHint">Use gauges for degree. Use tags for direct physical signals.</p>
-
-            <div class="list" style="margin-top:10px;">
-              <div class="terpRow">
-                <p class="terpName">Frost</p>
-                <p class="terpHint">How frosty does it look?</p>
-                <div class="scale compact">
-                  <label><input type="radio" name="visualGaugeFrost" value="" checked /> — </label>
-                  <label><input type="radio" name="visualGaugeFrost" value="LIGHT" /> Light</label>
-                  <label><input type="radio" name="visualGaugeFrost" value="NOTICEABLE" /> Noticeable</label>
-                  <label><input type="radio" name="visualGaugeFrost" value="STRONG" /> Strong</label>
-                  <label><input type="radio" name="visualGaugeFrost" value="HEAVY" /> Heavy</label>
+                <div class="segScale l5">
+                  <input id="visualGaugeDensity_none" type="radio" name="visualGaugeDensity" value="" checked />
+                  <label for="visualGaugeDensity_none">—</label>
+                  <input id="visualGaugeDensity_light" type="radio" name="visualGaugeDensity" value="LIGHT" />
+                  <label for="visualGaugeDensity_light">Light</label>
+                  <input id="visualGaugeDensity_noticeable" type="radio" name="visualGaugeDensity" value="NOTICEABLE" />
+                  <label for="visualGaugeDensity_noticeable">Noticeable</label>
+                  <input id="visualGaugeDensity_strong" type="radio" name="visualGaugeDensity" value="STRONG" />
+                  <label for="visualGaugeDensity_strong">Strong</label>
+                  <input id="visualGaugeDensity_heavy" type="radio" name="visualGaugeDensity" value="HEAVY" />
+                  <label for="visualGaugeDensity_heavy">Heavy</label>
                 </div>
               </div>
 
-              <div class="terpRow">
-                <p class="terpName">Density</p>
-                <p class="terpHint">How dense does it look?</p>
-                <div class="scale compact">
-                  <label><input type="radio" name="visualGaugeDensity" value="" checked /> — </label>
-                  <label><input type="radio" name="visualGaugeDensity" value="LIGHT" /> Light</label>
-                  <label><input type="radio" name="visualGaugeDensity" value="NOTICEABLE" /> Noticeable</label>
-                  <label><input type="radio" name="visualGaugeDensity" value="STRONG" /> Strong</label>
-                  <label><input type="radio" name="visualGaugeDensity" value="HEAVY" /> Heavy</label>
+              <div class="segRow">
+                <div class="segHead">
+                  <div style="min-width:0; flex:1;">
+                    <p class="segTitle">Hairs</p>
+                    <p class="segHint">How pronounced are the hairs?</p>
+                  </div>
                 </div>
-              </div>
-
-              <div class="terpRow">
-                <p class="terpName">Hairs</p>
-                <p class="terpHint">How pronounced are the hairs?</p>
-                <div class="scale compact">
-                  <label><input type="radio" name="visualGaugeHairs" value="" checked /> — </label>
-                  <label><input type="radio" name="visualGaugeHairs" value="LIGHT" /> Light</label>
-                  <label><input type="radio" name="visualGaugeHairs" value="NOTICEABLE" /> Noticeable</label>
-                  <label><input type="radio" name="visualGaugeHairs" value="STRONG" /> Strong</label>
-                  <label><input type="radio" name="visualGaugeHairs" value="HEAVY" /> Heavy</label>
+                <div class="segScale l5">
+                  <input id="visualGaugeHairs_none" type="radio" name="visualGaugeHairs" value="" checked />
+                  <label for="visualGaugeHairs_none">—</label>
+                  <input id="visualGaugeHairs_light" type="radio" name="visualGaugeHairs" value="LIGHT" />
+                  <label for="visualGaugeHairs_light">Light</label>
+                  <input id="visualGaugeHairs_noticeable" type="radio" name="visualGaugeHairs" value="NOTICEABLE" />
+                  <label for="visualGaugeHairs_noticeable">Noticeable</label>
+                  <input id="visualGaugeHairs_strong" type="radio" name="visualGaugeHairs" value="STRONG" />
+                  <label for="visualGaugeHairs_strong">Strong</label>
+                  <input id="visualGaugeHairs_heavy" type="radio" name="visualGaugeHairs" value="HEAVY" />
+                  <label for="visualGaugeHairs_heavy">Heavy</label>
                 </div>
               </div>
             </div>
@@ -1424,27 +1445,45 @@
             <p class="terpName">Smell intensity</p>
             <p class="terpHint">Passive = jar open. Activated = broken nug.</p>
 
-            <div class="topgap">
-              <div class="label">Passive smell</div>
-              <div class="scale compact">
-                <label><input type="radio" name="passiveSmellIntensity" value="" checked /> — </label>
-                <label><input type="radio" name="passiveSmellIntensity" value="NONE" /> 0 None</label>
-                <label><input type="radio" name="passiveSmellIntensity" value="LIGHT" /> 1 Light</label>
-                <label><input type="radio" name="passiveSmellIntensity" value="NOTICEABLE" /> 2 Noticeable</label>
-                <label><input type="radio" name="passiveSmellIntensity" value="STRONG" /> 3 Strong</label>
-                <label><input type="radio" name="passiveSmellIntensity" value="LOUD" /> 4 Loud</label>
+            <div class="segGrid">
+              <div class="segRow">
+                <div class="segHead">
+                  <p class="segTitle">Passive smell</p>
+                </div>
+                <div class="segScale l6">
+                  <input id="passive_none0" type="radio" name="passiveSmellIntensity" value="" checked />
+                  <label for="passive_none0">—</label>
+                  <input id="passive_none" type="radio" name="passiveSmellIntensity" value="NONE" />
+                  <label for="passive_none">None</label>
+                  <input id="passive_light" type="radio" name="passiveSmellIntensity" value="LIGHT" />
+                  <label for="passive_light">Light</label>
+                  <input id="passive_noticeable" type="radio" name="passiveSmellIntensity" value="NOTICEABLE" />
+                  <label for="passive_noticeable">Noticeable</label>
+                  <input id="passive_strong" type="radio" name="passiveSmellIntensity" value="STRONG" />
+                  <label for="passive_strong">Strong</label>
+                  <input id="passive_loud" type="radio" name="passiveSmellIntensity" value="LOUD" />
+                  <label for="passive_loud">Loud</label>
+                </div>
               </div>
-            </div>
 
-            <div class="topgap">
-              <div class="label">Activated smell</div>
-              <div class="scale compact">
-                <label><input type="radio" name="activatedSmellIntensity" value="" checked /> — </label>
-                <label><input type="radio" name="activatedSmellIntensity" value="NONE" /> 0 None</label>
-                <label><input type="radio" name="activatedSmellIntensity" value="LIGHT" /> 1 Light</label>
-                <label><input type="radio" name="activatedSmellIntensity" value="NOTICEABLE" /> 2 Noticeable</label>
-                <label><input type="radio" name="activatedSmellIntensity" value="STRONG" /> 3 Strong</label>
-                <label><input type="radio" name="activatedSmellIntensity" value="LOUD" /> 4 Loud</label>
+              <div class="segRow">
+                <div class="segHead">
+                  <p class="segTitle">Activated smell</p>
+                </div>
+                <div class="segScale l6">
+                  <input id="activated_none0" type="radio" name="activatedSmellIntensity" value="" checked />
+                  <label for="activated_none0">—</label>
+                  <input id="activated_none" type="radio" name="activatedSmellIntensity" value="NONE" />
+                  <label for="activated_none">None</label>
+                  <input id="activated_light" type="radio" name="activatedSmellIntensity" value="LIGHT" />
+                  <label for="activated_light">Light</label>
+                  <input id="activated_noticeable" type="radio" name="activatedSmellIntensity" value="NOTICEABLE" />
+                  <label for="activated_noticeable">Noticeable</label>
+                  <input id="activated_strong" type="radio" name="activatedSmellIntensity" value="STRONG" />
+                  <label for="activated_strong">Strong</label>
+                  <input id="activated_loud" type="radio" name="activatedSmellIntensity" value="LOUD" />
+                  <label for="activated_loud">Loud</label>
+                </div>
               </div>
             </div>
           </div>
@@ -2800,7 +2839,7 @@ ${cautionBits.join(" • ")}`
       terpeneBox.innerHTML = "";
       TERPENES.forEach(t => {
         const row = document.createElement("div");
-        row.className = "terpRow compactRow";
+        row.className = "terpRow";
         row.innerHTML = `
           <div class="terpTop">
             <div style="min-width:0; flex:1;">
@@ -2808,7 +2847,7 @@ ${cautionBits.join(" • ")}`
               <p class="terpHint">${escapeHtml(t.hint)}</p>
             </div>
           </div>
-          <div class="scale compact">
+          <div class="scale">
             ${PRESENCE.map(p => {
               const id = `terp_${t.key}_${p.val||"NONE"}`;
               return `
@@ -4129,8 +4168,7 @@ Ask me something tighter.`;
     askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
     askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
     if (askPromptTranscript) askPromptTranscript.onclick = () => { askInput.value = "Show me transcript memory"; };
-    if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
-
+    
     askBtn.onclick = async () => {
       askReply.textContent = "Thinking…";
       askReply.textContent = await answerAsk(askInput.value);
@@ -4236,48 +4274,7 @@ Ask me something tighter.`;
       initCustomPlayers();
       closeStashDetail();
     })();
-  
-function initLaneFix(){
-  document.querySelectorAll('[data-lane-group]').forEach(group=>{
-    const name = group.getAttribute('data-lane-group');
-    const radios = document.querySelectorAll(`input[name="${name}"]`);
-
-    group.querySelectorAll('.laneDot').forEach(dot=>{
-      dot.onclick = ()=>{
-        const val = dot.getAttribute('data-value') || "";
-
-        radios.forEach(r=>{
-          r.checked = (r.value === val);
-        });
-
-        // trigger native change
-        radios.forEach(r=>{
-          if(r.checked){
-            r.dispatchEvent(new Event('change',{bubbles:true}));
-          }
-        });
-
-        // visual state
-        group.querySelectorAll('.laneDot').forEach(d=>d.classList.remove('active'));
-        dot.classList.add('active');
-
-        // graph
-        if(name.startsWith("terp_") && typeof drawTerpeneFingerprintDisc === "function"){
-          drawTerpeneFingerprintDisc();
-        }
-      };
-    });
-  });
-}
-
-window.addEventListener('load', ()=>{
-  initLaneFix();
-  if(typeof drawTerpeneFingerprintDisc==="function"){
-    drawTerpeneFingerprintDisc();
-  }
-});
-
-</script>
+  </script>
 
 </body>
 </html>
