@@ -3442,6 +3442,8 @@ const askPromptBlend = document.getElementById("askPromptBlend");
         if (!buckets.has(key)){
           buckets.set(key, {
             key,
+            stashId: String(s.stashId || ""),
+            tag: String(s.tag || "").trim(),
             name: stashLabelForSession(s),
             count: 0,
             total: 0,
@@ -3520,7 +3522,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
 
     function wirePatternButton(btn, row){
       if (!btn) return;
-      if (!row){
+      if (!row || !row.stashId){
         btn.style.display = "none";
         btn.onclick = null;
         return;
@@ -3529,7 +3531,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       btn.textContent = "Open stash card";
       btn.onclick = () => {
         goToPage(0);
-        openStashDetail(row.id);
+        setTimeout(() => openStashDetail(row.stashId), 160);
       };
     }
 
