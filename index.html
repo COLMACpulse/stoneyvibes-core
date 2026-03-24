@@ -1369,20 +1369,10 @@
 
           <div class="divider"></div>
 
-          <!-- TRANSCRIPT OPTIONS -->
+          <!-- TRANSCRIPT -->
           <div class="terpRow">
-            <p class="terpName">Transcript options</p>
-            <p class="terpHint">Optional text memory for this session. Manual for now. No hidden processing.</p>
-
-            <div class="topgap">
-              <div class="label">Transcript mode</div>
-              <div class="scale">
-                <label><input type="radio" name="transcriptMode" value="AUDIO_ONLY" checked /> Audio only</label>
-                <label><input type="radio" name="transcriptMode" value="AUDIO_PLUS_TRANSCRIPT" /> Audio + transcript</label>
-                <label><input type="radio" name="transcriptMode" value="AUDIO_PLUS_TRANSCRIPT_SUMMARY" /> Audio + transcript + summary</label>
-                <label><input type="radio" name="transcriptMode" value="SUMMARY_ONLY" /> Summary only</label>
-              </div>
-            </div>
+            <p class="terpName">Transcript</p>
+            <p class="terpHint">Default path: record your session, then use Live Transcript if supported. You can always edit the text before saving.</p>
 
             <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
               <button id="transcriptLiveBtn" class="btn btnPrimary" type="button">Live Transcript</button>
@@ -1392,25 +1382,14 @@
             </div>
 
             <div class="notice topgap">
-              Live transcript is assistive only and browser-dependent. Manual transcript text still wins.
+              If live transcript is supported here, it will write directly into the transcript box below while you talk. If not, you can still paste or type your raw text and save it with the session.
             </div>
 
             <div class="row topgap">
               <label class="field">
-                <span class="label">Transcript (optional)</span>
-                <textarea id="transcriptText" class="input" rows="5" placeholder="Paste or type transcript here."></textarea>
+                <span class="label">Transcript</span>
+                <textarea id="transcriptText" class="input" rows="7" placeholder="Live transcript appears here when available. You can also paste or edit it manually."></textarea>
               </label>
-            </div>
-
-            <div class="row topgap">
-              <label class="field">
-                <span class="label">Summary (optional)</span>
-                <textarea id="transcriptSummary" class="input" rows="3" placeholder="Short human summary of what mattered."></textarea>
-              </label>
-            </div>
-
-            <div class="notice topgap">
-              Transcript scaffolding only. This pass stores user-provided transcript text and summary locally so ASK and future pattern layers can use it later.
             </div>
           </div>
 
@@ -2635,7 +2614,7 @@ ${cautionBits.join(" • ")}`
     const clearSessionsBtn = document.getElementById("clearSessionsBtn");
     const sessionList = document.getElementById("sessionList");
     const transcriptText = document.getElementById("transcriptText");
-    const transcriptSummary = document.getElementById("transcriptSummary");
+    const transcriptSummary = null;
     const transcriptLiveBtn = document.getElementById("transcriptLiveBtn");
     const transcriptStopBtn = document.getElementById("transcriptStopBtn");
     const transcriptResetBtn = document.getElementById("transcriptResetBtn");
@@ -3048,12 +3027,6 @@ ${cautionBits.join(" • ")}`
         return;
       }
 
-      const currentMode = document.querySelector('input[name="transcriptMode"]:checked');
-      if (currentMode && currentMode.value === "AUDIO_ONLY"){
-        const preferred = document.querySelector('input[name="transcriptMode"][value="AUDIO_PLUS_TRANSCRIPT"]');
-        if (preferred) preferred.checked = true;
-      }
-
       engine.start(transcriptText.value || "");
     };
 
@@ -3109,9 +3082,8 @@ ${cautionBits.join(" • ")}`
         smellOther: String(raw.smellOther || ""),
         terpenes: (raw.terpenes && typeof raw.terpenes === "object") ? raw.terpenes : {},
         photoDataUrl: String(raw.photoDataUrl || ""),
-        transcriptMode: String(raw.transcriptMode || "AUDIO_ONLY"),
+        transcriptMode: String(raw.transcriptMode || "AUDIO_PLUS_TRANSCRIPT"),
         transcriptText: String(raw.transcriptText || ""),
-        transcriptSummary: String(raw.transcriptSummary || ""),
         mimeType: "",
         audioBlob: null,
         smellMimeType: "",
@@ -3216,7 +3188,6 @@ ${cautionBits.join(" • ")}`
         photoDataUrl: photoDataUrl.value || "",
         transcriptMode: readTranscriptMode(),
         transcriptText: (transcriptText?.value || "").trim(),
-        transcriptSummary: (transcriptSummary?.value || "").trim(),
         mimeType: pendingAudioBlob.type || "audio/*",
         audioBlob: pendingAudioBlob,
         smellMimeType: pendingSmellBlob ? (pendingSmellBlob.type || "audio/*") : "",
@@ -3262,9 +3233,6 @@ ${cautionBits.join(" • ")}`
       sessionTag.value = "";
       sessionStashLink.value = "";
       if (transcriptText) transcriptText.value = "";
-      if (transcriptSummary) transcriptSummary.value = "";
-      const transcriptDefault = document.querySelector('input[name="transcriptMode"][value="AUDIO_ONLY"]');
-      if (transcriptDefault) transcriptDefault.checked = true;
 
       await renderSessions();
       await renderAskPatterns();
@@ -3334,12 +3302,11 @@ ${cautionBits.join(" • ")}`
           ${hasSmellAudio ? buildPlayerMarkup("Smell audio", smellAudioUrl) : ""}
 
           ${
-            (s.transcriptText || s.transcriptSummary)
+            (s.transcriptText)
             ? `<div class="terpRow topgap">
                 <p class="terpName">Transcript memory</p>
-                <p class="terpHint">Mode: ${escapeHtml(String(s.transcriptMode || "AUDIO_ONLY").replaceAll("_"," "))}</p>
+                <p class="terpHint">Saved raw transcript</p>
                 ${s.transcriptText ? `<div class="itemMeta" style="margin-top:8px; color:var(--text);">${escapeHtml(s.transcriptText)}</div>` : ""}
-                ${s.transcriptSummary ? `<div class="notice topgap">${escapeHtml(s.transcriptSummary)}</div>` : ""}
               </div>`
             : ""
           }
@@ -3419,8 +3386,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
     }
 
     function readTranscriptMode(){
-      const sel = document.querySelector('input[name="transcriptMode"]:checked');
-      return sel ? (sel.value || "AUDIO_ONLY") : "AUDIO_ONLY";
+      return "AUDIO_PLUS_TRANSCRIPT";
     }
 
 
@@ -3846,16 +3812,14 @@ Other likely contributors: dose overshoot, bad starting mood, or fast-delivery f
       }
 
       if (query.includes("transcript") || query.includes("voice note") || query.includes("summary")){
-        const sessionsWithText = stats.sessions.filter(s => (s.transcriptText || s.transcriptSummary));
+        const sessionsWithText = stats.sessions.filter(s => (s.transcriptText));
         if (!sessionsWithText.length){
-          return "No transcript memory yet. Add transcript or summary text to sessions and this layer will have more to work with.";
+          return "No transcript memory yet. Save a session with transcript text and this layer will have more to work with.";
         }
         const latest = sessionsWithText.sort((a,b) => (b.createdAt||0) - (a.createdAt||0))[0];
         return `Latest transcript-backed session: ${latest.tag || "Session"}.
 
-Mode: ${String(latest.transcriptMode || "AUDIO_ONLY").replaceAll("_"," ")}
-${latest.transcriptSummary ? "\nSummary: " + latest.transcriptSummary : ""}
-${latest.transcriptText ? "\nTranscript: " + latest.transcriptText.slice(0, 280) + (latest.transcriptText.length > 280 ? "…" : "") : ""}`;
+${latest.transcriptText ? "Transcript: " + latest.transcriptText.slice(0, 280) + (latest.transcriptText.length > 280 ? "…" : "") : ""}`;
       }
 
       return `Clean read right now:
