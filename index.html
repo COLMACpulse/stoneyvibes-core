@@ -1065,91 +1065,73 @@
       border:1px solid rgba(255,255,255,0.10);
     }
 
-    .segGrid{
-      display:grid;
-      gap:10px;
-      margin-top:10px;
-    }
-    .segRow{
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:8px;
+    .laneBlock{
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:14px;
+      padding:10px;
       background:rgba(255,255,255,0.03);
     }
-    .segHead{
+    .laneHead{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
       margin-bottom:8px;
     }
-    .segTitle{
+    .laneTitle{
       margin:0;
       font-size:12px;
       letter-spacing:0.10em;
-      text-transform:uppercase;
       color:var(--text);
-    }
-    .segHint{
-      margin:4px 0 0 0;
-      font-size:11px;
-      color:var(--muted);
-      line-height:1.3;
-    }
-    .segValue{
-      font-size:11px;
-      letter-spacing:0.08em;
       text-transform:uppercase;
-      color:var(--muted);
-      white-space:nowrap;
     }
-    .segScale{
+    .laneValue{
+      font-size:11px;
+      letter-spacing:0.06em;
+      color:var(--muted);
+      text-transform:uppercase;
+    }
+    .laneDots{
       display:grid;
-      gap:0;
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:12px;
-      overflow:hidden;
-      background:rgba(255,255,255,0.03);
-    }
-    .segScale.l5{ grid-template-columns:repeat(5, minmax(0,1fr)); }
-    .segScale.l6{ grid-template-columns:repeat(6, minmax(0,1fr)); }
-    .segScale.l4{ grid-template-columns:repeat(4, minmax(0,1fr)); }
-    .segScale input{
-      position:absolute;
-      opacity:0;
-      pointer-events:none;
-    }
-    .segScale label{
-      min-width:0;
-      display:flex;
+      grid-auto-flow:column;
+      grid-auto-columns:1fr;
+      gap:8px;
       align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:9px 6px;
-      border-right:1px solid rgba(255,255,255,0.08);
-      background:rgba(255,255,255,0.03);
-      color:var(--muted);
+    }
+    .laneDot{
+      height:16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.16);
+      background:rgba(255,255,255,0.05);
       cursor:pointer;
-      user-select:none;
-      font-size:11px;
-      line-height:1.1;
-      letter-spacing:0.04em;
-      transition:background .15s ease, color .15s ease, box-shadow .15s ease;
+      transition:background .15s ease, border-color .15s ease, transform .15s ease, opacity .15s ease;
+      min-width:28px;
     }
-    .segScale label:last-of-type{
-      border-right:none;
+    .laneDot:hover{ transform:translateY(-1px); }
+    .laneDot.active{
+      background:rgba(205,184,222,0.42);
+      border-color:rgba(205,184,222,0.70);
     }
-    .segScale input:checked + label{
-      background:rgba(188,154,214,0.20);
-      color:var(--text);
-      box-shadow:inset 0 0 0 1px rgba(205,184,222,0.35);
-    }
-    .segLegend{
-      margin-top:6px;
+    .laneDot.level1.active{ background:rgba(205,184,222,0.18); }
+    .laneDot.level2.active{ background:rgba(205,184,222,0.28); }
+    .laneDot.level3.active{ background:rgba(205,184,222,0.38); }
+    .laneDot.level4.active{ background:rgba(205,184,222,0.50); }
+    .laneLegend{
+      margin-top:8px;
+      display:grid;
+      gap:8px;
       color:var(--muted);
       font-size:10px;
       letter-spacing:0.08em;
       text-transform:uppercase;
+      text-align:center;
+    }
+    .laneLegend.l5{ grid-template-columns:repeat(5,1fr); }
+    .laneLegend.l4{ grid-template-columns:repeat(4,1fr); }
+    .terpLaneList{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
     }
 
   </style>
@@ -1406,72 +1388,95 @@
 
           <div class="divider"></div>
 
+          <!-- PHOTO -->
+          <div class="photoBox">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
+            <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
+
+            <div class="row topgap">
+              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                📷 Take / Choose Photo
+                <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+              </label>
+              <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
+            </div>
+
+            <img id="photoThumb" class="thumb" alt="Photo preview" />
+            <input id="photoDataUrl" type="hidden" value="" />
+          </div>
+
+          <div class="divider"></div>
+
           <!-- VISUAL TRAITS -->
           <div class="terpRow">
             <p class="terpName">Visual traits</p>
-            <p class="terpHint">Use segmented gauges for degree. Use tags for direct physical signals.</p>
+            <p class="terpHint">Use gauges for degree. Use tags for direct physical signals.</p>
 
-            <div class="segGrid">
-              <div class="segRow">
-                <div class="segHead">
-                  <div style="min-width:0; flex:1;">
-                    <p class="segTitle">Frost</p>
-                    <p class="segHint">How frosty does it look?</p>
-                  </div>
+
+            <div class="list" style="margin-top:10px;">
+              <div class="laneBlock" data-lane-group="visualGaugeFrost" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Frost</p>
+                  <span class="laneValue" data-lane-value>—</span>
                 </div>
-                <div class="segScale l5">
-                  <input id="visualGaugeFrost_none" type="radio" name="visualGaugeFrost" value="" checked />
-                  <label for="visualGaugeFrost_none">—</label>
-                  <input id="visualGaugeFrost_light" type="radio" name="visualGaugeFrost" value="LIGHT" />
-                  <label for="visualGaugeFrost_light">Light</label>
-                  <input id="visualGaugeFrost_noticeable" type="radio" name="visualGaugeFrost" value="NOTICEABLE" />
-                  <label for="visualGaugeFrost_noticeable">Noticeable</label>
-                  <input id="visualGaugeFrost_strong" type="radio" name="visualGaugeFrost" value="STRONG" />
-                  <label for="visualGaugeFrost_strong">Strong</label>
-                  <input id="visualGaugeFrost_heavy" type="radio" name="visualGaugeFrost" value="HEAVY" />
-                  <label for="visualGaugeFrost_heavy">Heavy</label>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+                </div>
+                <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="visualGaugeFrost" value="" checked />
+                  <input type="radio" name="visualGaugeFrost" value="LIGHT" />
+                  <input type="radio" name="visualGaugeFrost" value="NOTICEABLE" />
+                  <input type="radio" name="visualGaugeFrost" value="STRONG" />
+                  <input type="radio" name="visualGaugeFrost" value="HEAVY" />
                 </div>
               </div>
 
-              <div class="segRow">
-                <div class="segHead">
-                  <div style="min-width:0; flex:1;">
-                    <p class="segTitle">Density</p>
-                    <p class="segHint">How dense does it look?</p>
-                  </div>
+              <div class="laneBlock" data-lane-group="visualGaugeDensity" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Density</p>
+                  <span class="laneValue" data-lane-value>—</span>
                 </div>
-                <div class="segScale l5">
-                  <input id="visualGaugeDensity_none" type="radio" name="visualGaugeDensity" value="" checked />
-                  <label for="visualGaugeDensity_none">—</label>
-                  <input id="visualGaugeDensity_light" type="radio" name="visualGaugeDensity" value="LIGHT" />
-                  <label for="visualGaugeDensity_light">Light</label>
-                  <input id="visualGaugeDensity_noticeable" type="radio" name="visualGaugeDensity" value="NOTICEABLE" />
-                  <label for="visualGaugeDensity_noticeable">Noticeable</label>
-                  <input id="visualGaugeDensity_strong" type="radio" name="visualGaugeDensity" value="STRONG" />
-                  <label for="visualGaugeDensity_strong">Strong</label>
-                  <input id="visualGaugeDensity_heavy" type="radio" name="visualGaugeDensity" value="HEAVY" />
-                  <label for="visualGaugeDensity_heavy">Heavy</label>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+                </div>
+                <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="visualGaugeDensity" value="" checked />
+                  <input type="radio" name="visualGaugeDensity" value="LIGHT" />
+                  <input type="radio" name="visualGaugeDensity" value="NOTICEABLE" />
+                  <input type="radio" name="visualGaugeDensity" value="STRONG" />
+                  <input type="radio" name="visualGaugeDensity" value="HEAVY" />
                 </div>
               </div>
 
-              <div class="segRow">
-                <div class="segHead">
-                  <div style="min-width:0; flex:1;">
-                    <p class="segTitle">Hairs</p>
-                    <p class="segHint">How pronounced are the hairs?</p>
-                  </div>
+              <div class="laneBlock" data-lane-group="visualGaugeHairs" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Hairs</p>
+                  <span class="laneValue" data-lane-value>—</span>
                 </div>
-                <div class="segScale l5">
-                  <input id="visualGaugeHairs_none" type="radio" name="visualGaugeHairs" value="" checked />
-                  <label for="visualGaugeHairs_none">—</label>
-                  <input id="visualGaugeHairs_light" type="radio" name="visualGaugeHairs" value="LIGHT" />
-                  <label for="visualGaugeHairs_light">Light</label>
-                  <input id="visualGaugeHairs_noticeable" type="radio" name="visualGaugeHairs" value="NOTICEABLE" />
-                  <label for="visualGaugeHairs_noticeable">Noticeable</label>
-                  <input id="visualGaugeHairs_strong" type="radio" name="visualGaugeHairs" value="STRONG" />
-                  <label for="visualGaugeHairs_strong">Strong</label>
-                  <input id="visualGaugeHairs_heavy" type="radio" name="visualGaugeHairs" value="HEAVY" />
-                  <label for="visualGaugeHairs_heavy">Heavy</label>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+                </div>
+                <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="visualGaugeHairs" value="" checked />
+                  <input type="radio" name="visualGaugeHairs" value="LIGHT" />
+                  <input type="radio" name="visualGaugeHairs" value="NOTICEABLE" />
+                  <input type="radio" name="visualGaugeHairs" value="STRONG" />
+                  <input type="radio" name="visualGaugeHairs" value="HEAVY" />
                 </div>
               </div>
             </div>
@@ -1500,48 +1505,57 @@
           <div class="divider"></div>
 
           <!-- SMELL INTENSITY -->
+
           <div class="terpRow">
             <p class="terpName">Smell intensity</p>
             <p class="terpHint">Passive = jar open. Activated = broken nug.</p>
 
-            <div class="segGrid">
-              <div class="segRow">
-                <div class="segHead">
-                  <p class="segTitle">Passive smell</p>
+            <div class="list" style="margin-top:10px;">
+              <div class="laneBlock" data-lane-group="passiveSmellIntensity" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Passive smell</p>
+                  <span class="laneValue" data-lane-value>—</span>
                 </div>
-                <div class="segScale l6">
-                  <input id="passive_none0" type="radio" name="passiveSmellIntensity" value="" checked />
-                  <label for="passive_none0">—</label>
-                  <input id="passive_none" type="radio" name="passiveSmellIntensity" value="NONE" />
-                  <label for="passive_none">None</label>
-                  <input id="passive_light" type="radio" name="passiveSmellIntensity" value="LIGHT" />
-                  <label for="passive_light">Light</label>
-                  <input id="passive_noticeable" type="radio" name="passiveSmellIntensity" value="NOTICEABLE" />
-                  <label for="passive_noticeable">Noticeable</label>
-                  <input id="passive_strong" type="radio" name="passiveSmellIntensity" value="STRONG" />
-                  <label for="passive_strong">Strong</label>
-                  <input id="passive_loud" type="radio" name="passiveSmellIntensity" value="LOUD" />
-                  <label for="passive_loud">Loud</label>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="NONE"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="LOUD"></button>
+                </div>
+                <div class="laneLegend" style="grid-template-columns:repeat(6,1fr);"><span>—</span><span>None</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Loud</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="passiveSmellIntensity" value="" checked />
+                  <input type="radio" name="passiveSmellIntensity" value="NONE" />
+                  <input type="radio" name="passiveSmellIntensity" value="LIGHT" />
+                  <input type="radio" name="passiveSmellIntensity" value="NOTICEABLE" />
+                  <input type="radio" name="passiveSmellIntensity" value="STRONG" />
+                  <input type="radio" name="passiveSmellIntensity" value="LOUD" />
                 </div>
               </div>
 
-              <div class="segRow">
-                <div class="segHead">
-                  <p class="segTitle">Activated smell</p>
+              <div class="laneBlock" data-lane-group="activatedSmellIntensity" data-default="">
+                <div class="laneHead">
+                  <p class="laneTitle">Activated smell</p>
+                  <span class="laneValue" data-lane-value>—</span>
                 </div>
-                <div class="segScale l6">
-                  <input id="activated_none0" type="radio" name="activatedSmellIntensity" value="" checked />
-                  <label for="activated_none0">—</label>
-                  <input id="activated_none" type="radio" name="activatedSmellIntensity" value="NONE" />
-                  <label for="activated_none">None</label>
-                  <input id="activated_light" type="radio" name="activatedSmellIntensity" value="LIGHT" />
-                  <label for="activated_light">Light</label>
-                  <input id="activated_noticeable" type="radio" name="activatedSmellIntensity" value="NOTICEABLE" />
-                  <label for="activated_noticeable">Noticeable</label>
-                  <input id="activated_strong" type="radio" name="activatedSmellIntensity" value="STRONG" />
-                  <label for="activated_strong">Strong</label>
-                  <input id="activated_loud" type="radio" name="activatedSmellIntensity" value="LOUD" />
-                  <label for="activated_loud">Loud</label>
+                <div class="laneDots">
+                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                  <button class="laneDot level1" type="button" data-lane-btn data-value="NONE"></button>
+                  <button class="laneDot level2" type="button" data-lane-btn data-value="LIGHT"></button>
+                  <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="STRONG"></button>
+                  <button class="laneDot level4" type="button" data-lane-btn data-value="LOUD"></button>
+                </div>
+                <div class="laneLegend" style="grid-template-columns:repeat(6,1fr);"><span>—</span><span>None</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Loud</span></div>
+                <div style="display:none;">
+                  <input type="radio" name="activatedSmellIntensity" value="" checked />
+                  <input type="radio" name="activatedSmellIntensity" value="NONE" />
+                  <input type="radio" name="activatedSmellIntensity" value="LIGHT" />
+                  <input type="radio" name="activatedSmellIntensity" value="NOTICEABLE" />
+                  <input type="radio" name="activatedSmellIntensity" value="STRONG" />
+                  <input type="radio" name="activatedSmellIntensity" value="LOUD" />
                 </div>
               </div>
             </div>
@@ -2836,6 +2850,9 @@ ${cautionBits.join(" • ")}`
       resetCheckedValue("visualGaugeFrost");
       resetCheckedValue("visualGaugeDensity");
       resetCheckedValue("visualGaugeHairs");
+      syncLaneControl("visualGaugeFrost");
+      syncLaneControl("visualGaugeDensity");
+      syncLaneControl("visualGaugeHairs");
     };
 
     // Smell tags
@@ -2855,6 +2872,8 @@ ${cautionBits.join(" • ")}`
       renderSmell();
       resetCheckedValue("passiveSmellIntensity");
       resetCheckedValue("activatedSmellIntensity");
+      syncLaneControl("passiveSmellIntensity");
+      syncLaneControl("activatedSmellIntensity");
     };
 
     // Photo
@@ -2896,26 +2915,36 @@ ${cautionBits.join(" • ")}`
     ];
     function buildTerpenes(){
       terpeneBox.innerHTML = "";
+      const legend = document.createElement("div");
+      legend.className = "laneLegend l4";
+      legend.style.maxWidth = "420px";
+      legend.innerHTML = "<span>NP</span><span>BG</span><span>N</span><span>D</span>";
+      terpeneBox.appendChild(legend);
+
       TERPENES.forEach(t => {
         const row = document.createElement("div");
-        row.className = "terpRow";
+        row.className = "laneBlock";
+        row.setAttribute("data-lane-group", `terp_${t.key}`);
+        row.setAttribute("data-default", "");
         row.innerHTML = `
-          <div class="terpTop">
+          <div class="laneHead">
             <div style="min-width:0; flex:1;">
-              <p class="terpName">${escapeHtml(t.name)}</p>
-              <p class="terpHint">${escapeHtml(t.hint)}</p>
+              <p class="laneTitle">${escapeHtml(t.name)}</p>
+              <p class="terpHint" style="margin-top:4px;">${escapeHtml(t.hint)}</p>
             </div>
+            <span class="laneValue" data-lane-value>—</span>
           </div>
-          <div class="scale">
-            ${PRESENCE.map(p => {
-              const id = `terp_${t.key}_${p.val||"NONE"}`;
-              return `
-                <label for="${id}">
-                  <input id="${id}" type="radio" name="terp_${t.key}" value="${escapeHtml(p.val)}" ${p.val==="" ? "checked" : ""}/>
-                  ${escapeHtml(p.label)}
-                </label>
-              `;
-            }).join("")}
+          <div class="laneDots">
+            <button class="laneDot level1 active" type="button" data-lane-btn data-value=""></button>
+            <button class="laneDot level2" type="button" data-lane-btn data-value="BACKGROUND"></button>
+            <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+            <button class="laneDot level4" type="button" data-lane-btn data-value="DOMINANT"></button>
+          </div>
+          <div style="display:none;">
+            <input type="radio" name="terp_${t.key}" value="" checked/>
+            <input type="radio" name="terp_${t.key}" value="BACKGROUND"/>
+            <input type="radio" name="terp_${t.key}" value="NOTICEABLE"/>
+            <input type="radio" name="terp_${t.key}" value="DOMINANT"/>
           </div>
         `;
         terpeneBox.appendChild(row);
@@ -2929,6 +2958,50 @@ ${cautionBits.join(" • ")}`
         out[t.key] = sel ? (sel.value || "") : "";
       });
       return out;
+    }
+
+
+    function laneDisplayLabel(value){
+      const map = {
+        "": "—",
+        "NONE": "None",
+        "LIGHT": "Light",
+        "NOTICEABLE": "Noticeable",
+        "STRONG": "Strong",
+        "HEAVY": "Heavy",
+        "LOUD": "Loud",
+        "BACKGROUND": "Background",
+        "DOMINANT": "Dominant"
+      };
+      return map[String(value || "").toUpperCase()] ?? String(value || "—");
+    }
+
+    function syncLaneControl(groupName){
+      const wrap = document.querySelector(`[data-lane-group="${groupName}"]`);
+      if (!wrap) return;
+      const current = readCheckedValue(groupName);
+      wrap.querySelectorAll("[data-lane-btn]").forEach(btn => {
+        btn.classList.toggle("active", String(btn.getAttribute("data-value") || "") === String(current || ""));
+      });
+      const valueEl = wrap.querySelector("[data-lane-value]");
+      if (valueEl) valueEl.textContent = laneDisplayLabel(current);
+    }
+
+    function setLaneControl(groupName, value){
+      const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+      radios.forEach(r => { r.checked = String(r.value || "") === String(value || ""); });
+      syncLaneControl(groupName);
+      if (String(groupName).startsWith("terp_")) drawTerpeneFingerprintDisc();
+    }
+
+    function initLaneControls(scope=document){
+      scope.querySelectorAll("[data-lane-group]").forEach(wrap => {
+        const groupName = wrap.getAttribute("data-lane-group");
+        wrap.querySelectorAll("[data-lane-btn]").forEach(btn => {
+          btn.onclick = () => setLaneControl(groupName, btn.getAttribute("data-value") || "");
+        });
+        syncLaneControl(groupName);
+      });
     }
 
     // AUDIO (SESSION)
@@ -3582,8 +3655,13 @@ ${cautionBits.join(" • ")}`
       resetCheckedValue("visualGaugeFrost");
       resetCheckedValue("visualGaugeDensity");
       resetCheckedValue("visualGaugeHairs");
+      syncLaneControl("visualGaugeFrost");
+      syncLaneControl("visualGaugeDensity");
+      syncLaneControl("visualGaugeHairs");
       resetCheckedValue("passiveSmellIntensity");
       resetCheckedValue("activatedSmellIntensity");
+      syncLaneControl("passiveSmellIntensity");
+      syncLaneControl("activatedSmellIntensity");
       setPhoto("");
 
       TERPENES.forEach(t => {
@@ -4227,7 +4305,8 @@ Ask me something tighter.`;
     askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
     askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
     if (askPromptTranscript) askPromptTranscript.onclick = () => { askInput.value = "Show me transcript memory"; };
-    
+    if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
+
     askBtn.onclick = async () => {
       askReply.textContent = "Thinking…";
       askReply.textContent = await answerAsk(askInput.value);
@@ -4279,6 +4358,7 @@ Ask me something tighter.`;
       renderStash();
       renderStashLinkDropdown();
       await renderSessions();
+      await renderAskPatterns();
       await renderAskPatterns();
       setStatus("idle","Idle");
 
