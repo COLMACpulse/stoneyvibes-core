@@ -1170,6 +1170,59 @@
 
           <div class="divider"></div>
 
+          <!-- FEELING SNAPSHOT -->
+          <div class="terpRow">
+            <p class="terpName">Feeling snapshot</p>
+            <p class="terpHint">Fast state capture. Optional. Center = neutral.</p>
+
+            <div class="list" style="margin-top:10px;">
+              <div class="terpRow">
+                <div class="row between" style="gap:10px;">
+                  <p class="terpName">Calm ↔ Wired</p>
+                  <span id="snapshotCalmWiredValue" class="miniTag">0</span>
+                </div>
+                <input id="snapshotCalmWired" class="playerRange" type="range" min="-2" max="2" step="1" value="0" />
+                <div class="row between muted" style="font-size:12px;">
+                  <span>CALM</span>
+                  <span>NEUTRAL</span>
+                  <span>WIRED</span>
+                </div>
+              </div>
+
+              <div class="terpRow">
+                <div class="row between" style="gap:10px;">
+                  <p class="terpName">Clear ↔ Foggy</p>
+                  <span id="snapshotClearFoggyValue" class="miniTag">0</span>
+                </div>
+                <input id="snapshotClearFoggy" class="playerRange" type="range" min="-2" max="2" step="1" value="0" />
+                <div class="row between muted" style="font-size:12px;">
+                  <span>CLEAR</span>
+                  <span>NEUTRAL</span>
+                  <span>FOGGY</span>
+                </div>
+              </div>
+
+              <div class="terpRow">
+                <div class="row between" style="gap:10px;">
+                  <p class="terpName">Social ↔ Solo</p>
+                  <span id="snapshotSocialSoloValue" class="miniTag">0</span>
+                </div>
+                <input id="snapshotSocialSolo" class="playerRange" type="range" min="-2" max="2" step="1" value="0" />
+                <div class="row between muted" style="font-size:12px;">
+                  <span>SOCIAL</span>
+                  <span>NEUTRAL</span>
+                  <span>SOLO</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row topgap">
+              <button id="snapshotResetBtn" class="btn btnTiny" type="button">Reset snapshot</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
           <!-- PHOTO -->
           <div class="photoBox">
             <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
@@ -2486,6 +2539,13 @@ ${cautionBits.join(" • ")}`
     const moodChips = Array.from(document.querySelectorAll("[data-mood]"));
     const moodOther = document.getElementById("moodOther");
     const moodReset = document.getElementById("moodReset");
+    const snapshotCalmWired = document.getElementById("snapshotCalmWired");
+    const snapshotClearFoggy = document.getElementById("snapshotClearFoggy");
+    const snapshotSocialSolo = document.getElementById("snapshotSocialSolo");
+    const snapshotCalmWiredValue = document.getElementById("snapshotCalmWiredValue");
+    const snapshotClearFoggyValue = document.getElementById("snapshotClearFoggyValue");
+    const snapshotSocialSoloValue = document.getElementById("snapshotSocialSoloValue");
+    const snapshotResetBtn = document.getElementById("snapshotResetBtn");
     let moodSet = new Set();
     function renderMood(){ moodChips.forEach(b => b.classList.toggle("active", moodSet.has(b.getAttribute("data-mood")))); }
     moodChips.forEach(b => b.onclick = () => {
@@ -2494,6 +2554,32 @@ ${cautionBits.join(" • ")}`
       renderMood();
     });
     moodReset.onclick = () => { moodSet = new Set(); moodOther.value = ""; renderMood(); };
+
+    function updateSnapshotBadges(){
+      if (snapshotCalmWiredValue) snapshotCalmWiredValue.textContent = String(snapshotCalmWired?.value || "0");
+      if (snapshotClearFoggyValue) snapshotClearFoggyValue.textContent = String(snapshotClearFoggy?.value || "0");
+      if (snapshotSocialSoloValue) snapshotSocialSoloValue.textContent = String(snapshotSocialSolo?.value || "0");
+    }
+
+    function readFeelingSnapshot(){
+      return {
+        calmWired: Number(snapshotCalmWired?.value || 0),
+        clearFoggy: Number(snapshotClearFoggy?.value || 0),
+        socialSolo: Number(snapshotSocialSolo?.value || 0)
+      };
+    }
+
+    function resetFeelingSnapshot(){
+      if (snapshotCalmWired) snapshotCalmWired.value = "0";
+      if (snapshotClearFoggy) snapshotClearFoggy.value = "0";
+      if (snapshotSocialSolo) snapshotSocialSolo.value = "0";
+      updateSnapshotBadges();
+    }
+
+    [snapshotCalmWired, snapshotClearFoggy, snapshotSocialSolo].forEach(el => {
+      if (el) el.addEventListener("input", updateSnapshotBadges);
+    });
+    if (snapshotResetBtn) snapshotResetBtn.onclick = resetFeelingSnapshot;
 
     // Visual traits
     const visualChips = Array.from(document.querySelectorAll("[data-visual]"));
@@ -3097,6 +3183,13 @@ ${cautionBits.join(" • ")}`
         sleep: String(raw.sleep || ""),
         mood: Array.isArray(raw.mood) ? raw.mood.map(v => String(v)) : [],
         moodOther: String(raw.moodOther || ""),
+        feelingSnapshot: (raw.feelingSnapshot && typeof raw.feelingSnapshot === "object")
+          ? {
+              calmWired: Number(raw.feelingSnapshot.calmWired || 0),
+              clearFoggy: Number(raw.feelingSnapshot.clearFoggy || 0),
+              socialSolo: Number(raw.feelingSnapshot.socialSolo || 0)
+            }
+          : { calmWired: 0, clearFoggy: 0, socialSolo: 0 },
         visualGaugeFrost: String(raw.visualGaugeFrost || ""),
         visualGaugeDensity: String(raw.visualGaugeDensity || ""),
         visualGaugeHairs: String(raw.visualGaugeHairs || ""),
@@ -3201,6 +3294,7 @@ ${cautionBits.join(" • ")}`
         sleep: sleepScore.value || "",
         mood: Array.from(moodSet),
         moodOther: (moodOther.value || "").trim(),
+        feelingSnapshot: readFeelingSnapshot(),
         visualGaugeFrost: readCheckedValue("visualGaugeFrost"),
         visualGaugeDensity: readCheckedValue("visualGaugeDensity"),
         visualGaugeHairs: readCheckedValue("visualGaugeHairs"),
@@ -3245,6 +3339,7 @@ ${cautionBits.join(" • ")}`
       Array.from(rateRow.querySelectorAll("button")).forEach(x=>x.classList.remove("btnPrimary"));
 
       moodSet = new Set(); moodOther.value = ""; renderMood();
+      resetFeelingSnapshot();
       visualSet = new Set(); visualOther.value = ""; renderVisual();
       smellSet = new Set(); smellOther.value = ""; renderSmell();
       resetCheckedValue("visualGaugeFrost");
@@ -3303,6 +3398,12 @@ ${cautionBits.join(" • ")}`
         if (s.rate) bits.push("RATE:"+s.rate);
         if (s.mood && s.mood.length) bits.push("MOOD:[" + s.mood.join(", ") + "]");
         if (s.moodOther) bits.push("MOOD_OTHER:" + s.moodOther);
+        if (s.feelingSnapshot && typeof s.feelingSnapshot === "object") {
+          const fs = s.feelingSnapshot;
+          if (Number(fs.calmWired || 0) !== 0) bits.push("CALM↔WIRED:" + fs.calmWired);
+          if (Number(fs.clearFoggy || 0) !== 0) bits.push("CLEAR↔FOGGY:" + fs.clearFoggy);
+          if (Number(fs.socialSolo || 0) !== 0) bits.push("SOCIAL↔SOLO:" + fs.socialSolo);
+        }
         if (s.visuals && s.visuals.length) bits.push("VISUAL:[" + s.visuals.join(", ") + "]");
         if (s.visualOther) bits.push("VISUAL_OTHER:" + s.visualOther);
         if (s.smell && s.smell.length) bits.push("SMELL:[" + s.smell.join(", ") + "]");
@@ -3986,6 +4087,7 @@ Ask me something tighter.`;
 
       renderStashVisual();
       renderMood();
+      resetFeelingSnapshot();
       renderVisual();
       renderSmell();
       setStashPhoto("");
