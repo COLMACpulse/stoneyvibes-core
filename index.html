@@ -1384,6 +1384,17 @@
               </div>
             </div>
 
+            <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
+              <button id="transcriptLiveBtn" class="btn btnPrimary" type="button">Live Transcript</button>
+              <button id="transcriptStopBtn" class="btn" type="button" disabled>Stop</button>
+              <button id="transcriptResetBtn" class="btn btnTiny" type="button">Reset</button>
+              <span id="transcriptStatusPill" class="pill"><span class="okDot"></span><span id="transcriptStatusText">Idle</span></span>
+            </div>
+
+            <div class="notice topgap">
+              Live transcript is assistive only and browser-dependent. Manual transcript text still wins.
+            </div>
+
             <div class="row topgap">
               <label class="field">
                 <span class="label">Transcript (optional)</span>
@@ -2625,7 +2636,13 @@ ${cautionBits.join(" • ")}`
     const sessionList = document.getElementById("sessionList");
     const transcriptText = document.getElementById("transcriptText");
     const transcriptSummary = document.getElementById("transcriptSummary");
+    const transcriptLiveBtn = document.getElementById("transcriptLiveBtn");
+    const transcriptStopBtn = document.getElementById("transcriptStopBtn");
+    const transcriptResetBtn = document.getElementById("transcriptResetBtn");
+    const transcriptStatusPill = document.getElementById("transcriptStatusPill");
+    const transcriptStatusText = document.getElementById("transcriptStatusText");
 
+    let transcriptEngine = null;
     let mediaRecorder = null;
     let mediaStream = null;
     let chunks = [];
@@ -2856,6 +2873,200 @@ ${cautionBits.join(" • ")}`
       smellFileAudio.value = "";
       setSmellStatus("idle","Ready");
     });
+
+    function setTranscriptStatus(mode, text){
+      transcriptStatusText.textContent = text;
+      const dot = transcriptStatusPill.querySelector("span");
+      dot.className = (mode === "rec") ? "recDot" : "okDot";
+
+      if (mode === "rec"){
+        transcriptLiveBtn.disabled = true;
+        transcriptStopBtn.disabled = false;
+      } else if (mode === "unsupported"){
+        transcriptLiveBtn.disabled = true;
+        transcriptStopBtn.disabled = true;
+      } else {
+        transcriptLiveBtn.disabled = false;
+        transcriptStopBtn.disabled = true;
+      }
+    }
+
+    function normalizeTranscriptSeed(str){
+      return String(str || "").replace(/\s+/g, " ").trim();
+    }
+
+    function createTranscriptEngine(onUpdate, onStatus){
+      let recognition = null;
+      let isRecording = false;
+      let shouldRestart = false;
+      let finalText = "";
+      let interimText = "";
+
+      function supported(){
+        return ("webkitSpeechRecognition" in window) || ("SpeechRecognition" in window);
+      }
+
+      function emit(){
+        const fullText = [finalText.trim(), interimText.trim()].filter(Boolean).join(" ").trim();
+        onUpdate && onUpdate({
+          finalText: finalText.trim(),
+          interimText: interimText.trim(),
+          fullText,
+          isRecording
+        });
+      }
+
+      function start(seedText){
+        if (!supported()){
+          onStatus && onStatus("unsupported");
+          return;
+        }
+
+        if (isRecording) return;
+
+        finalText = normalizeTranscriptSeed(seedText);
+        interimText = "";
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = "en-US";
+
+        shouldRestart = true;
+
+        recognition.onstart = () => {
+          isRecording = true;
+          onStatus && onStatus("recording");
+          emit();
+        };
+
+        recognition.onresult = (event) => {
+          interimText = "";
+
+          for (let i = event.resultIndex; i < event.results.length; i++){
+            const piece = String(event.results[i][0]?.transcript || "").trim();
+            if (!piece) continue;
+
+            if (event.results[i].isFinal){
+              finalText = [finalText, piece].filter(Boolean).join(" ").trim();
+            } else {
+              interimText = [interimText, piece].filter(Boolean).join(" ").trim();
+            }
+          }
+
+          emit();
+        };
+
+        recognition.onerror = (event) => {
+          const err = String(event.error || "unknown");
+          if (err === "not-allowed" || err === "service-not-allowed"){
+            shouldRestart = false;
+            isRecording = false;
+          }
+          onStatus && onStatus("error:" + err);
+        };
+
+        recognition.onend = () => {
+          isRecording = false;
+          interimText = "";
+          emit();
+
+          if (shouldRestart){
+            onStatus && onStatus("restarting");
+            setTimeout(() => {
+              try{
+                recognition && recognition.start();
+              }catch(e){
+                onStatus && onStatus("stopped");
+              }
+            }, 250);
+            return;
+          }
+
+          onStatus && onStatus("stopped");
+        };
+
+        try{
+          recognition.start();
+        }catch(err){
+          onStatus && onStatus("error:start-failed");
+        }
+      }
+
+      function stop(){
+        shouldRestart = false;
+        if (recognition && isRecording){
+          try{ recognition.stop(); }catch(e){}
+        } else {
+          onStatus && onStatus("stopped");
+        }
+      }
+
+      function reset(){
+        finalText = "";
+        interimText = "";
+        emit();
+      }
+
+      return { start, stop, reset, supported };
+    }
+
+    function ensureTranscriptEngine(){
+      if (transcriptEngine) return transcriptEngine;
+
+      transcriptEngine = createTranscriptEngine((data) => {
+        transcriptText.value = data.fullText || "";
+      }, (status) => {
+        const map = {
+          "recording": ["rec", "Recording…"],
+          "restarting": ["rec", "Restarting…"],
+          "stopped": ["idle", "Stopped"],
+          "unsupported": ["unsupported", "Unsupported here"],
+          "error:not-allowed": ["idle", "Mic denied"],
+          "error:service-not-allowed": ["idle", "Mic denied"],
+          "error:network": ["idle", "Network issue"],
+          "error:no-speech": ["idle", "No speech heard"],
+          "error:audio-capture": ["idle", "No mic source"],
+          "error:start-failed": ["idle", "Start failed"]
+        };
+        const pair = map[status] || (String(status).startsWith("error:") ? ["idle", status.replace("error:", "Error: ")] : ["idle", status]);
+        setTranscriptStatus(pair[0], pair[1]);
+      });
+
+      if (!transcriptEngine.supported()){
+        setTranscriptStatus("unsupported", "Unsupported here");
+      }
+
+      return transcriptEngine;
+    }
+
+    transcriptLiveBtn.onclick = () => {
+      const engine = ensureTranscriptEngine();
+      if (!engine.supported()){
+        setTranscriptStatus("unsupported", "Unsupported here");
+        return;
+      }
+
+      const currentMode = document.querySelector('input[name="transcriptMode"]:checked');
+      if (currentMode && currentMode.value === "AUDIO_ONLY"){
+        const preferred = document.querySelector('input[name="transcriptMode"][value="AUDIO_PLUS_TRANSCRIPT"]');
+        if (preferred) preferred.checked = true;
+      }
+
+      engine.start(transcriptText.value || "");
+    };
+
+    transcriptStopBtn.onclick = () => {
+      if (!transcriptEngine) return;
+      transcriptEngine.stop();
+    };
+
+    transcriptResetBtn.onclick = () => {
+      if (transcriptEngine) transcriptEngine.reset();
+      transcriptText.value = "";
+      setTranscriptStatus("idle", "Idle");
+    };
 
     function normalizeImportedStashEntry(raw, fallbackIndex){
       return {
@@ -3756,6 +3967,8 @@ Ask me something tighter.`;
 
       setStatus("idle","Idle");
       setSmellStatus("idle","Idle");
+      setTranscriptStatus("idle","Idle");
+      ensureTranscriptEngine();
 
       renderStashVisual();
       renderMood();
