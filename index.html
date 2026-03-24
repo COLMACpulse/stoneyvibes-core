@@ -2843,6 +2843,10 @@ ${cautionBits.join(" • ")}`
     let mediaStream = null;
     let chunks = [];
     let pendingAudioBlob = null;
+    let pendingAudioUrl = "";
+    let audioStartLock = false;
+    let audioStopLock = false;
+    let audioFinalizeTimer = null;
 
     function setStatus(mode, text){
       statusText.textContent = text;
@@ -2858,21 +2862,58 @@ ${cautionBits.join(" • ")}`
     }
 
     function maybeStartAutoTranscript(){
-      const engine = ensureTranscriptEngine();
-      if (!engine || !engine.supported()) return false;
-      try{
-        engine.start(transcriptText.value || "");
-        return true;
-      }catch(err){
-        return false;
-      }
+      return false;
     }
 
     function maybeStopAutoTranscript(){
-      if (!transcriptEngine) return;
-      try{
-        transcriptEngine.stop();
-      }catch(err){}
+      return;
+    }
+
+    function clearPendingAudioPreview(){
+      if (pendingAudioUrl){
+        try{ URL.revokeObjectURL(pendingAudioUrl); }catch(e){}
+        pendingAudioUrl = "";
+      }
+      preview.pause();
+      preview.style.display = "none";
+      preview.removeAttribute("src");
+      preview.load();
+    }
+
+    function finalizeAudioBlob(blob, mimeType){
+      const safeBlob = blob instanceof Blob ? blob : null;
+      if (!safeBlob || !safeBlob.size){
+        pendingAudioBlob = null;
+        clearPendingAudioPreview();
+        setStatus("idle","No audio captured");
+        return;
+      }
+      pendingAudioBlob = new Blob([safeBlob], { type: mimeType || safeBlob.type || "audio/webm" });
+      clearPendingAudioPreview();
+      pendingAudioUrl = URL.createObjectURL(pendingAudioBlob);
+      preview.src = pendingAudioUrl;
+      preview.style.display = "block";
+      preview.load();
+      setStatus("idle","Session ready to save");
+    }
+
+    function cleanupAudioCore(){
+      if (audioFinalizeTimer){
+        clearTimeout(audioFinalizeTimer);
+        audioFinalizeTimer = null;
+      }
+      if (mediaStream){
+        try{ mediaStream.getTracks().forEach(t => t.stop()); }catch(e){}
+      }
+      mediaStream = null;
+      mediaRecorder = null;
+      chunks = [];
+      audioStartLock = false;
+      audioStopLock = false;
+      recBtn.disabled = false;
+      stopBtn.disabled = true;
+      pauseBtn.disabled = true;
+      pauseBtn.textContent = "Pause";
     }
 
     function togglePause(){
@@ -2887,78 +2928,118 @@ ${cautionBits.join(" • ")}`
     }
 
     async function startRecording(){
+      if (audioStartLock || audioStopLock) return;
+      if (mediaRecorder && (mediaRecorder.state === "recording" || mediaRecorder.state === "paused")) return;
+
       if (!("MediaRecorder" in window)){
         iphoneFallback.style.display = "flex";
         alert("In-browser recording isn’t supported here. Use iPhone Mode.");
         return;
       }
-      try{ mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true }); }
-      catch(err){ alert("Microphone permission blocked. Allow mic access for this site."); return; }
 
-      chunks = [];
-      const mime = mimeChoice();
-      try{ mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined); }
-      catch(err){
-        iphoneFallback.style.display = "flex";
-        alert("Recording not supported in this browser. Use iPhone Mode.");
-        if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+      audioStartLock = true;
+      recBtn.disabled = true;
+      stopBtn.disabled = true;
+      pauseBtn.disabled = true;
+      setStatus("idle","Opening mic…");
+
+      try{
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      }catch(err){
+        audioStartLock = false;
+        recBtn.disabled = false;
+        setStatus("idle","Mic blocked");
+        alert("Microphone permission blocked. Allow mic access for this site.");
         return;
       }
 
-      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size>0) chunks.push(e.data); };
+      chunks = [];
+      const mime = mimeChoice();
+
+      try{
+        mediaRecorder = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined);
+      }catch(err){
+        if (mediaStream){
+          try{ mediaStream.getTracks().forEach(t=>t.stop()); }catch(e){}
+        }
+        mediaStream = null;
+        audioStartLock = false;
+        recBtn.disabled = false;
+        iphoneFallback.style.display = "flex";
+        setStatus("idle","Browser recorder unavailable");
+        alert("Recording not supported in this browser. Use iPhone Mode.");
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
 
       mediaRecorder.onpause = () => {
         pauseBtn.textContent = "Resume";
         setStatus("rec","Paused");
       };
+
       mediaRecorder.onresume = () => {
         pauseBtn.textContent = "Pause";
         setStatus("rec","Recording…");
       };
 
-      mediaRecorder.onstop = () => {
-        try{
-          pendingAudioBlob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
-          preview.src = URL.createObjectURL(pendingAudioBlob);
-          preview.style.display = "block";
-          setStatus("idle","Session ready to save");
-        } finally {
-          maybeStopAutoTranscript();
-          if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
-          mediaRecorder = null;
-          chunks = [];
-          pauseBtn.textContent = "Pause";
-          pauseBtn.disabled = true;
-        }
+      mediaRecorder.onerror = () => {
+        setStatus("idle","Recorder error");
+        cleanupAudioCore();
       };
 
-      mediaRecorder.start();
+      mediaRecorder.onstop = () => {
+        const mimeOut = mediaRecorder?.mimeType || mime || "audio/webm";
+        const blob = chunks.length ? new Blob(chunks, { type: mimeOut }) : null;
+        finalizeAudioBlob(blob, mimeOut);
+        cleanupAudioCore();
+      };
 
+      clearPendingAudioPreview();
+      pendingAudioBlob = null;
+
+      try{
+        mediaRecorder.start();
+      }catch(err){
+        setStatus("idle","Start failed");
+        cleanupAudioCore();
+        return;
+      }
+
+      audioStartLock = false;
       recBtn.disabled = true;
       stopBtn.disabled = false;
-
       const pauseSupported = (typeof mediaRecorder.pause === "function" && typeof mediaRecorder.resume === "function");
       pauseBtn.disabled = !pauseSupported;
       pauseBtn.textContent = "Pause";
-
-      pendingAudioBlob = null;
-      preview.style.display = "none";
-      preview.removeAttribute("src");
       setStatus("rec","Session recording…");
-
-      maybeStartAutoTranscript();
     }
 
     function stopRecording(){
-      if (!mediaRecorder) return;
-      maybeStopAutoTranscript();
-      try{ mediaRecorder.stop(); } catch(e){}
-      recBtn.disabled = false;
+      if (!mediaRecorder || audioStopLock) return;
+      if (!(mediaRecorder.state === "recording" || mediaRecorder.state === "paused")) return;
+
+      audioStopLock = true;
       stopBtn.disabled = true;
       pauseBtn.disabled = true;
       pauseBtn.textContent = "Pause";
       setStatus("idle","Stopping session…");
-      setTimeout(()=> setStatus("idle","Session ready to save"), 350);
+
+      audioFinalizeTimer = setTimeout(() => {
+        if (audioStopLock){
+          setStatus("idle","Finalize timeout");
+          cleanupAudioCore();
+        }
+      }, 4000);
+
+      try{
+        mediaRecorder.stop();
+      }catch(e){
+        setStatus("idle","Stop failed");
+        cleanupAudioCore();
+      }
     }
 
     recBtn.onclick = startRecording;
@@ -2968,11 +3049,10 @@ ${cautionBits.join(" • ")}`
     fileAudio.addEventListener("change", async (e) => {
       const f = e.target.files && e.target.files[0];
       if (!f) return;
-      pendingAudioBlob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
-      preview.src = URL.createObjectURL(pendingAudioBlob);
-      preview.style.display = "block";
+      const blob = new Blob([await f.arrayBuffer()], { type: f.type || "audio/*" });
+      pendingAudioBlob = null;
+      finalizeAudioBlob(blob, f.type || "audio/*");
       fileAudio.value = "";
-      setStatus("idle","Session ready to save");
     });
 
     // AUDIO (SMELL)
