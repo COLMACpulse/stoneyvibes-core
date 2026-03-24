@@ -1352,6 +1352,65 @@
             <p class="terpName">Feeling snapshot</p>
             <p class="terpHint">Fast state capture. Optional. The app stores the math, but you see the vibe.</p>
 
+            <div class="list" style="margin-top:10px;">
+              <div class="snapshotPanel">
+                <div class="snapshotHead">
+                  <p class="terpName">Calm ↔ Wired</p>
+                  <span id="snapshotCalmWiredValue" class="snapshotValuePill">Balanced</span>
+                </div>
+                <input id="snapshotCalmWired" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
+                <div id="snapshotCalmWiredScale" class="snapshotScale">
+                  <span data-value="-2">Very Calm</span>
+                  <span data-value="-1">Calm</span>
+                  <span data-value="0">Balanced</span>
+                  <span data-value="1">Wired</span>
+                  <span data-value="2">Very Wired</span>
+                </div>
+              </div>
+
+              <div class="snapshotPanel">
+                <div class="snapshotHead">
+                  <p class="terpName">Clear ↔ Foggy</p>
+                  <span id="snapshotClearFoggyValue" class="snapshotValuePill">Balanced</span>
+                </div>
+                <input id="snapshotClearFoggy" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
+                <div id="snapshotClearFoggyScale" class="snapshotScale">
+                  <span data-value="-2">Very Clear</span>
+                  <span data-value="-1">Clear</span>
+                  <span data-value="0">Balanced</span>
+                  <span data-value="1">Foggy</span>
+                  <span data-value="2">Very Foggy</span>
+                </div>
+              </div>
+
+              <div class="snapshotPanel">
+                <div class="snapshotHead">
+                  <p class="terpName">Social ↔ Solo</p>
+                  <span id="snapshotSocialSoloValue" class="snapshotValuePill">Balanced</span>
+                </div>
+                <input id="snapshotSocialSolo" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
+                <div id="snapshotSocialSoloScale" class="snapshotScale">
+                  <span data-value="-2">Very Social</span>
+                  <span data-value="-1">Social</span>
+                  <span data-value="0">Balanced</span>
+                  <span data-value="1">Solo</span>
+                  <span data-value="2">Very Solo</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row topgap">
+              <button id="snapshotResetBtn" class="btn btnTiny" type="button">Reset snapshot</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- VISUAL TRAITS -->
+          <div class="terpRow">
+            <p class="terpName">Visual traits</p>
+            <p class="terpHint">Use segmented gauges for degree. Use tags for direct physical signals.</p>
+
             <div class="segGrid">
               <div class="segRow">
                 <div class="segHead">
@@ -4220,7 +4279,6 @@ Ask me something tighter.`;
       renderStash();
       renderStashLinkDropdown();
       await renderSessions();
-      await renderAskPatterns();
       await renderAskPatterns();
       setStatus("idle","Idle");
 
