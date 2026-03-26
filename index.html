@@ -671,6 +671,8 @@
     .askSuggestionMount{
       margin-top:12px;
       display:none;
+      grid-template-columns:1fr;
+      gap:12px;
     }
     .askSuggestionCard{
       position:relative;
@@ -678,10 +680,10 @@
       grid-template-columns:92px 1fr;
       gap:12px;
       align-items:start;
-      border:1px solid rgba(255,255,255,0.16);
+      border:1px solid rgba(255,255,255,0.18);
       border-radius:16px;
       padding:12px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+      background:linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.045));
       box-shadow:0 10px 24px rgba(0,0,0,0.22);
     }
     .askSuggestionThumb,
@@ -4492,70 +4494,125 @@ These match scores rank fit for your target. The grams and percentages are the a
       return `${row.count} logged session${row.count === 1 ? "" : "s"} in your own data.`;
     }
 
-    function suggestionRowFromStats(query, stats){
-      if (!stats || !stats.rows || !stats.rows.length) return null;
+    function uniqueSuggestionRows(rows){
+      const seen = new Set();
+      return (rows || []).filter(row => {
+        const key = String((row && row.stashId) || "");
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
 
-      if (query.includes("guide me tonight") || query.includes("guide tonight")){
-        const first = [stats.bestSleep, stats.bestCalm, stats.bestCreative, stats.bestFocus, stats.bestFun, stats.mostConsistent].find(Boolean);
-        return first ? { kind:"guide", row:first, title:"Suggested lane" } : null;
+    function rankedRowsForSuggestionKind(kind, stats){
+      if (!stats || !stats.rows || !stats.rows.length) return [];
+      const rows = stats.rows.filter(r => String(r && r.name || "").trim());
+      const consistentId = stats.mostConsistent ? String(stats.mostConsistent.stashId || "") : "";
+
+      if (kind === "guide") {
+        return uniqueSuggestionRows([stats.bestSleep, stats.bestCalm, stats.bestCreative, stats.bestFocus, stats.bestFun, stats.mostConsistent].filter(Boolean)).slice(0,3);
       }
-      if (query.includes("something different") || query.includes("different tonight") || query.includes("mix it up") || query.includes("different") || query.includes("off tonight")){
-        const candidates = stats.rows
-          .filter(r => String(r.name || "").trim())
-          .map(r => ({ ...r, differentScore: avgOutcome(r) - (laneRate(r, "weird") * 1.15) }))
-          .sort((a,b) => b.differentScore - a.differentScore);
-        return candidates[0] ? { kind:"different", row:candidates[0], title:"Suggested change-up" } : null;
+      if (kind === "different") {
+        const pool = rows
+          .filter(r => String(r.stashId || "") !== consistentId)
+          .map(r => ({ ...r, _suggestScore: avgOutcome(r) + Math.min(0.35, r.count * 0.05) - (laneRate(r, "weird") * 1.15) }))
+          .sort((a,b) => b._suggestScore - a._suggestScore);
+        const fallback = rows
+          .map(r => ({ ...r, _suggestScore: avgOutcome(r) + Math.min(0.35, r.count * 0.05) - (laneRate(r, "weird") * 1.15) }))
+          .sort((a,b) => b._suggestScore - a._suggestScore);
+        return uniqueSuggestionRows((pool.length ? pool : fallback)).slice(0,3);
       }
-      if (query.includes("tonight")) return stats.mostConsistent ? { kind:"tonight", row:stats.mostConsistent, title:"Tonight pick" } : null;
-      if (query.includes("sleep")) return stats.bestSleep ? { kind:"sleep", row:stats.bestSleep, title:"Sleep pick" } : null;
-      if (query.includes("calm") || query.includes("chill")) return stats.bestCalm ? { kind:"calm", row:stats.bestCalm, title:"Calm pick" } : null;
-      if (query.includes("focus") || query.includes("clear")) return stats.bestFocus ? { kind:"focus", row:stats.bestFocus, title:"Focus pick" } : null;
-      if (query.includes("create") || query.includes("creative")) return stats.bestCreative ? { kind:"creative", row:stats.bestCreative, title:"Creative pick" } : null;
-      if (query.includes("fun") || query.includes("social")) return stats.bestFun ? { kind:"fun", row:stats.bestFun, title:"Fun / social pick" } : null;
-      if (query.includes("consistent") || query.includes("steady")) return stats.mostConsistent ? { kind:"consistent", row:stats.mostConsistent, title:"Steady pick" } : null;
+      if (kind === "tonight" || kind === "consistent") {
+        return uniqueSuggestionRows(rows
+          .map(r => ({ ...r, _suggestScore: avgOutcome(r) + Math.min(0.30, r.count * 0.04) - (laneRate(r, "weird") * 1.0) }))
+          .sort((a,b) => b._suggestScore - a._suggestScore)).slice(0,3);
+      }
+      const laneMap = {
+        sleep: "sleep",
+        calm: "calm",
+        focus: "focus",
+        creative: "creative",
+        fun: "fun"
+      };
+      const lane = laneMap[kind];
+      if (lane) {
+        return uniqueSuggestionRows(rows
+          .map(r => ({ ...r, _suggestScore: laneRate(r, lane) + (avgOutcome(r) * 0.22) + Math.min(0.20, r.count * 0.03) - (laneRate(r, "weird") * 0.9) }))
+          .sort((a,b) => b._suggestScore - a._suggestScore)).slice(0,3);
+      }
+      return [];
+    }
+
+    function suggestionConfigFromQuery(query){
+      if (query.includes("guide me tonight") || query.includes("guide tonight")) return { kind:"guide", title:"Suggested lane" };
+      if (query.includes("something different") || query.includes("different tonight") || query.includes("mix it up") || query.includes("different") || query.includes("off tonight")) return { kind:"different", title:"Suggested change-up" };
+      if (query.includes("sleep")) return { kind:"sleep", title:"Sleep pick" };
+      if (query.includes("calm") || query.includes("chill")) return { kind:"calm", title:"Calm pick" };
+      if (query.includes("focus") || query.includes("clear")) return { kind:"focus", title:"Focus pick" };
+      if (query.includes("create") || query.includes("creative")) return { kind:"creative", title:"Creative pick" };
+      if (query.includes("fun") || query.includes("social")) return { kind:"fun", title:"Fun / social pick" };
+      if (query.includes("consistent") || query.includes("steady")) return { kind:"consistent", title:"Steady pick" };
+      if (query.includes("tonight")) return { kind:"tonight", title:"Tonight pick" };
       return null;
     }
 
-    function renderAskSuggestionCard(suggestion){
+    function suggestionRowsFromStats(query, stats){
+      const config = suggestionConfigFromQuery(query);
+      if (!config) return [];
+      return rankedRowsForSuggestionKind(config.kind, stats).map((row, idx) => ({
+        kind: config.kind,
+        row,
+        title: idx === 0 ? config.title : `${config.title} ${idx + 1}`
+      }));
+    }
+
+    function renderAskSuggestionCards(suggestions){
       if (!askSuggestionMount) return;
-      if (!suggestion || !suggestion.row){
+      if (!Array.isArray(suggestions) || !suggestions.length){
         clearAskSuggestion();
         return;
       }
 
-      const stash = loadStash().find(x => String(x.id || "") === String(suggestion.row.stashId || ""));
-      if (!stash){
-        clearAskSuggestion();
-        return;
-      }
+      const cards = suggestions.map((suggestion, idx) => {
+        if (!suggestion || !suggestion.row) return "";
+        const stash = loadStash().find(x => String(x.id || "") === String(suggestion.row.stashId || ""));
+        if (!stash) return "";
 
-      const reason = buildAskSuggestionReason(suggestion.kind, suggestion.row);
-      const photoMarkup = stash.photoDataUrl
-        ? `<img class="askSuggestionThumb" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash.name || "Suggested stash")}" />`
-        : `<div class="askSuggestionPlaceholder">NO PHOTO YET</div>`;
+        const reason = buildAskSuggestionReason(suggestion.kind, suggestion.row);
+        const photoMarkup = stash.photoDataUrl
+          ? `<img class="askSuggestionThumb" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash.name || "Suggested stash")}" />`
+          : `<div class="askSuggestionPlaceholder">NO PHOTO YET</div>`;
 
-      askSuggestionMount.innerHTML = `
-        <div class="askSuggestionCard">
-          ${photoMarkup}
-          <div>
-            <p class="askSuggestionKicker">${escapeHtml(suggestion.title || "Suggested stash")}</p>
-            <h3 class="askSuggestionName">${escapeHtml(stash.name || suggestion.row.name || "Unnamed")}</h3>
-            <p class="askSuggestionReason">${escapeHtml(reason)}</p>
-            <div class="askSuggestionActions">
-              <button id="askSuggestionOpenBtn" class="btn btnPrimary btnTiny" type="button">Open stash card</button>
+        return `
+          <div class="askSuggestionCard">
+            ${photoMarkup}
+            <div>
+              <p class="askSuggestionKicker">${escapeHtml(idx === 0 ? (suggestion.title || "Suggested stash") : `Option ${idx + 1}`)}</p>
+              <h3 class="askSuggestionName">${escapeHtml(stash.name || suggestion.row.name || "Unnamed")}</h3>
+              <p class="askSuggestionReason">${escapeHtml(reason)}</p>
+              <div class="askSuggestionActions">
+                <button class="btn btnPrimary btnTiny" type="button" data-ask-open-stash="${escapeHtml(stash.id)}">Open stash card</button>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-      askSuggestionMount.style.display = "block";
+        `;
+      }).filter(Boolean);
 
-      const openBtn = document.getElementById("askSuggestionOpenBtn");
-      if (openBtn){
-        openBtn.onclick = () => {
-          scrollToPage(0);
-          setTimeout(() => openStashDetail(stash.id), 180);
-        };
+      if (!cards.length){
+        clearAskSuggestion();
+        return;
       }
+
+      askSuggestionMount.innerHTML = cards.join("");
+      askSuggestionMount.style.display = "grid";
+      askSuggestionMount.querySelectorAll('[data-ask-open-stash]').forEach(btn => {
+        btn.onclick = () => {
+          const stashId = btn.getAttribute('data-ask-open-stash') || "";
+          if (!stashId) return;
+          scrollToPage(0);
+          setTimeout(() => openStashDetail(stashId), 180);
+        };
+      });
     }
 
 async function answerAsk(q){
@@ -4671,9 +4728,9 @@ Ask me something tighter.`;
       clearAskSuggestion();
       const rawQuery = askInput.value;
       const stats = await computePatternStats();
-      const suggestion = suggestionRowFromStats(String(rawQuery || "").trim().toLowerCase(), stats);
+      const suggestions = suggestionRowsFromStats(String(rawQuery || "").trim().toLowerCase(), stats);
       askReply.textContent = await answerAsk(rawQuery);
-      renderAskSuggestionCard(suggestion);
+      renderAskSuggestionCards(suggestions);
     };
 
     askInput.addEventListener("input", () => {
@@ -4688,15 +4745,20 @@ Ask me something tighter.`;
       clearAskSuggestion();
       const stats = await computePatternStats();
       const normalizedGoal = String(goal || "").trim().toUpperCase();
-      const goalMap = {
-        SLEEP: { kind:"sleep", row:stats.bestSleep, title:"Tonight pick" },
-        CALM: { kind:"calm", row:stats.bestCalm, title:"Tonight pick" },
-        FUN: { kind:"fun", row:stats.bestFun, title:"Tonight pick" },
-        SOCIAL: { kind:"fun", row:stats.bestFun, title:"Tonight pick" },
-        FOCUS: { kind:"focus", row:stats.bestFocus, title:"Tonight pick" }
+      const tonightKindMap = {
+        SLEEP: "sleep",
+        CALM: "calm",
+        FUN: "fun",
+        SOCIAL: "fun",
+        FOCUS: "focus"
       };
+      const tonightKind = tonightKindMap[normalizedGoal] || "tonight";
       askReply.textContent = await tonightModeAnswer(goal);
-      renderAskSuggestionCard(goalMap[normalizedGoal] || (stats.mostConsistent ? { kind:"tonight", row:stats.mostConsistent, title:"Tonight pick" } : null));
+      renderAskSuggestionCards(rankedRowsForSuggestionKind(tonightKind, stats).map((row, idx) => ({
+        kind: tonightKind,
+        row,
+        title: idx === 0 ? "Tonight pick" : `Tonight option ${idx + 1}`
+      })));
     };
 
 
