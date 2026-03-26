@@ -1362,7 +1362,19 @@
       margin-top:10px;
     }
 
-  </style>
+  
+/* v10 additions */
+.ask-btn.active { outline:2px solid #fff; box-shadow:0 0 0 2px rgba(255,255,255,0.2) inset; }
+.trait.frosty{color:#bfefff}
+.trait.hairy{color:#ffb347}
+.trait.dense{color:#e6e6fa}
+.trait.pale-green{color:#98fb98}
+.trait.purple{color:#c77dff}
+.trait.orange-hairs{color:#ff8c42}
+.spicy{color:#ff3b3b}
+.peppery{color:#ff8c42}
+
+</style>
 </head>
 
 <body>
@@ -5101,5 +5113,14 @@ Ask me something tighter.`;
     })();
   </script>
 
+<script>
+// v10 ASK active state
+document.querySelectorAll('.ask-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.ask-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
 </body>
 </html>
