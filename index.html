@@ -181,24 +181,26 @@
     }
     .chip.active{
       color:#fff;
-      border-color:rgba(255,255,255,0.62);
-      background:rgba(255,255,255,0.22);
-      box-shadow:0 0 0 1px rgba(255,255,255,0.08) inset, 0 8px 18px rgba(0,0,0,0.24);
+      border-color:rgba(255,255,255,0.78);
+      background:rgba(255,255,255,0.26);
+      box-shadow:0 0 0 1px rgba(255,255,255,0.10) inset, 0 10px 22px rgba(0,0,0,0.28), 0 0 0 2px rgba(255,255,255,0.04);
+      transform:translateY(-1px);
+      text-shadow:0 1px 0 rgba(0,0,0,0.22);
     }
-    .chip[data-smell="PINEY"].active{ background:rgba(78,214,120,0.28); border-color:rgba(78,214,120,0.74); box-shadow:0 0 0 1px rgba(78,214,120,0.18) inset, 0 0 20px rgba(78,214,120,0.22); }
-    .chip[data-smell="CITRUS"].active{ background:rgba(255,214,74,0.30); border-color:rgba(255,214,74,0.76); box-shadow:0 0 0 1px rgba(255,214,74,0.16) inset, 0 0 20px rgba(255,214,74,0.20); }
+    .chip[data-smell="PINEY"].active{ background:rgba(78,214,120,0.40); border-color:rgba(78,214,120,0.94); box-shadow:0 0 0 1px rgba(78,214,120,0.24) inset, 0 0 24px rgba(78,214,120,0.30); }
+    .chip[data-smell="CITRUS"].active{ background:rgba(255,214,74,0.42); border-color:rgba(255,214,74,0.96); box-shadow:0 0 0 1px rgba(255,214,74,0.22) inset, 0 0 24px rgba(255,214,74,0.28); }
     .chip[data-smell="SPICY"].active,
-    .chip[data-smell="PEPPERY"].active{ background:rgba(255,124,58,0.30); border-color:rgba(255,124,58,0.78); box-shadow:0 0 0 1px rgba(255,124,58,0.18) inset, 0 0 20px rgba(255,124,58,0.22); }
-    .chip[data-smell="EARTHY"].active{ background:rgba(178,154,102,0.26); border-color:rgba(198,170,116,0.70); box-shadow:0 0 0 1px rgba(198,170,116,0.16) inset, 0 0 18px rgba(178,154,102,0.18); }
-    .chip[data-smell="SWEET"].active{ background:rgba(224,132,214,0.28); border-color:rgba(224,132,214,0.72); box-shadow:0 0 0 1px rgba(224,132,214,0.16) inset, 0 0 20px rgba(224,132,214,0.22); }
-    .chip[data-smell="GASSY"].active{ background:rgba(90,205,255,0.28); border-color:rgba(90,205,255,0.74); box-shadow:0 0 0 1px rgba(90,205,255,0.16) inset, 0 0 20px rgba(90,205,255,0.22); }
-    .chip[data-smell="FUNKY"].active{ background:rgba(196,108,255,0.28); border-color:rgba(196,108,255,0.74); box-shadow:0 0 0 1px rgba(196,108,255,0.16) inset, 0 0 20px rgba(196,108,255,0.22); }
-    .chip[data-smell="SKUNKY"].active{ background:rgba(170,224,92,0.28); border-color:rgba(170,224,92,0.74); box-shadow:0 0 0 1px rgba(170,224,92,0.16) inset, 0 0 20px rgba(170,224,92,0.20); }
-    .chip[data-visual="PURPLE"].active{ background:rgba(168,112,255,0.28); border-color:rgba(168,112,255,0.74); }
+    .chip[data-smell="PEPPERY"].active{ background:rgba(255,124,58,0.42); border-color:rgba(255,124,58,0.96); box-shadow:0 0 0 1px rgba(255,124,58,0.24) inset, 0 0 24px rgba(255,124,58,0.30); }
+    .chip[data-smell="EARTHY"].active{ background:rgba(198,170,116,0.38); border-color:rgba(214,186,126,0.90); box-shadow:0 0 0 1px rgba(214,186,126,0.22) inset, 0 0 22px rgba(198,170,116,0.26); }
+    .chip[data-smell="SWEET"].active{ background:rgba(224,132,214,0.40); border-color:rgba(224,132,214,0.90); box-shadow:0 0 0 1px rgba(224,132,214,0.22) inset, 0 0 24px rgba(224,132,214,0.28); }
+    .chip[data-smell="GASSY"].active{ background:rgba(90,205,255,0.40); border-color:rgba(90,205,255,0.92); box-shadow:0 0 0 1px rgba(90,205,255,0.22) inset, 0 0 24px rgba(90,205,255,0.28); }
+    .chip[data-smell="FUNKY"].active{ background:rgba(196,108,255,0.40); border-color:rgba(196,108,255,0.92); box-shadow:0 0 0 1px rgba(196,108,255,0.22) inset, 0 0 24px rgba(196,108,255,0.28); }
+    .chip[data-smell="SKUNKY"].active{ background:rgba(170,224,92,0.40); border-color:rgba(170,224,92,0.92); box-shadow:0 0 0 1px rgba(170,224,92,0.22) inset, 0 0 24px rgba(170,224,92,0.26); }
+    .chip[data-visual="PURPLE"].active{ background:rgba(168,112,255,0.40); border-color:rgba(168,112,255,0.92); box-shadow:0 0 0 1px rgba(168,112,255,0.22) inset, 0 0 24px rgba(168,112,255,0.28); }
     .chip[data-visual="PALE_GREEN"].active,
     .chip[data-visual="BRIGHT_GREEN"].active,
-    .chip[data-visual="DARK_GREEN"].active{ background:rgba(78,214,120,0.28); border-color:rgba(78,214,120,0.74); }
-    .chip[data-visual="ORANGE_HAIRS"].active{ background:rgba(255,124,58,0.28); border-color:rgba(255,124,58,0.74); }
+    .chip[data-visual="DARK_GREEN"].active{ background:rgba(78,214,120,0.40); border-color:rgba(78,214,120,0.92); box-shadow:0 0 0 1px rgba(78,214,120,0.22) inset, 0 0 24px rgba(78,214,120,0.26); }
+    .chip[data-visual="ORANGE_HAIRS"].active{ background:rgba(255,124,58,0.40); border-color:rgba(255,124,58,0.92); box-shadow:0 0 0 1px rgba(255,124,58,0.22) inset, 0 0 24px rgba(255,124,58,0.26); }
 
     .field{
       display:flex;
@@ -1126,11 +1128,24 @@
       color:var(--text);
       text-transform:uppercase;
     }
+    .laneBlock[data-lane-group^="terp_"] .laneTitle{
+      color:rgba(var(--lane-hue, 205,184,222),0.96);
+    }
     .laneValue{
       font-size:11px;
       letter-spacing:0.06em;
       color:var(--muted);
       text-transform:uppercase;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid transparent;
+      transition:background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+    }
+    .laneValue.live{
+      color:var(--text);
+      background:rgba(var(--lane-hue, 205,184,222),0.18);
+      border-color:rgba(var(--lane-hue, 205,184,222),0.48);
+      box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset;
     }
     .laneDots{
       display:grid;
@@ -1145,9 +1160,10 @@
       border:1px solid rgba(255,255,255,0.16);
       background:rgba(255,255,255,0.05);
       cursor:pointer;
-      transition:background .15s ease, border-color .15s ease, transform .15s ease, opacity .15s ease, box-shadow .15s ease;
+      transition:background .15s ease, border-color .15s ease, transform .15s ease, opacity .15s ease, box-shadow .15s ease, filter .15s ease;
       min-width:28px;
       opacity:0.82;
+      filter:saturate(0.92);
     }
     .laneDot:hover{ transform:translateY(-1px); }
     .laneDot.active{
@@ -1155,12 +1171,19 @@
       background:rgba(var(--lane-hue, 205,184,222),0.42);
       border-color:rgba(var(--lane-hue, 205,184,222),0.84);
       box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset, 0 0 18px rgba(var(--lane-hue, 205,184,222),0.22);
+      filter:saturate(1.08);
     }
-    .laneDot.level0.active{ background:rgba(255,255,255,0.14); border-color:rgba(255,255,255,0.32); box-shadow:none; }
-    .laneDot.level1.active{ background:rgba(var(--lane-hue, 205,184,222),0.22); border-color:rgba(var(--lane-hue, 205,184,222),0.55); }
-    .laneDot.level2.active{ background:rgba(var(--lane-hue, 205,184,222),0.36); border-color:rgba(var(--lane-hue, 205,184,222),0.70); }
-    .laneDot.level3.active{ background:rgba(var(--lane-hue, 205,184,222),0.54); border-color:rgba(var(--lane-hue, 205,184,222),0.88); }
-    .laneDot.level4.active{ background:rgba(var(--lane-hue, 205,184,222),0.78); border-color:rgba(var(--lane-hue, 205,184,222),1); box-shadow:0 0 0 1px rgba(255,255,255,0.08) inset, 0 0 24px rgba(var(--lane-hue, 205,184,222),0.34); }
+    .laneDot.current{
+      transform:translateY(-1px) scale(1.03);
+      box-shadow:0 0 0 1px rgba(255,255,255,0.14) inset, 0 0 0 2px rgba(var(--lane-hue, 205,184,222),0.18), 0 0 28px rgba(var(--lane-hue, 205,184,222),0.34);
+      filter:saturate(1.22) brightness(1.06);
+    }
+    .laneDot.level0.active{ background:rgba(255,255,255,0.14); border-color:rgba(255,255,255,0.32); box-shadow:none; filter:none; }
+    .laneDot.level0.current{ box-shadow:0 0 0 1px rgba(255,255,255,0.10) inset, 0 0 0 2px rgba(255,255,255,0.06); filter:none; }
+    .laneDot.level1.active{ background:rgba(var(--lane-hue, 205,184,222),0.22); border-color:rgba(var(--lane-hue, 205,184,222),0.58); }
+    .laneDot.level2.active{ background:rgba(var(--lane-hue, 205,184,222),0.38); border-color:rgba(var(--lane-hue, 205,184,222),0.76); }
+    .laneDot.level3.active{ background:rgba(var(--lane-hue, 205,184,222),0.60); border-color:rgba(var(--lane-hue, 205,184,222),0.92); box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 0 20px rgba(var(--lane-hue, 205,184,222),0.28); }
+    .laneDot.level4.active{ background:rgba(var(--lane-hue, 205,184,222),0.86); border-color:rgba(var(--lane-hue, 205,184,222),1); box-shadow:0 0 0 1px rgba(255,255,255,0.10) inset, 0 0 26px rgba(var(--lane-hue, 205,184,222),0.38); }
     .laneLegend{
       margin-top:8px;
       display:grid;
@@ -2967,7 +2990,7 @@ ${cautionBits.join(" • ")}`
       { key:"CARYOPHYLLENE", name:"Caryophyllene", hue:"255,124,58", hint:"Often peppery/spicy, grounded body, steady feel." },
       { key:"LIMONENE", name:"Limonene", hue:"255,214,74", hint:"Often citrus lift, brighter headspace." },
       { key:"PINENE", name:"Pinene", hue:"78,214,120", hint:"Often pine/fresh air, sharper clarity." },
-      { key:"LINALOOL", name:"Linalool", hue:"144,188,255", hint:"Often floral/soft calm, smoother settle." },
+      { key:"LINALOOL", name:"Linalool", hue:"124,196,255", hint:"Often floral/soft calm, smoother settle." },
       { key:"TERPINOLENE", name:"Terpinolene", hue:"84,234,186", hint:"Often sweet/floral/herbal, airy." },
     ];
     const PRESENCE = [
@@ -3062,14 +3085,22 @@ ${cautionBits.join(" • ")}`
       const current = readCheckedValue(groupName);
       const buttons = Array.from(wrap.querySelectorAll("[data-lane-btn]"));
       const activeIndex = buttons.findIndex(btn => String(btn.getAttribute("data-value") || "") === String(current || ""));
-      wrap.style.setProperty('--lane-hue', laneHueForGroup(groupName));
+      const hue = laneHueForGroup(groupName);
+      wrap.style.setProperty('--lane-hue', hue);
       buttons.forEach((btn, idx) => {
         const isNone = idx === 0 && String(btn.getAttribute("data-value") || "") === "";
+        const isCurrent = String(btn.getAttribute("data-value") || "") === String(current || "");
         const shouldBeActive = activeIndex <= 0 ? isNone : (!isNone && idx <= activeIndex);
         btn.classList.toggle("active", shouldBeActive);
+        btn.classList.toggle("current", isCurrent);
+        btn.setAttribute('aria-pressed', isCurrent ? 'true' : 'false');
       });
       const valueEl = wrap.querySelector("[data-lane-value]");
-      if (valueEl) valueEl.textContent = laneDisplayLabel(current);
+      if (valueEl){
+        valueEl.textContent = laneDisplayLabel(current);
+        valueEl.classList.toggle('live', Boolean(current));
+        valueEl.style.setProperty('--lane-hue', hue);
+      }
     }
 
     function setLaneControl(groupName, value){
