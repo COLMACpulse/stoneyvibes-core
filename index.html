@@ -4826,7 +4826,7 @@ These match scores rank fit for your target. The grams and percentages are the a
 
       if (firstTop && secondTop){
         if (firstTop.key === secondTop.key){
-          lines.push(`Shared ${laneLabel(firstTop.key)} lane — both parts reinforce the same core direction.`);
+          lines.push(`Shared ${laneLabel(firstTop.key)} lane — both parts push the same direction.`);
         } else {
           lines.push(`${laneLabel(firstTop.key)} base + ${laneLabel(secondTop.key)} support.`);
         }
@@ -4836,19 +4836,19 @@ These match scores rank fit for your target. The grams and percentages are the a
 
       const weirdAvg = safeParts.reduce((acc, part) => acc + laneRate(part, "weird"), 0) / safeParts.length;
       if (weirdAvg <= 0.14){
-        lines.push("Low weird-risk profile from your current logs.");
+        lines.push("Low drift risk from your current logs.");
       } else if (weirdAvg <= 0.28){
-        lines.push("Moderate weird-risk — should stay controllable if the setup is right.");
+        lines.push("Some drift risk — keep the setup controlled.");
       } else {
-        lines.push("Higher weird-risk — watch dose and timing.");
+        lines.push("Higher drift risk — watch dose and timing.");
       }
 
       const goalMap = {
-        "SLEEP":"Built toward a heavier settle / sleep lane.",
-        "CALM":"Built toward a calmer, smoother lane.",
-        "FOCUS":"Built toward a clearer / more functional lane.",
-        "CREATIVE":"Built toward a more creative lane.",
-        "FUN":"Built toward a more social / fun lane."
+        "SLEEP":"Aimed at a heavier settle / sleep lane.",
+        "CALM":"Aimed at a calmer, smoother lane.",
+        "FOCUS":"Aimed at a clearer / more functional lane.",
+        "CREATIVE":"Aimed at a more creative lane.",
+        "FUN":"Aimed at a more social / fun lane."
       };
       lines.push(goalMap[String(goal || "").toUpperCase()] || "Built around your current target lane.");
 
