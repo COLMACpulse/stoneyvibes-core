@@ -734,6 +734,100 @@
       gap:8px;
       margin-top:10px;
     }
+    .askBlendCard{
+      position:relative;
+      border:1px solid rgba(255,255,255,0.18);
+      border-radius:16px;
+      padding:12px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.045));
+      box-shadow:0 10px 24px rgba(0,0,0,0.22);
+    }
+    .askBlendTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .askBlendMeta{
+      font-size:11px;
+      letter-spacing:0.10em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .askBlendGrid{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      gap:10px;
+      align-items:stretch;
+    }
+    .askBlendPlus{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      line-height:1;
+      color:rgba(255,255,255,0.58);
+      padding:0 2px;
+    }
+    .askBlendItem{
+      display:grid;
+      grid-template-columns:74px 1fr;
+      gap:10px;
+      align-items:start;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:14px;
+      padding:10px;
+      background:rgba(255,255,255,0.04);
+    }
+    .askBlendThumb,
+    .askBlendPlaceholder{
+      width:74px;
+      height:74px;
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(255,255,255,0.04);
+    }
+    .askBlendThumb{
+      object-fit:cover;
+      display:block;
+    }
+    .askBlendPlaceholder{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:8px;
+      font-size:10px;
+      letter-spacing:0.10em;
+      color:var(--muted);
+    }
+    .askBlendPartName{
+      margin:0;
+      font-size:15px;
+      line-height:1.2;
+      color:var(--text);
+    }
+    .askBlendPartMeta{
+      margin:6px 0 0 0;
+      font-size:12px;
+      line-height:1.4;
+      color:var(--muted);
+      white-space:pre-wrap;
+    }
+    .askBlendReason{
+      margin:10px 0 0 0;
+      font-size:13px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+    .askBlendActions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
     .patternGrid{
       display:grid;
       grid-template-columns:1fr;
@@ -4455,7 +4549,150 @@ These match scores rank fit for your target. The grams and percentages are the a
     }
 
 
-    
+
+    function buildBlendPairParts(primary, support, totalGrams){
+      const total = Math.max(0.01, Number(totalGrams || 1));
+      const safePrimary = Math.max(0.01, positiveBlendScore(primary?.blendBaseScore ?? primary?.pickScore ?? 0));
+      const safeSupport = Math.max(0.01, positiveBlendScore(support?.supportScore ?? support?.blendBaseScore ?? support?.pickScore ?? 0));
+      const combined = safePrimary + safeSupport || 1;
+      const primaryPct = safePrimary / combined;
+      let primaryHundredths = Math.round(primaryPct * total * 100);
+      primaryHundredths = Math.max(1, Math.min(Math.round(total * 100) - 1, primaryHundredths));
+      const supportHundredths = Math.max(1, Math.round(total * 100) - primaryHundredths);
+      const primaryGrams = primaryHundredths / 100;
+      const supportGrams = supportHundredths / 100;
+      return [
+        { ...primary, grams: primaryGrams, pct: (primaryGrams / total) * 100, matchScore: primary.blendBaseScore ?? primary.pickScore ?? 0 },
+        { ...support, grams: supportGrams, pct: (supportGrams / total) * 100, matchScore: support.supportScore ?? support.blendBaseScore ?? support.pickScore ?? 0 }
+      ];
+    }
+
+    function buildBlendSuggestionReason(goal, parts){
+      const lanes = parts
+        .flatMap(part => bestLanesForRow(part).filter(x => x.value > 0).slice(0,2))
+        .map(x => laneLabel(x.key))
+        .filter((value, idx, arr) => arr.indexOf(value) === idx)
+        .slice(0,3);
+      const laneText = lanes.length ? lanes.join(" + ") : "still early";
+      return `${goal} blend grounded in your own logs. Best lanes: ${laneText}.`;
+    }
+
+    function buildBlendSuggestionsFromStats(query, stats){
+      const goal = chooseBlendGoal(query);
+      const rows = (stats?.rows || []).filter(r => r.count > 0);
+      if (rows.length < 2) return [];
+
+      const ranked = rows
+        .map(r => ({ ...r, blendBaseScore: scoreBlendRow(r, goal) }))
+        .sort((a,b) => b.blendBaseScore - a.blendBaseScore)
+        .slice(0,4);
+
+      if (ranked.length < 2) return [];
+
+      function pickSupport(primary, excludeKeys){
+        return ranked
+          .filter(candidate => candidate.key !== primary.key && !excludeKeys.includes(candidate.key))
+          .map(candidate => ({ ...candidate, supportScore: supportBlendScore(primary, candidate, goal) }))
+          .sort((a,b) => b.supportScore - a.supportScore)[0] || null;
+      }
+
+      const options = [];
+      const primaryA = ranked[0];
+      const supportA = pickSupport(primaryA, []);
+      if (primaryA && supportA){
+        options.push({
+          goal,
+          title: "Blend option 1",
+          parts: buildBlendPairParts(primaryA, supportA, 1),
+          comboScore: (primaryA.blendBaseScore || 0) + (supportA.supportScore || 0)
+        });
+      }
+
+      const primaryB = ranked[1];
+      const usedKeys = options[0] ? options[0].parts.map(x => x.key) : [];
+      let supportB = null;
+      if (primaryB){
+        supportB = pickSupport(primaryB, usedKeys);
+        if (!supportB && ranked[2] && ranked[2].key !== primaryB.key){
+          supportB = { ...ranked[2], supportScore: supportBlendScore(primaryB, ranked[2], goal) };
+        }
+      }
+      if (primaryB && supportB){
+        const keySig = [primaryB.key, supportB.key].sort().join("|");
+        const seen = new Set(options.map(opt => opt.parts.map(x => x.key).sort().join("|")));
+        if (!seen.has(keySig)){
+          options.push({
+            goal,
+            title: "Blend option 2",
+            parts: buildBlendPairParts(primaryB, supportB, 1),
+            comboScore: (primaryB.blendBaseScore || 0) + (supportB.supportScore || 0)
+          });
+        }
+      }
+
+      return options.slice(0,2);
+    }
+
+    function renderAskBlendCards(blends){
+      if (!askSuggestionMount) return;
+      if (!Array.isArray(blends) || !blends.length){
+        clearAskSuggestion();
+        return;
+      }
+
+      const cards = blends.map((blend, idx) => {
+        const safeParts = Array.isArray(blend.parts) ? blend.parts.slice(0,2) : [];
+        if (safeParts.length < 2) return "";
+
+        const partMarkup = safeParts.map(part => {
+          const stash = loadStash().find(x => String(x.id || "") === String(part.stashId || part.id || ""));
+          const photoMarkup = stash?.photoDataUrl
+            ? `<img class="askBlendThumb" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash?.name || part.name || "Blend part")}" />`
+            : `<div class="askBlendPlaceholder">NO PHOTO YET</div>`;
+          return `
+            <div class="askBlendItem">
+              ${photoMarkup}
+              <div>
+                <h3 class="askBlendPartName">${escapeHtml(stash?.name || part.name || "Unnamed")}</h3>
+                <p class="askBlendPartMeta">${escapeHtml(part.grams.toFixed(2))}g · ${Math.round(part.pct)}%\n${escapeHtml(confidenceLabel(part.count))} · ${escapeHtml(String(part.count || 0))} logged session${Number(part.count || 0) === 1 ? "" : "s"}</p>
+                <div class="askBlendActions">
+                  <button class="btn btnPrimary btnTiny" type="button" data-ask-open-stash="${escapeHtml(String(stash?.id || part.stashId || ""))}">Open stash card</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('<div class="askBlendPlus">+</div>');
+
+        return `
+          <div class="askBlendCard">
+            <div class="askBlendTop">
+              <p class="askSuggestionKicker">${escapeHtml(idx === 0 ? (blend.title || "Blend option") : `Blend option ${idx + 1}`)}</p>
+              <div class="askBlendMeta">${escapeHtml(blend.goal || "BLEND")}</div>
+            </div>
+            <div class="askBlendGrid">${partMarkup}</div>
+            <p class="askBlendReason">${escapeHtml(buildBlendSuggestionReason(blend.goal || "CALM", safeParts))}</p>
+          </div>
+        `;
+      }).filter(Boolean);
+
+      if (!cards.length){
+        clearAskSuggestion();
+        return;
+      }
+
+      askSuggestionMount.innerHTML = cards.join("");
+      askSuggestionMount.style.display = "grid";
+      askSuggestionMount.querySelectorAll('[data-ask-open-stash]').forEach(btn => {
+        btn.onclick = () => {
+          const stashId = btn.getAttribute('data-ask-open-stash') || "";
+          if (!stashId) return;
+          scrollToPage(0);
+          setTimeout(() => openStashDetail(stashId), 180);
+        };
+      });
+    }
+
+
     function clearAskSuggestion(){
       if (!askSuggestionMount) return;
       askSuggestionMount.style.display = "none";
@@ -4727,10 +4964,18 @@ Ask me something tighter.`;
       askReply.textContent = "Thinking…";
       clearAskSuggestion();
       const rawQuery = askInput.value;
+      const normalizedQuery = String(rawQuery || "").trim().toLowerCase();
       const stats = await computePatternStats();
-      const suggestions = suggestionRowsFromStats(String(rawQuery || "").trim().toLowerCase(), stats);
+      const suggestions = suggestionRowsFromStats(normalizedQuery, stats);
+      const blendSuggestions = (normalizedQuery.includes("blend") || normalizedQuery.includes("mix") || normalizedQuery.includes("combo"))
+        ? buildBlendSuggestionsFromStats(normalizedQuery, stats)
+        : [];
       askReply.textContent = await answerAsk(rawQuery);
-      renderAskSuggestionCards(suggestions);
+      if (blendSuggestions.length){
+        renderAskBlendCards(blendSuggestions);
+      } else {
+        renderAskSuggestionCards(suggestions);
+      }
     };
 
     askInput.addEventListener("input", () => {
