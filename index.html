@@ -173,8 +173,10 @@
       letter-spacing:0.02em;
     }
     .chip.active{
-      background:rgba(255,255,255,0.14);
-      border-color:rgba(255,255,255,0.32);
+      color:#ffffff;
+      background:linear-gradient(180deg, rgba(236,118,255,0.42), rgba(170,92,255,0.34));
+      border-color:rgba(245,201,255,0.92);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.16), 0 0 20px rgba(220,96,255,0.20);
     }
 
     .field{
@@ -994,20 +996,22 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-width:124px;
+      min-width:140px;
       padding:7px 12px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,0.14);
-      background:rgba(255,255,255,0.07);
-      color:var(--text);
+      border:1px solid rgba(230,190,255,0.34);
+      background:linear-gradient(180deg, rgba(255,255,255,0.12), rgba(198,120,255,0.16));
+      color:#ffffff;
       font-size:12px;
       letter-spacing:0.04em;
       text-transform:uppercase;
+      box-shadow:0 0 20px rgba(198,120,255,0.12);
     }
     .snapshotScale{
       display:grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap:6px;
+      grid-template-columns: 1fr auto 1fr;
+      gap:8px;
+      align-items:center;
       margin-top:10px;
       color:var(--muted);
       font-size:10px;
@@ -1016,27 +1020,33 @@
       text-align:center;
     }
     .snapshotScale span{
-      padding:4px 3px;
+      padding:5px 8px;
       border-radius:999px;
-      border:1px solid transparent;
-      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.04);
       line-height:1.15;
     }
     .snapshotScale span.active{
-      color:var(--text);
-      border-color:rgba(255,255,255,0.16);
-      background:rgba(255,255,255,0.10);
+      color:#ffffff;
+      border-color:rgba(245,210,255,0.85);
+      background:linear-gradient(180deg, rgba(236,118,255,0.46), rgba(176,92,255,0.34));
+      box-shadow:0 0 18px rgba(212,96,255,0.18);
+    }
+    .snapshotScale .snapshotMid{
+      min-width:82px;
+      font-variant-numeric:tabular-nums;
     }
     input.snapshotSlider{
       -webkit-appearance:none;
       appearance:none;
       width:100%;
-      height:14px;
+      height:16px;
       border-radius:999px;
-      background:linear-gradient(90deg, rgba(90,255,170,0.24), rgba(255,255,255,0.12) 50%, rgba(255,180,90,0.24));
-      border:1px solid rgba(255,255,255,0.10);
+      background:linear-gradient(90deg, rgba(98,255,188,0.78) 0%, rgba(160,255,216,0.62) 28%, rgba(255,255,255,0.18) 50%, rgba(255,190,110,0.62) 72%, rgba(255,122,82,0.80) 100%);
+      border:1px solid rgba(255,255,255,0.18);
       outline:none;
       margin-top:8px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.07), 0 0 22px rgba(255,255,255,0.04);
     }
     input.snapshotSlider::-webkit-slider-thumb{
       -webkit-appearance:none;
@@ -1061,8 +1071,9 @@
     input.snapshotSlider::-moz-range-track{
       height:14px;
       border-radius:999px;
-      background:linear-gradient(90deg, rgba(90,255,170,0.24), rgba(255,255,255,0.12) 50%, rgba(255,180,90,0.24));
-      border:1px solid rgba(255,255,255,0.10);
+      background:linear-gradient(90deg, rgba(90,255,170,0.40), rgba(222,124,255,0.22) 50%, rgba(255,180,90,0.40));
+      border:1px solid rgba(255,255,255,0.14);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
     }
 
     .laneBlock{
@@ -1104,18 +1115,38 @@
       border:1px solid rgba(255,255,255,0.16);
       background:rgba(255,255,255,0.05);
       cursor:pointer;
-      transition:background .15s ease, border-color .15s ease, transform .15s ease, opacity .15s ease;
+      transition:background .15s ease, border-color .15s ease, transform .15s ease, opacity .15s ease, box-shadow .15s ease;
       min-width:28px;
     }
     .laneDot:hover{ transform:translateY(-1px); }
     .laneDot.active{
-      background:rgba(205,184,222,0.42);
-      border-color:rgba(205,184,222,0.70);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.10), 0 0 18px rgba(214,154,255,0.18);
     }
-    .laneDot.level1.active{ background:rgba(205,184,222,0.18); }
-    .laneDot.level2.active{ background:rgba(205,184,222,0.28); }
-    .laneDot.level3.active{ background:rgba(205,184,222,0.38); }
-    .laneDot.level4.active{ background:rgba(205,184,222,0.50); }
+    .laneDot.level0.active{
+      background:rgba(255,255,255,0.03);
+      border-color:rgba(255,255,255,0.14);
+      box-shadow:none;
+    }
+    .laneDot.level1.active{
+      background:rgba(196,146,255,0.50);
+      border-color:rgba(226,204,255,0.90);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.10), 0 0 16px rgba(196,146,255,0.18);
+    }
+    .laneDot.level2.active{
+      background:rgba(210,104,255,0.76);
+      border-color:rgba(232,182,255,0.96);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.12), 0 0 20px rgba(210,104,255,0.26);
+    }
+    .laneDot.level3.active{
+      background:rgba(228,68,255,0.88);
+      border-color:rgba(244,170,255,0.98);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.14), 0 0 24px rgba(228,68,255,0.34);
+    }
+    .laneDot.level4.active{
+      background:rgba(255,78,248,1);
+      border-color:rgba(255,230,255,1);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.18), 0 0 32px rgba(255,78,248,0.52);
+    }
     .laneLegend{
       margin-top:8px;
       display:grid;
@@ -1340,13 +1371,11 @@
                   <p class="terpName">Calm ↔ Wired</p>
                   <span id="snapshotCalmWiredValue" class="snapshotValuePill">Balanced</span>
                 </div>
-                <input id="snapshotCalmWired" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
+                <input id="snapshotCalmWired" class="snapshotSlider" type="range" min="-5" max="5" step="1" value="0" />
                 <div id="snapshotCalmWiredScale" class="snapshotScale">
-                  <span data-value="-2">Very Calm</span>
-                  <span data-value="-1">Calm</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="1">Wired</span>
-                  <span data-value="2">Very Wired</span>
+                  <span data-zone="left">Calm</span>
+                  <span data-zone="mid" class="snapshotMid">5 / 10</span>
+                  <span data-zone="right">Wired</span>
                 </div>
               </div>
 
@@ -1355,13 +1384,11 @@
                   <p class="terpName">Clear ↔ Foggy</p>
                   <span id="snapshotClearFoggyValue" class="snapshotValuePill">Balanced</span>
                 </div>
-                <input id="snapshotClearFoggy" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
+                <input id="snapshotClearFoggy" class="snapshotSlider" type="range" min="-5" max="5" step="1" value="0" />
                 <div id="snapshotClearFoggyScale" class="snapshotScale">
-                  <span data-value="-2">Very Clear</span>
-                  <span data-value="-1">Clear</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="1">Foggy</span>
-                  <span data-value="2">Very Foggy</span>
+                  <span data-zone="left">Clear</span>
+                  <span data-zone="mid" class="snapshotMid">5 / 10</span>
+                  <span data-zone="right">Foggy</span>
                 </div>
               </div>
 
@@ -1370,13 +1397,11 @@
                   <p class="terpName">Social ↔ Solo</p>
                   <span id="snapshotSocialSoloValue" class="snapshotValuePill">Balanced</span>
                 </div>
-                <input id="snapshotSocialSolo" class="snapshotSlider" type="range" min="-2" max="2" step="1" value="0" />
+                <input id="snapshotSocialSolo" class="snapshotSlider" type="range" min="-5" max="5" step="1" value="0" />
                 <div id="snapshotSocialSoloScale" class="snapshotScale">
-                  <span data-value="-2">Very Social</span>
-                  <span data-value="-1">Social</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="1">Solo</span>
-                  <span data-value="2">Very Solo</span>
+                  <span data-zone="left">Social</span>
+                  <span data-zone="mid" class="snapshotMid">5 / 10</span>
+                  <span data-zone="right">Solo</span>
                 </div>
               </div>
             </div>
@@ -2783,19 +2808,31 @@ ${cautionBits.join(" • ")}`
 
     function snapshotLabel(kind, value){
       const v = Number(value || 0);
-      const map = {
-        calmWired: { "-2":"Very Calm", "-1":"Calm", "0":"Balanced", "1":"Wired", "2":"Very Wired" },
-        clearFoggy: { "-2":"Very Clear", "-1":"Clear", "0":"Balanced", "1":"Foggy", "2":"Very Foggy" },
-        socialSolo: { "-2":"Very Social", "-1":"Social", "0":"Balanced", "1":"Solo", "2":"Very Solo" }
+      const abs = Math.abs(v);
+      const strength = Math.min(10, Math.max(1, abs === 0 ? 5 : abs + 5));
+      const poles = {
+        calmWired: { left: 'Calm', right: 'Wired' },
+        clearFoggy: { left: 'Clear', right: 'Foggy' },
+        socialSolo: { left: 'Social', right: 'Solo' }
       };
-      return map[kind]?.[String(v)] || "Balanced";
+      const pole = poles[kind] || { left: 'Low', right: 'High' };
+      if (v === 0) return 'Balanced · 5/10';
+      return (v < 0 ? pole.left : pole.right) + ' · ' + strength + '/10';
     }
 
     function updateSnapshotScale(scaleEl, value){
       if (!scaleEl) return;
-      scaleEl.querySelectorAll('[data-value]').forEach(node => {
-        node.classList.toggle('active', String(value) === node.getAttribute('data-value'));
-      });
+      const num = Number(value || 0);
+      const left = scaleEl.querySelector('[data-zone="left"]');
+      const mid = scaleEl.querySelector('[data-zone="mid"]');
+      const right = scaleEl.querySelector('[data-zone="right"]');
+      if (left) left.classList.toggle('active', num < 0);
+      if (right) right.classList.toggle('active', num > 0);
+      if (mid){
+        const strength = Math.min(10, Math.max(1, num === 0 ? 5 : Math.abs(num) + 5));
+        mid.textContent = strength + ' / 10';
+        mid.classList.toggle('active', true);
+      }
     }
 
     function updateSnapshotBadges(){
@@ -2979,10 +3016,22 @@ ${cautionBits.join(" • ")}`
     function syncLaneControl(groupName){
       const wrap = document.querySelector(`[data-lane-group="${groupName}"]`);
       if (!wrap) return;
+
       const current = readCheckedValue(groupName);
-      wrap.querySelectorAll("[data-lane-btn]").forEach(btn => {
-        btn.classList.toggle("active", String(btn.getAttribute("data-value") || "") === String(current || ""));
+      const buttons = Array.from(wrap.querySelectorAll("[data-lane-btn]"));
+      const activeIndex = buttons.findIndex(btn => String(btn.getAttribute("data-value") || "") === String(current || ""));
+
+      buttons.forEach((btn, idx) => {
+        const btnValue = String(btn.getAttribute("data-value") || "");
+        const isZero = btnValue === "";
+        const isActive = isZero
+          ? activeIndex <= 0
+          : activeIndex > 0 && idx <= activeIndex;
+
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-pressed", isActive ? "true" : "false");
       });
+
       const valueEl = wrap.querySelector("[data-lane-value]");
       if (valueEl) valueEl.textContent = laneDisplayLabel(current);
     }
@@ -4406,6 +4455,7 @@ Ask me something tighter.`;
       renderVisual();
       renderSmell();
       setStashPhoto("");
+      initLaneControls();
 
       await renderSessions();
       await renderAskPatterns();
