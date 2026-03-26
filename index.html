@@ -668,6 +668,70 @@
       font-size:14px;
       color:var(--text);
     }
+    .askSuggestionMount{
+      margin-top:12px;
+      display:none;
+    }
+    .askSuggestionCard{
+      position:relative;
+      display:grid;
+      grid-template-columns:92px 1fr;
+      gap:12px;
+      align-items:start;
+      border:1px solid rgba(255,255,255,0.16);
+      border-radius:16px;
+      padding:12px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+      box-shadow:0 10px 24px rgba(0,0,0,0.22);
+    }
+    .askSuggestionThumb,
+    .askSuggestionPlaceholder{
+      width:92px;
+      height:92px;
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(255,255,255,0.04);
+    }
+    .askSuggestionThumb{
+      object-fit:cover;
+      display:block;
+    }
+    .askSuggestionPlaceholder{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:8px;
+      font-size:10px;
+      letter-spacing:0.10em;
+      color:var(--muted);
+    }
+    .askSuggestionKicker{
+      margin:0 0 4px 0;
+      font-size:10px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .askSuggestionName{
+      margin:0;
+      font-size:18px;
+      line-height:1.15;
+      color:var(--text);
+    }
+    .askSuggestionReason{
+      margin:8px 0 0 0;
+      font-size:13px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+    .askSuggestionActions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
     .patternGrid{
       display:grid;
       grid-template-columns:1fr;
@@ -1801,6 +1865,7 @@
 
           <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">ANSWER</h2>
           <div id="askReply" class="askReply topgap muted">No answer yet.</div>
+          <div id="askSuggestionMount" class="askSuggestionMount"></div>
 
           <div class="divider"></div>
 
@@ -3917,6 +3982,7 @@ ${cautionBits.join(" • ")}`
     const askBtn = document.getElementById("askBtn");
     const tonightModeBtn = document.getElementById("tonightModeBtn");
     const askReply = document.getElementById("askReply");
+    const askSuggestionMount = document.getElementById("askSuggestionMount");
     const patternSleep = document.getElementById("patternSleep");
     const patternCalm = document.getElementById("patternCalm");
     const patternCreative = document.getElementById("patternCreative");
@@ -4387,7 +4453,112 @@ These match scores rank fit for your target. The grams and percentages are the a
     }
 
 
-    async function answerAsk(q){
+    
+    function clearAskSuggestion(){
+      if (!askSuggestionMount) return;
+      askSuggestionMount.style.display = "none";
+      askSuggestionMount.innerHTML = "";
+    }
+
+    function buildAskSuggestionReason(kind, row){
+      if (!row || !row.count) return "";
+      if (kind === "sleep"){
+        return `${Math.round((row.sleepGood / row.count) * 100)}% of its logged sessions landed as good sleep outcomes.`;
+      }
+      if (kind === "calm"){
+        return `${Math.round((row.calm / row.count) * 100)}% of its logged sessions landed in a calm lane.`;
+      }
+      if (kind === "creative"){
+        return `${Math.round((row.creative / row.count) * 100)}% of its logged sessions showed creative lift.`;
+      }
+      if (kind === "focus"){
+        return `${Math.round((row.focus / row.count) * 100)}% of its logged sessions stayed clearer / more focused.`;
+      }
+      if (kind === "fun"){
+        return `${Math.round((row.fun / row.count) * 100)}% of its logged sessions leaned fun / social.`;
+      }
+      if (kind === "consistent"){
+        return `Average outcome score ${((row.total / row.count) || 0).toFixed(2)} across ${row.count} logged session${row.count === 1 ? "" : "s"}.`;
+      }
+      if (kind === "different"){
+        return `Looks like a viable change-up without leaning too hard into your weird lane. Top read: ${topLaneText(row)}.`;
+      }
+      if (kind === "tonight"){
+        return `Current strongest personal fit for tonight based on your logged outcomes. Top read: ${topLaneText(row)}.`;
+      }
+      if (kind === "guide"){
+        return `Strongest current lane in your personal history. Top read: ${topLaneText(row)}.`;
+      }
+      return `${row.count} logged session${row.count === 1 ? "" : "s"} in your own data.`;
+    }
+
+    function suggestionRowFromStats(query, stats){
+      if (!stats || !stats.rows || !stats.rows.length) return null;
+
+      if (query.includes("guide me tonight") || query.includes("guide tonight")){
+        const first = [stats.bestSleep, stats.bestCalm, stats.bestCreative, stats.bestFocus, stats.bestFun, stats.mostConsistent].find(Boolean);
+        return first ? { kind:"guide", row:first, title:"Suggested lane" } : null;
+      }
+      if (query.includes("something different") || query.includes("different tonight") || query.includes("mix it up") || query.includes("different") || query.includes("off tonight")){
+        const candidates = stats.rows
+          .filter(r => String(r.name || "").trim())
+          .map(r => ({ ...r, differentScore: avgOutcome(r) - (laneRate(r, "weird") * 1.15) }))
+          .sort((a,b) => b.differentScore - a.differentScore);
+        return candidates[0] ? { kind:"different", row:candidates[0], title:"Suggested change-up" } : null;
+      }
+      if (query.includes("tonight")) return stats.mostConsistent ? { kind:"tonight", row:stats.mostConsistent, title:"Tonight pick" } : null;
+      if (query.includes("sleep")) return stats.bestSleep ? { kind:"sleep", row:stats.bestSleep, title:"Sleep pick" } : null;
+      if (query.includes("calm") || query.includes("chill")) return stats.bestCalm ? { kind:"calm", row:stats.bestCalm, title:"Calm pick" } : null;
+      if (query.includes("focus") || query.includes("clear")) return stats.bestFocus ? { kind:"focus", row:stats.bestFocus, title:"Focus pick" } : null;
+      if (query.includes("create") || query.includes("creative")) return stats.bestCreative ? { kind:"creative", row:stats.bestCreative, title:"Creative pick" } : null;
+      if (query.includes("fun") || query.includes("social")) return stats.bestFun ? { kind:"fun", row:stats.bestFun, title:"Fun / social pick" } : null;
+      if (query.includes("consistent") || query.includes("steady")) return stats.mostConsistent ? { kind:"consistent", row:stats.mostConsistent, title:"Steady pick" } : null;
+      return null;
+    }
+
+    function renderAskSuggestionCard(suggestion){
+      if (!askSuggestionMount) return;
+      if (!suggestion || !suggestion.row){
+        clearAskSuggestion();
+        return;
+      }
+
+      const stash = loadStash().find(x => String(x.id || "") === String(suggestion.row.stashId || ""));
+      if (!stash){
+        clearAskSuggestion();
+        return;
+      }
+
+      const reason = buildAskSuggestionReason(suggestion.kind, suggestion.row);
+      const photoMarkup = stash.photoDataUrl
+        ? `<img class="askSuggestionThumb" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash.name || "Suggested stash")}" />`
+        : `<div class="askSuggestionPlaceholder">NO PHOTO YET</div>`;
+
+      askSuggestionMount.innerHTML = `
+        <div class="askSuggestionCard">
+          ${photoMarkup}
+          <div>
+            <p class="askSuggestionKicker">${escapeHtml(suggestion.title || "Suggested stash")}</p>
+            <h3 class="askSuggestionName">${escapeHtml(stash.name || suggestion.row.name || "Unnamed")}</h3>
+            <p class="askSuggestionReason">${escapeHtml(reason)}</p>
+            <div class="askSuggestionActions">
+              <button id="askSuggestionOpenBtn" class="btn btnPrimary btnTiny" type="button">Open stash card</button>
+            </div>
+          </div>
+        </div>
+      `;
+      askSuggestionMount.style.display = "block";
+
+      const openBtn = document.getElementById("askSuggestionOpenBtn");
+      if (openBtn){
+        openBtn.onclick = () => {
+          scrollToPage(0);
+          setTimeout(() => openStashDetail(stash.id), 180);
+        };
+      }
+    }
+
+async function answerAsk(q){
       const query = String(q || "").trim().toLowerCase();
       const stats = await computePatternStats();
       const stashCount = loadStash().length;
@@ -4497,18 +4668,35 @@ Ask me something tighter.`;
 
     askBtn.onclick = async () => {
       askReply.textContent = "Thinking…";
-      askReply.textContent = await answerAsk(askInput.value);
+      clearAskSuggestion();
+      const rawQuery = askInput.value;
+      const stats = await computePatternStats();
+      const suggestion = suggestionRowFromStats(String(rawQuery || "").trim().toLowerCase(), stats);
+      askReply.textContent = await answerAsk(rawQuery);
+      renderAskSuggestionCard(suggestion);
     };
 
     askInput.addEventListener("input", () => {
       askQuickButtons.forEach(x => x.classList.remove("active"));
+      clearAskSuggestion();
     });
 
     tonightModeBtn.onclick = async () => {
       const goal = prompt("Tonight goal? Type one: CALM / SLEEP / FUN / FOCUS / SOCIAL", "CALM");
       if (!goal) return;
       askReply.textContent = "Thinking…";
+      clearAskSuggestion();
+      const stats = await computePatternStats();
+      const normalizedGoal = String(goal || "").trim().toUpperCase();
+      const goalMap = {
+        SLEEP: { kind:"sleep", row:stats.bestSleep, title:"Tonight pick" },
+        CALM: { kind:"calm", row:stats.bestCalm, title:"Tonight pick" },
+        FUN: { kind:"fun", row:stats.bestFun, title:"Tonight pick" },
+        SOCIAL: { kind:"fun", row:stats.bestFun, title:"Tonight pick" },
+        FOCUS: { kind:"focus", row:stats.bestFocus, title:"Tonight pick" }
+      };
       askReply.textContent = await tonightModeAnswer(goal);
+      renderAskSuggestionCard(goalMap[normalizedGoal] || (stats.mostConsistent ? { kind:"tonight", row:stats.mostConsistent, title:"Tonight pick" } : null));
     };
 
 
