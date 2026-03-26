@@ -842,6 +842,54 @@
       gap:8px;
       margin-top:10px;
     }
+
+    .askBlendBarWrap{
+      margin-top:12px;
+    }
+    .askBlendBar{
+      position:relative;
+      display:flex;
+      width:100%;
+      height:16px;
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.18);
+      background:rgba(255,255,255,0.05);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .askBlendSeg{
+      position:relative;
+      height:100%;
+      min-width:10px;
+    }
+    .askBlendSeg::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02));
+      pointer-events:none;
+    }
+    .askBlendSeg + .askBlendSeg{
+      border-left:2px solid rgba(11,13,16,0.72);
+      box-shadow:-1px 0 0 rgba(255,255,255,0.12);
+    }
+    .askBlendBarLabels{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:8px;
+    }
+    .askBlendBarLabel{
+      font-size:11px;
+      line-height:1.35;
+      color:var(--muted);
+    }
+    .askBlendBarLabel strong{
+      color:var(--text);
+      display:block;
+      font-size:12px;
+      letter-spacing:0.03em;
+    }
     .patternGrid{
       display:grid;
       grid-template-columns:1fr;
@@ -4692,6 +4740,32 @@ These match scores rank fit for your target. The grams and percentages are the a
       return options.slice(0,2);
     }
 
+
+    function blendSegmentColor(part){
+      const stash = loadStash().find(x => String(x.id || "") === String(part.stashId || part.id || ""));
+      return getSpecimenTone(stash || part || {});
+    }
+
+    function buildBlendCompositionBar(parts){
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
+      if (safeParts.length < 2) return "";
+      const segs = safeParts.map(part => {
+        const width = Math.max(8, Math.round(Number(part.pct || 0)));
+        return `<div class="askBlendSeg" style="width:${width}%; background:${blendSegmentColor(part)};"></div>`;
+      }).join("");
+      const labels = safeParts.map(part => {
+        const stash = loadStash().find(x => String(x.id || "") === String(part.stashId || part.id || ""));
+        const name = stash?.name || part.name || "Unnamed";
+        return `<div class="askBlendBarLabel"><strong>${escapeHtml(name)}</strong>${escapeHtml(part.grams.toFixed(2))}g · ${Math.round(part.pct)}%</div>`;
+      }).join("");
+      return `
+        <div class="askBlendBarWrap">
+          <div class="askBlendBar">${segs}</div>
+          <div class="askBlendBarLabels">${labels}</div>
+        </div>
+      `;
+    }
+
     function renderAskBlendCards(blends){
       if (!askSuggestionMount) return;
       if (!Array.isArray(blends) || !blends.length){
@@ -4729,6 +4803,7 @@ These match scores rank fit for your target. The grams and percentages are the a
               <div class="askBlendMeta">${escapeHtml(blend.goal || "BLEND")}</div>
             </div>
             <div class="askBlendGrid">${partMarkup}</div>
+            ${buildBlendCompositionBar(safeParts)}
             <p class="askBlendReason">${escapeHtml(buildBlendSuggestionReason(blend.goal || "CALM", safeParts))}</p>
           </div>
         `;
