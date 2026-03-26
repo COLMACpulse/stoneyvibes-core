@@ -1555,6 +1555,51 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 }
 </style>
 
+
+<style>
+/* v14 — dynamic blend insight layer */
+.askBlendInsight{
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.04);
+  border-radius:14px;
+  padding:10px 12px;
+}
+.askBlendInsightHead{
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0 0 8px 0;
+}
+.askBlendInsightList{
+  display:grid;
+  gap:6px;
+}
+.askBlendInsightLine{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  font-size:12px;
+  line-height:1.35;
+  color:var(--text);
+}
+.askBlendInsightDot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  margin-top:5px;
+  background:rgba(255,255,255,0.46);
+  flex:0 0 7px;
+}
+.askBlendInsightScore{
+  margin-top:8px;
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:0.05em;
+}
+</style>
+
 </head>
 
 <body>
@@ -4769,6 +4814,72 @@ These match scores rank fit for your target. The grams and percentages are the a
       return `${goal} blend grounded in your own logs. Best lanes: ${laneText}.`;
     }
 
+    function blendInsightLines(goal, parts){
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
+      if (!safeParts.length) return ["No blend read yet."];
+
+      const allTop = safeParts.map(part => bestLanesForRow(part).filter(x => x.value > 0));
+      const firstTop = allTop[0]?.[0];
+      const secondTop = allTop[1]?.[0];
+
+      const lines = [];
+
+      if (firstTop && secondTop){
+        if (firstTop.key === secondTop.key){
+          lines.push(`Shared ${laneLabel(firstTop.key)} lane — both parts reinforce the same core direction.`);
+        } else {
+          lines.push(`${laneLabel(firstTop.key)} base + ${laneLabel(secondTop.key)} support.`);
+        }
+      } else if (firstTop){
+        lines.push(`${laneLabel(firstTop.key)} base.`);
+      }
+
+      const weirdAvg = safeParts.reduce((acc, part) => acc + laneRate(part, "weird"), 0) / safeParts.length;
+      if (weirdAvg <= 0.14){
+        lines.push("Low weird-risk profile from your current logs.");
+      } else if (weirdAvg <= 0.28){
+        lines.push("Moderate weird-risk — should stay controllable if the setup is right.");
+      } else {
+        lines.push("Higher weird-risk — watch dose and timing.");
+      }
+
+      const goalMap = {
+        "SLEEP":"Built toward a heavier settle / sleep lane.",
+        "CALM":"Built toward a calmer, smoother lane.",
+        "FOCUS":"Built toward a clearer / more functional lane.",
+        "CREATIVE":"Built toward a more creative lane.",
+        "FUN":"Built toward a more social / fun lane."
+      };
+      lines.push(goalMap[String(goal || "").toUpperCase()] || "Built around your current target lane.");
+
+      return lines.slice(0,3);
+    }
+
+    function blendBalanceScore(parts){
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
+      if (!safeParts.length) return 0;
+      const score = safeParts.reduce((acc, part) => {
+        const avg = avgOutcome(part);
+        const weirdPenalty = laneRate(part, "weird") * 0.9;
+        return acc + Math.max(0, avg - weirdPenalty + 0.75);
+      }, 0) / safeParts.length;
+      return Math.max(0, Math.min(1, score / 3));
+    }
+
+    function buildBlendInsightMarkup(goal, parts){
+      const lines = blendInsightLines(goal, parts);
+      const score = blendBalanceScore(parts);
+      return `
+        <div class="askBlendInsight">
+          <p class="askBlendInsightHead">Why this works</p>
+          <div class="askBlendInsightList">
+            ${lines.map(line => `<div class="askBlendInsightLine"><span class="askBlendInsightDot"></span><span>${escapeHtml(line)}</span></div>`).join("")}
+          </div>
+          <div class="askBlendInsightScore">Balance score: ${score.toFixed(2)}</div>
+        </div>
+      `;
+    }
+
     function buildBlendSuggestionsFromStats(query, stats){
       const goal = chooseBlendGoal(query);
       const rows = (stats?.rows || []).filter(r => r.count > 0);
@@ -4889,6 +5000,7 @@ These match scores rank fit for your target. The grams and percentages are the a
             </div>
             <div class="askBlendGrid">${partMarkup}</div>
             ${buildBlendCompositionBar(safeParts)}
+            ${buildBlendInsightMarkup(blend.goal || "CALM", safeParts)}
             <p class="askBlendReason">${escapeHtml(buildBlendSuggestionReason(blend.goal || "CALM", safeParts))}</p>
           </div>
         `;
