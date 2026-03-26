@@ -1779,17 +1779,17 @@
           <div class="row topgap">
             <label class="field">
               <span class="label">Question</span>
-              <input id="askInput" class="input" type="text" placeholder="What should I use tonight? / What helps me sleep? / Why did that hit weird?" />
+              <input id="askInput" class="input" type="text" placeholder="What should I use tonight? / What helps me sleep? / I want something different tonight / Guide me tonight" />
             </label>
           </div>
 
           <div class="askPromptGrid">
-            <button id="askPromptTonight" class="btn btnTiny" type="button">Tonight</button>
-            <button id="askPromptSleep" class="btn btnTiny" type="button">Sleep</button>
-            <button id="askPromptConsistent" class="btn btnTiny" type="button">Consistent</button>
-            <button id="askPromptWeird" class="btn btnTiny" type="button">Hit weird</button>
-            <button id="askPromptTranscript" class="btn btnTiny" type="button">Transcript</button>
-            <button id="askPromptBlend" class="btn btnTiny" type="button">Blend</button>
+            <button id="askPromptTonight" class="btn btnTiny askQuick" type="button">Tonight</button>
+            <button id="askPromptSleep" class="btn btnTiny askQuick" type="button">Sleep</button>
+            <button id="askPromptConsistent" class="btn btnTiny askQuick" type="button">Steady</button>
+            <button id="askPromptWeird" class="btn btnTiny askQuick" type="button">Different</button>
+            <button id="askPromptTranscript" class="btn btnTiny askQuick" type="button">Guide tonight</button>
+            <button id="askPromptBlend" class="btn btnTiny askQuick" type="button">Blend</button>
           </div>
 
           <div class="row topgap">
@@ -4219,6 +4219,71 @@ Read this correctly: match score is ranking only. Grams and percentages are the 
       ].sort((a,b) => b.value - a.value);
     }
 
+    function avgOutcome(row){
+      return row && row.count ? (row.total / row.count) : 0;
+    }
+
+    function topLaneText(row){
+      const top = bestLanesForRow(row).filter(x => x.value > 0)[0];
+      if (!top) return "still forming";
+      return `${laneLabel(top.key)} ${Math.round(top.value * 100)}%`;
+    }
+
+    async function answerDifferent(){
+      const stats = await computePatternStats();
+      const rows = stats.rows.filter(r => r.count > 0);
+      if (!rows.length){
+        return "Different tonight needs real signal first. Log a few sessions and I can steer you off your usual lane without guessing.";
+      }
+
+      const consistentId = stats.mostConsistent ? stats.mostConsistent.stashId : "";
+      const candidates = rows
+        .filter(r => String(r.stashId || "") !== String(consistentId || ""))
+        .map(r => ({
+          ...r,
+          differentScore: avgOutcome(r) + Math.min(0.35, r.count * 0.05) - (laneRate(r, "weird") * 1.15)
+        }))
+        .sort((a,b) => b.differentScore - a.differentScore);
+
+      const pick = candidates[0] || rows
+        .map(r => ({ ...r, differentScore: avgOutcome(r) - (laneRate(r, "weird") * 1.15) }))
+        .sort((a,b) => b.differentScore - a.differentScore)[0];
+
+      if (!pick){
+        return "I do not have a clean different read yet.";
+      }
+
+      return `Different tonight:
+
+Try ${pick.name}.
+
+Why: it looks like a viable change-up without being your same default lane.
+Top read: ${topLaneText(pick)}.
+Logged sessions: ${pick.count}.
+Weird flag: ${Math.round(laneRate(pick, "weird") * 100)}%.`;
+    }
+
+    async function answerGuideTonight(){
+      const stats = await computePatternStats();
+      if (!stats.rows.length){
+        return "Guide tonight needs more personal signal. Add stash, log sessions, then this section can actually steer.";
+      }
+
+      const lines = [];
+      if (stats.bestSleep) lines.push(`Sleep lane: ${stats.bestSleep.name}`);
+      if (stats.bestCalm) lines.push(`Calm lane: ${stats.bestCalm.name}`);
+      if (stats.bestCreative) lines.push(`Creative lane: ${stats.bestCreative.name}`);
+      if (stats.bestFocus) lines.push(`Focus lane: ${stats.bestFocus.name}`);
+      if (stats.bestFun) lines.push(`Fun lane: ${stats.bestFun.name}`);
+      if (stats.mostConsistent) lines.push(`Steady pick: ${stats.mostConsistent.name}`);
+
+      return `Guide tonight:
+
+${lines.join("\n")}
+
+Use this correctly: pick the lane that matches what you want tonight, not the stash with the prettiest label.`;
+    }
+
     function chooseBlendGoal(query){
       const q = String(query || "").toLowerCase();
       if (q.includes("sleep")) return "SLEEP";
@@ -4335,6 +4400,8 @@ These match scores rank fit for your target. The grams and percentages are the a
         return "You have no stash or session data yet. This layer gets real once it can read your own history.";
       }
 
+      if (query.includes("guide me tonight") || query.includes("guide tonight")) return answerGuideTonight();
+      if (query.includes("something different") || query.includes("different tonight") || query.includes("mix it up") || query.includes("different") || query.includes("off tonight")) return answerDifferent();
       if (query.includes("tonight")) return tonightModeAnswer("CALM");
       if (query.includes("sleep")){
         return stats.bestSleep
@@ -4416,17 +4483,26 @@ ${latest.transcriptText ? "Transcript: " + latest.transcriptText.slice(0, 280) +
 Ask me something tighter.`;
     }
 
-        askPromptTonight.onclick = () => { askInput.value = "What should I use tonight?"; };
-    askPromptSleep.onclick = () => { askInput.value = "What helps me sleep?"; };
-    askPromptConsistent.onclick = () => { askInput.value = "What has been most consistent for me?"; };
-    askPromptWeird.onclick = () => { askInput.value = "Why did that hit weird?"; };
-    if (askPromptTranscript) askPromptTranscript.onclick = () => { askInput.value = "Show me transcript memory"; };
-    if (askPromptBlend) askPromptBlend.onclick = () => { askInput.value = "What blend should I try tonight?"; };
+        const askQuickButtons = [askPromptTonight, askPromptSleep, askPromptConsistent, askPromptWeird, askPromptTranscript, askPromptBlend].filter(Boolean);
+    function setAskQuickActive(btn){
+      askQuickButtons.forEach(x => x.classList.toggle("active", x === btn));
+    }
+
+    askPromptTonight.onclick = () => { setAskQuickActive(askPromptTonight); askInput.value = "What should I use tonight?"; };
+    askPromptSleep.onclick = () => { setAskQuickActive(askPromptSleep); askInput.value = "What helps me sleep?"; };
+    askPromptConsistent.onclick = () => { setAskQuickActive(askPromptConsistent); askInput.value = "What has been most consistent for me?"; };
+    askPromptWeird.onclick = () => { setAskQuickActive(askPromptWeird); askInput.value = "I want something different tonight."; };
+    if (askPromptTranscript) askPromptTranscript.onclick = () => { setAskQuickActive(askPromptTranscript); askInput.value = "Guide me tonight."; };
+    if (askPromptBlend) askPromptBlend.onclick = () => { setAskQuickActive(askPromptBlend); askInput.value = "What blend should I try tonight?"; };
 
     askBtn.onclick = async () => {
       askReply.textContent = "Thinking…";
       askReply.textContent = await answerAsk(askInput.value);
     };
+
+    askInput.addEventListener("input", () => {
+      askQuickButtons.forEach(x => x.classList.remove("active"));
+    });
 
     tonightModeBtn.onclick = async () => {
       const goal = prompt("Tonight goal? Type one: CALM / SLEEP / FUN / FOCUS / SOCIAL", "CALM");
