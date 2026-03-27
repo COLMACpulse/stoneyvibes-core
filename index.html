@@ -4762,6 +4762,73 @@ Use this correctly: pick the lane that matches what you want tonight, not the st
       return "CALM";
     }
 
+    function goalPrimaryLane(goal){
+      const g = String(goal || "").toUpperCase();
+      if (g === "SLEEP") return "sleep";
+      if (g === "CALM") return "calm";
+      if (g === "FOCUS") return "focus";
+      if (g === "CREATIVE") return "creative";
+      if (g === "FUN") return "fun";
+      return "calm";
+    }
+
+    function goalSupportLanes(goal){
+      const g = String(goal || "").toUpperCase();
+      if (g === "SLEEP") return ["calm", "sleep"];
+      if (g === "CALM") return ["sleep", "focus"];
+      if (g === "FOCUS") return ["calm", "creative"];
+      if (g === "CREATIVE") return ["fun", "focus"];
+      if (g === "FUN") return ["creative", "calm"];
+      return ["sleep"];
+    }
+
+    function rowTopLaneKey(row){
+      return bestLanesForRow(row)[0]?.key || "calm";
+    }
+
+    function rowGoalSpecialistBonus(row, goal){
+      const mainLane = goalPrimaryLane(goal);
+      const supportLanes = goalSupportLanes(goal);
+      const main = laneRate(row, mainLane);
+      const support = supportLanes.reduce((acc, lane) => acc + laneRate(row, lane), 0) / Math.max(1, supportLanes.length);
+      const offGoalLanes = ["sleep", "calm", "creative", "focus", "fun"].filter(lane => lane !== mainLane && !supportLanes.includes(lane));
+      const offGoal = offGoalLanes.reduce((acc, lane) => acc + laneRate(row, lane), 0) / Math.max(1, offGoalLanes.length);
+      return Math.max(-0.15, (main * 0.72) + (support * 0.22) - (offGoal * 0.34));
+    }
+
+    function rowAllRounderPenalty(row, goal){
+      const lanes = ["sleep", "calm", "creative", "focus", "fun"].map(lane => ({ lane, value: laneRate(row, lane) }));
+      const top = lanes.sort((a,b) => b.value - a.value).slice(0,3);
+      const spread = Math.max(0, (top[0]?.value || 0) - (top[2]?.value || 0));
+      const avgTop = top.reduce((acc, item) => acc + item.value, 0) / Math.max(1, top.length);
+      const goalFit = laneRate(row, goalPrimaryLane(goal));
+      const broadButFlat = Math.max(0, avgTop - goalFit);
+      return Math.max(0, (0.30 - spread) * 0.55) + (broadButFlat * 0.22);
+    }
+
+    function pairGoalDiversityBonus(primary, candidate, goal){
+      const primaryTop = rowTopLaneKey(primary);
+      const candidateTop = rowTopLaneKey(candidate);
+      const goalLane = goalPrimaryLane(goal);
+      const supportLanes = goalSupportLanes(goal);
+
+      let bonus = 0;
+      if (primaryTop !== candidateTop) bonus += 0.18;
+      if (candidateTop === goalLane && primaryTop !== goalLane) bonus += 0.12;
+      if (supportLanes.includes(candidateTop) && primaryTop === goalLane) bonus += 0.10;
+      if (supportLanes.includes(primaryTop) && candidateTop === goalLane) bonus += 0.10;
+      return bonus;
+    }
+
+    function pairSimilarityPenalty(primary, candidate){
+      const primaryLanes = bestLanesForRow(primary).slice(0,3).map(x => x.key);
+      const candidateLanes = bestLanesForRow(candidate).slice(0,3).map(x => x.key);
+      const overlap = primaryLanes.filter(lane => candidateLanes.includes(lane)).length;
+      const sameTopPenalty = rowTopLaneKey(primary) === rowTopLaneKey(candidate) ? 0.22 : 0;
+      const overlapPenalty = Math.max(0, overlap - 1) * 0.10;
+      return sameTopPenalty + overlapPenalty;
+    }
+
     function scoreBlendRow(row, goal){
       const avg = row.count ? (row.total / row.count) : 0;
       const weirdPenalty = laneRate(row, "weird") * 1.6;
@@ -4773,18 +4840,15 @@ Use this correctly: pick the lane that matches what you want tonight, not the st
       if (goal === "CREATIVE") laneBoost += laneRate(row, "creative") * 2.2 + laneRate(row, "fun") * 0.3;
       if (goal === "FUN") laneBoost += laneRate(row, "fun") * 2.2 + laneRate(row, "creative") * 0.3;
 
-      return avg + laneBoost - weirdPenalty + Math.min(0.35, row.count * 0.04);
+      const specialistBonus = rowGoalSpecialistBonus(row, goal);
+      const allRounderPenalty = rowAllRounderPenalty(row, goal);
+      const confidence = Math.min(0.35, row.count * 0.04);
+
+      return avg + laneBoost + specialistBonus - weirdPenalty - allRounderPenalty + confidence;
     }
 
     function supportBlendScore(primary, candidate, goal){
       if (!candidate || candidate.key === primary.key) return -999;
-
-      const primaryLanes = bestLanesForRow(primary);
-      const candidateLanes = bestLanesForRow(candidate);
-
-      const primaryTop = primaryLanes[0]?.key || "calm";
-      const candidateTop = candidateLanes[0]?.key || "calm";
-      const sameTopPenalty = primaryTop === candidateTop ? 0.18 : 0;
 
       let complement = 0;
       if (goal === "CALM"){
@@ -4809,8 +4873,12 @@ Use this correctly: pick the lane that matches what you want tonight, not the st
 
       const weirdPenalty = laneRate(candidate, "weird") * 1.2;
       const confidence = Math.min(0.3, candidate.count * 0.035);
+      const diversityBonus = pairGoalDiversityBonus(primary, candidate, goal);
+      const similarityPenalty = pairSimilarityPenalty(primary, candidate);
+      const specialistBonus = rowGoalSpecialistBonus(candidate, goal) * 0.55;
+      const allRounderPenalty = rowAllRounderPenalty(candidate, goal) * 0.45;
 
-      return complement - weirdPenalty - sameTopPenalty + confidence;
+      return complement - weirdPenalty + confidence + diversityBonus + specialistBonus - similarityPenalty - allRounderPenalty;
     }
 
     function viableBlendRows(rows){
@@ -5104,56 +5172,60 @@ These match scores rank fit for your target. The grams and percentages are the a
       const ranked = rows
         .map(r => ({ ...r, blendBaseScore: scoreBlendRow(r, goal) }))
         .sort((a,b) => b.blendBaseScore - a.blendBaseScore)
-        .slice(0,5);
+        .slice(0,6);
 
       if (ranked.length < 2) return [];
 
-      function pickSupport(primary, excludeKeys){
-        return ranked
-          .filter(candidate => candidate.key !== primary.key && !excludeKeys.includes(candidate.key))
-          .map(candidate => ({ ...candidate, supportScore: supportBlendScore(primary, candidate, goal) }))
-          .filter(candidate => canSupportBlend(candidate))
-          .sort((a,b) => b.supportScore - a.supportScore)[0] || null;
-      }
-
-      const options = [];
-      const primaryA = ranked[0];
-      const supportA = pickSupport(primaryA, []);
-      if (primaryA && supportA){
-        options.push({
-          goal,
-          title: "Blend option 1",
-          parts: buildBlendPairParts(primaryA, supportA, 1, goal),
-          comboScore: safeNum(primaryA.blendBaseScore) + safeNum(supportA.supportScore)
-        });
-      }
-
-      const primaryB = ranked[1];
-      const usedKeys = options[0] ? options[0].parts.map(x => x.key) : [];
-      let supportB = null;
-      if (primaryB){
-        supportB = pickSupport(primaryB, usedKeys);
-        if (!supportB && ranked[2] && ranked[2].key !== primaryB.key){
-          const fallbackSupport = { ...ranked[2], supportScore: supportBlendScore(primaryB, ranked[2], goal) };
-          if (canSupportBlend(fallbackSupport)) supportB = fallbackSupport;
-        }
-      }
-      if (primaryB && supportB){
-        const keySig = [primaryB.key, supportB.key].sort().join("|");
-        const seen = new Set(options.map(opt => opt.parts.map(x => x.key).sort().join("|")));
-        if (!seen.has(keySig)){
-          options.push({
+      const candidates = [];
+      for (let i = 0; i < ranked.length; i += 1){
+        const primary = ranked[i];
+        for (let j = 0; j < ranked.length; j += 1){
+          const supportBase = ranked[j];
+          if (!primary || !supportBase || primary.key === supportBase.key) continue;
+          const support = { ...supportBase, supportScore: supportBlendScore(primary, supportBase, goal) };
+          if (!canSupportBlend(support)) continue;
+          const signature = [primary.key, support.key].sort().join('|');
+          const diversityShape = [rowTopLaneKey(primary), rowTopLaneKey(support)].sort().join('|');
+          candidates.push({
             goal,
-            title: "Blend option 2",
-            parts: buildBlendPairParts(primaryB, supportB, 1, goal),
-            comboScore: safeNum(primaryB.blendBaseScore) + safeNum(supportB.supportScore)
+            title: 'Blend option',
+            parts: buildBlendPairParts(primary, support, 1, goal),
+            comboScore: safeNum(primary.blendBaseScore) + safeNum(support.supportScore),
+            signature,
+            diversityShape
           });
         }
       }
 
-      return options
+      const unique = [];
+      const seen = new Set();
+      candidates
         .sort((a,b) => safeNum(b.comboScore) - safeNum(a.comboScore))
-        .slice(0,2);
+        .forEach(candidate => {
+          if (seen.has(candidate.signature)) return;
+          seen.add(candidate.signature);
+          unique.push(candidate);
+        });
+
+      if (!unique.length) return [];
+
+      const picked = [unique[0]];
+      const usedShapes = new Set([unique[0].diversityShape]);
+      const second = unique
+        .slice(1)
+        .map(option => ({
+          ...option,
+          adjustedScore: safeNum(option.comboScore)
+            - (usedShapes.has(option.diversityShape) ? 0.18 : 0)
+            - (option.parts.some(part => picked[0].parts.some(base => base.key === part.key)) ? 0.22 : 0)
+        }))
+        .sort((a,b) => safeNum(b.adjustedScore) - safeNum(a.adjustedScore))[0] || null;
+
+      if (second) picked.push(second);
+
+      return picked
+        .slice(0,2)
+        .map((option, idx) => ({ ...option, title: `Blend option ${idx + 1}` }));
     }
 
     function blendSegmentColor(part){
