@@ -6596,6 +6596,32 @@ function buildBlendProfile(strains) {
   return totals;
 }
 
+
+function updateFingerprints(blend1, blend2){
+  const el1 = document.getElementById('fingerprint-1');
+  const el2 = document.getElementById('fingerprint-2');
+
+  if(el1){
+    el1.innerHTML = renderFingerprint([
+      blend1.uplift||0,
+      blend1.calm||0,
+      blend1.sedation||0,
+      blend1.clarity||0,
+      blend1.steady||0
+    ]);
+  }
+
+  if(el2){
+    el2.innerHTML = renderFingerprint([
+      blend2.uplift||0,
+      blend2.calm||0,
+      blend2.sedation||0,
+      blend2.clarity||0,
+      blend2.steady||0
+    ]);
+  }
+}
+
 </script>
 
 <script>
@@ -6640,6 +6666,32 @@ function buildBlendProfile(strains) {
   });
 
   return totals;
+}
+
+
+function updateFingerprints(blend1, blend2){
+  const el1 = document.getElementById('fingerprint-1');
+  const el2 = document.getElementById('fingerprint-2');
+
+  if(el1){
+    el1.innerHTML = renderFingerprint([
+      blend1.uplift||0,
+      blend1.calm||0,
+      blend1.sedation||0,
+      blend1.clarity||0,
+      blend1.steady||0
+    ]);
+  }
+
+  if(el2){
+    el2.innerHTML = renderFingerprint([
+      blend2.uplift||0,
+      blend2.calm||0,
+      blend2.sedation||0,
+      blend2.clarity||0,
+      blend2.steady||0
+    ]);
+  }
 }
 
 </script>
@@ -6730,6 +6782,32 @@ function buildBlendProfile(strains) {
   });
 
   return totals;
+}
+
+
+function updateFingerprints(blend1, blend2){
+  const el1 = document.getElementById('fingerprint-1');
+  const el2 = document.getElementById('fingerprint-2');
+
+  if(el1){
+    el1.innerHTML = renderFingerprint([
+      blend1.uplift||0,
+      blend1.calm||0,
+      blend1.sedation||0,
+      blend1.clarity||0,
+      blend1.steady||0
+    ]);
+  }
+
+  if(el2){
+    el2.innerHTML = renderFingerprint([
+      blend2.uplift||0,
+      blend2.calm||0,
+      blend2.sedation||0,
+      blend2.clarity||0,
+      blend2.steady||0
+    ]);
+  }
 }
 
 </script></body>
