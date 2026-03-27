@@ -4805,10 +4805,33 @@ These match scores rank fit for your target. The grams and percentages are the a
 
 
 
-    function buildBlendPairParts(primary, support, totalGrams){
+    function chemistryGoalBoost(row, goal){
+      const chem = computeRowChemicalProfile(row);
+      if (!chem) return 0;
+      const g = String(goal || "").toUpperCase();
+      if (g === "SLEEP") return (chem.sed || 0) * 0.90 + (chem.calm || 0) * 0.45 - (chem.clear || 0) * 0.20;
+      if (g === "CALM") return (chem.calm || 0) * 0.85 + (chem.steady || 0) * 0.30 - (chem.uplift || 0) * 0.10;
+      if (g === "FOCUS") return (chem.clear || 0) * 0.90 + (chem.uplift || 0) * 0.25 - (chem.sed || 0) * 0.25;
+      if (g === "CREATIVE") return (chem.uplift || 0) * 0.85 + (chem.clear || 0) * 0.35 - (chem.sed || 0) * 0.15;
+      if (g === "FUN") return (chem.uplift || 0) * 0.70 + (chem.clear || 0) * 0.20 - (chem.sed || 0) * 0.10;
+      return 0;
+    }
+
+    function chemistryWeightedScore(row, goal, kind){
+      const base = positiveBlendScore(
+        kind === "support"
+          ? (row?.supportScore ?? row?.blendBaseScore ?? row?.pickScore ?? 0)
+          : (row?.blendBaseScore ?? row?.pickScore ?? 0)
+      );
+      const chemBoost = chemistryGoalBoost(row, goal);
+      const weirdPenalty = laneRate(row, "weird") * 0.12;
+      return Math.max(0.01, base + chemBoost - weirdPenalty);
+    }
+
+    function buildBlendPairParts(primary, support, totalGrams, goal){
       const total = Math.max(0.01, Number(totalGrams || 1));
-      const safePrimary = Math.max(0.01, positiveBlendScore(primary?.blendBaseScore ?? primary?.pickScore ?? 0));
-      const safeSupport = Math.max(0.01, positiveBlendScore(support?.supportScore ?? support?.blendBaseScore ?? support?.pickScore ?? 0));
+      const safePrimary = chemistryWeightedScore(primary, goal, "primary");
+      const safeSupport = chemistryWeightedScore(support, goal, "support");
       const combined = safePrimary + safeSupport || 1;
       const primaryPct = safePrimary / combined;
       let primaryHundredths = Math.round(primaryPct * total * 100);
@@ -4817,8 +4840,20 @@ These match scores rank fit for your target. The grams and percentages are the a
       const primaryGrams = primaryHundredths / 100;
       const supportGrams = supportHundredths / 100;
       return [
-        { ...primary, grams: primaryGrams, pct: (primaryGrams / total) * 100, matchScore: primary.blendBaseScore ?? primary.pickScore ?? 0 },
-        { ...support, grams: supportGrams, pct: (supportGrams / total) * 100, matchScore: support.supportScore ?? support.blendBaseScore ?? support.pickScore ?? 0 }
+        {
+          ...primary,
+          grams: primaryGrams,
+          pct: (primaryGrams / total) * 100,
+          matchScore: primary.blendBaseScore ?? primary.pickScore ?? 0,
+          chemistryWeight: safePrimary
+        },
+        {
+          ...support,
+          grams: supportGrams,
+          pct: (supportGrams / total) * 100,
+          matchScore: support.supportScore ?? support.blendBaseScore ?? support.pickScore ?? 0,
+          chemistryWeight: safeSupport
+        }
       ];
     }
 
@@ -4962,7 +4997,7 @@ These match scores rank fit for your target. The grams and percentages are the a
           <div class="askBlendInsightList">
             ${lines.map(line => `<div class="askBlendInsightLine"><span class="askBlendInsightDot"></span><span>${escapeHtml(line)}</span></div>`).join("")}
           </div>
-          <div class="askBlendInsightScore">Balance score: ${score.toFixed(2)}</div>
+          <div class="askBlendInsightScore">Balance score: ${score.toFixed(2)}${safeParts.some(part => Number.isFinite(Number(part.chemistryWeight))) ? ` · chemistry-weighted ratio` : ``}</div>
         </div>
       `;
     }
@@ -4993,7 +5028,7 @@ These match scores rank fit for your target. The grams and percentages are the a
         options.push({
           goal,
           title: "Blend option 1",
-          parts: buildBlendPairParts(primaryA, supportA, 1),
+          parts: buildBlendPairParts(primaryA, supportA, 1, goal),
           comboScore: (primaryA.blendBaseScore || 0) + (supportA.supportScore || 0)
         });
       }
@@ -5014,7 +5049,7 @@ These match scores rank fit for your target. The grams and percentages are the a
           options.push({
             goal,
             title: "Blend option 2",
-            parts: buildBlendPairParts(primaryB, supportB, 1),
+            parts: buildBlendPairParts(primaryB, supportB, 1, goal),
             comboScore: (primaryB.blendBaseScore || 0) + (supportB.supportScore || 0)
           });
         }
