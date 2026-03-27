@@ -4956,7 +4956,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
 
     function getBlendFingerprintMetrics(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
-      const { profile, metrics } = getBlendFingerprintMetrics(safeParts);
+      const profile = blendChemicalProfile(safeParts);
       const metrics = [
         { key:"uplift", label:"Uplift", hue:"255,214,74" },
         { key:"calm", label:"Calm", hue:"124,196,255" },
@@ -5053,14 +5053,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
     function buildBlendFingerprintMarkup(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
       if (!safeParts.length) return "";
-      const profile = blendChemicalProfile(safeParts);
-      const metrics = [
-        { key:"uplift", label:"Uplift" },
-        { key:"calm", label:"Calm" },
-        { key:"sed", label:"Sedation" },
-        { key:"clear", label:"Clarity" },
-        { key:"steady", label:"Steady" }
-      ];
+      const { metrics } = getBlendFingerprintMetrics(safeParts);
       return `
         <div class="blendFingerprintWrap">
           <p class="blendFingerprintHead">Blend fingerprint</p>
@@ -5068,12 +5061,11 @@ const askPromptBlend = document.getElementById("askPromptBlend");
             <div class="blendFingerprintDisc">${buildBlendFingerprintSvg(safeParts, 72)}</div>
             <div class="blendFingerprintLegend">
               ${metrics.map(metric => {
-                const pct = Math.max(0, Math.min(100, Math.round(safeNum(profile?.[metric.key]) * 100)));
                 return `
                   <div class="blendFingerprintMetric">
                     <div class="blendFingerprintLabel">${escapeHtml(metric.label)}</div>
-                    <div class="blendFingerprintTrack"><div class="blendFingerprintFill" style="width:${pct}%;"></div></div>
-                    <div class="blendFingerprintPct">${pct}%</div>
+                    <div class="blendFingerprintTrack"><div class="blendFingerprintFill" style="width:${metric.pct}%;"></div></div>
+                    <div class="blendFingerprintPct">${metric.pct}%</div>
                   </div>
                 `;
               }).join("")}
