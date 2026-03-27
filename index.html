@@ -1878,36 +1878,50 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 }
 .askBlendIdentityBody{
   margin-top:8px;
-  font-size:12px;
-  line-height:1.45;
+  font-size:13px;
+  line-height:1.35;
   color:var(--text);
 }
 .askBlendIdentityTraits{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:8px;
+  display:none;
 }
 .askBlendIdentityTraits .miniTag{
   color:var(--text);
 }
-</style>
-
-
-<style id="fp-label-patch">
-.fp-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
-  font-size: 11px;
-  color: #9fb3c3;
-  letter-spacing: 0.02em;
+.askBlendInsight{
+  margin-top:8px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.035);
+  border-radius:12px;
+  padding:8px 10px;
 }
-.fp-note {
-  text-align: center;
-  margin-top: 4px;
-  font-size: 10px;
-  color: rgba(159,179,195,0.6);
+.askBlendInsightHead{
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0 0 6px 0;
+}
+.askBlendInsightList{
+  display:block;
+}
+.askBlendInsightLine{
+  display:block;
+  font-size:13px;
+  line-height:1.35;
+  color:var(--text);
+}
+.askBlendInsightDot{
+  display:none;
+}
+.askBlendInsightScore{
+  display:none;
+}
+.askBlendReason{
+  margin:8px 0 0 0;
+  font-size:13px;
+  line-height:1.35;
+  color:var(--muted);
 }
 </style>
 
@@ -5237,7 +5251,7 @@ Read this correctly: match score is ranking only. Grams and percentages are the 
     function assessBlendRead(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
       if (safeParts.length < 2){
-        return { score:0, level:"NONE", warning:"Limited signal—add more sessions for a stronger blend read.", reject:true };
+        return { score:0, level:"NONE", warning:"Limited signal—needs more sessions.", reject:true };
       }
       const confidence = blendOutputConfidence(safeParts);
       const secondary = safeParts[1];
@@ -5247,41 +5261,41 @@ Read this correctly: match score is ranking only. Grams and percentages are the 
         return { score:confidence, level:"LOW", warning:"Second ingredient is still thin—blend read held back until it has more support.", reject:true };
       }
       if (confidence < 0.26){
-        return { score:confidence, level:"LOW", warning:"Limited signal—add more sessions for a stronger blend read.", reject:true };
+        return { score:confidence, level:"LOW", warning:"Limited signal—needs more sessions.", reject:true };
       }
       if (confidence < 0.42){
-        return { score:confidence, level:"LOW", warning:"Low-confidence blend—limited signal, use this as a light read.", reject:false };
+        return { score:confidence, level:"LOW", warning:"Low confidence—light read.", reject:false };
       }
       if (confidence < 0.68){
-        return { score:confidence, level:"MED", warning:"Moderate confidence—shape looks usable, but still not fully locked.", reject:false };
+        return { score:confidence, level:"MED", warning:"Moderate confidence—usable, not locked.", reject:false };
       }
       return { score:confidence, level:"HIGH", warning:"", reject:false };
     }
 
     function describeBlendRatio(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
-      if (safeParts.length < 2) return "Single-source read—no reliable support pair yet.";
+      if (safeParts.length < 2) return "Single-source read—no support pair yet.";
       const lead = primaryPart(safeParts);
       const support = safeParts.find(part => part !== lead) || null;
       const spread = Math.abs(safeNum(lead?.pct) - safeNum(support?.pct));
-      if (spread >= 35) return "Lead-driven—clear primary direction with measured support.";
-      if (spread >= 16) return "Weighted blend—one side leads, the second still shapes the feel.";
-      return "Balanced blend—leans both ways, not locked to a single direction.";
+      if (spread >= 35) return "Lead-driven—clear primary direction.";
+      if (spread >= 16) return "Weighted blend—one side leads.";
+      return "Balanced blend—leans both ways.";
     }
 
     function formatPrimaryPullsText(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
-      if (!safeParts.length) return "Primary pulls: still early.";
+      if (!safeParts.length) return "still early.";
       const lead = primaryPart(safeParts);
-      if (!lead) return "Primary pulls: still early.";
+      if (!lead) return "still early.";
       const leadLanes = bestLanesForRow(lead).filter(x => x.value > 0);
       const leadLabel = leadLanes[0] ? laneLabel(leadLanes[0].key) : "";
       const support = safeParts.find(part => part !== lead) || null;
       const supportLanes = support ? bestLanesForRow(support).filter(x => x.value > 0) : [];
       const supportLabel = supportLanes[0] ? laneLabel(supportLanes[0].key) : "";
-      if (leadLabel && supportLabel && leadLabel !== supportLabel) return `Primary pulls: ${leadLabel} with ${supportLabel} support.`;
-      if (leadLabel) return `Primary pull: ${leadLabel}.`;
-      return "Primary pulls: still early.";
+      if (leadLabel && supportLabel && leadLabel !== supportLabel) return `${leadLabel} with ${supportLabel} support.`;
+      if (leadLabel) return `${leadLabel}.`;
+      return "still early.";
     }
 
     function bestLanesForRow(row){
@@ -5540,7 +5554,7 @@ I only have enough grounded signal for one stable component right now.
 
 Solo pick:
 ${solo.name} — 1.00g (100%)
-Primary pulls: ${lanes.length ? lanes.map(x => laneLabel(x.key)).join(", ") : "still early"}
+${lanes.length ? lanes.map(x => laneLabel(x.key)).join(", ") : "still early"}
 Match score: ${safeNum(solo.blendBaseScore).toFixed(2)}
 Confidence: ${confidenceLabel(solo.count)} (${solo.count} logged session${solo.count === 1 ? "" : "s"})
 
@@ -5816,14 +5830,14 @@ These match scores rank fit for your target. The grams and percentages are the a
       if (topChem === "steady") traits.push("steady bias");
 
       if (tension.label === "SOFT CONFLICT"){
-        caution = "Balanced blend—leans both ways, not locked to a single direction.";
+        caution = "Balanced blend—leans both ways.";
       } else if (tension.label === "OFF-AXIS"){
-        caution = "Interesting pairing, but this one is leaning away from the stated target more than the cleanest option would.";
+        caution = "Leans a little off target.";
       } else if (confidence.label === "LOW CONFIDENCE"){
-        summary = "Early blend read—useful as a direction check, not a locked recommendation yet.";
-        caution = "The shape is plausible, but the underlying signal is still thin.";
+        summary = "Early blend read—directional, not locked.";
+        caution = "Signal is still thin.";
       } else if (tension.label === "DUAL-PULL"){
-        caution = "Both parts are still active here, so expect more hybrid behavior than a single clean lane.";
+        caution = "Hybrid pull—no single lane fully takes over.";
       }
 
       return {
@@ -5840,7 +5854,6 @@ These match scores rank fit for your target. The grams and percentages are the a
     function buildBlendIdentityMarkup(goal, parts){
       const identity = buildBlendIdentity(goal, parts);
       const metaBits = [
-        "Blend identity layer v2",
         identity.confidence?.label || "",
         identity.tension?.label || ""
       ].filter(Boolean);
@@ -5855,10 +5868,6 @@ These match scores rank fit for your target. The grams and percentages are the a
             <span class="askBlendIdentityTag">${escapeHtml(identity.tag)}</span>
           </div>
           <div class="askBlendIdentityBody">${escapeHtml(identity.summary)}</div>
-          ${identity.caution ? `<div class="askBlendIdentityBody" style="margin-top:8px; color:var(--muted);">${escapeHtml(identity.caution)}</div>` : ""}
-          <div class="askBlendIdentityTraits">
-            ${(identity.traits || []).map(trait => `<span class="miniTag">${escapeHtml(trait)}</span>`).join("")}
-          </div>
         </div>
       `;
     }
@@ -5976,15 +5985,13 @@ These match scores rank fit for your target. The grams and percentages are the a
     function buildBlendInsightMarkup(goal, parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
       const lines = blendInsightLines(goal, safeParts);
-      const score = blendBalanceScore(safeParts);
-      const hasChemWeight = safeParts.some(part => Number.isFinite(Number(part?.chemistryWeight)));
+      const primaryLine = lines[0] || formatPrimaryPullsText(safeParts);
       return `
         <div class="askBlendInsight">
-          <p class="askBlendInsightHead">Why this works</p>
+          <p class="askBlendInsightHead">Why</p>
           <div class="askBlendInsightList">
-            ${lines.map(line => `<div class="askBlendInsightLine"><span class="askBlendInsightDot"></span><span>${escapeHtml(line)}</span></div>`).join("")}
+            <div class="askBlendInsightLine">${escapeHtml(primaryLine)}</div>
           </div>
-          <div class="askBlendInsightScore">Balance score: ${score.toFixed(2)}${hasChemWeight ? ` · chemistry-weighted ratio` : ``}</div>
         </div>
       `;
     }
@@ -6129,7 +6136,6 @@ These match scores rank fit for your target. The grams and percentages are the a
             ${buildBlendInsightMarkup(blend.goal || "CALM", safeParts)}
             ${blend?.assessment?.warning ? `<p class="askBlendReason">${escapeHtml(blend.assessment.warning)}</p>` : ""}
             <p class="askBlendReason">${escapeHtml(describeBlendRatio(safeParts))}</p>
-            <p class="askBlendReason">${escapeHtml(buildBlendSuggestionReason(blend.goal || "CALM", safeParts))}</p>
           </div>
         `;
       }).filter(Boolean);
@@ -6577,25 +6583,5 @@ document.querySelectorAll('.ask-btn').forEach(btn=>{
   });
 });
 </script>
-
-<script id="fp-label-injector">
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll('.fingerprint').forEach(fp => {
-    if (fp.nextElementSibling && fp.nextElementSibling.classList.contains('fp-labels')) return;
-
-    const labels = document.createElement('div');
-    labels.className = 'fp-labels';
-    labels.innerHTML = '<span>lift</span><span>calm</span><span>heavy</span><span>clear</span><span>steady</span>';
-
-    const note = document.createElement('div');
-    note.className = 'fp-note';
-    note.textContent = 'fingerprint = chemical balance';
-
-    fp.insertAdjacentElement('afterend', note);
-    fp.insertAdjacentElement('afterend', labels);
-  });
-});
-</script>
-
 </body>
 </html>
