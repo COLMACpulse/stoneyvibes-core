@@ -2501,21 +2501,21 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           <div class="row topgap">
             <label class="field">
               <span class="label">Question</span>
-              <input id="askInput" class="input" type="text" placeholder="What should I use tonight? / What helps me sleep? / I want something different tonight / Guide me tonight" />
+              <input id="askInput" class="input" type="text" placeholder="What should I use guide? / What helps me sleep? / I want something different guide / Guide me guide" />
             </label>
           </div>
 
           <div class="askPromptGrid">
-            <button id="askPromptTonight" class="btn btnTiny askQuick" type="button">Tonight</button>
+            <button id="askPromptGuide" class="btn btnTiny askQuick" type="button">Guide</button>
             <button id="askPromptSleep" class="btn btnTiny askQuick" type="button">Sleep</button>
             <button id="askPromptConsistent" class="btn btnTiny askQuick" type="button">Steady</button>
             <button id="askPromptWeird" class="btn btnTiny askQuick" type="button">Different</button>
-            <button id="askPromptTranscript" class="btn btnTiny askQuick" type="button">Guide tonight</button>
+            <button id="askPromptTranscript" class="btn btnTiny askQuick" type="button">Guide guide</button>
           </div>
 
           <div class="row topgap">
             <button id="askBtn" class="btn btnPrimary" type="button">Ask</button>
-            <button id="tonightModeBtn" class="btn btnOk" type="button">Tonight Mode</button>
+            <button id="guideModeBtn" class="btn btnOk" type="button">Guide Mode</button>
           </div>
 
           <div class="askBlendZone topgap">
@@ -4673,7 +4673,7 @@ ${cautionBits.join(" • ")}`
     // ASK / LAYER 1
     const askInput = document.getElementById("askInput");
     const askBtn = document.getElementById("askBtn");
-    const tonightModeBtn = document.getElementById("tonightModeBtn");
+    const guideModeBtn = document.getElementById("guideModeBtn");
     const askReply = document.getElementById("askReply");
     const askSuggestionMount = document.getElementById("askSuggestionMount");
     const patternSleep = document.getElementById("patternSleep");
@@ -4694,7 +4694,7 @@ ${cautionBits.join(" • ")}`
     const patternFocusMedia = document.getElementById("patternFocusMedia");
     const patternFunMedia = document.getElementById("patternFunMedia");
     const patternConsistentMedia = document.getElementById("patternConsistentMedia");
-    const askPromptTonight = document.getElementById("askPromptTonight");
+    const askPromptGuide = document.getElementById("askPromptGuide");
     const askPromptSleep = document.getElementById("askPromptSleep");
     const askPromptConsistent = document.getElementById("askPromptConsistent");
     const askPromptWeird = document.getElementById("askPromptWeird");
@@ -5115,7 +5115,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       return `${idx + 1}. ${part.name} — ${part.grams.toFixed(2)}g (${Math.round(part.pct)}%) | match score ${part.matchScore.toFixed(2)} | ${part.count} logged session${part.count === 1 ? "" : "s"}`;
     }
 
-    async function tonightModeAnswer(goalRaw){
+    async function guideModeAnswer(goalRaw){
       const goal = String(goalRaw || "CALM").trim().toUpperCase();
       const stats = await computePatternStats();
       if (!stats.rows.length){
@@ -5322,7 +5322,7 @@ Read this correctly: match score is ranking only. Grams and percentages are the 
       const stats = await computePatternStats();
       const rows = stats.rows.filter(r => r.count > 0);
       if (!rows.length){
-        return "Different tonight needs real signal first. Log a few sessions and I can steer you off your usual lane without guessing.";
+        return "Different guide needs real signal first. Log a few sessions and I can steer you off your usual lane without guessing.";
       }
 
       const consistentId = stats.mostConsistent ? stats.mostConsistent.stashId : "";
@@ -5342,7 +5342,7 @@ Read this correctly: match score is ranking only. Grams and percentages are the 
         return "I do not have a clean different read yet.";
       }
 
-      return `Different tonight:
+      return `Different guide:
 
 Try ${pick.name}.
 
@@ -5352,10 +5352,10 @@ Logged sessions: ${pick.count}.
 Weird flag: ${Math.round(laneRate(pick, "weird") * 100)}%.`;
     }
 
-    async function answerGuideTonight(){
+    async function answerGuideGuide(){
       const stats = await computePatternStats();
       if (!stats.rows.length){
-        return "Guide tonight needs more personal signal. Add stash, log sessions, then this section can actually steer.";
+        return "Guide guide needs more personal signal. Add stash, log sessions, then this section can actually steer.";
       }
 
       const lines = [];
@@ -5366,11 +5366,11 @@ Weird flag: ${Math.round(laneRate(pick, "weird") * 100)}%.`;
       if (stats.bestFun) lines.push(`Fun lane: ${stats.bestFun.name}`);
       if (stats.mostConsistent) lines.push(`Steady pick: ${stats.mostConsistent.name}`);
 
-      return `Guide tonight:
+      return `Guide guide:
 
 ${lines.join("\n")}
 
-Use this correctly: pick the lane that matches what you want tonight, not the stash with the prettiest label.`;
+Use this correctly: pick the lane that matches what you want guide, not the stash with the prettiest label.`;
     }
 
     function chooseBlendGoal(query){
@@ -6186,8 +6186,8 @@ These match scores rank fit for your target. The grams and percentages are the a
       if (kind === "different"){
         return `Looks like a viable change-up without leaning too hard into your weird lane. Top read: ${topLaneText(row)}.`;
       }
-      if (kind === "tonight"){
-        return `Current strongest personal fit for tonight based on your logged outcomes. Top read: ${topLaneText(row)}.`;
+      if (kind === "guide"){
+        return `Current strongest personal fit for guide based on your logged outcomes. Top read: ${topLaneText(row)}.`;
       }
       if (kind === "guide"){
         return `Strongest current lane in your personal history. Top read: ${topLaneText(row)}.`;
@@ -6223,7 +6223,7 @@ These match scores rank fit for your target. The grams and percentages are the a
           .sort((a,b) => b._suggestScore - a._suggestScore);
         return uniqueSuggestionRows((pool.length ? pool : fallback)).slice(0,3);
       }
-      if (kind === "tonight" || kind === "consistent") {
+      if (kind === "guide" || kind === "consistent") {
         return uniqueSuggestionRows(rows
           .map(r => ({ ...r, _suggestScore: avgOutcome(r) + Math.min(0.30, r.count * 0.04) - (laneRate(r, "weird") * 1.0) }))
           .sort((a,b) => b._suggestScore - a._suggestScore)).slice(0,3);
@@ -6245,15 +6245,15 @@ These match scores rank fit for your target. The grams and percentages are the a
     }
 
     function suggestionConfigFromQuery(query){
-      if (query.includes("guide me tonight") || query.includes("guide tonight")) return { kind:"guide", title:"Suggested lane" };
-      if (query.includes("something different") || query.includes("different tonight") || query.includes("mix it up") || query.includes("different") || query.includes("off tonight")) return { kind:"different", title:"Suggested change-up" };
+      if (query.includes("guide me guide") || query.includes("guide guide")) return { kind:"guide", title:"Suggested lane" };
+      if (query.includes("something different") || query.includes("different guide") || query.includes("mix it up") || query.includes("different") || query.includes("off guide")) return { kind:"different", title:"Suggested change-up" };
       if (query.includes("sleep")) return { kind:"sleep", title:"Sleep pick" };
       if (query.includes("calm") || query.includes("chill")) return { kind:"calm", title:"Calm pick" };
       if (query.includes("focus") || query.includes("clear")) return { kind:"focus", title:"Focus pick" };
       if (query.includes("create") || query.includes("creative")) return { kind:"creative", title:"Creative pick" };
       if (query.includes("fun") || query.includes("social")) return { kind:"fun", title:"Fun / social pick" };
       if (query.includes("consistent") || query.includes("steady")) return { kind:"consistent", title:"Steady pick" };
-      if (query.includes("tonight")) return { kind:"tonight", title:"Tonight pick" };
+      if (query.includes("guide")) return { kind:"guide", title:"Guide pick" };
       return null;
     }
 
@@ -6322,16 +6322,16 @@ async function answerAsk(q){
       const stashCount = loadStash().length;
 
       if (!query){
-        return "Ask sharper and I will answer sharper. Try: What should I use tonight? / What helps me sleep? / What helps me focus? / What helps me create? / What has been most consistent? / Why did that land weird?";
+        return "Ask sharper and I will answer sharper. Try: What should I use guide? / What helps me sleep? / What helps me focus? / What helps me create? / What has been most consistent? / Why did that land weird?";
       }
 
       if (!stats.sessions.length && !stashCount){
         return "You have no stash or session data yet. This layer gets real once it can read your own history.";
       }
 
-      if (query.includes("guide me tonight") || query.includes("guide tonight")) return answerGuideTonight();
-      if (query.includes("something different") || query.includes("different tonight") || query.includes("mix it up") || query.includes("different") || query.includes("off tonight")) return answerDifferent();
-      if (query.includes("tonight")) return tonightModeAnswer("CALM");
+      if (query.includes("guide me guide") || query.includes("guide guide")) return answerGuideGuide();
+      if (query.includes("something different") || query.includes("different guide") || query.includes("mix it up") || query.includes("different") || query.includes("off guide")) return answerDifferent();
+      if (query.includes("guide")) return guideModeAnswer("CALM");
       if (query.includes("sleep")){
         return stats.bestSleep
           ? `Best current sleep signal: ${stats.bestSleep.name}.
@@ -6412,16 +6412,16 @@ ${latest.transcriptText ? "Transcript: " + latest.transcriptText.slice(0, 280) +
 Ask me something tighter.`;
     }
 
-        const askQuickButtons = [askPromptTonight, askPromptSleep, askPromptConsistent, askPromptWeird, askPromptTranscript, askPromptBlend].filter(Boolean);
+        const askQuickButtons = [askPromptGuide, askPromptSleep, askPromptConsistent, askPromptWeird, askPromptTranscript, askPromptBlend].filter(Boolean);
     function setAskQuickActive(btn){
       askQuickButtons.forEach(x => x.classList.toggle("active", x === btn));
     }
 
-    askPromptTonight.onclick = () => { setAskQuickActive(askPromptTonight); askInput.value = "What should I use tonight?"; };
+    askPromptGuide.onclick = () => { setAskQuickActive(askPromptGuide); askInput.value = "What should I use guide?"; };
     askPromptSleep.onclick = () => { setAskQuickActive(askPromptSleep); askInput.value = "What helps me sleep?"; };
     askPromptConsistent.onclick = () => { setAskQuickActive(askPromptConsistent); askInput.value = "What has been most consistent for me?"; };
-    askPromptWeird.onclick = () => { setAskQuickActive(askPromptWeird); askInput.value = "I want something different tonight."; };
-    if (askPromptTranscript) askPromptTranscript.onclick = () => { setAskQuickActive(askPromptTranscript); askInput.value = "Guide me tonight."; };
+    askPromptWeird.onclick = () => { setAskQuickActive(askPromptWeird); askInput.value = "I want something different guide."; };
+    if (askPromptTranscript) askPromptTranscript.onclick = () => { setAskQuickActive(askPromptTranscript); askInput.value = "Guide me guide."; };
 
     async function runAskFlow(rawQueryOverride){
       askReply.textContent = "Thinking…";
@@ -6444,7 +6444,7 @@ Ask me something tighter.`;
 
     if (askPromptBlend) askPromptBlend.onclick = async () => {
       setAskQuickActive(askPromptBlend);
-      await runAskFlow("What blend should I try tonight?");
+      await runAskFlow("What blend should I try guide?");
     };
 
     askBtn.onclick = async () => {
@@ -6456,26 +6456,26 @@ Ask me something tighter.`;
       clearAskSuggestion();
     });
 
-    tonightModeBtn.onclick = async () => {
-      const goal = prompt("Tonight goal? Type one: CALM / SLEEP / FUN / FOCUS / SOCIAL", "CALM");
+    guideModeBtn.onclick = async () => {
+      const goal = prompt("Guide goal? Type one: CALM / SLEEP / FUN / FOCUS / SOCIAL", "CALM");
       if (!goal) return;
       askReply.textContent = "Thinking…";
       clearAskSuggestion();
       const stats = await computePatternStats();
       const normalizedGoal = String(goal || "").trim().toUpperCase();
-      const tonightKindMap = {
+      const guideKindMap = {
         SLEEP: "sleep",
         CALM: "calm",
         FUN: "fun",
         SOCIAL: "fun",
         FOCUS: "focus"
       };
-      const tonightKind = tonightKindMap[normalizedGoal] || "tonight";
-      askReply.textContent = await tonightModeAnswer(goal);
-      renderAskSuggestionCards(rankedRowsForSuggestionKind(tonightKind, stats).map((row, idx) => ({
-        kind: tonightKind,
+      const guideKind = guideKindMap[normalizedGoal] || "guide";
+      askReply.textContent = await guideModeAnswer(goal);
+      renderAskSuggestionCards(rankedRowsForSuggestionKind(guideKind, stats).map((row, idx) => ({
+        kind: guideKind,
         row,
-        title: idx === 0 ? "Tonight pick" : `Tonight option ${idx + 1}`
+        title: idx === 0 ? "Guide pick" : `Guide option ${idx + 1}`
       })));
     };
 
@@ -6584,20 +6584,42 @@ document.querySelectorAll('.ask-btn').forEach(btn=>{
 });
 </script>
 <script>
-function renderFingerprint(values){
-  if(!Array.isArray(values) || values.length === 0) return "";
+function renderFingerprint(values) {
+  if (!values || values.length !== 5) return '';
 
-  const maxRadius = 60;
-  const baseRadius = 10;
+  const total = 360;
+  const normalized = values.map(v => Math.max(0, Math.min(100, v)));
 
-  const norm = values.map(v => Math.max(0, Math.min(100, v)) / 100);
+  let current = 0;
 
-  const points = norm.map((n, i) => {
-    const angle = (Math.PI * 2 / norm.length) * i;
-    const r = baseRadius + (maxRadius * n);
-    const x = 75 + (r * Math.cos(angle));
-    const y = 75 + (r * Math.sin(angle));
-    return `${x},${y}`;
+  const colors = [
+    '#f87171', // uplift
+    '#60a5fa', // calm
+    '#a78bfa', // sedation
+    '#34d399', // clarity
+    '#fbbf24'  // steady
+  ];
+
+  const segments = normalized.map((v, i) => {
+    const slice = (v / 100) * (total / 5);
+    const start = current;
+    const end = current + slice;
+    current += slice;
+
+    return `${colors[i]} ${start}deg ${end}deg`;
+  });
+
+  return `
+    <div style="
+      width:80px;
+      height:80px;
+      border-radius:50%;
+      background:conic-gradient(${segments.join(',')});
+      box-shadow:0 0 10px rgba(0,0,0,0.4);
+    "></div>
+  `;
+}
+,${y}`;
   }).join(" ");
 
   const avg = norm.reduce((a,b)=>a+b,0)/norm.length;
