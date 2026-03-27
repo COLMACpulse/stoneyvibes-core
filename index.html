@@ -6572,7 +6572,43 @@ Ask me something tighter.`;
       initCustomPlayers();
       closeStashDetail();
     })();
-  </script>
+  
+function buildBlendProfile(strains) {
+  const keys = ['uplift','calm','sedation','clarity','steady'];
+
+  let totals = {
+    uplift: 0,
+    calm: 0,
+    sedation: 0,
+    clarity: 0,
+    steady: 0
+  };
+
+  strains.forEach(s => {
+    keys.forEach(k => {
+      totals[k] += (s[k] || 0);
+    });
+  });
+
+  keys.forEach(k => {
+    totals[k] = totals[k] / strains.length;
+  });
+
+  const mean = keys.reduce((sum,k)=>sum+totals[k],0)/keys.length;
+
+  keys.forEach(k => {
+    const diff = totals[k] - mean;
+    totals[k] = mean + diff * 2.2;
+  });
+
+  keys.forEach(k => {
+    totals[k] = Math.max(0, Math.min(100, totals[k]));
+  });
+
+  return totals;
+}
+
+</script>
 
 <script>
 // v10 ASK active state
@@ -6582,9 +6618,51 @@ document.querySelectorAll('.ask-btn').forEach(btn=>{
     btn.classList.add('active');
   });
 });
+
+function buildBlendProfile(strains) {
+  const keys = ['uplift','calm','sedation','clarity','steady'];
+
+  let totals = {
+    uplift: 0,
+    calm: 0,
+    sedation: 0,
+    clarity: 0,
+    steady: 0
+  };
+
+  strains.forEach(s => {
+    keys.forEach(k => {
+      totals[k] += (s[k] || 0);
+    });
+  });
+
+  keys.forEach(k => {
+    totals[k] = totals[k] / strains.length;
+  });
+
+  const mean = keys.reduce((sum,k)=>sum+totals[k],0)/keys.length;
+
+  keys.forEach(k => {
+    const diff = totals[k] - mean;
+    totals[k] = mean + diff * 2.2;
+  });
+
+  keys.forEach(k => {
+    totals[k] = Math.max(0, Math.min(100, totals[k]));
+  });
+
+  return totals;
+}
+
 </script>
 <script>
-function renderFingerprint(values) {
+function renderFingerprint([
+      blend.uplift || 0,
+      blend.calm || 0,
+      blend.sedation || 0,
+      blend.clarity || 0,
+      blend.steady || 0
+    ]) {
   if (!values || values.length !== 5) return '';
 
   const total = 360;
@@ -6637,5 +6715,41 @@ function renderFingerprint(values) {
     </svg>
   `;
 }
+
+function buildBlendProfile(strains) {
+  const keys = ['uplift','calm','sedation','clarity','steady'];
+
+  let totals = {
+    uplift: 0,
+    calm: 0,
+    sedation: 0,
+    clarity: 0,
+    steady: 0
+  };
+
+  strains.forEach(s => {
+    keys.forEach(k => {
+      totals[k] += (s[k] || 0);
+    });
+  });
+
+  keys.forEach(k => {
+    totals[k] = totals[k] / strains.length;
+  });
+
+  const mean = keys.reduce((sum,k)=>sum+totals[k],0)/keys.length;
+
+  keys.forEach(k => {
+    const diff = totals[k] - mean;
+    totals[k] = mean + diff * 2.2;
+  });
+
+  keys.forEach(k => {
+    totals[k] = Math.max(0, Math.min(100, totals[k]));
+  });
+
+  return totals;
+}
+
 </script></body>
 </html>
