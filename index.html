@@ -911,6 +911,36 @@
       color:var(--muted);
       line-height:1.4;
     }
+    .patternCardTop{
+      display:grid;
+      grid-template-columns:1fr 72px;
+      gap:10px;
+      align-items:start;
+    }
+    .patternThumb,
+    .patternThumbPlaceholder{
+      width:72px;
+      height:72px;
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(255,255,255,0.04);
+      justify-self:end;
+    }
+    .patternThumb{
+      object-fit:cover;
+      display:block;
+    }
+    .patternThumbPlaceholder{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:8px;
+      font-size:10px;
+      letter-spacing:0.10em;
+      color:var(--muted);
+    }
 
   
     :root{
@@ -2268,34 +2298,64 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PATTERN SURFACE</h2>
           <div class="patternGrid">
             <div class="terpRow">
-              <p class="terpName">BEST FOR SLEEP</p>
-              <p id="patternSleep" class="patternMeta">No sleep signal yet.</p>
-              <button id="patternSleepOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+              <div class="patternCardTop">
+                <div>
+                  <p class="terpName">BEST FOR SLEEP</p>
+                  <p id="patternSleep" class="patternMeta">No sleep signal yet.</p>
+                  <button id="patternSleepOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+                </div>
+                <div id="patternSleepMedia" class="patternThumbPlaceholder">NO PHOTO YET</div>
+              </div>
             </div>
             <div class="terpRow">
-              <p class="terpName">BEST FOR CALM</p>
-              <p id="patternCalm" class="patternMeta">No calm signal yet.</p>
-              <button id="patternCalmOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+              <div class="patternCardTop">
+                <div>
+                  <p class="terpName">BEST FOR CALM</p>
+                  <p id="patternCalm" class="patternMeta">No calm signal yet.</p>
+                  <button id="patternCalmOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+                </div>
+                <div id="patternCalmMedia" class="patternThumbPlaceholder">NO PHOTO YET</div>
+              </div>
             </div>
             <div class="terpRow">
-              <p class="terpName">BEST FOR CREATIVE</p>
-              <p id="patternCreative" class="patternMeta">No creative signal yet.</p>
-              <button id="patternCreativeOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+              <div class="patternCardTop">
+                <div>
+                  <p class="terpName">BEST FOR CREATIVE</p>
+                  <p id="patternCreative" class="patternMeta">No creative signal yet.</p>
+                  <button id="patternCreativeOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+                </div>
+                <div id="patternCreativeMedia" class="patternThumbPlaceholder">NO PHOTO YET</div>
+              </div>
             </div>
             <div class="terpRow">
-              <p class="terpName">BEST FOR FOCUS / CLEAR</p>
-              <p id="patternFocus" class="patternMeta">No focus signal yet.</p>
-              <button id="patternFocusOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+              <div class="patternCardTop">
+                <div>
+                  <p class="terpName">BEST FOR FOCUS / CLEAR</p>
+                  <p id="patternFocus" class="patternMeta">No focus signal yet.</p>
+                  <button id="patternFocusOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+                </div>
+                <div id="patternFocusMedia" class="patternThumbPlaceholder">NO PHOTO YET</div>
+              </div>
             </div>
             <div class="terpRow">
-              <p class="terpName">BEST FOR FUN / SOCIAL</p>
-              <p id="patternFun" class="patternMeta">No fun signal yet.</p>
-              <button id="patternFunOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+              <div class="patternCardTop">
+                <div>
+                  <p class="terpName">BEST FOR FUN / SOCIAL</p>
+                  <p id="patternFun" class="patternMeta">No fun signal yet.</p>
+                  <button id="patternFunOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+                </div>
+                <div id="patternFunMedia" class="patternThumbPlaceholder">NO PHOTO YET</div>
+              </div>
             </div>
             <div class="terpRow">
-              <p class="terpName">MOST CONSISTENT</p>
-              <p id="patternConsistent" class="patternMeta">No consistency signal yet.</p>
-              <button id="patternConsistentOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+              <div class="patternCardTop">
+                <div>
+                  <p class="terpName">MOST CONSISTENT</p>
+                  <p id="patternConsistent" class="patternMeta">No consistency signal yet.</p>
+                  <button id="patternConsistentOpen" class="btn btnTiny topgap" type="button" style="display:none;">Open stash card</button>
+                </div>
+                <div id="patternConsistentMedia" class="patternThumbPlaceholder">NO PHOTO YET</div>
+              </div>
             </div>
           </div>
         </div>
@@ -3035,7 +3095,7 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
             askReply.textContent = linked.length
               ? `${stash.name} — current read:
 
-Best lanes: ${bestLanes.length ? bestLanes.map(x => x.label).join(", ") : "not enough signal yet"}.
+Primary lanes so far: ${bestLanes.length ? bestLanes.map(x => x.label).join(", ") : "not enough signal yet"}.
 Average rating: ${avgRate || "—"}.
 Confidence: ${confidenceLabel(linked.length)}.`
               : `${stash.name} does not have enough linked sessions yet.`;
@@ -4391,6 +4451,12 @@ ${cautionBits.join(" • ")}`
     const patternFocusOpen = document.getElementById("patternFocusOpen");
     const patternFunOpen = document.getElementById("patternFunOpen");
     const patternConsistentOpen = document.getElementById("patternConsistentOpen");
+    const patternSleepMedia = document.getElementById("patternSleepMedia");
+    const patternCalmMedia = document.getElementById("patternCalmMedia");
+    const patternCreativeMedia = document.getElementById("patternCreativeMedia");
+    const patternFocusMedia = document.getElementById("patternFocusMedia");
+    const patternFunMedia = document.getElementById("patternFunMedia");
+    const patternConsistentMedia = document.getElementById("patternConsistentMedia");
     const askPromptTonight = document.getElementById("askPromptTonight");
     const askPromptSleep = document.getElementById("askPromptSleep");
     const askPromptConsistent = document.getElementById("askPromptConsistent");
@@ -4571,12 +4637,41 @@ const askPromptBlend = document.getElementById("askPromptBlend");
 
     function formatPatternLine(row, mode){
       if (!row) return "No signal yet.";
-      if (mode === "sleep") return `${row.name} — sleep-positive in ${Math.round((row.sleepGood / row.count) * 100)}% of logged sessions (${row.count} total).`;
-      if (mode === "calm") return `${row.name} — calm shows up in ${Math.round((row.calm / row.count) * 100)}% of logged sessions (${row.count} total).`;
-      if (mode === "creative") return `${row.name} — creative shows up in ${Math.round((row.creative / row.count) * 100)}% of logged sessions (${row.count} total).`;
-      if (mode === "focus") return `${row.name} — focused / clear shows up in ${Math.round((row.focus / row.count) * 100)}% of logged sessions (${row.count} total).`;
-      if (mode === "fun") return `${row.name} — fun / social shows up in ${Math.round((row.fun / row.count) * 100)}% of logged sessions (${row.count} total).`;
-      return `${row.name} — strongest average outcome score across ${row.count} logged session${row.count === 1 ? "" : "s"}.`;
+
+      const count = Math.max(0, Number(row.count || 0));
+      const pct = (value) => Math.round((Number(value || 0) / Math.max(1, count)) * 100);
+
+      if (count < 3){
+        if (mode === "sleep") return `${row.name} — early sleep read from ${count} logged session${count === 1 ? "" : "s"}.`;
+        if (mode === "calm") return `${row.name} — early calm read from ${count} logged session${count === 1 ? "" : "s"}.`;
+        if (mode === "creative") return `${row.name} — early creative read from ${count} logged session${count === 1 ? "" : "s"}.`;
+        if (mode === "focus") return `${row.name} — early focus / clear read from ${count} logged session${count === 1 ? "" : "s"}.`;
+        if (mode === "fun") return `${row.name} — early fun / social read from ${count} logged session${count === 1 ? "" : "s"}.`;
+        return `${row.name} — early consistency read from ${count} logged session${count === 1 ? "" : "s"}.`;
+      }
+
+      if (mode === "sleep") return `${row.name} — sleep support shows in ${pct(row.sleepGood)}% of logged sessions (${count} total).`;
+      if (mode === "calm") return `${row.name} — calm support shows in ${pct(row.calm)}% of logged sessions (${count} total).`;
+      if (mode === "creative") return `${row.name} — creative support shows in ${pct(row.creative)}% of logged sessions (${count} total).`;
+      if (mode === "focus") return `${row.name} — focus / clear support shows in ${pct(row.focus)}% of logged sessions (${count} total).`;
+      if (mode === "fun") return `${row.name} — fun / social support shows in ${pct(row.fun)}% of logged sessions (${count} total).`;
+      return `${row.name} — strongest average outcome across ${count} logged session${count === 1 ? "" : "s"}.`;
+    }
+
+    function patternMediaMarkup(row){
+      if (!row || !row.stashId){
+        return '<div class="patternThumbPlaceholder">NO PHOTO YET</div>';
+      }
+      const stash = loadStash().find(x => String(x.id || "") === String(row.stashId || ""));
+      if (stash?.photoDataUrl){
+        return `<img class="patternThumb" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash.name || row.name || "Pattern stash")}" />`;
+      }
+      return '<div class="patternThumbPlaceholder">NO PHOTO YET</div>';
+    }
+
+    function renderPatternMedia(node, row){
+      if (!node) return;
+      node.innerHTML = patternMediaMarkup(row);
     }
 
     async function renderAskPatterns(){
@@ -4588,6 +4683,13 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       patternFun.textContent = formatPatternLine(stats.bestFun, "fun");
       patternConsistent.textContent = formatPatternLine(stats.mostConsistent, "consistent");
 
+      renderPatternMedia(patternSleepMedia, stats.bestSleep);
+      renderPatternMedia(patternCalmMedia, stats.bestCalm);
+      renderPatternMedia(patternCreativeMedia, stats.bestCreative);
+      renderPatternMedia(patternFocusMedia, stats.bestFocus);
+      renderPatternMedia(patternFunMedia, stats.bestFun);
+      renderPatternMedia(patternConsistentMedia, stats.mostConsistent);
+
       wirePatternButton(patternSleepOpen, stats.bestSleep);
       wirePatternButton(patternCalmOpen, stats.bestCalm);
       wirePatternButton(patternCreativeOpen, stats.bestCreative);
@@ -4595,7 +4697,6 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       wirePatternButton(patternFunOpen, stats.bestFun);
       wirePatternButton(patternConsistentOpen, stats.mostConsistent);
     }
-
 
     function positiveBlendScore(n){
       const x = Number(n || 0);
@@ -4991,7 +5092,7 @@ I only have enough grounded signal for one stable component right now.
 
 Solo pick:
 ${solo.name} — 1.00g (100%)
-Best lanes: ${lanes.length ? lanes.map(x => laneLabel(x.key)).join(", ") : "still early"}
+Primary pulls: ${lanes.length ? lanes.map(x => laneLabel(x.key)).join(", ") : "still early"}
 Match score: ${safeNum(solo.blendBaseScore).toFixed(2)}
 Confidence: ${confidenceLabel(solo.count)} (${solo.count} logged session${solo.count === 1 ? "" : "s"})
 
@@ -5099,7 +5200,7 @@ These match scores rank fit for your target. The grams and percentages are the a
         .filter((value, idx, arr) => arr.indexOf(value) === idx)
         .slice(0,3);
       const laneText = lanes.length ? lanes.join(" + ") : "still early";
-      return `${identity.title}: ${identity.summary} Best lanes: ${laneText}.`;
+      return `${identity.title}: ${identity.summary} Primary pulls: ${laneText}.`;
     }
 
     function leadSupportDescriptor(parts){
@@ -5215,7 +5316,7 @@ These match scores rank fit for your target. The grams and percentages are the a
         } else {
           title = "SETTLED GROUND";
           tag = "SMOOTH OUT";
-          summary = "Grounded pairing aimed at lowering friction more than changing the whole night.";
+          summary = "Grounded pairing—stabilizes without redirecting.";
         }
       } else if (family === "focus"){
         if (topChem === "clear" && structure === "anchor"){
@@ -5273,13 +5374,13 @@ These match scores rank fit for your target. The grams and percentages are the a
       if (topChem === "steady") traits.push("steady bias");
 
       if (tension.label === "SOFT CONFLICT"){
-        caution = "Two lanes are sharing the wheel here, so expect more hybrid behavior than a pure target hit.";
+        caution = "Balanced blend—leans both ways, not locked to a single direction.";
       } else if (tension.label === "OFF-AXIS"){
         caution = "Interesting pairing, but this one is leaning away from the stated target more than the cleanest option would.";
       } else if (confidence.label === "LOW CONFIDENCE"){
         caution = "The shape is plausible, but the underlying signal is still thin.";
       } else if (tension.label === "DUAL-PULL"){
-        caution = "This pairing may feel more two-stage than single-lane because both parts are still speaking loudly.";
+        caution = "Both parts are still active here, so expect a more layered response than a single clean lane.";
       }
 
       return {
@@ -5761,7 +5862,7 @@ async function answerAsk(q){
       const stashCount = loadStash().length;
 
       if (!query){
-        return "Ask sharper and I will answer sharper. Try: What should I use tonight? / What helps me sleep? / What helps me focus? / What helps me create? / What has been most consistent? / Why did that hit weird?";
+        return "Ask sharper and I will answer sharper. Try: What should I use tonight? / What helps me sleep? / What helps me focus? / What helps me create? / What has been most consistent? / Why did that land weird?";
       }
 
       if (!stats.sessions.length && !stashCount){
@@ -5815,7 +5916,7 @@ Why: it has the strongest average outcome score across your logged sessions.`
       }
       if (query.includes("weird") || query.includes("edgy") || query.includes("anx")){
         if (stats.weirdest && (stats.weirdest.weird / stats.weirdest.count) > 0){
-          return `Strongest current "hit weird" signal: ${stats.weirdest.name}.
+          return `Strongest current "landed weird" signal: ${stats.weirdest.name}.
 
 Why: it has the highest concentration of wired / pissed / not-great patterns in your logs.
 
