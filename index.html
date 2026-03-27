@@ -1893,22 +1893,36 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
   border:1px solid rgba(255,255,255,0.12);
   background:rgba(255,255,255,0.035);
   border-radius:12px;
-  padding:8px 10px;
+  padding:10px;
 }
 .askBlendInsightHead{
   font-size:10px;
   letter-spacing:0.14em;
   text-transform:uppercase;
   color:var(--muted);
-  margin:0 0 6px 0;
+  margin:0 0 8px 0;
 }
 .askBlendInsightList{
-  display:block;
+  display:grid;
+  gap:8px;
 }
 .askBlendInsightLine{
-  display:block;
+  display:grid;
+  grid-template-columns:88px 1fr;
+  gap:10px;
+  align-items:start;
   font-size:13px;
   line-height:1.35;
+  color:var(--text);
+}
+.askBlendInsightLabel{
+  font-size:10px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  padding-top:2px;
+}
+.askBlendInsightText{
   color:var(--text);
 }
 .askBlendInsightDot{
@@ -5879,8 +5893,8 @@ These match scores rank fit for your target. The grams and percentages are the a
       } else if (tension.label === "OFF-AXIS"){
         caution = "Leans a little off target.";
       } else if (confidence.label === "LOW CONFIDENCE"){
-        summary = "Early blend read—directional, not locked.";
-        caution = "Signal is still thin.";
+        summary = "Still early, but there is a visible lean in the mix.";
+        caution = "Use this as a nudge, not a lock.";
       } else if (tension.label === "DUAL-PULL"){
         caution = "Hybrid pull—no single lane fully takes over.";
       }
@@ -5896,11 +5910,23 @@ These match scores rank fit for your target. The grams and percentages are the a
       };
     }
 
+    function blendMetaLabel(label){
+      const map = {
+        "LOW CONFIDENCE":"EARLY READ",
+        "MED CONFIDENCE":"BUILDING SIGNAL",
+        "HIGH CONFIDENCE":"STRONG READ",
+        "OFF-AXIS":"OFF TARGET",
+        "DUAL-PULL":"TWO-WAY PULL",
+        "SOFT CONFLICT":"MIXED PULL"
+      };
+      return map[String(label || "").toUpperCase()] || String(label || "");
+    }
+
     function buildBlendIdentityMarkup(goal, parts){
       const identity = buildBlendIdentity(goal, parts);
       const metaBits = [
-        identity.confidence?.label || "",
-        identity.tension?.label || ""
+        blendMetaLabel(identity.confidence?.label || ""),
+        blendMetaLabel(identity.tension?.label || "")
       ].filter(Boolean);
 
       return `
@@ -5964,7 +5990,13 @@ These match scores rank fit for your target. The grams and percentages are the a
 
     function blendInsightLines(goal, parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
-      if (!safeParts.length) return ["No blend read yet.", "Not enough signal for a ratio.", "Log more sessions."];
+      if (!safeParts.length){
+        return [
+          { label:"Lead", text:"No blend read yet." },
+          { label:"Structure", text:"Not enough signal for a ratio." },
+          { label:"Target", text:"Log more sessions first." }
+        ];
+      }
 
       const lines = [];
       const profile = blendChemicalProfile(safeParts);
@@ -5975,12 +6007,12 @@ These match scores rank fit for your target. The grams and percentages are the a
 
       if (chemReady && topChem && topChem.value > 0.14){
         if (secondChem && secondChem.value > 0.12){
-          lines.push(`${topChem.label} + ${secondChem.label}.`);
+          lines.push({ label:"Lead", text:`Leans ${topChem.label.toLowerCase().replace(" bias", "")} with some ${secondChem.label.toLowerCase().replace(" bias", "")}.` });
         } else {
-          lines.push(`${topChem.label}.`);
+          lines.push({ label:"Lead", text:`Leans ${topChem.label.toLowerCase().replace(" bias", "")}.` });
         }
       } else {
-        lines.push("Chemistry signal still early — ratio is leaning more on outcome history.");
+        lines.push({ label:"Lead", text:"Still an early read. This is leaning more on session history than chemistry." });
       }
 
       const lead = primaryPart(safeParts);
@@ -5990,24 +6022,24 @@ These match scores rank fit for your target. The grams and percentages are the a
 
       if (leadLane && supportLane){
         if (leadLane.key === supportLane.key){
-          lines.push(`${ratioDescriptor(safeParts)} Shared ${laneLabel(leadLane.key)} lane.`);
+          lines.push({ label:"Structure", text:`${ratioDescriptor(safeParts)} Both parts point toward ${laneLabel(leadLane.key).toLowerCase()}.` });
         } else {
-          lines.push(`${ratioDescriptor(safeParts)} ${laneLabel(leadLane.key)} base + ${laneLabel(supportLane.key)} support.`);
+          lines.push({ label:"Structure", text:`${ratioDescriptor(safeParts)} ${laneLabel(leadLane.key)} leads, with ${laneLabel(supportLane.key).toLowerCase()} behind it.` });
         }
       } else if (leadLane){
-        lines.push(`${ratioDescriptor(safeParts)} ${laneLabel(leadLane.key)} base.`);
+        lines.push({ label:"Structure", text:`${ratioDescriptor(safeParts)} ${laneLabel(leadLane.key)} is doing most of the steering.` });
       } else {
-        lines.push(ratioDescriptor(safeParts));
+        lines.push({ label:"Structure", text:ratioDescriptor(safeParts) });
       }
 
       const goalMap = {
-        "SLEEP":"Aimed at a heavier settle / sleep lane.",
-        "CALM":"Aimed at a calmer, smoother lane.",
-        "FOCUS":"Aimed at a clearer / more functional lane.",
-        "CREATIVE":"Aimed at a more creative lane.",
-        "FUN":"Aimed at a more social / fun lane."
+        "SLEEP":"Built toward a heavier settle / sleep lane.",
+        "CALM":"Built toward a calmer, smoother lane.",
+        "FOCUS":"Built toward a clearer, more usable lane.",
+        "CREATIVE":"Built toward a looser creative lane.",
+        "FUN":"Built toward an easier social / fun lane."
       };
-      lines.push(goalMap[String(goal || "").toUpperCase()] || "Built around your current target lane.");
+      lines.push({ label:"Target", text:goalMap[String(goal || "").toUpperCase()] || "Built around your current target lane." });
 
       return lines.slice(0,3);
     }
@@ -6030,12 +6062,16 @@ These match scores rank fit for your target. The grams and percentages are the a
     function buildBlendInsightMarkup(goal, parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
       const lines = blendInsightLines(goal, safeParts);
-      const primaryLine = lines[0] || formatPrimaryPullsText(safeParts);
       return `
         <div class="askBlendInsight">
-          <p class="askBlendInsightHead">Why</p>
+          <p class="askBlendInsightHead">Read</p>
           <div class="askBlendInsightList">
-            <div class="askBlendInsightLine">${escapeHtml(primaryLine)}</div>
+            ${lines.map(line => `
+              <div class="askBlendInsightLine">
+                <span class="askBlendInsightLabel">${escapeHtml(line.label || "Read")}</span>
+                <span class="askBlendInsightText">${escapeHtml(line.text || "")}</span>
+              </div>
+            `).join("")}
           </div>
         </div>
       `;
