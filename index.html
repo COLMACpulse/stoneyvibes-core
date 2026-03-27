@@ -4945,7 +4945,12 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       }).join("");
 
       return `
-        <div id='fingerprint-dynamic'></div>
+        <svg class="visualDisc" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-label="Terpene fingerprint" role="img">
+          <circle cx="${c}" cy="${c}" r="${ringR + 4}" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+          ${arcs}
+          ${spokes}
+          <circle cx="${c}" cy="${c}" r="8" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        </svg>
       `;
     }
 
@@ -4984,7 +4989,12 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       }).join("");
 
       return `
-        <div id='fingerprint-dynamic'></div>
+        <svg class="visualDisc" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-label="Blend fingerprint" role="img">
+          <circle cx="${c}" cy="${c}" r="${outerR + 4}" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+          ${ring}
+          ${bars}
+          <circle cx="${c}" cy="${c}" r="11" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.20)" stroke-width="1"/>
+        </svg>
       `;
     }
 
@@ -6722,56 +6732,63 @@ function forceRenderFingerprint(elId, blend){
 
 </script>
 <script>
-function renderFingerprint([
-      blend.uplift || 0,
-      blend.calm || 0,
-      blend.sedation || 0,
-      blend.clarity || 0,
-      blend.steady || 0
-    ]) {
-  if (!values || values.length !== 5) return '';
+function renderFingerprint(values) {
+  if (!Array.isArray(values) || values.length !== 5) return '';
 
-  const total = 360;
-  const normalized = values.map(v => Math.max(0, Math.min(100, v)));
-
-  let current = 0;
-
+  const normalized = values.map(v => Math.max(0, Math.min(100, Number(v) || 0)));
   const colors = [
-    '#f87171', // uplift
-    '#60a5fa', // calm
-    '#a78bfa', // sedation
-    '#34d399', // clarity
-    '#fbbf24'  // steady
+    'rgba(255,214,74,0.95)',
+    'rgba(124,196,255,0.95)',
+    'rgba(168,112,255,0.95)',
+    'rgba(78,214,120,0.95)',
+    'rgba(255,124,58,0.95)'
   ];
 
-  const segments = normalized.map((v, i) => {
-    const slice = (v / 100) * (total / 5);
-    const start = current;
-    const end = current + slice;
-    current += slice;
+  const center = 40;
+  const innerRadius = 10;
+  const outerRadius = 32;
+  const step = (Math.PI * 2) / normalized.length;
 
-    return `${colors[i]} ${start}deg ${end}deg`;
-  });
+  const points = normalized.map((value, idx) => {
+    const ratio = value / 100;
+    const radius = innerRadius + ((outerRadius - innerRadius) * ratio);
+    const angle = (-Math.PI / 2) + (idx * step);
+    const x = center + Math.cos(angle) * radius;
+    const y = center + Math.sin(angle) * radius;
+    return `${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(' ');
+
+  const spokes = normalized.map((value, idx) => {
+    const ratio = value / 100;
+    const radius = innerRadius + ((outerRadius - innerRadius) * ratio);
+    const angle = (-Math.PI / 2) + (idx * step);
+    const x = center + Math.cos(angle) * radius;
+    const y = center + Math.sin(angle) * radius;
+    return `<line x1="${center}" y1="${center}" x2="${x.toFixed(2)}" y2="${y.toFixed(2)}" stroke="${colors[idx]}" stroke-width="1.8" stroke-linecap="round" opacity="0.75"/>`;
+  }).join('');
+
+  const rings = [14, 22, 30].map(r =>
+    `<circle cx="${center}" cy="${center}" r="${r}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`
+  ).join('');
+
+  const dots = normalized.map((value, idx) => {
+    const ratio = value / 100;
+    const radius = innerRadius + ((outerRadius - innerRadius) * ratio);
+    const angle = (-Math.PI / 2) + (idx * step);
+    const x = center + Math.cos(angle) * radius;
+    const y = center + Math.sin(angle) * radius;
+    return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="2.5" fill="${colors[idx]}"/>`;
+  }).join('');
 
   return `
-    <div style="
-      width:80px;
-      height:80px;
-      border-radius:50%;
-      background:conic-gradient(${segments.join(',')});
-      box-shadow:0 0 10px rgba(0,0,0,0.4);
-    "></div>
-  `;
-}
-,${y}`;
-  }).join(" ");
-
-  const avg = norm.reduce((a,b)=>a+b,0)/norm.length;
-  const opacity = 0.25 + (0.75 * avg);
-  const stroke = 1 + (2 * avg);
-
-  return `
-    <div id='fingerprint-dynamic'></div>
+    <svg class="visualDisc" viewBox="0 0 80 80" width="80" height="80" aria-label="Fingerprint" role="img">
+      <circle cx="40" cy="40" r="38" fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+      ${rings}
+      ${spokes}
+      <polygon points="${points}" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.45)" stroke-width="1.6"/>
+      ${dots}
+      <circle cx="40" cy="40" r="4" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+    </svg>
   `;
 }
 
@@ -6786,9 +6803,11 @@ function buildBlendProfile(strains) {
     steady: 0
   };
 
+  if (!Array.isArray(strains) || !strains.length) return totals;
+
   strains.forEach(s => {
     keys.forEach(k => {
-      totals[k] += (s[k] || 0);
+      totals[k] += Number(s?.[k]) || 0;
     });
   });
 
@@ -6796,7 +6815,7 @@ function buildBlendProfile(strains) {
     totals[k] = totals[k] / strains.length;
   });
 
-  const mean = keys.reduce((sum,k)=>sum+totals[k],0)/keys.length;
+  const mean = keys.reduce((sum, k) => sum + totals[k], 0) / keys.length;
 
   keys.forEach(k => {
     const diff = totals[k] - mean;
@@ -6810,42 +6829,40 @@ function buildBlendProfile(strains) {
   return totals;
 }
 
-
 function updateFingerprints(blend1, blend2){
   const el1 = document.getElementById('fingerprint-1');
   const el2 = document.getElementById('fingerprint-2');
 
   if(el1){
     el1.innerHTML = renderFingerprint([
-      blend1.uplift||0,
-      blend1.calm||0,
-      blend1.sedation||0,
-      blend1.clarity||0,
-      blend1.steady||0
+      blend1?.uplift || 0,
+      blend1?.calm || 0,
+      blend1?.sedation || 0,
+      blend1?.clarity || 0,
+      blend1?.steady || 0
     ]);
   }
 
   if(el2){
     el2.innerHTML = renderFingerprint([
-      blend2.uplift||0,
-      blend2.calm||0,
-      blend2.sedation||0,
-      blend2.clarity||0,
-      blend2.steady||0
+      blend2?.uplift || 0,
+      blend2?.calm || 0,
+      blend2?.sedation || 0,
+      blend2?.clarity || 0,
+      blend2?.steady || 0
     ]);
   }
 }
-
 
 function forceRenderFingerprint(elId, blend){
   const el = document.getElementById(elId);
   if(!el) return;
   el.innerHTML = renderFingerprint([
-    blend.uplift||0,
-    blend.calm||0,
-    blend.sedation||0,
-    blend.clarity||0,
-    blend.steady||0
+    blend?.uplift || 0,
+    blend?.calm || 0,
+    blend?.sedation || 0,
+    blend?.clarity || 0,
+    blend?.steady || 0
   ]);
 }
 
