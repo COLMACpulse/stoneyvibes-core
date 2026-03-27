@@ -1600,6 +1600,69 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 }
 </style>
 
+
+<style>
+/* v17e — blend identity layer v1 */
+.askBlendIdentity{
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.035));
+  border-radius:14px;
+  padding:10px 12px;
+}
+.askBlendIdentityHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.askBlendIdentityTitle{
+  margin:0;
+  font-size:14px;
+  line-height:1.2;
+  letter-spacing:0.04em;
+  color:var(--text);
+  text-transform:uppercase;
+}
+.askBlendIdentityMeta{
+  margin:4px 0 0 0;
+  font-size:11px;
+  line-height:1.35;
+  color:var(--muted);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.askBlendIdentityTag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 8px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.16);
+  background:rgba(255,255,255,0.08);
+  color:var(--text);
+  font-size:10px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.askBlendIdentityBody{
+  margin-top:8px;
+  font-size:12px;
+  line-height:1.45;
+  color:var(--text);
+}
+.askBlendIdentityTraits{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+.askBlendIdentityTraits .miniTag{
+  color:var(--text);
+}
+</style>
+
 </head>
 
 <body>
@@ -5029,13 +5092,155 @@ These match scores rank fit for your target. The grams and percentages are the a
     }
 
     function buildBlendSuggestionReason(goal, parts){
+      const identity = buildBlendIdentity(goal, parts);
       const lanes = parts
         .flatMap(part => bestLanesForRow(part).filter(x => x.value > 0).slice(0,2))
         .map(x => laneLabel(x.key))
         .filter((value, idx, arr) => arr.indexOf(value) === idx)
         .slice(0,3);
       const laneText = lanes.length ? lanes.join(" + ") : "still early";
-      return `${goal} blend grounded in your own logs. Best lanes: ${laneText}.`;
+      return `${identity.title}: ${identity.summary} Best lanes: ${laneText}.`;
+    }
+
+    function leadSupportDescriptor(parts){
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
+      if (safeParts.length < 2) return "solo";
+      const lead = primaryPart(safeParts);
+      const support = safeParts.find(part => part !== lead) || null;
+      if (!lead || !support) return "solo";
+      const spread = Math.abs(safeNum(lead.pct) - safeNum(support.pct));
+      if (spread >= 42) return "anchor";
+      if (spread >= 18) return "lead-support";
+      return "split";
+    }
+
+    function blendIdentityGoalFamily(goal){
+      const g = String(goal || "").toUpperCase();
+      if (g === "SLEEP") return "night";
+      if (g === "CALM") return "calm";
+      if (g === "FOCUS") return "focus";
+      if (g === "CREATIVE") return "creative";
+      if (g === "FUN") return "fun";
+      return "general";
+    }
+
+    function buildBlendIdentity(goal, parts){
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
+      const profile = blendChemicalProfile(safeParts);
+      const structure = leadSupportDescriptor(safeParts);
+      const strongest = strongestChemSignals(profile);
+      const topChem = strongest[0]?.key || "steady";
+      const lead = primaryPart(safeParts);
+      const leadLane = lead ? (bestLanesForRow(lead).find(x => x.value > 0)?.key || "") : "";
+      const family = blendIdentityGoalFamily(goal);
+      let title = "Balanced Pair";
+      let tag = "DUAL-LANE";
+      let summary = "A two-part route built from your own outcome history.";
+      const traits = [];
+
+      if (family === "night"){
+        if (topChem === "sed" && structure === "anchor"){
+          title = "HEAVY ANCHOR";
+          tag = "NIGHT DROP";
+          summary = "Lead strain does the heavy settling while the second part keeps the landing from feeling random.";
+        } else if (topChem === "calm" || topChem === "steady"){
+          title = "SOFT LANDING";
+          tag = "SMOOTH DESCENT";
+          summary = "Built to taper you down instead of slamming straight into the floor.";
+        } else {
+          title = "QUIET TAPER";
+          tag = "SLEEP LANE";
+          summary = "A quieter sleep-biased blend with enough shape to avoid feeling muddy.";
+        }
+      } else if (family === "calm"){
+        if (topChem === "steady" || structure === "split"){
+          title = "STEADY CENTER";
+          tag = "EVEN KEEL";
+          summary = "This one is trying to smooth the edges without turning fully sleepy.";
+        } else if (topChem === "calm"){
+          title = "QUIET CUSHION";
+          tag = "CALM LANE";
+          summary = "A calm-first blend with the support part acting like padding instead of noise.";
+        } else {
+          title = "LOW-DRAMA BLEND";
+          tag = "SMOOTH OUT";
+          summary = "Grounded, low-spike pairing aimed at lowering friction more than changing the whole night.";
+        }
+      } else if (family === "focus"){
+        if (topChem === "clear" && structure === "anchor"){
+          title = "CLEAN EDGE";
+          tag = "FOCUS LINE";
+          summary = "Lead strain carries the clarity while the second part keeps it from getting too brittle.";
+        } else if (topChem === "steady" || leadLane === "focus"){
+          title = "STEADY LENS";
+          tag = "WORKABLE";
+          summary = "A functional blend aimed at staying usable, not just bright.";
+        } else {
+          title = "BRIGHT FRAME";
+          tag = "CLEAR-UP";
+          summary = "A lighter-focus pairing that tries to raise signal without going full buzz.";
+        }
+      } else if (family === "creative"){
+        if (topChem === "uplift" && structure !== "anchor"){
+          title = "OPEN CHANNEL";
+          tag = "IDEA LANE";
+          summary = "The two parts are working together to loosen the frame and open more room to play.";
+        } else if (leadLane === "creative"){
+          title = "SPARK + FRAME";
+          tag = "GUIDED LIFT";
+          summary = "One part brings the spark, the other keeps it from floating off into uselessness.";
+        } else {
+          title = "LOOSE CURRENT";
+          tag = "CREATIVE";
+          summary = "A softer creative route that leans on motion and mood more than sharpness.";
+        }
+      } else if (family === "fun"){
+        if (topChem === "uplift"){
+          title = "SOCIAL LIFT";
+          tag = "GOOD-TIME";
+          summary = "Built to raise the room a little without forcing the whole thing into chaos.";
+        } else if (structure === "split"){
+          title = "EASY GLOW";
+          tag = "LOW PRESSURE";
+          summary = "A more even split aimed at staying easy, loose, and usable with people around.";
+        } else {
+          title = "BRIGHT CRUISE";
+          tag = "FUN LANE";
+          summary = "Lead strain sets the vibe while the support part rounds the corners off.";
+        }
+      }
+
+      if (structure === "anchor") traits.push("anchor-led");
+      else if (structure === "split") traits.push("balanced split");
+      else traits.push("lead + support");
+
+      if (leadLane) traits.push(`${laneLabel(leadLane)} base`);
+      if (topChem === "sed") traits.push("sedation bias");
+      if (topChem === "clear") traits.push("clarity bias");
+      if (topChem === "uplift") traits.push("uplift bias");
+      if (topChem === "calm") traits.push("calm bias");
+      if (topChem === "steady") traits.push("steady bias");
+
+      return { title, tag, summary, traits: traits.slice(0,3) };
+    }
+
+    function buildBlendIdentityMarkup(goal, parts){
+      const identity = buildBlendIdentity(goal, parts);
+      return `
+        <div class="askBlendIdentity">
+          <div class="askBlendIdentityHead">
+            <div>
+              <p class="askBlendIdentityTitle">${escapeHtml(identity.title)}</p>
+              <p class="askBlendIdentityMeta">Blend identity layer v1</p>
+            </div>
+            <span class="askBlendIdentityTag">${escapeHtml(identity.tag)}</span>
+          </div>
+          <div class="askBlendIdentityBody">${escapeHtml(identity.summary)}</div>
+          <div class="askBlendIdentityTraits">
+            ${(identity.traits || []).map(trait => `<span class="miniTag">${escapeHtml(trait)}</span>`).join("")}
+          </div>
+        </div>
+      `;
     }
 
     function rowChemicalProfile(row){
@@ -5291,6 +5496,7 @@ These match scores rank fit for your target. The grams and percentages are the a
             </div>
             <div class="askBlendGrid">${partMarkup}</div>
             ${buildBlendCompositionBar(safeParts)}
+            ${buildBlendIdentityMarkup(blend.goal || "CALM", safeParts)}
             ${buildBlendInsightMarkup(blend.goal || "CALM", safeParts)}
             <p class="askBlendReason">${escapeHtml(buildBlendSuggestionReason(blend.goal || "CALM", safeParts))}</p>
           </div>
