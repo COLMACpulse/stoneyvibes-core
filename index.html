@@ -5992,62 +5992,56 @@ These match scores rank fit for your target. The grams and percentages are the a
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
       if (!safeParts.length){
         return [
-          { label:"Lean", text:"—" },
-          { label:"State", text:"—" },
-          { label:"Direction", text:"—" },
-          { label:"Confidence", text:"Low" }
+          { label:"Lead", text:"No blend read yet." },
+          { label:"Structure", text:"Not enough signal for a ratio." },
+          { label:"Target", text:"Log more sessions first." }
         ];
       }
 
+      const lines = [];
       const profile = blendChemicalProfile(safeParts);
-      const strongest = strongestChemSignals(profile)
-        .filter(signal => safeNum(signal?.value) > 0)
-        .sort((a,b) => safeNum(b?.value) - safeNum(a?.value));
+      const strongest = strongestChemSignals(profile);
+      const topChem = strongest[0];
+      const secondChem = strongest[1];
+      const chemReady = safeNum(profile.magnitude) > 0.12;
 
-      const cleanChemLabel = (signal) => {
-        const raw = String(signal?.label || "").replace(/\s*bias\s*$/i, "").trim();
-        return raw || "—";
-      };
-
-      const topChem = strongest[0] || null;
-      const secondChem = strongest[1] || null;
-
-      const lean = topChem
-        ? (secondChem ? `${cleanChemLabel(topChem)} / ${cleanChemLabel(secondChem)}` : cleanChemLabel(topChem))
-        : "—";
+      if (chemReady && topChem && topChem.value > 0.14){
+        if (secondChem && secondChem.value > 0.12){
+          lines.push({ label:"Lead", text:`Leans ${topChem.label.toLowerCase().replace(" bias", "")} with some ${secondChem.label.toLowerCase().replace(" bias", "")}.` });
+        } else {
+          lines.push({ label:"Lead", text:`Leans ${topChem.label.toLowerCase().replace(" bias", "")}.` });
+        }
+      } else {
+        lines.push({ label:"Lead", text:"Still an early read. This is leaning more on session history than chemistry." });
+      }
 
       const lead = primaryPart(safeParts);
       const support = safeParts.find(part => part !== lead) || null;
-      const spread = lead && support
-        ? Math.abs(safeNum(lead?.pct) - safeNum(support?.pct))
-        : 0;
+      const leadLane = lead ? bestLanesForRow(lead).find(x => x.value > 0) : null;
+      const supportLane = support ? bestLanesForRow(support).find(x => x.value > 0) : null;
 
-      let state = "Mixed";
-      if (!support) state = "Single-source";
-      else if (spread >= 35) state = "Dominant";
-      else if (spread >= 16) state = "Leaning";
+      if (leadLane && supportLane){
+        if (leadLane.key === supportLane.key){
+          lines.push({ label:"Structure", text:`${ratioDescriptor(safeParts)} Both parts point toward ${laneLabel(leadLane.key).toLowerCase()}.` });
+        } else {
+          lines.push({ label:"Structure", text:`${ratioDescriptor(safeParts)} ${laneLabel(leadLane.key)} leads, with ${laneLabel(supportLane.key).toLowerCase()} behind it.` });
+        }
+      } else if (leadLane){
+        lines.push({ label:"Structure", text:`${ratioDescriptor(safeParts)} ${laneLabel(leadLane.key)} is doing most of the steering.` });
+      } else {
+        lines.push({ label:"Structure", text:ratioDescriptor(safeParts) });
+      }
 
-      const uplift = safeNum(profile?.uplift);
-      const calm = safeNum(profile?.calm);
-      const sed = safeNum(profile?.sed);
+      const goalMap = {
+        "SLEEP":"Built toward a heavier settle / sleep lane.",
+        "CALM":"Built toward a calmer, smoother lane.",
+        "FOCUS":"Built toward a clearer, more usable lane.",
+        "CREATIVE":"Built toward a looser creative lane.",
+        "FUN":"Built toward an easier social / fun lane."
+      };
+      lines.push({ label:"Target", text:goalMap[String(goal || "").toUpperCase()] || "Built around your current target lane." });
 
-      let direction = "Neutral";
-      if (uplift > calm && uplift > sed) direction = "Upward";
-      else if (sed > uplift && sed > calm) direction = "Downward";
-
-      const confidenceRead = blendConfidence(safeParts);
-      const confidence = confidenceRead.level === "HIGH"
-        ? "High"
-        : confidenceRead.level === "MED"
-          ? "Moderate"
-          : "Low";
-
-      return [
-        { label:"Lean", text:lean },
-        { label:"State", text:state },
-        { label:"Direction", text:direction },
-        { label:"Confidence", text:confidence }
-      ];
+      return lines.slice(0,3);
     }
 
     function blendBalanceScore(parts){
