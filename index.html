@@ -665,6 +665,28 @@
     .askQuick{
       transition:background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease, color .16s ease;
     }
+    .askQuickBlend{
+      padding:12px 18px;
+      border-radius:16px;
+      font-size:15px;
+      font-weight:700;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      min-width:138px;
+      border-color:rgba(255,214,74,0.34);
+      background:linear-gradient(180deg, rgba(255,214,74,0.16), rgba(255,170,70,0.12));
+      box-shadow:0 0 0 1px rgba(255,214,74,0.08) inset, 0 10px 24px rgba(0,0,0,0.18);
+    }
+    .askQuickBlend:hover{
+      border-color:rgba(255,214,74,0.52);
+      box-shadow:0 0 0 1px rgba(255,214,74,0.12) inset, 0 12px 28px rgba(0,0,0,0.22), 0 0 18px rgba(255,190,74,0.12);
+    }
+    .askQuickBlend.active{
+      color:#fff;
+      border-color:rgba(255,214,74,0.98);
+      background:linear-gradient(180deg, rgba(255,214,74,0.36), rgba(255,170,70,0.26));
+      box-shadow:0 0 0 1px rgba(255,214,74,0.18) inset, 0 0 0 2px rgba(255,214,74,0.10), 0 0 28px rgba(255,190,74,0.28);
+    }
     .askQuick.active{
       color:#fff;
       border-color:rgba(255,214,74,0.96);
@@ -2393,7 +2415,7 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
             <button id="askPromptConsistent" class="btn btnTiny askQuick" type="button">Steady</button>
             <button id="askPromptWeird" class="btn btnTiny askQuick" type="button">Different</button>
             <button id="askPromptTranscript" class="btn btnTiny askQuick" type="button">Guide tonight</button>
-            <button id="askPromptBlend" class="btn btnTiny askQuick" type="button">Blend</button>
+            <button id="askPromptBlend" class="btn askQuick askQuickBlend" type="button">Blend</button>
           </div>
 
           <div class="row topgap">
