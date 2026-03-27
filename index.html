@@ -4637,23 +4637,46 @@ Read this correctly: match score is ranking only. Grams and percentages are the 
       return map[String(value || "").toUpperCase()] ?? 0;
     }
 
-    function computeRowChemicalProfile(row){
-      const t = (row && row.terpeneAverages) ? row.terpeneAverages : {};
-      const lim = Number(t.LIMONENE || 0);
-      const pin = Number(t.PINENE || 0);
-      const myr = Number(t.MYRCENE || 0);
-      const lin = Number(t.LINALOOL || 0);
-      const car = Number(t.CARYOPHYLLENE || 0);
 
-      const uplift = 0.65 * lim + 0.35 * pin;
-      const calm = 0.55 * lin + 0.45 * car;
-      const sed = 0.75 * myr + 0.25 * lin;
-      const clear = 0.70 * pin + 0.30 * lim;
-      const steady = 0.42 * calm + 0.28 * clear + 0.20 * car + 0.10 * lin;
-
-      return { uplift, calm, sed, clear, steady };
+    function safeNum(value){
+      const n = Number(value);
+      return Number.isFinite(n) ? n : 0;
     }
 
+    function clamp(value, min, max){
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function computeRowChemicalProfile(row){
+      const t = (row && row.terpeneAverages) ? row.terpeneAverages : {};
+      const lim = clamp(safeNum(t.LIMONENE), 0, 1);
+      const pin = clamp(safeNum(t.PINENE), 0, 1);
+      const myr = clamp(safeNum(t.MYRCENE), 0, 1);
+      const lin = clamp(safeNum(t.LINALOOL), 0, 1);
+      const car = clamp(safeNum(t.CARYOPHYLLENE), 0, 1);
+      const ter = clamp(safeNum(t.TERPINOLENE), 0, 1);
+
+      const uplift = (0.65 * lim) + (0.35 * pin);
+      const calm = (0.55 * lin) + (0.45 * car);
+      const sed = (0.75 * myr) + (0.25 * lin);
+      const clear = (0.70 * pin) + (0.30 * lim);
+      const steady = (0.42 * calm) + (0.28 * clear) + (0.20 * car) + (0.10 * lin);
+      const magnitude = lim + pin + myr + lin + car + ter;
+
+      return { lim, pin, myr, lin, car, ter, uplift, calm, sed, clear, steady, magnitude };
+    }
+
+    function hasChemicalData(row){
+      return safeNum(computeRowChemicalProfile(row).magnitude) > 0.12;
+    }
+
+    function rowSignalConfidence(row){
+      const count = Math.max(0, safeNum(row?.count));
+      const chem = computeRowChemicalProfile(row);
+      const countScore = clamp(count / 6, 0, 1);
+      const chemScore = clamp((chem.magnitude || 0) / 1.6, 0, 1);
+      return clamp((countScore * 0.7) + (chemScore * 0.3), 0, 1);
+    }
 
     function bestLanesForRow(row){
       return [
@@ -4790,11 +4813,24 @@ Use this correctly: pick the lane that matches what you want tonight, not the st
       return complement - weirdPenalty - sameTopPenalty + confidence;
     }
 
+    function viableBlendRows(rows){
+      return (rows || [])
+        .filter(r => r && r.count > 0 && String(r.name || "").trim())
+        .map(r => ({
+          ...r,
+          _signalConfidence: rowSignalConfidence(r)
+        }))
+        .sort((a,b) => b._signalConfidence - a._signalConfidence);
+    }
+
+    function canSupportBlend(row){
+      return !!row && safeNum(row?.count) > 0 && (safeNum(row?.blendBaseScore ?? row?.supportScore ?? 0) > -0.35);
+    }
 
     async function answerBlend(query){
       const goal = chooseBlendGoal(query);
       const stats = await computePatternStats();
-      const rows = stats.rows.filter(r => r.count > 0);
+      const rows = viableBlendRows(stats.rows);
 
       if (!rows.length){
         return "BLEND READ\n\nI do not have enough real session signal yet. Log a few sessions first, then I can ground a blend in your own data.";
@@ -4803,47 +4839,60 @@ Use this correctly: pick the lane that matches what you want tonight, not the st
       const ranked = rows
         .map(r => ({ ...r, blendBaseScore: scoreBlendRow(r, goal) }))
         .sort((a,b) => b.blendBaseScore - a.blendBaseScore)
-        .slice(0,3);
+        .slice(0,4);
 
-      const parts = buildGramBlendParts(ranked, "blendBaseScore", 1);
+      if (!ranked.length){
+        return "BLEND READ\n\nI do not have enough grounded candidates yet.";
+      }
 
-      if (parts.length === 1){
-        const solo = parts[0];
+      const primary = ranked[0];
+      const support = ranked
+        .filter(candidate => candidate.key !== primary.key)
+        .map(candidate => ({ ...candidate, supportScore: supportBlendScore(primary, candidate, goal) }))
+        .sort((a,b) => b.supportScore - a.supportScore)[0] || null;
+
+      if (!support || !canSupportBlend(support)){
+        const solo = primary;
         const lanes = bestLanesForRow(solo).filter(x => x.value > 0).slice(0,2);
         return `BLEND READ — ${goal}
 
-I only have enough grounded signal for one real component right now.
+I only have enough grounded signal for one stable component right now.
 
 Solo pick:
 ${solo.name} — 1.00g (100%)
 Best lanes: ${lanes.length ? lanes.map(x => laneLabel(x.key)).join(", ") : "still early"}
-Match score: ${solo.matchScore.toFixed(2)}
+Match score: ${safeNum(solo.blendBaseScore).toFixed(2)}
 Confidence: ${confidenceLabel(solo.count)} (${solo.count} logged session${solo.count === 1 ? "" : "s"})
 
-A true blend needs more than one real candidate in your logs.`;
+A second part would be fake precision right now, so I am not forcing it.`;
       }
+
+      const parts = buildBlendPairParts(primary, support, 1, goal);
+      const insight = blendInsightLines(goal, parts);
 
       return `BLEND READ — ${goal}
 
 1.00g blend:
 ${parts.map(formatBlendLine).join("\n")}
 
+Why this works:
+- ${insight.join("\n- ")}
+
 Grounding:
 These match scores rank fit for your target. The grams and percentages are the actual proportional split suggestion. Based on your own logged outcomes only.`;
     }
 
-
-
     function chemistryGoalBoost(row, goal){
+      if (!hasChemicalData(row)) return 0;
       const chem = computeRowChemicalProfile(row);
-      if (!chem) return 0;
       const g = String(goal || "").toUpperCase();
-      if (g === "SLEEP") return (chem.sed || 0) * 0.90 + (chem.calm || 0) * 0.45 - (chem.clear || 0) * 0.20;
-      if (g === "CALM") return (chem.calm || 0) * 0.85 + (chem.steady || 0) * 0.30 - (chem.uplift || 0) * 0.10;
-      if (g === "FOCUS") return (chem.clear || 0) * 0.90 + (chem.uplift || 0) * 0.25 - (chem.sed || 0) * 0.25;
-      if (g === "CREATIVE") return (chem.uplift || 0) * 0.85 + (chem.clear || 0) * 0.35 - (chem.sed || 0) * 0.15;
-      if (g === "FUN") return (chem.uplift || 0) * 0.70 + (chem.clear || 0) * 0.20 - (chem.sed || 0) * 0.10;
-      return 0;
+      let value = 0;
+      if (g === "SLEEP") value = (chem.sed || 0) * 0.90 + (chem.calm || 0) * 0.45 - (chem.clear || 0) * 0.20;
+      else if (g === "CALM") value = (chem.calm || 0) * 0.85 + (chem.steady || 0) * 0.30 - (chem.uplift || 0) * 0.10;
+      else if (g === "FOCUS") value = (chem.clear || 0) * 0.90 + (chem.uplift || 0) * 0.25 - (chem.sed || 0) * 0.25;
+      else if (g === "CREATIVE") value = (chem.uplift || 0) * 0.85 + (chem.clear || 0) * 0.35 - (chem.sed || 0) * 0.15;
+      else if (g === "FUN") value = (chem.uplift || 0) * 0.70 + (chem.clear || 0) * 0.20 - (chem.sed || 0) * 0.10;
+      return clamp(value, -0.2, 0.65);
     }
 
     function chemistryWeightedScore(row, goal, kind){
@@ -4852,22 +4901,47 @@ These match scores rank fit for your target. The grams and percentages are the a
           ? (row?.supportScore ?? row?.blendBaseScore ?? row?.pickScore ?? 0)
           : (row?.blendBaseScore ?? row?.pickScore ?? 0)
       );
-      const chemBoost = chemistryGoalBoost(row, goal);
+      const confidence = rowSignalConfidence(row);
+      const chemBoost = chemistryGoalBoost(row, goal) * confidence;
       const weirdPenalty = laneRate(row, "weird") * 0.12;
       return Math.max(0.01, base + chemBoost - weirdPenalty);
     }
 
+    function targetPrimaryClamp(parts){
+      const confidences = parts.map(part => rowSignalConfidence(part));
+      const minConf = confidences.length ? Math.min(...confidences) : 0;
+      if (minConf < 0.34) return 0.65;
+      if (minConf < 0.55) return 0.72;
+      return 0.80;
+    }
+
+    function normalizeBlendHundredths(totalHundredths, primaryHundredths){
+      let p = Math.round(primaryHundredths);
+      p = Math.max(1, Math.min(totalHundredths - 1, p));
+      const s = Math.max(1, totalHundredths - p);
+      return [p, s];
+    }
+
     function buildBlendPairParts(primary, support, totalGrams, goal){
       const total = Math.max(0.01, Number(totalGrams || 1));
+      const totalHundredths = Math.max(2, Math.round(total * 100));
       const safePrimary = chemistryWeightedScore(primary, goal, "primary");
       const safeSupport = chemistryWeightedScore(support, goal, "support");
       const combined = safePrimary + safeSupport || 1;
-      const primaryPct = safePrimary / combined;
-      let primaryHundredths = Math.round(primaryPct * total * 100);
-      primaryHundredths = Math.max(1, Math.min(Math.round(total * 100) - 1, primaryHundredths));
-      const supportHundredths = Math.max(1, Math.round(total * 100) - primaryHundredths);
+
+      let primaryPct = safePrimary / combined;
+      const maxPrimary = targetPrimaryClamp([primary, support]);
+      const minPrimary = 1 - maxPrimary;
+      primaryPct = clamp(primaryPct, minPrimary, maxPrimary);
+
+      const [primaryHundredths, supportHundredths] = normalizeBlendHundredths(
+        totalHundredths,
+        primaryPct * totalHundredths
+      );
+
       const primaryGrams = primaryHundredths / 100;
       const supportGrams = supportHundredths / 100;
+
       return [
         {
           ...primary,
@@ -4896,43 +4970,20 @@ These match scores rank fit for your target. The grams and percentages are the a
       return `${goal} blend grounded in your own logs. Best lanes: ${laneText}.`;
     }
 
-    function terpPresenceScore(value){
-      const key = String(value || "").toUpperCase();
-      if (key === "DOMINANT") return 1.0;
-      if (key === "NOTICEABLE") return 0.72;
-      if (key === "BACKGROUND") return 0.38;
-      return 0;
-    }
-
     function rowChemicalProfile(row){
-      const t = row?.terpeneAverages || {};
-      const lim = Number(t.LIMONENE || 0);
-      const pin = Number(t.PINENE || 0);
-      const myr = Number(t.MYRCENE || 0);
-      const lin = Number(t.LINALOOL || 0);
-      const car = Number(t.CARYOPHYLLENE || 0);
-      const ter = Number(t.TERPINOLENE || 0);
-
-      return {
-        lim, pin, myr, lin, car, ter,
-        uplift: (0.65 * lim) + (0.35 * pin),
-        calmAxis: (0.55 * lin) + (0.45 * car),
-        sed: (0.75 * myr) + (0.25 * lin),
-        clear: (0.70 * pin) + (0.30 * lim),
-        steadyAxis: (0.45 * car) + (0.35 * lin) + (0.20 * pin)
-      };
+      return computeRowChemicalProfile(row);
     }
 
     function blendChemicalProfile(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
-      const totalWeight = safeParts.reduce((acc, part) => acc + Math.max(0.01, Number(part?.pct || 50)), 0) || 1;
-      const out = { lim:0, pin:0, myr:0, lin:0, car:0, ter:0, uplift:0, calmAxis:0, sed:0, clear:0, steadyAxis:0 };
+      const totalWeight = safeParts.reduce((acc, part) => acc + Math.max(0.01, safeNum(part?.pct || 50)), 0) || 1;
+      const out = { lim:0, pin:0, myr:0, lin:0, car:0, ter:0, uplift:0, calm:0, sed:0, clear:0, steady:0, magnitude:0 };
 
       safeParts.forEach(part => {
-        const weight = Math.max(0.01, Number(part?.pct || 50)) / totalWeight;
+        const weight = Math.max(0.01, safeNum(part?.pct || 50)) / totalWeight;
         const chem = rowChemicalProfile(part);
         Object.keys(out).forEach(key => {
-          out[key] += (Number(chem[key] || 0) * weight);
+          out[key] += (safeNum(chem[key]) * weight);
         });
       });
 
@@ -4941,50 +4992,66 @@ These match scores rank fit for your target. The grams and percentages are the a
 
     function strongestChemSignals(profile){
       const signals = [
-        { key:"sed", label:"Sedation bias", value:Number(profile?.sed || 0) },
-        { key:"uplift", label:"Uplift bias", value:Number(profile?.uplift || 0) },
-        { key:"clear", label:"Clarity bias", value:Number(profile?.clear || 0) },
-        { key:"calmAxis", label:"Calm bias", value:Number(profile?.calmAxis || 0) },
-        { key:"steadyAxis", label:"Steady bias", value:Number(profile?.steadyAxis || 0) }
+        { key:"sed", label:"Sedation bias", value:safeNum(profile?.sed) },
+        { key:"uplift", label:"Uplift bias", value:safeNum(profile?.uplift) },
+        { key:"clear", label:"Clarity bias", value:safeNum(profile?.clear) },
+        { key:"calm", label:"Calm bias", value:safeNum(profile?.calm) },
+        { key:"steady", label:"Steady bias", value:safeNum(profile?.steady) }
       ].sort((a,b) => b.value - a.value);
       return signals;
     }
 
-    function blendInsightLines(goal, parts){
+    function primaryPart(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
-      if (!safeParts.length) return ["No blend read yet."];
+      return safeParts.slice().sort((a,b) => safeNum(b?.pct) - safeNum(a?.pct))[0] || null;
+    }
+
+    function ratioDescriptor(parts){
+      const lead = primaryPart(parts);
+      if (!lead) return "Balanced split.";
+      const pct = Math.round(safeNum(lead.pct));
+      if (pct >= 70) return `${lead.name} leads the mix.`;
+      if (pct <= 55) return "Near-even split.";
+      return `${lead.name} sets the base.`;
+    }
+
+    function blendInsightLines(goal, parts){
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
+      if (!safeParts.length) return ["No blend read yet.", "Not enough signal for a ratio.", "Log more sessions."];
 
       const lines = [];
       const profile = blendChemicalProfile(safeParts);
       const strongest = strongestChemSignals(profile);
       const topChem = strongest[0];
       const secondChem = strongest[1];
+      const chemReady = safeNum(profile.magnitude) > 0.12;
 
-      if (topChem && secondChem && topChem.value > 0.16 && secondChem.value > 0.12){
-        lines.push(`${topChem.label} + ${secondChem.label}.`);
-      } else if (topChem && topChem.value > 0.12){
-        lines.push(`${topChem.label}.`);
-      }
-
-      const allTop = safeParts.map(part => bestLanesForRow(part).filter(x => x.value > 0));
-      const firstTop = allTop[0]?.[0];
-      const secondTop = allTop[1]?.[0];
-      if (firstTop && secondTop){
-        if (firstTop.key === secondTop.key){
-          lines.push(`Shared ${laneLabel(firstTop.key)} lane — both parts push the same direction.`);
+      if (chemReady && topChem && topChem.value > 0.14){
+        if (secondChem && secondChem.value > 0.12){
+          lines.push(`${topChem.label} + ${secondChem.label}.`);
         } else {
-          lines.push(`${laneLabel(firstTop.key)} base + ${laneLabel(secondTop.key)} support.`);
+          lines.push(`${topChem.label}.`);
         }
-      } else if (firstTop){
-        lines.push(`${laneLabel(firstTop.key)} base.`);
+      } else {
+        lines.push("Chemistry signal still early — ratio is leaning more on outcome history.");
       }
 
-      const weirdAvg = safeParts.reduce((acc, part) => acc + laneRate(part, "weird"), 0) / safeParts.length;
-      const driftLine = weirdAvg <= 0.14
-        ? "Low drift risk from your current logs."
-        : weirdAvg <= 0.28
-          ? "Some drift risk — keep the setup controlled."
-          : "Higher drift risk — watch dose and timing.";
+      const lead = primaryPart(safeParts);
+      const support = safeParts.find(part => part !== lead) || null;
+      const leadLane = lead ? bestLanesForRow(lead).find(x => x.value > 0) : null;
+      const supportLane = support ? bestLanesForRow(support).find(x => x.value > 0) : null;
+
+      if (leadLane && supportLane){
+        if (leadLane.key === supportLane.key){
+          lines.push(`${ratioDescriptor(safeParts)} Shared ${laneLabel(leadLane.key)} lane.`);
+        } else {
+          lines.push(`${ratioDescriptor(safeParts)} ${laneLabel(leadLane.key)} base + ${laneLabel(supportLane.key)} support.`);
+        }
+      } else if (leadLane){
+        lines.push(`${ratioDescriptor(safeParts)} ${laneLabel(leadLane.key)} base.`);
+      } else {
+        lines.push(ratioDescriptor(safeParts));
+      }
 
       const goalMap = {
         "SLEEP":"Aimed at a heavier settle / sleep lane.",
@@ -4993,11 +5060,7 @@ These match scores rank fit for your target. The grams and percentages are the a
         "CREATIVE":"Aimed at a more creative lane.",
         "FUN":"Aimed at a more social / fun lane."
       };
-      const goalLine = goalMap[String(goal || "").toUpperCase()] || "Built around your current target lane.";
-
-      lines.push(goalLine);
-
-      if (lines.length < 3) lines.push(driftLine);
+      lines.push(goalMap[String(goal || "").toUpperCase()] || "Built around your current target lane.");
 
       return lines.slice(0,3);
     }
@@ -5012,7 +5075,7 @@ These match scores rank fit for your target. The grams and percentages are the a
       }, 0) / safeParts.length;
 
       const chem = blendChemicalProfile(safeParts);
-      const chemSupport = Math.max(chem.calmAxis, chem.clear, chem.uplift, chem.sed, chem.steadyAxis);
+      const chemSupport = Math.max(chem.calm, chem.clear, chem.uplift, chem.sed, chem.steady);
       const score = base + (chemSupport * 0.45);
       return Math.max(0, Math.min(1, score / 3));
     }
@@ -5035,13 +5098,13 @@ These match scores rank fit for your target. The grams and percentages are the a
 
     function buildBlendSuggestionsFromStats(query, stats){
       const goal = chooseBlendGoal(query);
-      const rows = (stats?.rows || []).filter(r => r.count > 0);
+      const rows = viableBlendRows(stats?.rows || []);
       if (rows.length < 2) return [];
 
       const ranked = rows
         .map(r => ({ ...r, blendBaseScore: scoreBlendRow(r, goal) }))
         .sort((a,b) => b.blendBaseScore - a.blendBaseScore)
-        .slice(0,4);
+        .slice(0,5);
 
       if (ranked.length < 2) return [];
 
@@ -5049,6 +5112,7 @@ These match scores rank fit for your target. The grams and percentages are the a
         return ranked
           .filter(candidate => candidate.key !== primary.key && !excludeKeys.includes(candidate.key))
           .map(candidate => ({ ...candidate, supportScore: supportBlendScore(primary, candidate, goal) }))
+          .filter(candidate => canSupportBlend(candidate))
           .sort((a,b) => b.supportScore - a.supportScore)[0] || null;
       }
 
@@ -5060,7 +5124,7 @@ These match scores rank fit for your target. The grams and percentages are the a
           goal,
           title: "Blend option 1",
           parts: buildBlendPairParts(primaryA, supportA, 1, goal),
-          comboScore: (primaryA.blendBaseScore || 0) + (supportA.supportScore || 0)
+          comboScore: safeNum(primaryA.blendBaseScore) + safeNum(supportA.supportScore)
         });
       }
 
@@ -5070,7 +5134,8 @@ These match scores rank fit for your target. The grams and percentages are the a
       if (primaryB){
         supportB = pickSupport(primaryB, usedKeys);
         if (!supportB && ranked[2] && ranked[2].key !== primaryB.key){
-          supportB = { ...ranked[2], supportScore: supportBlendScore(primaryB, ranked[2], goal) };
+          const fallbackSupport = { ...ranked[2], supportScore: supportBlendScore(primaryB, ranked[2], goal) };
+          if (canSupportBlend(fallbackSupport)) supportB = fallbackSupport;
         }
       }
       if (primaryB && supportB){
@@ -5081,14 +5146,15 @@ These match scores rank fit for your target. The grams and percentages are the a
             goal,
             title: "Blend option 2",
             parts: buildBlendPairParts(primaryB, supportB, 1, goal),
-            comboScore: (primaryB.blendBaseScore || 0) + (supportB.supportScore || 0)
+            comboScore: safeNum(primaryB.blendBaseScore) + safeNum(supportB.supportScore)
           });
         }
       }
 
-      return options.slice(0,2);
+      return options
+        .sort((a,b) => safeNum(b.comboScore) - safeNum(a.comboScore))
+        .slice(0,2);
     }
-
 
     function blendSegmentColor(part){
       const stash = loadStash().find(x => String(x.id || "") === String(part.stashId || part.id || ""));
@@ -5099,13 +5165,13 @@ These match scores rank fit for your target. The grams and percentages are the a
       const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
       if (safeParts.length < 2) return "";
       const segs = safeParts.map(part => {
-        const width = Math.max(8, Math.round(Number(part.pct || 0)));
+        const width = Math.max(8, Math.round(safeNum(part.pct)));
         return `<div class="askBlendSeg" style="width:${width}%; background:${blendSegmentColor(part)};"></div>`;
       }).join("");
       const labels = safeParts.map(part => {
         const stash = loadStash().find(x => String(x.id || "") === String(part.stashId || part.id || ""));
         const name = stash?.name || part.name || "Unnamed";
-        return `<div class="askBlendBarLabel"><strong>${escapeHtml(name)}</strong>${escapeHtml(part.grams.toFixed(2))}g · ${Math.round(part.pct)}%</div>`;
+        return `<div class="askBlendBarLabel"><strong>${escapeHtml(name)}</strong>${escapeHtml(safeNum(part.grams).toFixed(2))}g · ${Math.round(safeNum(part.pct))}%</div>`;
       }).join("");
       return `
         <div class="askBlendBarWrap">
@@ -5136,7 +5202,7 @@ These match scores rank fit for your target. The grams and percentages are the a
               ${photoMarkup}
               <div>
                 <h3 class="askBlendPartName">${escapeHtml(stash?.name || part.name || "Unnamed")}</h3>
-                <p class="askBlendPartMeta">${escapeHtml(part.grams.toFixed(2))}g · ${Math.round(part.pct)}%\n${escapeHtml(confidenceLabel(part.count))} · ${escapeHtml(String(part.count || 0))} logged session${Number(part.count || 0) === 1 ? "" : "s"}</p>
+                <p class="askBlendPartMeta">${escapeHtml(safeNum(part.grams).toFixed(2))}g · ${Math.round(safeNum(part.pct))}%\n${escapeHtml(confidenceLabel(part.count))} · ${escapeHtml(String(part.count || 0))} logged session${Number(part.count || 0) === 1 ? "" : "s"}</p>
                 <div class="askBlendActions">
                   <button class="btn btnPrimary btnTiny" type="button" data-ask-open-stash="${escapeHtml(String(stash?.id || part.stashId || ""))}">Open stash card</button>
                 </div>
@@ -5175,7 +5241,6 @@ These match scores rank fit for your target. The grams and percentages are the a
         };
       });
     }
-
 
     function clearAskSuggestion(){
       if (!askSuggestionMount) return;
