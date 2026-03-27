@@ -5124,6 +5124,53 @@ These match scores rank fit for your target. The grams and percentages are the a
       return "general";
     }
 
+    function blendIdentityConfidence(parts){
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
+      if (!safeParts.length) return { score:0, label:"LOW CONFIDENCE" };
+      const avg = safeParts.reduce((acc, part) => acc + rowSignalConfidence(part), 0) / safeParts.length;
+      if (avg >= 0.72) return { score:avg, label:"HIGH CONFIDENCE" };
+      if (avg >= 0.46) return { score:avg, label:"MED CONFIDENCE" };
+      return { score:avg, label:"LOW CONFIDENCE" };
+    }
+
+    function expectedChemForFamily(family){
+      if (family === "night") return ["sed", "calm", "steady"];
+      if (family === "calm") return ["calm", "steady"];
+      if (family === "focus") return ["clear", "steady", "uplift"];
+      if (family === "creative") return ["uplift", "clear", "steady"];
+      if (family === "fun") return ["uplift", "steady", "clear"];
+      return ["steady"];
+    }
+
+    function blendIdentityTension(goal, parts, profile, strongest){
+      const family = blendIdentityGoalFamily(goal);
+      const top = strongest?.[0]?.key || "steady";
+      const second = strongest?.[1]?.key || "";
+      const chemGap = Math.abs((strongest?.[0]?.value || 0) - (strongest?.[1]?.value || 0));
+      const structure = leadSupportDescriptor(parts);
+      const expected = expectedChemForFamily(family);
+      const aligned = expected.includes(top);
+
+      let label = "ALIGNED";
+      let note = "The chemistry direction and the target lane are pulling together.";
+
+      if (!aligned && chemGap < 0.12){
+        label = "SOFT CONFLICT";
+        note = "The blend can still work, but the chemistry is split between two directions.";
+      } else if (!aligned){
+        label = "OFF-AXIS";
+        note = "This route may still be useful, but it is leaning away from the target lane.";
+      } else if (chemGap < 0.08 && second && second !== top){
+        label = "DUAL-PULL";
+        note = "Two chemical directions are showing up at once, which can make this feel more hybrid.";
+      } else if (structure === "split"){
+        label = "BALANCED";
+        note = "Neither side is overpowering the other, so the blend should feel more even than forceful.";
+      }
+
+            return { label, note };
+    }
+
     function buildBlendIdentity(goal, parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
       const profile = blendChemicalProfile(safeParts);
@@ -5133,9 +5180,13 @@ These match scores rank fit for your target. The grams and percentages are the a
       const lead = primaryPart(safeParts);
       const leadLane = lead ? (bestLanesForRow(lead).find(x => x.value > 0)?.key || "") : "";
       const family = blendIdentityGoalFamily(goal);
+      const confidence = blendIdentityConfidence(safeParts);
+      const tension = blendIdentityTension(goal, safeParts, profile, strongest);
+
       let title = "Balanced Pair";
       let tag = "DUAL-LANE";
       let summary = "A two-part route built from your own outcome history.";
+      let caution = "";
       const traits = [];
 
       if (family === "night"){
@@ -5162,9 +5213,9 @@ These match scores rank fit for your target. The grams and percentages are the a
           tag = "CALM LANE";
           summary = "A calm-first blend with the support part acting like padding instead of noise.";
         } else {
-          title = "LOW-DRAMA BLEND";
+          title = "SETTLED GROUND";
           tag = "SMOOTH OUT";
-          summary = "Grounded, low-spike pairing aimed at lowering friction more than changing the whole night.";
+          summary = "Grounded pairing aimed at lowering friction more than changing the whole night.";
         }
       } else if (family === "focus"){
         if (topChem === "clear" && structure === "anchor"){
@@ -5221,21 +5272,46 @@ These match scores rank fit for your target. The grams and percentages are the a
       if (topChem === "calm") traits.push("calm bias");
       if (topChem === "steady") traits.push("steady bias");
 
-      return { title, tag, summary, traits: traits.slice(0,3) };
+      if (tension.label === "SOFT CONFLICT"){
+        caution = "Two lanes are sharing the wheel here, so expect more hybrid behavior than a pure target hit.";
+      } else if (tension.label === "OFF-AXIS"){
+        caution = "Interesting pairing, but this one is leaning away from the stated target more than the cleanest option would.";
+      } else if (confidence.label === "LOW CONFIDENCE"){
+        caution = "The shape is plausible, but the underlying signal is still thin.";
+      } else if (tension.label === "DUAL-PULL"){
+        caution = "This pairing may feel more two-stage than single-lane because both parts are still speaking loudly.";
+      }
+
+      return {
+        title,
+        tag,
+        summary,
+        traits: traits.slice(0,3),
+        confidence,
+        tension,
+        caution
+      };
     }
 
     function buildBlendIdentityMarkup(goal, parts){
       const identity = buildBlendIdentity(goal, parts);
+      const metaBits = [
+        "Blend identity layer v2",
+        identity.confidence?.label || "",
+        identity.tension?.label || ""
+      ].filter(Boolean);
+
       return `
         <div class="askBlendIdentity">
           <div class="askBlendIdentityHead">
             <div>
               <p class="askBlendIdentityTitle">${escapeHtml(identity.title)}</p>
-              <p class="askBlendIdentityMeta">Blend identity layer v1</p>
+              <p class="askBlendIdentityMeta">${escapeHtml(metaBits.join(" · "))}</p>
             </div>
             <span class="askBlendIdentityTag">${escapeHtml(identity.tag)}</span>
           </div>
           <div class="askBlendIdentityBody">${escapeHtml(identity.summary)}</div>
+          ${identity.caution ? `<div class="askBlendIdentityBody" style="margin-top:8px; color:var(--muted);">${escapeHtml(identity.caution)}</div>` : ""}
           <div class="askBlendIdentityTraits">
             ${(identity.traits || []).map(trait => `<span class="miniTag">${escapeHtml(trait)}</span>`).join("")}
           </div>
