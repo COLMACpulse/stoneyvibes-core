@@ -4945,13 +4945,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       }).join("");
 
       return `
-        <svg class="visualDisc" viewBox="0 0 ${s} ${s}" aria-hidden="true">
-          <circle cx="${c}" cy="${c}" r="${(s/2)-1}" fill="rgba(11,13,16,0.82)" stroke="rgba(255,255,255,0.08)"/>
-          ${arcs}
-          <circle cx="${c}" cy="${c}" r="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.10)"/>
-          ${spokes}
-          <circle cx="${c}" cy="${c}" r="2.8" fill="rgba(255,255,255,0.72)"/>
-        </svg>
+        <div id='fingerprint-dynamic'></div>
       `;
     }
 
@@ -4990,13 +4984,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       }).join("");
 
       return `
-        <svg class="visualDisc" viewBox="0 0 ${s} ${s}" aria-hidden="true">
-          <circle cx="${c}" cy="${c}" r="${(s/2)-1}" fill="rgba(11,13,16,0.82)" stroke="rgba(255,255,255,0.08)"/>
-          ${ring}
-          <circle cx="${c}" cy="${c}" r="17" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.10)"/>
-          ${bars}
-          <circle cx="${c}" cy="${c}" r="4" fill="rgba(255,255,255,0.82)"/>
-        </svg>
+        <div id='fingerprint-dynamic'></div>
       `;
     }
 
@@ -6705,14 +6693,7 @@ function renderFingerprint([
   const stroke = 1 + (2 * avg);
 
   return `
-    <svg viewBox="0 0 150 150" width="150" height="150">
-      <polygon 
-        points="${points}" 
-        fill="rgba(255,255,255,${opacity})" 
-        stroke="rgba(255,255,255,0.9)" 
-        stroke-width="${stroke}"
-      />
-    </svg>
+    <div id='fingerprint-dynamic'></div>
   `;
 }
 
