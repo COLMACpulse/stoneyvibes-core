@@ -4626,6 +4626,35 @@ Read this correctly: match score is ranking only. Grams and percentages are the 
       return map[lane] || lane;
     }
 
+    function terpPresenceScore(value){
+      const map = {
+        "": 0,
+        "NOT_PRESENT": 0,
+        "BACKGROUND": 0.33,
+        "NOTICEABLE": 0.66,
+        "DOMINANT": 1.0
+      };
+      return map[String(value || "").toUpperCase()] ?? 0;
+    }
+
+    function computeRowChemicalProfile(row){
+      const t = (row && row.terpeneAverages) ? row.terpeneAverages : {};
+      const lim = Number(t.LIMONENE || 0);
+      const pin = Number(t.PINENE || 0);
+      const myr = Number(t.MYRCENE || 0);
+      const lin = Number(t.LINALOOL || 0);
+      const car = Number(t.CARYOPHYLLENE || 0);
+
+      const uplift = 0.65 * lim + 0.35 * pin;
+      const calm = 0.55 * lin + 0.45 * car;
+      const sed = 0.75 * myr + 0.25 * lin;
+      const clear = 0.70 * pin + 0.30 * lim;
+      const steady = 0.42 * calm + 0.28 * clear + 0.20 * car + 0.10 * lin;
+
+      return { uplift, calm, sed, clear, steady };
+    }
+
+
     function bestLanesForRow(row){
       return [
         { key:"sleep", value: laneRate(row, "sleep") },
@@ -4989,15 +5018,17 @@ These match scores rank fit for your target. The grams and percentages are the a
     }
 
     function buildBlendInsightMarkup(goal, parts){
-      const lines = blendInsightLines(goal, parts);
-      const score = blendBalanceScore(parts);
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
+      const lines = blendInsightLines(goal, safeParts);
+      const score = blendBalanceScore(safeParts);
+      const hasChemWeight = safeParts.some(part => Number.isFinite(Number(part?.chemistryWeight)));
       return `
         <div class="askBlendInsight">
           <p class="askBlendInsightHead">Why this works</p>
           <div class="askBlendInsightList">
             ${lines.map(line => `<div class="askBlendInsightLine"><span class="askBlendInsightDot"></span><span>${escapeHtml(line)}</span></div>`).join("")}
           </div>
-          <div class="askBlendInsightScore">Balance score: ${score.toFixed(2)}${safeParts.some(part => Number.isFinite(Number(part.chemistryWeight))) ? ` · chemistry-weighted ratio` : ``}</div>
+          <div class="askBlendInsightScore">Balance score: ${score.toFixed(2)}${hasChemWeight ? ` · chemistry-weighted ratio` : ``}</div>
         </div>
       `;
     }
