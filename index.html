@@ -1005,8 +1005,8 @@
     }
     .patternThumb,
     .patternThumbPlaceholder{
-      width:72px;
-      height:72px;
+      width:84px;
+      height:84px;
       border-radius:12px;
       overflow:hidden;
       border:1px solid rgba(255,255,255,0.14);
@@ -1080,13 +1080,13 @@
     }
     .blendFingerprintBody{
       display:grid;
-      grid-template-columns:72px 1fr;
+      grid-template-columns:84px 1fr;
       gap:12px;
       align-items:center;
     }
     .blendFingerprintDisc{
-      width:72px;
-      height:72px;
+      width:84px;
+      height:84px;
       border-radius:999px;
       overflow:hidden;
       background:rgba(255,255,255,0.03);
@@ -4971,81 +4971,93 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       return { profile, metrics };
     }
 
-    function buildBlendFingerprintSvg(parts, size=72){
+    function buildBlendFingerprintSvg(parts, size=84){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
       if (!safeParts.length) return buildTerpDiscSvg({}, size);
 
-      const s = Math.max(72, Number(size || 72));
+      const s = Math.max(84, Number(size || 84));
       const c = s / 2;
-      const outerR = (s / 2) - 6;
-      const radarR = outerR - 11;
+      const outerR = (s / 2) - 7;
+      const radarR = outerR - 8;
       const { metrics } = getBlendFingerprintMetrics(safeParts);
       const totalPct = safeParts.reduce((acc, part) => acc + Math.max(0.01, safeNum(part?.pct || 0)), 0) || 1;
+      const rawVals = metrics.map(item => Math.max(0, Math.min(1, safeNum(item.raw))));
+      const minRaw = Math.min(...rawVals);
+      const maxRaw = Math.max(...rawVals);
+      const spread = Math.max(0.08, maxRaw - minRaw);
 
       let cursor = 0;
       const ring = safeParts.map(part => {
         const pct = Math.max(0.01, safeNum(part?.pct || 0)) / totalPct;
-        const start = cursor * 360 + 2;
-        const end = (cursor + pct) * 360 - 2;
+        const start = cursor * 360 + 3;
+        const end = (cursor + pct) * 360 - 3;
         cursor += pct;
-        return `<path d="${describeArc(c, c, outerR, start, end)}" stroke="${blendSegmentColor(part)}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+        return `<path d="${describeArc(c, c, outerR, start, end)}" stroke="${blendSegmentColor(part)}" stroke-width="4.5" fill="none" stroke-linecap="round" opacity="0.55"/>`;
       }).join("");
 
       const seg = 360 / metrics.length;
-      const grid = [0.25, 0.5, 0.75, 1].map(scale => {
+      const grid = [0.2, 0.4, 0.6, 0.8, 1].map(scale => {
         const pts = metrics.map((item, idx) => {
           const ang = (idx * seg) + (seg / 2);
           const p = arcPoint(c, c, radarR * scale, ang);
           return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
         }).join(' ');
-        return `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,${scale === 1 ? "0.12" : "0.08"})" stroke-width="1"/>`;
+        return `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,${scale === 1 ? '0.11' : '0.05'})" stroke-width="1"/>`;
       }).join('');
 
       const spokes = metrics.map((item, idx) => {
         const ang = (idx * seg) + (seg / 2);
         const p = arcPoint(c, c, radarR, ang);
-        return `<line x1="${c}" y1="${c}" x2="${p.x.toFixed(2)}" y2="${p.y.toFixed(2)}" stroke="rgba(255,255,255,0.11)" stroke-width="1"/>`;
+        return `<line x1="${c}" y1="${c}" x2="${p.x.toFixed(2)}" y2="${p.y.toFixed(2)}" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>`;
       }).join('');
 
-      const polygonPoints = metrics.map((item, idx) => {
+      const ampData = metrics.map((item, idx) => {
+        const raw = Math.max(0, Math.min(1, safeNum(item.raw)));
+        const rel = (raw - minRaw) / spread;
+        const amplified = Math.max(0.08, Math.min(1, (raw * 0.42) + (Math.pow(rel, 0.72) * 0.58)));
         const ang = (idx * seg) + (seg / 2);
-        const amplified = 0.12 + (Math.pow(item.raw, 0.78) * 0.88);
         const p = arcPoint(c, c, amplified * radarR, ang);
-        return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
-      }).join(' ');
+        return { item, raw, rel, amplified, ang, p };
+      });
 
-      const dots = metrics.map((item, idx) => {
-        const ang = (idx * seg) + (seg / 2);
-        const amplified = 0.12 + (Math.pow(item.raw, 0.78) * 0.88);
-        const p = arcPoint(c, c, amplified * radarR, ang);
-        return `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="2.2" fill="${rgbaFromHue(item.hue, 0.98)}" stroke="rgba(12,14,16,0.7)" stroke-width="0.8"/>`;
+      const polygonPoints = ampData.map(d => `${d.p.x.toFixed(2)},${d.p.y.toFixed(2)}`).join(' ');
+      const coloredRays = ampData.map(d => {
+        const p = d.p;
+        return `<line x1="${c}" y1="${c}" x2="${p.x.toFixed(2)}" y2="${p.y.toFixed(2)}" stroke="${rgbaFromHue(d.item.hue, 0.34)}" stroke-width="2.2" stroke-linecap="round"/>`;
       }).join('');
-
-      const ticks = metrics.map((item, idx) => {
-        const ang = (idx * seg) + (seg / 2);
-        const inner = arcPoint(c, c, outerR + 1.5, ang - 11);
-        const outer = arcPoint(c, c, outerR + 1.5, ang + 11);
-        return `<path d="M ${inner.x.toFixed(2)} ${inner.y.toFixed(2)} A ${outerR + 1.5} ${outerR + 1.5} 0 0 1 ${outer.x.toFixed(2)} ${outer.y.toFixed(2)}" stroke="${rgbaFromHue(item.hue, 0.85)}" stroke-width="2.1" fill="none" stroke-linecap="round"/>`;
+      const dots = ampData.map(d => `<circle cx="${d.p.x.toFixed(2)}" cy="${d.p.y.toFixed(2)}" r="3" fill="${rgbaFromHue(d.item.hue, 1)}" stroke="rgba(12,14,16,0.75)" stroke-width="1"/>`).join('');
+      const labels = ampData.map(d => {
+        const lp = arcPoint(c, c, outerR - 1, d.ang);
+        return `<circle cx="${lp.x.toFixed(2)}" cy="${lp.y.toFixed(2)}" r="1.2" fill="${rgbaFromHue(d.item.hue, 0.95)}" opacity="0.9"/>`;
       }).join('');
 
       return `
         <svg class="visualDisc" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-label="Blend fingerprint" role="img">
           <defs>
-            <radialGradient id="blendFingerprintGlow" cx="50%" cy="50%" r="65%">
+            <radialGradient id="blendFingerprintCore" cx="50%" cy="50%" r="70%">
               <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
               <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
             </radialGradient>
+            <filter id="blendFingerprintSoftGlow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="2.2" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
           </defs>
-          <circle cx="${c}" cy="${c}" r="${outerR + 4}" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+          <circle cx="${c}" cy="${c}" r="${outerR + 4}" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
           ${ring}
-          ${ticks}
-          <circle cx="${c}" cy="${c}" r="${radarR + 1}" fill="rgba(0,0,0,0.20)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+          <circle cx="${c}" cy="${c}" r="${radarR + 1.5}" fill="rgba(0,0,0,0.24)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
           ${grid}
           ${spokes}
-          <polygon points="${polygonPoints}" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.70)" stroke-width="1.9"/>
+          ${coloredRays}
+          <polygon points="${polygonPoints}" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.22)" stroke-width="5.5" filter="url(#blendFingerprintSoftGlow)" opacity="0.55"/>
+          <polygon points="${polygonPoints}" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.92)" stroke-width="2.4"/>
           ${dots}
-          <circle cx="${c}" cy="${c}" r="7" fill="url(#blendFingerprintGlow)"/>
-          <circle cx="${c}" cy="${c}" r="4.8" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>
+          ${labels}
+          <circle cx="${c}" cy="${c}" r="10" fill="url(#blendFingerprintCore)"/>
+          <circle cx="${c}" cy="${c}" r="5.2" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.32)" stroke-width="1"/>
         </svg>
       `;
     }
@@ -5058,7 +5070,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
         <div class="blendFingerprintWrap">
           <p class="blendFingerprintHead">Blend fingerprint</p>
           <div class="blendFingerprintBody">
-            <div class="blendFingerprintDisc">${buildBlendFingerprintSvg(safeParts, 72)}</div>
+            <div class="blendFingerprintDisc">${buildBlendFingerprintSvg(safeParts, 84)}</div>
             <div class="blendFingerprintLegend">
               ${metrics.map(metric => {
                 return `
