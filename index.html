@@ -4961,8 +4961,10 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       const s = Math.max(56, Number(size || 72));
       const c = s / 2;
       const outerR = (s / 2) - 6;
+      const radarR = outerR - 10;
       const profile = blendChemicalProfile(safeParts);
       const totalPct = safeParts.reduce((acc, part) => acc + Math.max(0.01, safeNum(part?.pct || 0)), 0) || 1;
+
       let cursor = 0;
       const ring = safeParts.map(part => {
         const pct = Math.max(0.01, safeNum(part?.pct || 0)) / totalPct;
@@ -4980,20 +4982,45 @@ const askPromptBlend = document.getElementById("askPromptBlend");
         { key:"steady", label:"Steady", hue:"255,124,58" }
       ];
       const seg = 360 / chemDefs.length;
-      const bars = chemDefs.map((item, idx) => {
+      const grid = [0.28, 0.54, 0.80].map(scale => {
+        const pts = chemDefs.map((item, idx) => {
+          const ang = (idx * seg) + (seg / 2);
+          const p = arcPoint(c, c, radarR * scale, ang);
+          return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+        }).join(' ');
+        return `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
+      }).join('');
+
+      const spokes = chemDefs.map((item, idx) => {
+        const ang = (idx * seg) + (seg / 2);
+        const p = arcPoint(c, c, radarR, ang);
+        return `<line x1="${c}" y1="${c}" x2="${p.x.toFixed(2)}" y2="${p.y.toFixed(2)}" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>`;
+      }).join('');
+
+      const polygonPoints = chemDefs.map((item, idx) => {
         const value = Math.max(0, Math.min(1, safeNum(profile?.[item.key])));
         const ang = (idx * seg) + (seg / 2);
-        const p1 = arcPoint(c, c, 11, ang);
-        const p2 = arcPoint(c, c, 11 + (value * 15), ang);
-        return `<line x1="${p1.x.toFixed(2)}" y1="${p1.y.toFixed(2)}" x2="${p2.x.toFixed(2)}" y2="${p2.y.toFixed(2)}" stroke="${rgbaFromHue(item.hue, 0.30 + (value * 0.68))}" stroke-width="3.2" stroke-linecap="round"/>`;
-      }).join("");
+        const p = arcPoint(c, c, 6 + (value * (radarR - 6)), ang);
+        return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+      }).join(' ');
+
+      const dots = chemDefs.map((item, idx) => {
+        const value = Math.max(0, Math.min(1, safeNum(profile?.[item.key])));
+        const ang = (idx * seg) + (seg / 2);
+        const p = arcPoint(c, c, 6 + (value * (radarR - 6)), ang);
+        return `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="2.2" fill="${rgbaFromHue(item.hue, 0.98)}" stroke="rgba(12,14,16,0.65)" stroke-width="0.8"/>`;
+      }).join('');
 
       return `
         <svg class="visualDisc" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-label="Blend fingerprint" role="img">
           <circle cx="${c}" cy="${c}" r="${outerR + 4}" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
           ${ring}
-          ${bars}
-          <circle cx="${c}" cy="${c}" r="11" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.20)" stroke-width="1"/>
+          <circle cx="${c}" cy="${c}" r="${radarR + 1}" fill="rgba(0,0,0,0.16)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+          ${grid}
+          ${spokes}
+          <polygon points="${polygonPoints}" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.62)" stroke-width="1.8"/>
+          ${dots}
+          <circle cx="${c}" cy="${c}" r="4.4" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.24)" stroke-width="1"/>
         </svg>
       `;
     }
