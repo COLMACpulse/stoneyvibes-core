@@ -1893,6 +1893,24 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 }
 </style>
 
+
+<style id="fp-label-patch">
+.fp-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #9fb3c3;
+  letter-spacing: 0.02em;
+}
+.fp-note {
+  text-align: center;
+  margin-top: 4px;
+  font-size: 10px;
+  color: rgba(159,179,195,0.6);
+}
+</style>
+
 </head>
 
 <body>
@@ -6559,5 +6577,25 @@ document.querySelectorAll('.ask-btn').forEach(btn=>{
   });
 });
 </script>
+
+<script id="fp-label-injector">
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll('.fingerprint').forEach(fp => {
+    if (fp.nextElementSibling && fp.nextElementSibling.classList.contains('fp-labels')) return;
+
+    const labels = document.createElement('div');
+    labels.className = 'fp-labels';
+    labels.innerHTML = '<span>lift</span><span>calm</span><span>heavy</span><span>clear</span><span>steady</span>';
+
+    const note = document.createElement('div');
+    note.className = 'fp-note';
+    note.textContent = 'fingerprint = chemical balance';
+
+    fp.insertAdjacentElement('afterend', note);
+    fp.insertAdjacentElement('afterend', labels);
+  });
+});
+</script>
+
 </body>
 </html>
