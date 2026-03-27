@@ -6622,6 +6622,19 @@ function updateFingerprints(blend1, blend2){
   }
 }
 
+
+function forceRenderFingerprint(elId, blend){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML = renderFingerprint([
+    blend.uplift||0,
+    blend.calm||0,
+    blend.sedation||0,
+    blend.clarity||0,
+    blend.steady||0
+  ]);
+}
+
 </script>
 
 <script>
@@ -6692,6 +6705,19 @@ function updateFingerprints(blend1, blend2){
       blend2.steady||0
     ]);
   }
+}
+
+
+function forceRenderFingerprint(elId, blend){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML = renderFingerprint([
+    blend.uplift||0,
+    blend.calm||0,
+    blend.sedation||0,
+    blend.clarity||0,
+    blend.steady||0
+  ]);
 }
 
 </script>
@@ -6808,6 +6834,19 @@ function updateFingerprints(blend1, blend2){
       blend2.steady||0
     ]);
   }
+}
+
+
+function forceRenderFingerprint(elId, blend){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML = renderFingerprint([
+    blend.uplift||0,
+    blend.calm||0,
+    blend.sedation||0,
+    blend.clarity||0,
+    blend.steady||0
+  ]);
 }
 
 </script></body>
