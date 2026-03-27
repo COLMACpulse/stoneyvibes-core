@@ -2501,7 +2501,7 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           <div class="row topgap">
             <label class="field">
               <span class="label">Question</span>
-              <input id="askInput" class="input" type="text" placeholder="What should I use guide? / What helps me sleep? / I want something different guide / Guide me guide" />
+              <input id="askInput" class="input" type="text" placeholder="What should I use? / What helps me sleep? / What helps me focus? / Build me a calm blend" />
             </label>
           </div>
 
@@ -2510,7 +2510,7 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
             <button id="askPromptSleep" class="btn btnTiny askQuick" type="button">Sleep</button>
             <button id="askPromptConsistent" class="btn btnTiny askQuick" type="button">Steady</button>
             <button id="askPromptWeird" class="btn btnTiny askQuick" type="button">Different</button>
-            <button id="askPromptTranscript" class="btn btnTiny askQuick" type="button">Guide guide</button>
+            <button id="askPromptTranscript" class="btn btnTiny askQuick" type="button">All Lanes</button>
           </div>
 
           <div class="row topgap">
@@ -5410,16 +5410,17 @@ Weird flag: ${Math.round(laneRate(pick, "weird") * 100)}%.`;
       if (stats.bestFun) lines.push(`Fun lane: ${stats.bestFun.name}`);
       if (stats.mostConsistent) lines.push(`Steady pick: ${stats.mostConsistent.name}`);
 
-      return `Guide guide:
+      return `All lanes:
 
 ${lines.join("\n")}
 
-Use this correctly: pick the lane that matches what you want guide, not the stash with the prettiest label.`;
+Use this correctly: pick the lane that matches what you want, not the stash with the prettiest label.`;
     }
 
     function chooseBlendGoal(query){
       const q = String(query || "").toLowerCase();
       if (q.includes("sleep")) return "SLEEP";
+      if (q.includes("calm") || q.includes("chill")) return "CALM";
       if (q.includes("focus") || q.includes("clear")) return "FOCUS";
       if (q.includes("creative") || q.includes("create")) return "CREATIVE";
       if (q.includes("fun") || q.includes("social")) return "FUN";
@@ -6289,7 +6290,7 @@ These match scores rank fit for your target. The grams and percentages are the a
     }
 
     function suggestionConfigFromQuery(query){
-      if (query.includes("guide me guide") || query.includes("guide guide")) return { kind:"guide", title:"Suggested lane" };
+      if (query.includes("show me all lanes") || query.includes("all lanes") || query.includes("guide me guide") || query.includes("guide guide")) return { kind:"guide", title:"Suggested lane" };
       if (query.includes("something different") || query.includes("different guide") || query.includes("mix it up") || query.includes("different") || query.includes("off guide")) return { kind:"different", title:"Suggested change-up" };
       if (query.includes("sleep")) return { kind:"sleep", title:"Sleep pick" };
       if (query.includes("calm") || query.includes("chill")) return { kind:"calm", title:"Calm pick" };
@@ -6297,7 +6298,7 @@ These match scores rank fit for your target. The grams and percentages are the a
       if (query.includes("create") || query.includes("creative")) return { kind:"creative", title:"Creative pick" };
       if (query.includes("fun") || query.includes("social")) return { kind:"fun", title:"Fun / social pick" };
       if (query.includes("consistent") || query.includes("steady")) return { kind:"consistent", title:"Steady pick" };
-      if (query.includes("guide")) return { kind:"guide", title:"Guide pick" };
+      if (query.includes("guide") || query.includes("tonight") || query.includes("what should i use")) return { kind:"guide", title:"Guide pick" };
       return null;
     }
 
@@ -6366,16 +6367,22 @@ async function answerAsk(q){
       const stashCount = loadStash().length;
 
       if (!query){
-        return "Ask sharper and I will answer sharper. Try: What should I use guide? / What helps me sleep? / What helps me focus? / What helps me create? / What has been most consistent? / Why did that land weird?";
+        return "Ask sharper and I will answer sharper. Try: What should I use tonight? / What helps me sleep? / What helps me focus? / Build me a calm blend. / What has been most consistent?";
       }
 
       if (!stats.sessions.length && !stashCount){
         return "You have no stash or session data yet. This layer gets real once it can read your own history.";
       }
 
-      if (query.includes("guide me guide") || query.includes("guide guide")) return answerGuideGuide();
+      if (query.includes("show me all lanes") || query.includes("all lanes") || query.includes("guide me guide") || query.includes("guide guide")) return answerGuideGuide();
       if (query.includes("something different") || query.includes("different guide") || query.includes("mix it up") || query.includes("different") || query.includes("off guide")) return answerDifferent();
-      if (query.includes("guide")) return guideModeAnswer("CALM");
+      if (query.includes("blend") || query.includes("mix") || query.includes("combo")) {
+        const blendGoal = chooseBlendGoal(query);
+        return `BLEND TARGET — ${blendGoal}
+
+Built from your stash + session history. Check the pair cards below for the actual split.`;
+      }
+      if (query.includes("guide") || query.includes("tonight") || query.includes("what should i use")) return guideModeAnswer("CALM");
       if (query.includes("sleep")){
         return stats.bestSleep
           ? `Best current sleep signal: ${stats.bestSleep.name}.
@@ -6461,11 +6468,11 @@ Ask me something tighter.`;
       askQuickButtons.forEach(x => x.classList.toggle("active", x === btn));
     }
 
-    askPromptGuide.onclick = () => { setAskQuickActive(askPromptGuide); askInput.value = "What should I use guide?"; };
+    askPromptGuide.onclick = () => { setAskQuickActive(askPromptGuide); askInput.value = "What should I use tonight?"; };
     askPromptSleep.onclick = () => { setAskQuickActive(askPromptSleep); askInput.value = "What helps me sleep?"; };
     askPromptConsistent.onclick = () => { setAskQuickActive(askPromptConsistent); askInput.value = "What has been most consistent for me?"; };
     askPromptWeird.onclick = () => { setAskQuickActive(askPromptWeird); askInput.value = "I want something different guide."; };
-    if (askPromptTranscript) askPromptTranscript.onclick = () => { setAskQuickActive(askPromptTranscript); askInput.value = "Guide me guide."; };
+    if (askPromptTranscript) askPromptTranscript.onclick = () => { setAskQuickActive(askPromptTranscript); askInput.value = "Show me all lanes."; };
 
     async function runAskFlow(rawQueryOverride){
       askReply.textContent = "Thinking…";
@@ -6486,9 +6493,25 @@ Ask me something tighter.`;
       }
     }
 
+    function inferBlendGoalFromInput(value){
+      const q = String(value || "").toLowerCase();
+      if (q.includes("sleep")) return "SLEEP";
+      if (q.includes("calm") || q.includes("chill")) return "CALM";
+      if (q.includes("focus") || q.includes("clear")) return "FOCUS";
+      if (q.includes("creative") || q.includes("create")) return "CREATIVE";
+      if (q.includes("fun") || q.includes("social")) return "FUN";
+      return "CALM";
+    }
+
     if (askPromptBlend) askPromptBlend.onclick = async () => {
       setAskQuickActive(askPromptBlend);
-      await runAskFlow("What blend should I try guide?");
+      const inferredGoal = inferBlendGoalFromInput(askInput.value);
+      const pickedGoal = prompt("Blend target? Type one: CALM / SLEEP / FOCUS / CREATIVE / FUN", inferredGoal);
+      if (!pickedGoal) return;
+      const normalizedGoal = String(pickedGoal || "").trim().toUpperCase();
+      const allowedGoals = ["CALM", "SLEEP", "FOCUS", "CREATIVE", "FUN"];
+      const finalGoal = allowedGoals.includes(normalizedGoal) ? normalizedGoal : inferredGoal;
+      await runAskFlow(`Build me a ${finalGoal.toLowerCase()} blend.`);
     };
 
     askBtn.onclick = async () => {
