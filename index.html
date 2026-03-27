@@ -715,19 +715,46 @@
     .askQuickBlendStandalone{
       display:block;
       width:100%;
-      min-height:56px;
-      border-radius:16px;
+      min-height:60px;
+      border-radius:18px;
       font-size:18px;
-      font-weight:700;
+      font-weight:800;
       letter-spacing:0.02em;
-      border-color:rgba(255,214,74,0.42);
-      background:linear-gradient(180deg, rgba(255,214,74,0.20), rgba(255,170,70,0.16));
-      box-shadow:0 0 0 1px rgba(255,214,74,0.10) inset, 0 0 24px rgba(255,190,74,0.12);
+      border-color:rgba(255,214,74,0.48);
+      color:#fff7da;
+      background:
+        linear-gradient(90deg,
+          rgba(255,214,74,0.30) 0%,
+          rgba(255,182,74,0.18) 20%,
+          rgba(255,156,68,0.12) 50%,
+          rgba(255,182,74,0.18) 80%,
+          rgba(255,214,74,0.30) 100%);
+      box-shadow:
+        0 0 0 1px rgba(255,214,74,0.12) inset,
+        0 10px 24px rgba(0,0,0,0.18),
+        0 0 26px rgba(255,190,74,0.12);
+    }
+    .askQuickBlendStandalone:hover{
+      transform:translateY(-1px);
+      box-shadow:
+        0 0 0 1px rgba(255,214,74,0.14) inset,
+        0 12px 28px rgba(0,0,0,0.22),
+        0 0 30px rgba(255,190,74,0.14);
     }
     .askQuickBlendStandalone.active{
       border-color:rgba(255,214,74,0.96);
-      background:linear-gradient(180deg, rgba(255,214,74,0.34), rgba(255,170,70,0.24));
-      box-shadow:0 0 0 1px rgba(255,214,74,0.18) inset, 0 0 0 2px rgba(255,214,74,0.08), 0 0 26px rgba(255,190,74,0.22);
+      background:
+        linear-gradient(90deg,
+          rgba(255,224,110,0.42) 0%,
+          rgba(255,190,88,0.28) 22%,
+          rgba(255,160,72,0.18) 50%,
+          rgba(255,190,88,0.28) 78%,
+          rgba(255,224,110,0.42) 100%);
+      box-shadow:
+        0 0 0 1px rgba(255,214,74,0.20) inset,
+        0 0 0 2px rgba(255,214,74,0.08),
+        0 12px 30px rgba(0,0,0,0.24),
+        0 0 30px rgba(255,190,74,0.22);
     }
     .askBlendZoneHint{
       margin:8px 0 0 0;
@@ -2462,7 +2489,7 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           <div class="askBlendZone topgap">
             <div class="askBlendZoneLabel">BLEND</div>
             <button id="askPromptBlend" class="btn askQuick askQuickBlend askQuickBlendStandalone" type="button">Build a Blend</button>
-            <p class="askBlendZoneHint">Standalone blend action. Use this when you want a pair, not just a general answer.</p>
+            <p class="askBlendZoneHint">Tap once to build a targeted pair from your stash.</p>
           </div>
 
           <div class="divider"></div>
@@ -6371,12 +6398,12 @@ Ask me something tighter.`;
     askPromptConsistent.onclick = () => { setAskQuickActive(askPromptConsistent); askInput.value = "What has been most consistent for me?"; };
     askPromptWeird.onclick = () => { setAskQuickActive(askPromptWeird); askInput.value = "I want something different tonight."; };
     if (askPromptTranscript) askPromptTranscript.onclick = () => { setAskQuickActive(askPromptTranscript); askInput.value = "Guide me tonight."; };
-    if (askPromptBlend) askPromptBlend.onclick = () => { setAskQuickActive(askPromptBlend); askInput.value = "What blend should I try tonight?"; };
 
-    askBtn.onclick = async () => {
+    async function runAskFlow(rawQueryOverride){
       askReply.textContent = "Thinking…";
       clearAskSuggestion();
-      const rawQuery = askInput.value;
+      const rawQuery = typeof rawQueryOverride === "string" ? rawQueryOverride : askInput.value;
+      if (typeof rawQueryOverride === "string") askInput.value = rawQuery;
       const normalizedQuery = String(rawQuery || "").trim().toLowerCase();
       const stats = await computePatternStats();
       const suggestions = suggestionRowsFromStats(normalizedQuery, stats);
@@ -6389,6 +6416,15 @@ Ask me something tighter.`;
       } else {
         renderAskSuggestionCards(suggestions);
       }
+    }
+
+    if (askPromptBlend) askPromptBlend.onclick = async () => {
+      setAskQuickActive(askPromptBlend);
+      await runAskFlow("What blend should I try tonight?");
+    };
+
+    askBtn.onclick = async () => {
+      await runAskFlow();
     };
 
     askInput.addEventListener("input", () => {
