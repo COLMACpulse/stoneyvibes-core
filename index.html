@@ -4405,7 +4405,15 @@ const askPromptBlend = document.getElementById("askPromptBlend");
             sleepGood: 0,
             creative: 0,
             focus: 0,
-            fun: 0
+            fun: 0,
+            terpeneTotals: {
+              MYRCENE: 0,
+              CARYOPHYLLENE: 0,
+              LIMONENE: 0,
+              PINENE: 0,
+              LINALOOL: 0,
+              TERPINOLENE: 0
+            }
           });
         }
         const b = buckets.get(key);
@@ -4418,9 +4426,19 @@ const askPromptBlend = document.getElementById("askPromptBlend");
         if (includesAny(s.mood, ["SOCIAL","MELLOW"])) b.fun += 1;
         if (includesAny(s.mood, ["PISSED","NOT_GREAT","WIRED"])) b.weird += 1;
         if (parseSleepValue(s.sleep) >= 4) b.sleepGood += 1;
+
+        const terp = s.terpenes || {};
+        Object.keys(b.terpeneTotals).forEach(key => {
+          b.terpeneTotals[key] += terpPresenceScore(terp[key]);
+        });
       });
 
-      const rows = Array.from(buckets.values()).filter(x => x.count > 0);
+      const rows = Array.from(buckets.values()).filter(x => x.count > 0).map(row => ({
+        ...row,
+        terpeneAverages: Object.fromEntries(
+          Object.entries(row.terpeneTotals || {}).map(([key, total]) => [key, row.count ? (total / row.count) : 0])
+        )
+      }));
 
       const bestSleep = rows.slice().sort((a,b) => ((b.sleepGood / b.count) - (a.sleepGood / a.count)) || (b.count - a.count))[0] || null;
       const bestCalm = rows.slice().sort((a,b) => ((b.calm / b.count) - (a.calm / a.count)) || (b.count - a.count))[0] || null;
@@ -4814,16 +4832,79 @@ These match scores rank fit for your target. The grams and percentages are the a
       return `${goal} blend grounded in your own logs. Best lanes: ${laneText}.`;
     }
 
+    function terpPresenceScore(value){
+      const key = String(value || "").toUpperCase();
+      if (key === "DOMINANT") return 1.0;
+      if (key === "NOTICEABLE") return 0.72;
+      if (key === "BACKGROUND") return 0.38;
+      return 0;
+    }
+
+    function rowChemicalProfile(row){
+      const t = row?.terpeneAverages || {};
+      const lim = Number(t.LIMONENE || 0);
+      const pin = Number(t.PINENE || 0);
+      const myr = Number(t.MYRCENE || 0);
+      const lin = Number(t.LINALOOL || 0);
+      const car = Number(t.CARYOPHYLLENE || 0);
+      const ter = Number(t.TERPINOLENE || 0);
+
+      return {
+        lim, pin, myr, lin, car, ter,
+        uplift: (0.65 * lim) + (0.35 * pin),
+        calmAxis: (0.55 * lin) + (0.45 * car),
+        sed: (0.75 * myr) + (0.25 * lin),
+        clear: (0.70 * pin) + (0.30 * lim),
+        steadyAxis: (0.45 * car) + (0.35 * lin) + (0.20 * pin)
+      };
+    }
+
+    function blendChemicalProfile(parts){
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
+      const totalWeight = safeParts.reduce((acc, part) => acc + Math.max(0.01, Number(part?.pct || 50)), 0) || 1;
+      const out = { lim:0, pin:0, myr:0, lin:0, car:0, ter:0, uplift:0, calmAxis:0, sed:0, clear:0, steadyAxis:0 };
+
+      safeParts.forEach(part => {
+        const weight = Math.max(0.01, Number(part?.pct || 50)) / totalWeight;
+        const chem = rowChemicalProfile(part);
+        Object.keys(out).forEach(key => {
+          out[key] += (Number(chem[key] || 0) * weight);
+        });
+      });
+
+      return out;
+    }
+
+    function strongestChemSignals(profile){
+      const signals = [
+        { key:"sed", label:"Sedation bias", value:Number(profile?.sed || 0) },
+        { key:"uplift", label:"Uplift bias", value:Number(profile?.uplift || 0) },
+        { key:"clear", label:"Clarity bias", value:Number(profile?.clear || 0) },
+        { key:"calmAxis", label:"Calm bias", value:Number(profile?.calmAxis || 0) },
+        { key:"steadyAxis", label:"Steady bias", value:Number(profile?.steadyAxis || 0) }
+      ].sort((a,b) => b.value - a.value);
+      return signals;
+    }
+
     function blendInsightLines(goal, parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
       if (!safeParts.length) return ["No blend read yet."];
 
+      const lines = [];
+      const profile = blendChemicalProfile(safeParts);
+      const strongest = strongestChemSignals(profile);
+      const topChem = strongest[0];
+      const secondChem = strongest[1];
+
+      if (topChem && secondChem && topChem.value > 0.16 && secondChem.value > 0.12){
+        lines.push(`${topChem.label} + ${secondChem.label}.`);
+      } else if (topChem && topChem.value > 0.12){
+        lines.push(`${topChem.label}.`);
+      }
+
       const allTop = safeParts.map(part => bestLanesForRow(part).filter(x => x.value > 0));
       const firstTop = allTop[0]?.[0];
       const secondTop = allTop[1]?.[0];
-
-      const lines = [];
-
       if (firstTop && secondTop){
         if (firstTop.key === secondTop.key){
           lines.push(`Shared ${laneLabel(firstTop.key)} lane — both parts push the same direction.`);
@@ -4835,13 +4916,11 @@ These match scores rank fit for your target. The grams and percentages are the a
       }
 
       const weirdAvg = safeParts.reduce((acc, part) => acc + laneRate(part, "weird"), 0) / safeParts.length;
-      if (weirdAvg <= 0.14){
-        lines.push("Low drift risk from your current logs.");
-      } else if (weirdAvg <= 0.28){
-        lines.push("Some drift risk — keep the setup controlled.");
-      } else {
-        lines.push("Higher drift risk — watch dose and timing.");
-      }
+      const driftLine = weirdAvg <= 0.14
+        ? "Low drift risk from your current logs."
+        : weirdAvg <= 0.28
+          ? "Some drift risk — keep the setup controlled."
+          : "Higher drift risk — watch dose and timing.";
 
       const goalMap = {
         "SLEEP":"Aimed at a heavier settle / sleep lane.",
@@ -4850,7 +4929,11 @@ These match scores rank fit for your target. The grams and percentages are the a
         "CREATIVE":"Aimed at a more creative lane.",
         "FUN":"Aimed at a more social / fun lane."
       };
-      lines.push(goalMap[String(goal || "").toUpperCase()] || "Built around your current target lane.");
+      const goalLine = goalMap[String(goal || "").toUpperCase()] || "Built around your current target lane.";
+
+      lines.push(goalLine);
+
+      if (lines.length < 3) lines.push(driftLine);
 
       return lines.slice(0,3);
     }
@@ -4858,11 +4941,15 @@ These match scores rank fit for your target. The grams and percentages are the a
     function blendBalanceScore(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2) : [];
       if (!safeParts.length) return 0;
-      const score = safeParts.reduce((acc, part) => {
+      const base = safeParts.reduce((acc, part) => {
         const avg = avgOutcome(part);
         const weirdPenalty = laneRate(part, "weird") * 0.9;
         return acc + Math.max(0, avg - weirdPenalty + 0.75);
       }, 0) / safeParts.length;
+
+      const chem = blendChemicalProfile(safeParts);
+      const chemSupport = Math.max(chem.calmAxis, chem.clear, chem.uplift, chem.sed, chem.steadyAxis);
+      const score = base + (chemSupport * 0.45);
       return Math.max(0, Math.min(1, score / 3));
     }
 
