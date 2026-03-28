@@ -5174,7 +5174,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
     }
 
     async function guideModeAnswer(goalRaw){
-      const goal = String(goalRaw || "CALM").trim().toUpperCase();
+      const goal = String(goalRaw || "GUIDE").trim().toUpperCase();
       const stats = await computePatternStats();
       if (!stats.rows.length){
         return "I do not have enough personal signal yet. Add stash, log a few sessions, then ask again.";
@@ -5185,14 +5185,17 @@ const askPromptBlend = document.getElementById("askPromptBlend");
         if (goal === "SLEEP") score += (r.sleepGood / r.count) * 2.2;
         if (goal === "CALM") score += (r.calm / r.count) * 2.0;
         if (goal === "FUN" || goal === "SOCIAL") score += ((r.total / r.count) > 0 ? 0.45 : 0);
-        if (goal === "FOCUS") score += ((r.calm / r.count) * 0.6);
+        if (goal === "FOCUS") score += ((r.focus / r.count) * 1.8) + ((r.calm / r.count) * 0.35);
+        if (goal === "CREATIVE") score += (r.creative / r.count) * 2.0;
+        if (goal === "GUIDE") score += Math.min(0.30, r.count * 0.04);
         score -= (r.weird / r.count) * 1.6;
         return { ...r, pickScore: score };
       }).sort((a,b) => b.pickScore - a.pickScore).slice(0,3);
 
       const blendParts = buildGramBlendParts(scored, "pickScore", 1);
+      const heading = goal === "GUIDE" ? "GUIDE PICK" : `GUIDE MODE — ${goal}`;
 
-      return `TONIGHT MODE — ${goal}
+      return `${heading}
 
 Top matches:
 ${scored.map((r, i) => `${i + 1}. ${r.name} — match score ${r.pickScore.toFixed(2)} from ${r.count} logged session${r.count === 1 ? "" : "s"}`).join("\n")}
@@ -6326,7 +6329,7 @@ These match scores rank fit for your target. The grams and percentages are the a
     }
 
     function suggestionConfigFromQuery(query){
-      if (query.includes("show me all lanes") || query.includes("all lanes") || query.includes("guide me guide") || query.includes("guide guide")) return { kind:"guide", title:"Suggested lane" };
+      if (query.includes("show me all lanes") || query.includes("all lanes") || query.includes("guide me guide") || query.includes("guide guide")) return { kind:"guide", title:"Lane map" };
       if (query.includes("something different") || query.includes("different guide") || query.includes("mix it up") || query.includes("different") || query.includes("off guide")) return { kind:"different", title:"Suggested change-up" };
       if (query.includes("sleep")) return { kind:"sleep", title:"Sleep pick" };
       if (query.includes("calm") || query.includes("chill")) return { kind:"calm", title:"Calm pick" };
@@ -6418,7 +6421,7 @@ async function answerAsk(q){
 
 Built from your stash + session history. Check the pair cards below for the actual split.`;
       }
-      if (query.includes("guide") || query.includes("tonight") || query.includes("what should i use")) return guideModeAnswer("CALM");
+      if (query.includes("guide") || query.includes("tonight") || query.includes("what should i use")) return guideModeAnswer("GUIDE");
       if (query.includes("sleep")){
         return stats.bestSleep
           ? `Best current sleep signal: ${stats.bestSleep.name}.
@@ -6504,10 +6507,10 @@ Ask me something tighter.`;
       askQuickButtons.forEach(x => x.classList.toggle("active", x === btn));
     }
 
-    askPromptGuide.onclick = () => { setAskQuickActive(askPromptGuide); askInput.value = "What should I use tonight?"; };
+    askPromptGuide.onclick = () => { setAskQuickActive(askPromptGuide); askInput.value = "Guide me tonight."; };
     askPromptSleep.onclick = () => { setAskQuickActive(askPromptSleep); askInput.value = "What helps me sleep?"; };
     askPromptConsistent.onclick = () => { setAskQuickActive(askPromptConsistent); askInput.value = "What has been most consistent for me?"; };
-    askPromptWeird.onclick = () => { setAskQuickActive(askPromptWeird); askInput.value = "I want something different guide."; };
+    askPromptWeird.onclick = () => { setAskQuickActive(askPromptWeird); askInput.value = "I want something different."; };
     if (askPromptTranscript) askPromptTranscript.onclick = () => { setAskQuickActive(askPromptTranscript); askInput.value = "Show me all lanes."; };
 
     async function runAskFlow(rawQueryOverride){
@@ -6536,7 +6539,7 @@ Ask me something tighter.`;
       if (q.includes("focus") || q.includes("clear")) return "FOCUS";
       if (q.includes("creative") || q.includes("create")) return "CREATIVE";
       if (q.includes("fun") || q.includes("social")) return "FUN";
-      return "CALM";
+      return "";
     }
 
     if (askPromptBlend) askPromptBlend.onclick = async () => {
@@ -6546,8 +6549,12 @@ Ask me something tighter.`;
       if (!pickedGoal) return;
       const normalizedGoal = String(pickedGoal || "").trim().toUpperCase();
       const allowedGoals = ["CALM", "SLEEP", "FOCUS", "CREATIVE", "FUN"];
-      const finalGoal = allowedGoals.includes(normalizedGoal) ? normalizedGoal : inferredGoal;
-      await runAskFlow(`Build me a ${finalGoal.toLowerCase()} blend.`);
+      if (!allowedGoals.includes(normalizedGoal)){
+        askReply.textContent = "Blend target not recognized. Use: CALM / SLEEP / FOCUS / CREATIVE / FUN.";
+        clearAskSuggestion();
+        return;
+      }
+      await runAskFlow(`Build me a ${normalizedGoal.toLowerCase()} blend.`);
     };
 
     askBtn.onclick = async () => {
@@ -6560,7 +6567,7 @@ Ask me something tighter.`;
     });
 
     guideModeBtn.onclick = async () => {
-      const goal = prompt("Guide goal? Type one: CALM / SLEEP / FUN / FOCUS / SOCIAL", "CALM");
+      const goal = prompt("Guide goal? Type one: GUIDE / CALM / SLEEP / FUN / FOCUS / CREATIVE / SOCIAL", "GUIDE");
       if (!goal) return;
       askReply.textContent = "Thinking…";
       clearAskSuggestion();
@@ -6571,7 +6578,9 @@ Ask me something tighter.`;
         CALM: "calm",
         FUN: "fun",
         SOCIAL: "fun",
-        FOCUS: "focus"
+        FOCUS: "focus",
+        CREATIVE: "creative",
+        GUIDE: "guide"
       };
       const guideKind = guideKindMap[normalizedGoal] || "guide";
       askReply.textContent = await guideModeAnswer(goal);
