@@ -1939,6 +1939,63 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 }
 </style>
 
+
+<style>
+/* v9 — session journal */
+.sessionJournal{
+  display:grid;
+  gap:10px;
+  margin-top:10px;
+}
+.sessionJournalEntry{
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.04);
+  border-radius:14px;
+  padding:10px 12px;
+}
+.sessionJournalHead{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 10px;
+  align-items:center;
+  justify-content:space-between;
+}
+.sessionJournalStamp{
+  font-size:11px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.sessionJournalTag{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.06);
+  color:var(--text);
+  font-size:11px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+}
+.sessionJournalBody{
+  margin-top:8px;
+  font-size:13px;
+  line-height:1.45;
+  color:var(--text);
+  white-space:pre-wrap;
+}
+.sessionJournalEmpty{
+  border:1px dashed rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.03);
+  border-radius:14px;
+  padding:12px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+}
+</style>
+
 </head>
 
 <body>
@@ -2625,6 +2682,14 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </ul>
 
           <div class="aboutFooter">VOLUME 1 — SESSION CAPTURE INSTRUMENT</div>
+
+          <div class="divider"></div>
+
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">SESSION JOURNAL</h2>
+          <p class="muted" style="margin:6px 0 0 0;">All saved transcript entries, stacked in time order.</p>
+          <div id="sessionJournal" class="sessionJournal topgap">
+            <div class="sessionJournalEmpty">No transcript entries yet.</div>
+          </div>
 
           <div class="divider"></div>
 
@@ -4488,6 +4553,7 @@ ${cautionBits.join(" • ")}`
       renderStashLinkDropdown();
       await renderSessions();
       await renderAskPatterns();
+      await renderSessionJournal();
       closeStashDetail();
     }
         async function importFromFile(file){
@@ -4619,6 +4685,7 @@ ${cautionBits.join(" • ")}`
 
       await renderSessions();
       await renderAskPatterns();
+      await renderSessionJournal();
       if (selectedStashId){
         await renderSelectedStashDetail();
       }
@@ -4733,6 +4800,7 @@ ${cautionBits.join(" • ")}`
 
       await renderSessions();
       await renderAskPatterns();
+      await renderSessionJournal();
       if (selectedStashId){
         await renderSelectedStashDetail();
       }
@@ -6651,6 +6719,36 @@ Ask me something tighter.`;
     const exportBtn = document.getElementById("exportBtn");
     const importJsonInput = document.getElementById("importJsonInput");
     const wipeBtn = document.getElementById("wipeBtn");
+    const sessionJournal = document.getElementById("sessionJournal");
+
+    async function renderSessionJournal(){
+      if (!sessionJournal) return;
+      const sessions = await dbGetAll();
+      const entries = sessions
+        .filter(s => String(s.transcriptText || "").trim())
+        .sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      if (!entries.length){
+        sessionJournal.innerHTML = '<div class="sessionJournalEmpty">No transcript entries yet.</div>';
+        return;
+      }
+
+      sessionJournal.innerHTML = entries.map(s => {
+        const stamp = fmtTime(s.createdAt);
+        const label = (s.stashName && s.stashName.trim())
+          ? s.stashName.trim()
+          : ((s.tag && s.tag.trim()) ? s.tag.trim() : 'Session');
+        return `
+          <div class="sessionJournalEntry">
+            <div class="sessionJournalHead">
+              <span class="sessionJournalStamp">${escapeHtml(stamp)}</span>
+              <span class="sessionJournalTag">${escapeHtml(label)}</span>
+            </div>
+            <div class="sessionJournalBody">${escapeHtml(String(s.transcriptText || '').trim())}</div>
+          </div>
+        `;
+      }).join("");
+    }
 
     exportBtn.onclick = async () => {
       const stash = loadStash();
@@ -6687,6 +6785,7 @@ Ask me something tighter.`;
       renderStashLinkDropdown();
       await renderSessions();
       await renderAskPatterns();
+      await renderSessionJournal();
       await renderAskPatterns();
       setStatus("idle","Idle");
 
@@ -6737,6 +6836,7 @@ Ask me something tighter.`;
 
       await renderSessions();
       await renderAskPatterns();
+      await renderSessionJournal();
       initCustomPlayers();
       closeStashDetail();
     })();
