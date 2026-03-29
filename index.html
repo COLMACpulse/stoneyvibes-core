@@ -1941,47 +1941,63 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
 
 <style>
-/* v9 — session journal */
+/* v10 — session journal scan pass */
 .sessionJournal{
   display:grid;
-  gap:10px;
+  gap:8px;
   margin-top:10px;
 }
 .sessionJournalEntry{
-  border:1px solid rgba(255,255,255,0.12);
-  background:rgba(255,255,255,0.04);
-  border-radius:14px;
-  padding:10px 12px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025));
+  border-radius:12px;
+  padding:9px 10px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);
 }
 .sessionJournalHead{
-  display:flex;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns:1fr auto;
   gap:8px 10px;
-  align-items:center;
-  justify-content:space-between;
+  align-items:start;
+}
+.sessionJournalMeta{
+  min-width:0;
+}
+.sessionJournalTag{
+  display:block;
+  margin:0;
+  font-size:13px;
+  line-height:1.2;
+  font-weight:700;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color:var(--text);
 }
 .sessionJournalStamp{
-  font-size:11px;
+  margin-top:4px;
+  font-size:10px;
   letter-spacing:0.08em;
   text-transform:uppercase;
   color:var(--muted);
 }
-.sessionJournalTag{
+.sessionJournalBadge{
   display:inline-flex;
   align-items:center;
+  justify-content:center;
   padding:4px 8px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,0.14);
-  background:rgba(255,255,255,0.06);
-  color:var(--text);
-  font-size:11px;
-  letter-spacing:0.06em;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.05);
+  color:var(--muted);
+  font-size:10px;
+  letter-spacing:0.10em;
   text-transform:uppercase;
+  white-space:nowrap;
 }
 .sessionJournalBody{
   margin-top:8px;
   font-size:13px;
-  line-height:1.45;
+  line-height:1.42;
   color:var(--text);
   white-space:pre-wrap;
 }
@@ -6735,14 +6751,18 @@ Ask me something tighter.`;
 
       sessionJournal.innerHTML = entries.map(s => {
         const stamp = fmtTime(s.createdAt);
-        const label = (s.stashName && s.stashName.trim())
+        const primaryLabel = (s.stashName && s.stashName.trim())
           ? s.stashName.trim()
           : ((s.tag && s.tag.trim()) ? s.tag.trim() : 'Session');
+        const badge = (s.stashName && s.stashName.trim()) ? 'Stash-linked' : 'Session note';
         return `
           <div class="sessionJournalEntry">
             <div class="sessionJournalHead">
-              <span class="sessionJournalStamp">${escapeHtml(stamp)}</span>
-              <span class="sessionJournalTag">${escapeHtml(label)}</span>
+              <div class="sessionJournalMeta">
+                <p class="sessionJournalTag">${escapeHtml(primaryLabel)}</p>
+                <div class="sessionJournalStamp">${escapeHtml(stamp)}</div>
+              </div>
+              <span class="sessionJournalBadge">${escapeHtml(badge)}</span>
             </div>
             <div class="sessionJournalBody">${escapeHtml(String(s.transcriptText || '').trim())}</div>
           </div>
