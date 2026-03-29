@@ -2012,6 +2012,78 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 }
 </style>
 
+
+<style>
+/* v11 — session hierarchy pass */
+.sessionCard{
+  padding:14px;
+}
+.sessionTopStrip{
+  display:grid;
+  gap:10px;
+}
+.sessionCaptureCard{
+  margin:0;
+  border:1px solid rgba(255,255,255,0.14);
+  background:linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.028));
+  box-shadow:0 12px 30px rgba(0,0,0,0.20);
+}
+.sessionCaptureCard h2{
+  margin:0 0 6px 0;
+}
+.sessionPrimaryActions{
+  justify-content:flex-start;
+}
+.sessionPrimaryActions .btn{
+  min-width:150px;
+}
+.sessionFold{
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.022));
+  overflow:hidden;
+  box-shadow:0 10px 24px rgba(0,0,0,0.16);
+}
+.sessionFold[open]{
+  border-color:rgba(255,255,255,0.18);
+  background:linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.028));
+}
+.sessionFoldSummary{
+  list-style:none;
+  cursor:pointer;
+  padding:12px 14px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.14em;
+  color:var(--text);
+  user-select:none;
+}
+.sessionFoldSummary::-webkit-details-marker{
+  display:none;
+}
+.sessionFoldSummary::after{
+  content:"▾";
+  float:right;
+  color:var(--muted);
+  transition:transform .16s ease;
+}
+.sessionFold:not([open]) .sessionFoldSummary::after{
+  transform:rotate(-90deg);
+}
+.sessionFoldBody{
+  padding:0 14px 14px 14px;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+.sessionFoldBody > .divider:first-child{
+  display:none;
+}
+@media (min-width: 820px){
+  .sessionTopStrip{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -2144,9 +2216,12 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
       <!-- PAGE 2: SESSIONS -->
       <section class="page" id="pageSessions">
-        <div class="card">
+        <div class="card sessionCard">
           <h2>SESSION</h2>
           <p class="muted" style="margin:0;">Capture what you tried, what it smelled like, and how it landed.</p>
+
+          <div class="sessionTopStrip topgap">
+
 
           <!-- SESSION (stash + tag) -->
           <div class="row topgap">
@@ -2168,6 +2243,77 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </div>
 
           <div class="divider"></div>
+
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="card sessionCaptureCard">
+
+
+          <!-- AUDIO NOTE -->
+          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">AUDIO NOTE (PARAMOUNT)</h2>
+          <p class="muted" style="margin:6px 0 0 0;">One-button session path: start session, talk, stop session, save.</p>
+
+          <div class="row topgap">
+            <button id="recBtn" class="btn btnPrimary" type="button">▶️ Start Session</button>
+            <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
+            <button id="stopBtn" class="btn btnOk" type="button" disabled>■ Stop Session</button>
+            <span id="statusPill" class="pill"><span class="okDot"></span><span id="statusText">Idle</span></span>
+          </div>
+
+          <div class="row topgap" id="iphoneFallback" style="display:none;">
+            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+              🎧 iPhone Mode
+              <input id="fileAudio" type="file" accept="audio/*" capture style="display:none;" />
+            </label>
+            <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
+          </div>
+
+          <div class="row topgap">
+            <audio id="preview" controls style="display:none;"></audio>
+          </div>
+
+          <div class="divider"></div>
+
+
+
+          <!-- TRANSCRIPT -->
+          <div class="terpRow">
+            <p class="terpName">Transcript</p>
+            <p class="terpHint">Default path: Start Session kicks off audio and, when supported, live transcript automatically. You can still edit the raw transcript before saving.</p>
+
+            <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
+              <button id="transcriptLiveBtn" class="btn btnPrimary" type="button">Live Transcript</button>
+              <button id="transcriptStopBtn" class="btn" type="button" disabled>Stop</button>
+              <button id="transcriptResetBtn" class="btn btnTiny" type="button">Reset</button>
+              <span id="transcriptStatusPill" class="pill"><span class="okDot"></span><span id="transcriptStatusText">Idle</span></span>
+            </div>
+
+            <div class="notice topgap">
+              Start Session will try to fill this box automatically while you talk. If live transcript is not supported here, audio still records normally and you can paste or type raw text later.
+            </div>
+
+            <div class="row topgap">
+              <label class="field">
+                <span class="label">Transcript</span>
+                <textarea id="transcriptText" class="input" rows="7" placeholder="Live transcript appears here when available. You can also paste or edit it manually."></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+            <div class="row topgap sessionPrimaryActions">
+              <button id="saveSessionBtn" class="btn btnOk" type="button">Save Session</button>
+              <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear Sessions</button>
+            </div>
+          </div>
+
+          <details class="sessionFold topgap">
+            <summary class="sessionFoldSummary">QUICK SNAPSHOT</summary>
+            <div class="sessionFoldBody">
+
 
           <!-- Sleep + Mood -->
           <div class="grid2">
@@ -2205,6 +2351,8 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </div>
 
           <div class="divider"></div>
+
+
 
           <!-- FEELING SNAPSHOT -->
           <div class="terpRow">
@@ -2259,24 +2407,24 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
           <div class="divider"></div>
 
-          <!-- PHOTO -->
-          <div class="photoBox">
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
-            <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
 
-            <div class="row topgap">
-              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                📷 Take / Choose Photo
-                <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
-              </label>
-              <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
-            </div>
 
-            <img id="photoThumb" class="thumb" alt="Photo preview" />
-            <input id="photoDataUrl" type="hidden" value="" />
+          <!-- RATE IT -->
+          <div class="terpRow">
+            <p class="terpName">Rate it (1–5)</p>
+            <p class="terpHint">Your “run it again” math.</p>
+            <div class="ratingRow" id="rateRow"></div>
+            <input type="hidden" id="rateScore" value="" />
           </div>
 
           <div class="divider"></div>
+            </div>
+          </details>
+
+          <details class="sessionFold topgap">
+            <summary class="sessionFoldSummary">SENSORY</summary>
+            <div class="sessionFoldBody">
+
 
           <!-- VISUAL TRAITS -->
           <div class="terpRow">
@@ -2375,6 +2523,8 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
           <div class="divider"></div>
 
+
+
           <!-- SMELL INTENSITY -->
 
           <div class="terpRow">
@@ -2434,6 +2584,8 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
           <div class="divider"></div>
 
+
+
           <!-- SMELL NOTES -->
           <div class="terpRow">
             <p class="terpName">Smell notes (multi-select)</p>
@@ -2462,6 +2614,8 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
           <div class="divider"></div>
 
+
+
           <!-- SMELL AUDIO -->
           <div class="terpRow">
             <p class="terpName" style="margin:0;">Smell audio (optional)</p>
@@ -2488,6 +2642,13 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </div>
 
           <div class="divider"></div>
+            </div>
+          </details>
+
+          <details class="sessionFold topgap">
+            <summary class="sessionFoldSummary">CHEMISTRY</summary>
+            <div class="sessionFoldBody">
+
 
           <!-- TERPENE PRESENCE -->
           <div class="terpRow">
@@ -2497,75 +2658,40 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </div>
 
           <div class="divider"></div>
-
-          <!-- AUDIO NOTE -->
-          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">AUDIO NOTE (PARAMOUNT)</h2>
-          <p class="muted" style="margin:6px 0 0 0;">One-button session path: start session, talk, stop session, save.</p>
-
-          <div class="row topgap">
-            <button id="recBtn" class="btn btnPrimary" type="button">▶️ Start Session</button>
-            <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
-            <button id="stopBtn" class="btn btnOk" type="button" disabled>■ Stop Session</button>
-            <span id="statusPill" class="pill"><span class="okDot"></span><span id="statusText">Idle</span></span>
-          </div>
-
-          <div class="row topgap" id="iphoneFallback" style="display:none;">
-            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-              🎧 iPhone Mode
-              <input id="fileAudio" type="file" accept="audio/*" capture style="display:none;" />
-            </label>
-            <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
-          </div>
-
-          <div class="row topgap">
-            <audio id="preview" controls style="display:none;"></audio>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- TRANSCRIPT -->
-          <div class="terpRow">
-            <p class="terpName">Transcript</p>
-            <p class="terpHint">Default path: Start Session kicks off audio and, when supported, live transcript automatically. You can still edit the raw transcript before saving.</p>
-
-            <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
-              <button id="transcriptLiveBtn" class="btn btnPrimary" type="button">Live Transcript</button>
-              <button id="transcriptStopBtn" class="btn" type="button" disabled>Stop</button>
-              <button id="transcriptResetBtn" class="btn btnTiny" type="button">Reset</button>
-              <span id="transcriptStatusPill" class="pill"><span class="okDot"></span><span id="transcriptStatusText">Idle</span></span>
             </div>
+          </details>
 
-            <div class="notice topgap">
-              Start Session will try to fill this box automatically while you talk. If live transcript is not supported here, audio still records normally and you can paste or type raw text later.
-            </div>
+          <details class="sessionFold topgap">
+            <summary class="sessionFoldSummary">MEDIA</summary>
+            <div class="sessionFoldBody">
+
+
+          <!-- PHOTO -->
+          <div class="photoBox">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
+            <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
 
             <div class="row topgap">
-              <label class="field">
-                <span class="label">Transcript</span>
-                <textarea id="transcriptText" class="input" rows="7" placeholder="Live transcript appears here when available. You can also paste or edit it manually."></textarea>
+              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                📷 Take / Choose Photo
+                <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
               </label>
+              <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
             </div>
+
+            <img id="photoThumb" class="thumb" alt="Photo preview" />
+            <input id="photoDataUrl" type="hidden" value="" />
           </div>
 
           <div class="divider"></div>
+            </div>
+          </details>
 
-          <!-- RATE IT -->
-          <div class="terpRow">
-            <p class="terpName">Rate it (1–5)</p>
-            <p class="terpHint">Your “run it again” math.</p>
-            <div class="ratingRow" id="rateRow"></div>
-            <input type="hidden" id="rateScore" value="" />
-          </div>
 
-          <div class="divider"></div>
 
           <!-- SESSION LOG -->
           <div class="row between">
             <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">SESSION LOG</h2>
-            <div class="row" style="gap:8px;">
-              <button id="saveSessionBtn" class="btn btnOk" type="button">Save Session</button>
-              <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear</button>
-            </div>
           </div>
 
           <div id="sessionList" class="list">
@@ -2577,6 +2703,8 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
             Stored locally on this device only. Nothing leaves the system unless you export it.
           </div>
         </div>
+        </div>
+
       </section>
 
       <!-- PAGE 3: ASK -->
