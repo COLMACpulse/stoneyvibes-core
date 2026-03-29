@@ -3260,6 +3260,22 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
               <span class="stashStat">Avg rating: ${avgRate || "—"}</span>
             </div>
 
+            <div class="topgap">
+              <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH PHOTO</h2>
+              <p class="muted" style="margin:6px 0 0 0;">You can add or replace the stash photo here anytime.</p>
+              <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
+                <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                  ${stash.photoDataUrl ? "Replace Photo" : "Add Photo"}
+                  <input id="stashDetailCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+                </label>
+                <label class="btn btnTiny" style="display:inline-flex; align-items:center; gap:10px;">
+                  Choose Existing
+                  <input id="stashDetailLibraryInput" type="file" accept="image/*" style="display:none;" />
+                </label>
+                ${stash.photoDataUrl ? `<button id="stashDetailRemovePhotoBtn" class="btn btnTiny btnDanger" type="button">Remove Photo</button>` : ""}
+              </div>
+            </div>
+
             ${tagBits.length ? `
               <div class="miniTags topgap">
                 ${tagBits.map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}
@@ -3338,6 +3354,30 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
         </div>
       `;
 
+      const stashDetailCameraInput = stashDetailBody.querySelector("#stashDetailCameraInput");
+      const stashDetailLibraryInput = stashDetailBody.querySelector("#stashDetailLibraryInput");
+      const stashDetailRemovePhotoBtn = stashDetailBody.querySelector("#stashDetailRemovePhotoBtn");
+
+      if (stashDetailCameraInput){
+        stashDetailCameraInput.addEventListener("change", (e) => {
+          const f = e.target.files && e.target.files[0];
+          handleDetailStashPhotoFile(f);
+          stashDetailCameraInput.value = "";
+        });
+      }
+
+      if (stashDetailLibraryInput){
+        stashDetailLibraryInput.addEventListener("change", (e) => {
+          const f = e.target.files && e.target.files[0];
+          handleDetailStashPhotoFile(f);
+          stashDetailLibraryInput.value = "";
+        });
+      }
+
+      if (stashDetailRemovePhotoBtn){
+        stashDetailRemovePhotoBtn.onclick = () => updateStashPhotoById(stash.id, "");
+      }
+
       stashDetailBody.querySelectorAll("[data-ask-stash]").forEach(btn => {
         btn.onclick = () => {
           goToPage(2);
@@ -3372,6 +3412,22 @@ ${cautionBits.join(" • ")}`
       });
       stashListWrap.style.display = "none";
       stashDetail.classList.add("active");
+    }
+
+
+    function updateStashPhotoById(stashId, dataUrl){
+      const items = loadStash();
+      const idx = items.findIndex(x => String(x.id) === String(stashId));
+      if (idx < 0) return;
+      items[idx] = { ...items[idx], photoDataUrl: dataUrl || "" };
+      saveStash(items);
+    }
+
+    function handleDetailStashPhotoFile(file){
+      if (!file || !selectedStashId) return;
+      const reader = new FileReader();
+      reader.onload = () => updateStashPhotoById(selectedStashId, String(reader.result || ""));
+      reader.readAsDataURL(file);
     }
 
     function renderStash(){
