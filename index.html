@@ -2014,73 +2014,53 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
 
 <style>
-/* v11 — session hierarchy pass */
-.sessionCard{
-  padding:14px;
-}
-.sessionTopStrip{
-  display:grid;
-  gap:10px;
-}
-.sessionCaptureCard{
-  margin:0;
-  border:1px solid rgba(255,255,255,0.14);
+/* v11 safe session fold rebuild */
+.sessionPrimaryCapture{
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;
+  padding:12px;
   background:linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.028));
-  box-shadow:0 12px 30px rgba(0,0,0,0.20);
+  box-shadow:0 10px 24px rgba(0,0,0,0.18);
 }
-.sessionCaptureCard h2{
-  margin:0 0 6px 0;
-}
-.sessionPrimaryActions{
-  justify-content:flex-start;
-}
-.sessionPrimaryActions .btn{
-  min-width:150px;
+.sessionPrimaryTitle{
+  margin:0;
+  font-size:14px;
+  letter-spacing:0.10em;
 }
 .sessionFold{
+  margin-top:12px;
   border:1px solid rgba(255,255,255,0.12);
   border-radius:16px;
   background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.022));
   overflow:hidden;
-  box-shadow:0 10px 24px rgba(0,0,0,0.16);
 }
-.sessionFold[open]{
-  border-color:rgba(255,255,255,0.18);
-  background:linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.028));
-}
-.sessionFoldSummary{
+.sessionFold > summary{
   list-style:none;
   cursor:pointer;
   padding:12px 14px;
-  font-size:12px;
+  font-size:13px;
   font-weight:700;
-  letter-spacing:0.14em;
+  letter-spacing:0.12em;
   color:var(--text);
   user-select:none;
 }
-.sessionFoldSummary::-webkit-details-marker{
+.sessionFold > summary::-webkit-details-marker{
   display:none;
 }
-.sessionFoldSummary::after{
-  content:"▾";
+.sessionFold > summary::after{
+  content:"›";
   float:right;
   color:var(--muted);
-  transition:transform .16s ease;
+  font-size:18px;
+  line-height:1;
+  transform:translateY(-1px);
 }
-.sessionFold:not([open]) .sessionFoldSummary::after{
-  transform:rotate(-90deg);
+.sessionFold[open] > summary::after{
+  content:"⌄";
+  font-size:16px;
 }
 .sessionFoldBody{
   padding:0 14px 14px 14px;
-  border-top:1px solid rgba(255,255,255,0.08);
-}
-.sessionFoldBody > .divider:first-child{
-  display:none;
-}
-@media (min-width: 820px){
-  .sessionTopStrip{
-    grid-template-columns:1fr;
-  }
 }
 </style>
 
@@ -2213,15 +2193,11 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </div>
         </div>
       </section>
-
       <!-- PAGE 2: SESSIONS -->
       <section class="page" id="pageSessions">
-        <div class="card sessionCard">
+        <div class="card">
           <h2>SESSION</h2>
           <p class="muted" style="margin:0;">Capture what you tried, what it smelled like, and how it landed.</p>
-
-          <div class="sessionTopStrip topgap">
-
 
           <!-- SESSION (stash + tag) -->
           <div class="row topgap">
@@ -2244,44 +2220,33 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
           <div class="divider"></div>
 
-          </div>
+          <div class="sessionPrimaryCapture">
+            <h2 class="sessionPrimaryTitle">AUDIO NOTE (PARAMOUNT)</h2>
+            <p class="muted" style="margin:6px 0 0 0;">One-button session path: start session, talk, stop session, save.</p>
 
-          <div class="divider"></div>
+            <div class="row topgap">
+              <button id="recBtn" class="btn btnPrimary" type="button">▶️ Start Session</button>
+              <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
+              <button id="stopBtn" class="btn btnOk" type="button" disabled>■ Stop Session</button>
+              <span id="statusPill" class="pill"><span class="okDot"></span><span id="statusText">Idle</span></span>
+            </div>
 
-          <div class="card sessionCaptureCard">
+            <div class="row topgap" id="iphoneFallback" style="display:none;">
+              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                🎧 iPhone Mode
+                <input id="fileAudio" type="file" accept="audio/*" capture style="display:none;" />
+              </label>
+              <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
+            </div>
 
+            <div class="row topgap">
+              <audio id="preview" controls style="display:none;"></audio>
+            </div>
 
-          <!-- AUDIO NOTE -->
-          <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">AUDIO NOTE (PARAMOUNT)</h2>
-          <p class="muted" style="margin:6px 0 0 0;">One-button session path: start session, talk, stop session, save.</p>
+            <div class="divider"></div>
 
-          <div class="row topgap">
-            <button id="recBtn" class="btn btnPrimary" type="button">▶️ Start Session</button>
-            <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
-            <button id="stopBtn" class="btn btnOk" type="button" disabled>■ Stop Session</button>
-            <span id="statusPill" class="pill"><span class="okDot"></span><span id="statusText">Idle</span></span>
-          </div>
-
-          <div class="row topgap" id="iphoneFallback" style="display:none;">
-            <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-              🎧 iPhone Mode
-              <input id="fileAudio" type="file" accept="audio/*" capture style="display:none;" />
-            </label>
-            <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
-          </div>
-
-          <div class="row topgap">
-            <audio id="preview" controls style="display:none;"></audio>
-          </div>
-
-          <div class="divider"></div>
-
-
-
-          <!-- TRANSCRIPT -->
-          <div class="terpRow">
-            <p class="terpName">Transcript</p>
-            <p class="terpHint">Default path: Start Session kicks off audio and, when supported, live transcript automatically. You can still edit the raw transcript before saving.</p>
+            <h2 class="sessionPrimaryTitle">TRANSCRIPT</h2>
+            <p class="muted" style="margin:6px 0 0 0;">Default path: Start Session kicks off audio and, when supported, live transcript automatically.</p>
 
             <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
               <button id="transcriptLiveBtn" class="btn btnPrimary" type="button">Live Transcript</button>
@@ -2300,438 +2265,352 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
                 <textarea id="transcriptText" class="input" rows="7" placeholder="Live transcript appears here when available. You can also paste or edit it manually."></textarea>
               </label>
             </div>
-          </div>
 
-          <div class="divider"></div>
-
-            <div class="row topgap sessionPrimaryActions">
+            <div class="row topgap">
               <button id="saveSessionBtn" class="btn btnOk" type="button">Save Session</button>
-              <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear Sessions</button>
+              <button id="clearSessionsBtn" class="btn btnDanger" type="button">Clear</button>
             </div>
           </div>
 
-          <details class="sessionFold topgap">
-            <summary class="sessionFoldSummary">
-              <span class="sessionFoldSummaryRow">
-                <span>
-                  <span class="sessionFoldTitle">QUICK SNAPSHOT</span>
-                  <span class="sessionFoldHint">Fast check-in: sleep, mood, feeling snapshot, rating.</span>
-                </span>
-                <span class="sessionFoldCaret">›</span>
-              </span>
-            </summary>
+          <details class="sessionFold">
+            <summary>QUICK SNAPSHOT</summary>
             <div class="sessionFoldBody">
-
-
-          <!-- Sleep + Mood -->
-          <div class="grid2">
-            <div class="terpRow">
-              <p class="terpName">How’d you sleep last night?</p>
-              <p class="terpHint">1 (bad) → 5 (great)</p>
-              <div class="ratingRow" id="sleepRow"></div>
-              <input type="hidden" id="sleepScore" value="" />
-            </div>
-
-            <div class="terpRow">
-              <p class="terpName">Mood (before)</p>
-              <p class="terpHint">Pick anything that fits. Add one word if needed.</p>
-              <div class="row topgap" style="gap:8px;">
-                <button class="btn btnTiny chip" type="button" data-mood="CALM">CALM</button>
-                <button class="btn btnTiny chip" type="button" data-mood="FOCUSED">FOCUSED</button>
-                <button class="btn btnTiny chip" type="button" data-mood="WIRED">WIRED</button>
-                <button class="btn btnTiny chip" type="button" data-mood="HEAVY">HEAVY</button>
-                <button class="btn btnTiny chip" type="button" data-mood="SOCIAL">SOCIAL</button>
-                <button class="btn btnTiny chip" type="button" data-mood="QUIET">QUIET</button>
-                <button class="btn btnTiny chip" type="button" data-mood="FOGGY">FOGGY</button>
-                <button class="btn btnTiny chip" type="button" data-mood="PISSED">PISSED</button>
-                <button class="btn btnTiny chip" type="button" data-mood="NOT_GREAT">NOT GREAT</button>
-                <button class="btn btnTiny chip" type="button" data-mood="AGGRESSIVE">AGGRESSIVE</button>
-                <button class="btn btnTiny chip" type="button" data-mood="MELLOW">MELLOW</button>
-              </div>
-              <div class="row topgap">
-                <label class="field" style="min-width:220px;">
-                  <span class="label">Other (one word, optional)</span>
-                  <input id="moodOther" class="input" type="text" placeholder="e.g., anxious / happy / ashamed" />
-                </label>
-                <button id="moodReset" class="btn btnTiny" type="button">Reset</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-
-
-          <!-- FEELING SNAPSHOT -->
-          <div class="terpRow">
-            <p class="terpName">Feeling snapshot</p>
-            <p class="terpHint">Fast state capture. Optional. The app stores the math, but you see the vibe.</p>
-
-            <div class="list" style="margin-top:10px;">
-              <div class="snapshotPanel" data-axis="calmWired">
-                <div class="snapshotHead">
-                  <p class="terpName">Calm ↔ Wired</p>
-                  <span id="snapshotCalmWiredValue" class="snapshotValuePill">Balanced</span>
+              <div class="grid2">
+                <div class="terpRow">
+                  <p class="terpName">How’d you sleep last night?</p>
+                  <p class="terpHint">1 (bad) → 5 (great)</p>
+                  <div class="ratingRow" id="sleepRow"></div>
+                  <input type="hidden" id="sleepScore" value="" />
                 </div>
-                <input id="snapshotCalmWired" class="snapshotSlider" type="range" min="-5" max="5" step="1" value="0" />
-                <div id="snapshotCalmWiredScale" class="snapshotScale">
-                  <span data-value="-5">Calm</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="5">Wired</span>
+
+                <div class="terpRow">
+                  <p class="terpName">Mood (before)</p>
+                  <p class="terpHint">Pick anything that fits. Add one word if needed.</p>
+                  <div class="row topgap" style="gap:8px;">
+                    <button class="btn btnTiny chip" type="button" data-mood="CALM">CALM</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="FOCUSED">FOCUSED</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="WIRED">WIRED</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="HEAVY">HEAVY</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="SOCIAL">SOCIAL</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="QUIET">QUIET</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="FOGGY">FOGGY</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="PISSED">PISSED</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="NOT_GREAT">NOT GREAT</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="AGGRESSIVE">AGGRESSIVE</button>
+                    <button class="btn btnTiny chip" type="button" data-mood="MELLOW">MELLOW</button>
+                  </div>
+                  <div class="row topgap">
+                    <label class="field" style="min-width:220px;">
+                      <span class="label">Other (one word, optional)</span>
+                      <input id="moodOther" class="input" type="text" placeholder="e.g., anxious / happy / ashamed" />
+                    </label>
+                    <button id="moodReset" class="btn btnTiny" type="button">Reset</button>
+                  </div>
                 </div>
               </div>
 
-              <div class="snapshotPanel" data-axis="clearFoggy">
-                <div class="snapshotHead">
-                  <p class="terpName">Clear ↔ Foggy</p>
-                  <span id="snapshotClearFoggyValue" class="snapshotValuePill">Balanced</span>
+              <div class="divider"></div>
+
+              <div class="terpRow">
+                <p class="terpName">Feeling snapshot</p>
+                <p class="terpHint">Fast state capture. Optional. The app stores the math, but you see the vibe.</p>
+
+                <div class="list" style="margin-top:10px;">
+                  <div class="snapshotPanel" data-axis="calmWired">
+                    <div class="snapshotHead">
+                      <p class="terpName">Calm ↔ Wired</p>
+                      <span id="snapshotCalmWiredValue" class="snapshotValuePill">Balanced</span>
+                    </div>
+                    <input id="snapshotCalmWired" class="snapshotSlider" type="range" min="-5" max="5" step="1" value="0" />
+                    <div id="snapshotCalmWiredScale" class="snapshotScale">
+                      <span data-value="-5">Calm</span>
+                      <span data-value="0">Balanced</span>
+                      <span data-value="5">Wired</span>
+                    </div>
+                  </div>
+
+                  <div class="snapshotPanel" data-axis="clearFoggy">
+                    <div class="snapshotHead">
+                      <p class="terpName">Clear ↔ Foggy</p>
+                      <span id="snapshotClearFoggyValue" class="snapshotValuePill">Balanced</span>
+                    </div>
+                    <input id="snapshotClearFoggy" class="snapshotSlider" type="range" min="-5" max="5" step="1" value="0" />
+                    <div id="snapshotClearFoggyScale" class="snapshotScale">
+                      <span data-value="-5">Clear</span>
+                      <span data-value="0">Balanced</span>
+                      <span data-value="5">Foggy</span>
+                    </div>
+                  </div>
+
+                  <div class="snapshotPanel" data-axis="socialSolo">
+                    <div class="snapshotHead">
+                      <p class="terpName">Social ↔ Solo</p>
+                      <span id="snapshotSocialSoloValue" class="snapshotValuePill">Balanced</span>
+                    </div>
+                    <input id="snapshotSocialSolo" class="snapshotSlider" type="range" min="-5" max="5" step="1" value="0" />
+                    <div id="snapshotSocialSoloScale" class="snapshotScale">
+                      <span data-value="-5">Social</span>
+                      <span data-value="0">Balanced</span>
+                      <span data-value="5">Solo</span>
+                    </div>
+                  </div>
                 </div>
-                <input id="snapshotClearFoggy" class="snapshotSlider" type="range" min="-5" max="5" step="1" value="0" />
-                <div id="snapshotClearFoggyScale" class="snapshotScale">
-                  <span data-value="-5">Clear</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="5">Foggy</span>
+
+                <div class="row topgap">
+                  <button id="snapshotResetBtn" class="btn btnTiny" type="button">Reset snapshot</button>
                 </div>
               </div>
 
-              <div class="snapshotPanel" data-axis="socialSolo">
-                <div class="snapshotHead">
-                  <p class="terpName">Social ↔ Solo</p>
-                  <span id="snapshotSocialSoloValue" class="snapshotValuePill">Balanced</span>
-                </div>
-                <input id="snapshotSocialSolo" class="snapshotSlider" type="range" min="-5" max="5" step="1" value="0" />
-                <div id="snapshotSocialSoloScale" class="snapshotScale">
-                  <span data-value="-5">Social</span>
-                  <span data-value="0">Balanced</span>
-                  <span data-value="5">Solo</span>
-                </div>
+              <div class="divider"></div>
+
+              <div class="terpRow">
+                <p class="terpName">Rate it (1–5)</p>
+                <p class="terpHint">Your “run it again” math.</p>
+                <div class="ratingRow" id="rateRow"></div>
+                <input type="hidden" id="rateScore" value="" />
               </div>
-            </div>
-
-            <div class="row topgap">
-              <button id="snapshotResetBtn" class="btn btnTiny" type="button">Reset snapshot</button>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-
-
-          <!-- RATE IT -->
-          <div class="terpRow">
-            <p class="terpName">Rate it (1–5)</p>
-            <p class="terpHint">Your “run it again” math.</p>
-            <div class="ratingRow" id="rateRow"></div>
-            <input type="hidden" id="rateScore" value="" />
-          </div>
-
-          <div class="divider"></div>
             </div>
           </details>
 
-          <details class="sessionFold topgap">
-            <summary class="sessionFoldSummary">
-              <span class="sessionFoldSummaryRow">
-                <span>
-                  <span class="sessionFoldTitle">SENSORY</span>
-                  <span class="sessionFoldHint">What you saw, smelled, and noticed.</span>
-                </span>
-                <span class="sessionFoldCaret">›</span>
-              </span>
-            </summary>
+          <details class="sessionFold">
+            <summary>SENSORY</summary>
             <div class="sessionFoldBody">
+              <div class="photoBox">
+                <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
+                <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
 
-
-          <!-- VISUAL TRAITS -->
-          <div class="terpRow">
-            <p class="terpName">Visual traits</p>
-            <p class="terpHint">Use gauges for degree. Use tags for direct physical signals.</p>
-
-
-            <div class="list" style="margin-top:10px;">
-              <div class="laneBlock" data-lane-group="visualGaugeFrost" data-default="">
-                <div class="laneHead">
-                  <p class="laneTitle">Frost</p>
-                  <span class="laneValue" data-lane-value>—</span>
+                <div class="row topgap">
+                  <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                    📷 Take / Choose Photo
+                    <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+                  </label>
+                  <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
                 </div>
-                <div class="laneDots">
-                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
-                  <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
-                  <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
-                  <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
-                  <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+
+                <img id="photoThumb" class="thumb" alt="Photo preview" />
+                <input id="photoDataUrl" type="hidden" value="" />
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="terpRow">
+                <p class="terpName">Visual traits</p>
+                <p class="terpHint">Use gauges for degree. Use tags for direct physical signals.</p>
+
+                <div class="list" style="margin-top:10px;">
+                  <div class="laneBlock" data-lane-group="visualGaugeFrost" data-default="">
+                    <div class="laneHead">
+                      <p class="laneTitle">Frost</p>
+                      <span class="laneValue" data-lane-value>—</span>
+                    </div>
+                    <div class="laneDots">
+                      <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                      <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
+                      <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                      <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
+                      <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+                    </div>
+                    <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
+                    <div style="display:none;">
+                      <input type="radio" name="visualGaugeFrost" value="" checked />
+                      <input type="radio" name="visualGaugeFrost" value="LIGHT" />
+                      <input type="radio" name="visualGaugeFrost" value="NOTICEABLE" />
+                      <input type="radio" name="visualGaugeFrost" value="STRONG" />
+                      <input type="radio" name="visualGaugeFrost" value="HEAVY" />
+                    </div>
+                  </div>
+
+                  <div class="laneBlock" data-lane-group="visualGaugeDensity" data-default="">
+                    <div class="laneHead">
+                      <p class="laneTitle">Density</p>
+                      <span class="laneValue" data-lane-value>—</span>
+                    </div>
+                    <div class="laneDots">
+                      <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                      <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
+                      <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                      <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
+                      <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+                    </div>
+                    <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
+                    <div style="display:none;">
+                      <input type="radio" name="visualGaugeDensity" value="" checked />
+                      <input type="radio" name="visualGaugeDensity" value="LIGHT" />
+                      <input type="radio" name="visualGaugeDensity" value="NOTICEABLE" />
+                      <input type="radio" name="visualGaugeDensity" value="STRONG" />
+                      <input type="radio" name="visualGaugeDensity" value="HEAVY" />
+                    </div>
+                  </div>
+
+                  <div class="laneBlock" data-lane-group="visualGaugeHairs" data-default="">
+                    <div class="laneHead">
+                      <p class="laneTitle">Hairs</p>
+                      <span class="laneValue" data-lane-value>—</span>
+                    </div>
+                    <div class="laneDots">
+                      <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                      <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
+                      <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                      <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
+                      <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
+                    </div>
+                    <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
+                    <div style="display:none;">
+                      <input type="radio" name="visualGaugeHairs" value="" checked />
+                      <input type="radio" name="visualGaugeHairs" value="LIGHT" />
+                      <input type="radio" name="visualGaugeHairs" value="NOTICEABLE" />
+                      <input type="radio" name="visualGaugeHairs" value="STRONG" />
+                      <input type="radio" name="visualGaugeHairs" value="HEAVY" />
+                    </div>
+                  </div>
                 </div>
-                <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
-                <div style="display:none;">
-                  <input type="radio" name="visualGaugeFrost" value="" checked />
-                  <input type="radio" name="visualGaugeFrost" value="LIGHT" />
-                  <input type="radio" name="visualGaugeFrost" value="NOTICEABLE" />
-                  <input type="radio" name="visualGaugeFrost" value="STRONG" />
-                  <input type="radio" name="visualGaugeFrost" value="HEAVY" />
+
+                <div class="row topgap" style="gap:8px;">
+                  <button class="btn btnTiny chip" type="button" data-visual="AIRY">AIRY</button>
+                  <button class="btn btnTiny chip" type="button" data-visual="STICKY">STICKY</button>
+                  <button class="btn btnTiny chip" type="button" data-visual="DRY">DRY</button>
+                  <button class="btn btnTiny chip" type="button" data-visual="LEAFY">LEAFY</button>
+                  <button class="btn btnTiny chip" type="button" data-visual="PURPLE">PURPLE</button>
+                  <button class="btn btnTiny chip" type="button" data-visual="PALE_GREEN">PALE GREEN</button>
+                  <button class="btn btnTiny chip" type="button" data-visual="BRIGHT_GREEN">BRIGHT GREEN</button>
+                  <button class="btn btnTiny chip" type="button" data-visual="DARK_GREEN">DARK GREEN</button>
+                  <button class="btn btnTiny chip" type="button" data-visual="ORANGE_HAIRS">ORANGE HAIRS</button>
+                </div>
+
+                <div class="row topgap">
+                  <label class="field" style="min-width:220px;">
+                    <span class="label">Other (one word, optional)</span>
+                    <input id="visualOther" class="input" type="text" placeholder="e.g., glittery / wiry / chunky" />
+                  </label>
+                  <button id="visualReset" class="btn btnTiny" type="button">Reset</button>
                 </div>
               </div>
 
-              <div class="laneBlock" data-lane-group="visualGaugeDensity" data-default="">
-                <div class="laneHead">
-                  <p class="laneTitle">Density</p>
-                  <span class="laneValue" data-lane-value>—</span>
-                </div>
-                <div class="laneDots">
-                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
-                  <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
-                  <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
-                  <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
-                  <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
-                </div>
-                <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
-                <div style="display:none;">
-                  <input type="radio" name="visualGaugeDensity" value="" checked />
-                  <input type="radio" name="visualGaugeDensity" value="LIGHT" />
-                  <input type="radio" name="visualGaugeDensity" value="NOTICEABLE" />
-                  <input type="radio" name="visualGaugeDensity" value="STRONG" />
-                  <input type="radio" name="visualGaugeDensity" value="HEAVY" />
-                </div>
-              </div>
+              <div class="divider"></div>
 
-              <div class="laneBlock" data-lane-group="visualGaugeHairs" data-default="">
-                <div class="laneHead">
-                  <p class="laneTitle">Hairs</p>
-                  <span class="laneValue" data-lane-value>—</span>
-                </div>
-                <div class="laneDots">
-                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
-                  <button class="laneDot level1" type="button" data-lane-btn data-value="LIGHT"></button>
-                  <button class="laneDot level2" type="button" data-lane-btn data-value="NOTICEABLE"></button>
-                  <button class="laneDot level3" type="button" data-lane-btn data-value="STRONG"></button>
-                  <button class="laneDot level4" type="button" data-lane-btn data-value="HEAVY"></button>
-                </div>
-                <div class="laneLegend l5"><span>—</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Heavy</span></div>
-                <div style="display:none;">
-                  <input type="radio" name="visualGaugeHairs" value="" checked />
-                  <input type="radio" name="visualGaugeHairs" value="LIGHT" />
-                  <input type="radio" name="visualGaugeHairs" value="NOTICEABLE" />
-                  <input type="radio" name="visualGaugeHairs" value="STRONG" />
-                  <input type="radio" name="visualGaugeHairs" value="HEAVY" />
-                </div>
-              </div>
-            </div>
+              <div class="terpRow">
+                <p class="terpName">Smell intensity</p>
+                <p class="terpHint">Passive = jar open. Activated = broken nug.</p>
 
-            <div class="row topgap" style="gap:8px;">
-              <button class="btn btnTiny chip" type="button" data-visual="AIRY">AIRY</button>
-              <button class="btn btnTiny chip" type="button" data-visual="STICKY">STICKY</button>
-              <button class="btn btnTiny chip" type="button" data-visual="DRY">DRY</button>
-              <button class="btn btnTiny chip" type="button" data-visual="LEAFY">LEAFY</button>
-              <button class="btn btnTiny chip" type="button" data-visual="PURPLE">PURPLE</button>
-              <button class="btn btnTiny chip" type="button" data-visual="PALE_GREEN">PALE GREEN</button>
-              <button class="btn btnTiny chip" type="button" data-visual="BRIGHT_GREEN">BRIGHT GREEN</button>
-              <button class="btn btnTiny chip" type="button" data-visual="DARK_GREEN">DARK GREEN</button>
-              <button class="btn btnTiny chip" type="button" data-visual="ORANGE_HAIRS">ORANGE HAIRS</button>
-            </div>
+                <div class="list" style="margin-top:10px;">
+                  <div class="laneBlock" data-lane-group="passiveSmellIntensity" data-default="">
+                    <div class="laneHead">
+                      <p class="laneTitle">Passive smell</p>
+                      <span class="laneValue" data-lane-value>—</span>
+                    </div>
+                    <div class="laneDots">
+                      <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                      <button class="laneDot level1" type="button" data-lane-btn data-value="NONE"></button>
+                      <button class="laneDot level2" type="button" data-lane-btn data-value="LIGHT"></button>
+                      <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                      <button class="laneDot level4" type="button" data-lane-btn data-value="STRONG"></button>
+                      <button class="laneDot level4" type="button" data-lane-btn data-value="LOUD"></button>
+                    </div>
+                    <div class="laneLegend" style="grid-template-columns:repeat(6,1fr);"><span>—</span><span>None</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Loud</span></div>
+                    <div style="display:none;">
+                      <input type="radio" name="passiveSmellIntensity" value="" checked />
+                      <input type="radio" name="passiveSmellIntensity" value="NONE" />
+                      <input type="radio" name="passiveSmellIntensity" value="LIGHT" />
+                      <input type="radio" name="passiveSmellIntensity" value="NOTICEABLE" />
+                      <input type="radio" name="passiveSmellIntensity" value="STRONG" />
+                      <input type="radio" name="passiveSmellIntensity" value="LOUD" />
+                    </div>
+                  </div>
 
-            <div class="row topgap">
-              <label class="field" style="min-width:220px;">
-                <span class="label">Other (one word, optional)</span>
-                <input id="visualOther" class="input" type="text" placeholder="e.g., glittery / wiry / chunky" />
-              </label>
-              <button id="visualReset" class="btn btnTiny" type="button">Reset</button>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-
-
-          <!-- SMELL INTENSITY -->
-
-          <div class="terpRow">
-            <p class="terpName">Smell intensity</p>
-            <p class="terpHint">Passive = jar open. Activated = broken nug.</p>
-
-            <div class="list" style="margin-top:10px;">
-              <div class="laneBlock" data-lane-group="passiveSmellIntensity" data-default="">
-                <div class="laneHead">
-                  <p class="laneTitle">Passive smell</p>
-                  <span class="laneValue" data-lane-value>—</span>
-                </div>
-                <div class="laneDots">
-                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
-                  <button class="laneDot level1" type="button" data-lane-btn data-value="NONE"></button>
-                  <button class="laneDot level2" type="button" data-lane-btn data-value="LIGHT"></button>
-                  <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
-                  <button class="laneDot level4" type="button" data-lane-btn data-value="STRONG"></button>
-                  <button class="laneDot level4" type="button" data-lane-btn data-value="LOUD"></button>
-                </div>
-                <div class="laneLegend" style="grid-template-columns:repeat(6,1fr);"><span>—</span><span>None</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Loud</span></div>
-                <div style="display:none;">
-                  <input type="radio" name="passiveSmellIntensity" value="" checked />
-                  <input type="radio" name="passiveSmellIntensity" value="NONE" />
-                  <input type="radio" name="passiveSmellIntensity" value="LIGHT" />
-                  <input type="radio" name="passiveSmellIntensity" value="NOTICEABLE" />
-                  <input type="radio" name="passiveSmellIntensity" value="STRONG" />
-                  <input type="radio" name="passiveSmellIntensity" value="LOUD" />
+                  <div class="laneBlock" data-lane-group="activatedSmellIntensity" data-default="">
+                    <div class="laneHead">
+                      <p class="laneTitle">Activated smell</p>
+                      <span class="laneValue" data-lane-value>—</span>
+                    </div>
+                    <div class="laneDots">
+                      <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
+                      <button class="laneDot level1" type="button" data-lane-btn data-value="NONE"></button>
+                      <button class="laneDot level2" type="button" data-lane-btn data-value="LIGHT"></button>
+                      <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
+                      <button class="laneDot level4" type="button" data-lane-btn data-value="STRONG"></button>
+                      <button class="laneDot level4" type="button" data-lane-btn data-value="LOUD"></button>
+                    </div>
+                    <div class="laneLegend" style="grid-template-columns:repeat(6,1fr);"><span>—</span><span>None</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Loud</span></div>
+                    <div style="display:none;">
+                      <input type="radio" name="activatedSmellIntensity" value="" checked />
+                      <input type="radio" name="activatedSmellIntensity" value="NONE" />
+                      <input type="radio" name="activatedSmellIntensity" value="LIGHT" />
+                      <input type="radio" name="activatedSmellIntensity" value="NOTICEABLE" />
+                      <input type="radio" name="activatedSmellIntensity" value="STRONG" />
+                      <input type="radio" name="activatedSmellIntensity" value="LOUD" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div class="laneBlock" data-lane-group="activatedSmellIntensity" data-default="">
-                <div class="laneHead">
-                  <p class="laneTitle">Activated smell</p>
-                  <span class="laneValue" data-lane-value>—</span>
+              <div class="divider"></div>
+
+              <div class="terpRow">
+                <p class="terpName">Smell notes (multi-select)</p>
+                <p class="terpHint">Fast tags + optional one-word “Other”.</p>
+
+                <div class="row topgap" style="gap:8px;">
+                  <button class="btn btnTiny chip" type="button" data-smell="SWEET">SWEET</button>
+                  <button class="btn btnTiny chip" type="button" data-smell="EARTHY">EARTHY</button>
+                  <button class="btn btnTiny chip" type="button" data-smell="PINEY">PINEY</button>
+                  <button class="btn btnTiny chip" type="button" data-smell="CITRUS">CITRUS</button>
+                  <button class="btn btnTiny chip" type="button" data-smell="SPICY">SPICY</button>
+                  <button class="btn btnTiny chip" type="button" data-smell="PEPPERY">PEPPERY</button>
+                  <button class="btn btnTiny chip" type="button" data-smell="GASSY">GASSY</button>
+                  <button class="btn btnTiny chip" type="button" data-smell="FUNKY">FUNKY</button>
+                  <button class="btn btnTiny chip" type="button" data-smell="SKUNKY">SKUNKY</button>
                 </div>
-                <div class="laneDots">
-                  <button class="laneDot level0 active" type="button" data-lane-btn data-value=""></button>
-                  <button class="laneDot level1" type="button" data-lane-btn data-value="NONE"></button>
-                  <button class="laneDot level2" type="button" data-lane-btn data-value="LIGHT"></button>
-                  <button class="laneDot level3" type="button" data-lane-btn data-value="NOTICEABLE"></button>
-                  <button class="laneDot level4" type="button" data-lane-btn data-value="STRONG"></button>
-                  <button class="laneDot level4" type="button" data-lane-btn data-value="LOUD"></button>
-                </div>
-                <div class="laneLegend" style="grid-template-columns:repeat(6,1fr);"><span>—</span><span>None</span><span>Light</span><span>Noticeable</span><span>Strong</span><span>Loud</span></div>
-                <div style="display:none;">
-                  <input type="radio" name="activatedSmellIntensity" value="" checked />
-                  <input type="radio" name="activatedSmellIntensity" value="NONE" />
-                  <input type="radio" name="activatedSmellIntensity" value="LIGHT" />
-                  <input type="radio" name="activatedSmellIntensity" value="NOTICEABLE" />
-                  <input type="radio" name="activatedSmellIntensity" value="STRONG" />
-                  <input type="radio" name="activatedSmellIntensity" value="LOUD" />
+
+                <div class="row topgap">
+                  <label class="field" style="min-width:220px;">
+                    <span class="label">Other (one word, optional)</span>
+                    <input id="smellOther" class="input" type="text" placeholder="e.g., gym / raisins / metal" />
+                  </label>
+                  <button id="smellReset" class="btn btnTiny" type="button">Reset</button>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div class="divider"></div>
+              <div class="divider"></div>
 
+              <div class="terpRow">
+                <p class="terpName" style="margin:0;">Smell audio (optional)</p>
+                <p class="terpHint" style="margin-top:4px;">Talk it out if you want. If you don’t, skip it.</p>
 
+                <div class="row topgap">
+                  <button id="smellRecBtn" class="btn btnPrimary" type="button">🎙️ Smell Record</button>
+                  <button id="smellPauseBtn" class="btn" type="button" disabled>Pause</button>
+                  <button id="smellStopBtn" class="btn" type="button" disabled>Stop</button>
+                  <span id="smellStatusPill" class="pill"><span class="okDot"></span><span id="smellStatusText">Idle</span></span>
+                </div>
 
-          <!-- SMELL NOTES -->
-          <div class="terpRow">
-            <p class="terpName">Smell notes (multi-select)</p>
-            <p class="terpHint">Fast tags + optional one-word “Other”.</p>
+                <div class="row topgap" id="smellIphoneFallback" style="display:none;">
+                  <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
+                    🎧 Smell iPhone Mode
+                    <input id="smellFileAudio" type="file" accept="audio/*" capture style="display:none;" />
+                  </label>
+                  <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
+                </div>
 
-            <div class="row topgap" style="gap:8px;">
-              <button class="btn btnTiny chip" type="button" data-smell="SWEET">SWEET</button>
-              <button class="btn btnTiny chip" type="button" data-smell="EARTHY">EARTHY</button>
-              <button class="btn btnTiny chip" type="button" data-smell="PINEY">PINEY</button>
-              <button class="btn btnTiny chip" type="button" data-smell="CITRUS">CITRUS</button>
-              <button class="btn btnTiny chip" type="button" data-smell="SPICY">SPICY</button>
-              <button class="btn btnTiny chip" type="button" data-smell="PEPPERY">PEPPERY</button>
-              <button class="btn btnTiny chip" type="button" data-smell="GASSY">GASSY</button>
-              <button class="btn btnTiny chip" type="button" data-smell="FUNKY">FUNKY</button>
-              <button class="btn btnTiny chip" type="button" data-smell="SKUNKY">SKUNKY</button>
-            </div>
-
-            <div class="row topgap">
-              <label class="field" style="min-width:220px;">
-                <span class="label">Other (one word, optional)</span>
-                <input id="smellOther" class="input" type="text" placeholder="e.g., gym / raisins / metal" />
-              </label>
-              <button id="smellReset" class="btn btnTiny" type="button">Reset</button>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-
-
-          <!-- SMELL AUDIO -->
-          <div class="terpRow">
-            <p class="terpName" style="margin:0;">Smell audio (optional)</p>
-            <p class="terpHint" style="margin-top:4px;">Talk it out if you want. If you don’t, skip it.</p>
-
-            <div class="row topgap">
-              <button id="smellRecBtn" class="btn btnPrimary" type="button">🎙️ Smell Record</button>
-              <button id="smellPauseBtn" class="btn" type="button" disabled>Pause</button>
-              <button id="smellStopBtn" class="btn" type="button" disabled>Stop</button>
-              <span id="smellStatusPill" class="pill"><span class="okDot"></span><span id="smellStatusText">Idle</span></span>
-            </div>
-
-            <div class="row topgap" id="smellIphoneFallback" style="display:none;">
-              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                🎧 Smell iPhone Mode
-                <input id="smellFileAudio" type="file" accept="audio/*" capture style="display:none;" />
-              </label>
-              <span class="muted" style="font-size:12px;">Uses device recorder, then saves locally.</span>
-            </div>
-
-            <div class="row topgap">
-              <audio id="smellPreview" controls style="display:none;"></audio>
-            </div>
-          </div>
-
-          <div class="divider"></div>
+                <div class="row topgap">
+                  <audio id="smellPreview" controls style="display:none;"></audio>
+                </div>
+              </div>
             </div>
           </details>
 
-          <details class="sessionFold topgap">
-            <summary class="sessionFoldSummary">
-              <span class="sessionFoldSummaryRow">
-                <span>
-                  <span class="sessionFoldTitle">CHEMISTRY</span>
-                  <span class="sessionFoldHint">Your terpene read, if you want it.</span>
-                </span>
-                <span class="sessionFoldCaret">›</span>
-              </span>
-            </summary>
+          <details class="sessionFold">
+            <summary>CHEMISTRY</summary>
             <div class="sessionFoldBody">
-
-
-          <!-- TERPENE PRESENCE -->
-          <div class="terpRow">
-            <p class="terpName">Terpene presence</p>
-            <p class="terpHint">Not %s. Just your read: Not present / Background / Noticeable / Dominant.</p>
-            <div id="terpeneBox" class="list" style="margin-top:10px;"></div>
-          </div>
-
-          <div class="divider"></div>
+              <div class="terpRow">
+                <p class="terpName">Terpene presence</p>
+                <p class="terpHint">Not %s. Just your read: Not present / Background / Noticeable / Dominant.</p>
+                <div id="terpeneBox" class="list" style="margin-top:10px;"></div>
+              </div>
             </div>
           </details>
 
-          <details class="sessionFold topgap">
-            <summary class="sessionFoldSummary">
-              <span class="sessionFoldSummaryRow">
-                <span>
-                  <span class="sessionFoldTitle">MEDIA</span>
-                  <span class="sessionFoldHint">Photo capture for this session.</span>
-                </span>
-                <span class="sessionFoldCaret">›</span>
-              </span>
-            </summary>
-            <div class="sessionFoldBody">
-
-
-          <!-- PHOTO -->
-          <div class="photoBox">
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
-            <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
-
-            <div class="row topgap">
-              <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                📷 Take / Choose Photo
-                <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
-              </label>
-              <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
-            </div>
-
-            <img id="photoThumb" class="thumb" alt="Photo preview" />
-            <input id="photoDataUrl" type="hidden" value="" />
-          </div>
-
-          <div class="divider"></div>
-            </div>
-          </details>
-
-
-
-          <!-- SESSION LOG -->
-          <details class="sessionFold topgap">
-            <summary class="sessionFoldSummary">
-              <span class="sessionFoldSummaryRow">
-                <span>
-                  <span class="sessionFoldTitle">SESSION LOG</span>
-                  <span class="sessionFoldHint">Past saved sessions on this device.</span>
-                </span>
-                <span class="sessionFoldCaret">›</span>
-              </span>
-            </summary>
+          <details class="sessionFold">
+            <summary>SESSION LOG</summary>
             <div class="sessionFoldBody">
               <div id="sessionList" class="list">
                 <div class="muted">No sessions yet.</div>
@@ -2744,9 +2623,8 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
             Stored locally on this device only. Nothing leaves the system unless you export it.
           </div>
         </div>
-        </div>
-
       </section>
+
 
       <!-- PAGE 3: ASK -->
       <section class="page" id="pageAsk">
