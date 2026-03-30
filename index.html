@@ -2884,6 +2884,62 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
       return (prefix||"id") + "_" + Math.random().toString(16).slice(2) + "_" + Date.now();
     }
 
+
+    const PHOTO_MAX_DIM = 1280;
+    const PHOTO_JPEG_QUALITY = 0.82;
+
+    function isQuotaError(err){
+      if (!err) return false;
+      const name = String(err.name || "");
+      const msg = String(err.message || "").toLowerCase();
+      return name === "QuotaExceededError" || name === "NS_ERROR_DOM_QUOTA_REACHED" || msg.includes("quota");
+    }
+
+    function readFileAsDataUrl(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(reader.error || new Error("File read failed"));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadImageElement(src){
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("Image decode failed"));
+        img.src = src;
+      });
+    }
+
+    async function compressImageFile(file, opts = {}){
+      if (!file) return "";
+      const maxDim = Number(opts.maxDim || PHOTO_MAX_DIM);
+      const quality = Number(opts.quality || PHOTO_JPEG_QUALITY);
+      const originalDataUrl = await readFileAsDataUrl(file);
+      const img = await loadImageElement(originalDataUrl);
+
+      let width = Number(img.naturalWidth || img.width || 0);
+      let height = Number(img.naturalHeight || img.height || 0);
+      if (!width || !height) return originalDataUrl;
+
+      const scale = Math.min(1, maxDim / Math.max(width, height));
+      const targetW = Math.max(1, Math.round(width * scale));
+      const targetH = Math.max(1, Math.round(height * scale));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext("2d", { alpha: false });
+      if (!ctx) return originalDataUrl;
+      ctx.drawImage(img, 0, 0, targetW, targetH);
+
+      let out = canvas.toDataURL("image/jpeg", quality);
+      if (!out || out.length >= originalDataUrl.length) out = originalDataUrl;
+      return out;
+    }
+
     function normalizeLabel(str){
       return String(str || "").trim().replace(/\s+/g," ").toUpperCase();
     }
@@ -3336,11 +3392,15 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
       }
     }
 
-    function handleStashPhotoFile(file){
+    async function handleStashPhotoFile(file){
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => setStashPhoto(String(reader.result || ""));
-      reader.readAsDataURL(file);
+      try {
+        const dataUrl = await compressImageFile(file);
+        setStashPhoto(dataUrl);
+      } catch (err) {
+        console.error("Stash photo load failed", err);
+        alert("That photo could not be loaded on this device.");
+      }
     }
 
     stashPhotoCameraInput.addEventListener("change", (e) => {
@@ -3359,13 +3419,22 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
     function loadStash(){ try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); } catch { return []; } }
     function saveStash(items){
-      localStorage.setItem(STASH_KEY, JSON.stringify(items));
+      try {
+        localStorage.setItem(STASH_KEY, JSON.stringify(items));
+      } catch (err) {
+        if (isQuotaError(err)) {
+          alert("This photo is too large for the phone storage lane right now. Try a smaller image or retake from a little farther back.");
+          return false;
+        }
+        throw err;
+      }
       renderStash();
       renderStashLinkDropdown();
       renderAskPatterns();
       if (selectedStashId){
         renderSelectedStashDetail();
       }
+      return true;
     }
 
     function getNextUnknownStashName(){
@@ -3612,11 +3681,15 @@ ${cautionBits.join(" • ")}`
       saveStash(items);
     }
 
-    function handleDetailStashPhotoFile(file){
+    async function handleDetailStashPhotoFile(file){
       if (!file || !selectedStashId) return;
-      const reader = new FileReader();
-      reader.onload = () => updateStashPhotoById(selectedStashId, String(reader.result || ""));
-      reader.readAsDataURL(file);
+      try {
+        const dataUrl = await compressImageFile(file);
+        updateStashPhotoById(selectedStashId, dataUrl);
+      } catch (err) {
+        console.error("Detail stash photo load failed", err);
+        alert("That photo could not be loaded on this device.");
+      }
     }
 
     function renderStash(){
@@ -3990,13 +4063,18 @@ ${cautionBits.join(" • ")}`
       if (dataUrl){ photoThumb.src = dataUrl; photoThumb.style.display = "block"; }
       else { photoThumb.style.display = "none"; photoThumb.removeAttribute("src"); }
     }
-    photoInput.addEventListener("change", (e) => {
+    photoInput.addEventListener("change", async (e) => {
       const f = e.target.files && e.target.files[0];
       if (!f) return;
-      const reader = new FileReader();
-      reader.onload = () => setPhoto(String(reader.result||""));
-      reader.readAsDataURL(f);
-      photoInput.value = "";
+      try {
+        const dataUrl = await compressImageFile(f);
+        setPhoto(dataUrl);
+      } catch (err) {
+        console.error("Session photo load failed", err);
+        alert("That photo could not be loaded on this device.");
+      } finally {
+        photoInput.value = "";
+      }
     });
     photoClear.onclick = () => setPhoto("");
 
