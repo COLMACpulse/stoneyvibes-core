@@ -2381,10 +2381,14 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
                 <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
                 <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
 
-                <div class="row topgap">
+                <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
                   <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                    📷 Take / Choose Photo
-                    <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+                    📷 Take Photo
+                    <input id="photoCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+                  </label>
+                  <label class="btn btnTiny" style="display:inline-flex; align-items:center; gap:10px;">
+                    🖼️ Choose Existing Photo
+                    <input id="photoLibraryInput" type="file" accept="image/*" style="display:none;" />
                   </label>
                   <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
                 </div>
@@ -3281,11 +3285,26 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
       }
     }
 
-    function handleStashPhotoFile(file){
+    function readImageFile(file, onDone){
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => setStashPhoto(String(reader.result || ""));
+      reader.onload = () => {
+        const dataUrl = String(reader.result || "");
+        if (!dataUrl){
+          alert("Photo failed to load.");
+          return;
+        }
+        const probe = new Image();
+        probe.onload = () => onDone(dataUrl);
+        probe.onerror = () => alert("Photo failed to load.");
+        probe.src = dataUrl;
+      };
+      reader.onerror = () => alert("Photo failed to load.");
       reader.readAsDataURL(file);
+    }
+
+    function handleStashPhotoFile(file){
+      readImageFile(file, setStashPhoto);
     }
 
     stashPhotoCameraInput.addEventListener("change", (e) => {
@@ -3559,9 +3578,7 @@ ${cautionBits.join(" • ")}`
 
     function handleDetailStashPhotoFile(file){
       if (!file || !selectedStashId) return;
-      const reader = new FileReader();
-      reader.onload = () => updateStashPhotoById(selectedStashId, String(reader.result || ""));
-      reader.readAsDataURL(file);
+      readImageFile(file, (dataUrl) => updateStashPhotoById(selectedStashId, dataUrl));
     }
 
     function renderStash(){
@@ -3926,7 +3943,8 @@ ${cautionBits.join(" • ")}`
     };
 
     // Photo
-    const photoInput = document.getElementById("photoInput");
+    const photoCameraInput = document.getElementById("photoCameraInput");
+    const photoLibraryInput = document.getElementById("photoLibraryInput");
     const photoThumb = document.getElementById("photoThumb");
     const photoDataUrl = document.getElementById("photoDataUrl");
     const photoClear = document.getElementById("photoClear");
@@ -3935,13 +3953,15 @@ ${cautionBits.join(" • ")}`
       if (dataUrl){ photoThumb.src = dataUrl; photoThumb.style.display = "block"; }
       else { photoThumb.style.display = "none"; photoThumb.removeAttribute("src"); }
     }
-    photoInput.addEventListener("change", (e) => {
+    photoCameraInput.addEventListener("change", (e) => {
       const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      const reader = new FileReader();
-      reader.onload = () => setPhoto(String(reader.result||""));
-      reader.readAsDataURL(f);
-      photoInput.value = "";
+      readImageFile(f, setPhoto);
+      photoCameraInput.value = "";
+    });
+    photoLibraryInput.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      readImageFile(f, setPhoto);
+      photoLibraryInput.value = "";
     });
     photoClear.onclick = () => setPhoto("");
 
