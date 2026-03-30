@@ -2887,6 +2887,11 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
     const PHOTO_MAX_DIM = 1280;
     const PHOTO_JPEG_QUALITY = 0.82;
+    const STASH_PHOTO_MAX_DIM = 960;
+    const STASH_PHOTO_JPEG_QUALITY = 0.72;
+    const STASH_PHOTO_TARGET_BYTES = 160 * 1024;
+    const STASH_PHOTO_MIN_QUALITY = 0.46;
+    const STASH_PHOTO_MIN_DIM = 420;
 
     function isQuotaError(err){
       if (!err) return false;
@@ -2913,31 +2918,92 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
       });
     }
 
-    async function compressImageFile(file, opts = {}){
-      if (!file) return "";
-      const maxDim = Number(opts.maxDim || PHOTO_MAX_DIM);
-      const quality = Number(opts.quality || PHOTO_JPEG_QUALITY);
-      const originalDataUrl = await readFileAsDataUrl(file);
-      const img = await loadImageElement(originalDataUrl);
+    function estimateDataUrlBytes(dataUrl){
+      const s = String(dataUrl || "");
+      const commaIdx = s.indexOf(",");
+      const base64 = commaIdx >= 0 ? s.slice(commaIdx + 1) : s;
+      const padding = (base64.endsWith("==") ? 2 : (base64.endsWith("=") ? 1 : 0));
+      return Math.max(0, Math.floor((base64.length * 3) / 4) - padding);
+    }
 
+    async function compressImageDataUrl(dataUrl, opts = {}){
+      if (!dataUrl) return "";
+      const img = await loadImageElement(dataUrl);
       let width = Number(img.naturalWidth || img.width || 0);
       let height = Number(img.naturalHeight || img.height || 0);
-      if (!width || !height) return originalDataUrl;
+      if (!width || !height) return dataUrl;
 
-      const scale = Math.min(1, maxDim / Math.max(width, height));
-      const targetW = Math.max(1, Math.round(width * scale));
-      const targetH = Math.max(1, Math.round(height * scale));
+      let maxDim = Number(opts.maxDim || PHOTO_MAX_DIM);
+      let quality = Number(opts.quality || PHOTO_JPEG_QUALITY);
+      const targetBytes = Number(opts.targetBytes || 0);
+      const minQuality = Number(opts.minQuality || 0.42);
+      const minDim = Number(opts.minDim || 320);
+
+      let scale = Math.min(1, maxDim / Math.max(width, height));
+      let targetW = Math.max(1, Math.round(width * scale));
+      let targetH = Math.max(1, Math.round(height * scale));
 
       const canvas = document.createElement("canvas");
-      canvas.width = targetW;
-      canvas.height = targetH;
       const ctx = canvas.getContext("2d", { alpha: false });
-      if (!ctx) return originalDataUrl;
-      ctx.drawImage(img, 0, 0, targetW, targetH);
+      if (!ctx) return dataUrl;
 
-      let out = canvas.toDataURL("image/jpeg", quality);
-      if (!out || out.length >= originalDataUrl.length) out = originalDataUrl;
-      return out;
+      let best = dataUrl;
+      let attempt = 0;
+
+      while (attempt < 8){
+        canvas.width = targetW;
+        canvas.height = targetH;
+        ctx.clearRect(0, 0, targetW, targetH);
+        ctx.drawImage(img, 0, 0, targetW, targetH);
+
+        let out = canvas.toDataURL("image/jpeg", quality);
+        if (out && estimateDataUrlBytes(out) < estimateDataUrlBytes(best)){
+          best = out;
+        }
+
+        if (!targetBytes || estimateDataUrlBytes(best) <= targetBytes){
+          return best;
+        }
+
+        if (quality > minQuality + 0.02){
+          quality = Math.max(minQuality, quality - 0.08);
+        } else {
+          const longest = Math.max(targetW, targetH);
+          if (longest <= minDim) break;
+          const shrink = longest > 900 ? 0.84 : 0.9;
+          targetW = Math.max(1, Math.round(targetW * shrink));
+          targetH = Math.max(1, Math.round(targetH * shrink));
+        }
+        attempt += 1;
+      }
+
+      return best;
+    }
+
+    async function compressImageFile(file, opts = {}){
+      if (!file) return "";
+      const originalDataUrl = await readFileAsDataUrl(file);
+      return compressImageDataUrl(originalDataUrl, opts);
+    }
+
+    async function compactStashPhotosForStorage(items){
+      const nextItems = Array.isArray(items) ? items.map(item => ({ ...item })) : [];
+      for (let i = 0; i < nextItems.length; i++){
+        const photo = String(nextItems[i]?.photoDataUrl || "");
+        if (!photo) continue;
+        try {
+          nextItems[i].photoDataUrl = await compressImageDataUrl(photo, {
+            maxDim: STASH_PHOTO_MAX_DIM,
+            quality: STASH_PHOTO_JPEG_QUALITY,
+            targetBytes: STASH_PHOTO_TARGET_BYTES,
+            minQuality: STASH_PHOTO_MIN_QUALITY,
+            minDim: STASH_PHOTO_MIN_DIM
+          });
+        } catch (err) {
+          console.error("Stash photo compaction failed", err);
+        }
+      }
+      return nextItems;
     }
 
     function normalizeLabel(str){
@@ -3395,7 +3461,13 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
     async function handleStashPhotoFile(file){
       if (!file) return;
       try {
-        const dataUrl = await compressImageFile(file);
+        const dataUrl = await compressImageFile(file, {
+          maxDim: STASH_PHOTO_MAX_DIM,
+          quality: STASH_PHOTO_JPEG_QUALITY,
+          targetBytes: STASH_PHOTO_TARGET_BYTES,
+          minQuality: STASH_PHOTO_MIN_QUALITY,
+          minDim: STASH_PHOTO_MIN_DIM
+        });
         setStashPhoto(dataUrl);
       } catch (err) {
         console.error("Stash photo load failed", err);
@@ -3418,15 +3490,25 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
     stashPhotoClear.onclick = () => setStashPhoto("");
 
     function loadStash(){ try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); } catch { return []; } }
-    function saveStash(items){
+    async function saveStash(items){
+      let nextItems = Array.isArray(items) ? items : [];
       try {
-        localStorage.setItem(STASH_KEY, JSON.stringify(items));
+        localStorage.setItem(STASH_KEY, JSON.stringify(nextItems));
       } catch (err) {
         if (isQuotaError(err)) {
-          alert("This photo is too large for the phone storage lane right now. Try a smaller image or retake from a little farther back.");
-          return false;
+          nextItems = await compactStashPhotosForStorage(nextItems);
+          try {
+            localStorage.setItem(STASH_KEY, JSON.stringify(nextItems));
+          } catch (retryErr) {
+            if (isQuotaError(retryErr)) {
+              alert("Phone storage is getting jammed by stash photos. I compressed what I could, but this lane still needs a smaller image or fewer saved stash photos.");
+              return false;
+            }
+            throw retryErr;
+          }
+        } else {
+          throw err;
         }
-        throw err;
       }
       renderStash();
       renderStashLinkDropdown();
@@ -3673,19 +3755,25 @@ ${cautionBits.join(" • ")}`
     }
 
 
-    function updateStashPhotoById(stashId, dataUrl){
+    async function updateStashPhotoById(stashId, dataUrl){
       const items = loadStash();
       const idx = items.findIndex(x => String(x.id) === String(stashId));
       if (idx < 0) return;
       items[idx] = { ...items[idx], photoDataUrl: dataUrl || "" };
-      saveStash(items);
+      await saveStash(items);
     }
 
     async function handleDetailStashPhotoFile(file){
       if (!file || !selectedStashId) return;
       try {
-        const dataUrl = await compressImageFile(file);
-        updateStashPhotoById(selectedStashId, dataUrl);
+        const dataUrl = await compressImageFile(file, {
+          maxDim: STASH_PHOTO_MAX_DIM,
+          quality: STASH_PHOTO_JPEG_QUALITY,
+          targetBytes: STASH_PHOTO_TARGET_BYTES,
+          minQuality: STASH_PHOTO_MIN_QUALITY,
+          minDim: STASH_PHOTO_MIN_DIM
+        });
+        await updateStashPhotoById(selectedStashId, dataUrl);
       } catch (err) {
         console.error("Detail stash photo load failed", err);
         alert("That photo could not be loaded on this device.");
@@ -3752,7 +3840,7 @@ ${cautionBits.join(" • ")}`
           if (selectedStashId === it.id){
             selectedStashId = "";
           }
-          saveStash(updated);
+          await saveStash(updated);
           if (!selectedStashId){
             closeStashDetail();
           }
@@ -3787,7 +3875,7 @@ ${cautionBits.join(" • ")}`
       sessionTag.setSelectionRange(sessionTag.value.length, sessionTag.value.length);
     };
 
-    addStashBtn.onclick = () => {
+    addStashBtn.onclick = async () => {
       let name = (stashName.value || "").trim();
       if (!name){ alert("Give it a name (even 'Unknown')."); return; }
 
@@ -3807,7 +3895,8 @@ ${cautionBits.join(" • ")}`
       };
       const items = loadStash();
       items.unshift(item);
-      saveStash(items);
+      const stashSaved = await saveStash(items);
+      if (!stashSaved) return;
       stashName.value = "";
       stashNotes.value = "";
       stashVisualSet = new Set();
@@ -3817,10 +3906,11 @@ ${cautionBits.join(" • ")}`
       closeStashDetail();
     };
 
-    clearStashBtn.onclick = () => {
+    clearStashBtn.onclick = async () => {
       const ok = confirm("Clear entire STASH on this device?");
       if (!ok) return;
-      saveStash([]);
+      const stashCleared = await saveStash([]);
+      if (!stashCleared) return;
       stashVisualSet = new Set();
       stashVisualOther.value = "";
       setStashPhoto("");
