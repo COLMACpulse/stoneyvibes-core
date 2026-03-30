@@ -3406,6 +3406,7 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
     // STASH
     const STASH_KEY = "sv_stash_v1";
+    const STASH_PHOTO_STORE = "stashPhotos";
     const stashName = document.getElementById("stashName");
     const stashCategory = document.getElementById("stashCategory");
     const stashNotes = document.getElementById("stashNotes");
@@ -3431,6 +3432,26 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
     let stashVisualSet = new Set();
     let selectedStashId = "";
+    let stashPhotoCache = new Map();
+
+    function sanitizeStashItems(items){
+      return (Array.isArray(items) ? items : []).map(item => {
+        const next = { ...(item || {}) };
+        delete next.photoDataUrl;
+        return next;
+      });
+    }
+
+    function getCachedStashPhoto(stashId, fallback = ""){
+      const key = String(stashId || "");
+      if (key && stashPhotoCache.has(key)) return String(stashPhotoCache.get(key) || "");
+      return String(fallback || "");
+    }
+
+    function getStashPhoto(stashLike){
+      if (!stashLike) return "";
+      return getCachedStashPhoto(stashLike.id, stashLike.photoDataUrl);
+    }
 
     function renderStashVisual(){
       stashVisualChips.forEach(b => b.classList.toggle("active", stashVisualSet.has(b.getAttribute("data-stash-visual"))));
@@ -3489,26 +3510,23 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
     stashPhotoClear.onclick = () => setStashPhoto("");
 
-    function loadStash(){ try { return JSON.parse(localStorage.getItem(STASH_KEY) || "[]"); } catch { return []; } }
+    function loadStash(){
+      try {
+        return sanitizeStashItems(JSON.parse(localStorage.getItem(STASH_KEY) || "[]"));
+      } catch {
+        return [];
+      }
+    }
     async function saveStash(items){
-      let nextItems = Array.isArray(items) ? items : [];
+      const nextItems = sanitizeStashItems(items);
       try {
         localStorage.setItem(STASH_KEY, JSON.stringify(nextItems));
       } catch (err) {
         if (isQuotaError(err)) {
-          nextItems = await compactStashPhotosForStorage(nextItems);
-          try {
-            localStorage.setItem(STASH_KEY, JSON.stringify(nextItems));
-          } catch (retryErr) {
-            if (isQuotaError(retryErr)) {
-              alert("Phone storage is getting jammed by stash photos. I compressed what I could, but this lane still needs a smaller image or fewer saved stash photos.");
-              return false;
-            }
-            throw retryErr;
-          }
-        } else {
-          throw err;
+          alert("Stash metadata storage is jammed on this device. Photos are now stored separately, so this usually means there is too much non-photo local data to save.");
+          return false;
         }
+        throw err;
       }
       renderStash();
       renderStashLinkDropdown();
@@ -3570,14 +3588,15 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
       if (!cautionBits.length && linked.length) cautionBits.push("Still early. Let more sessions sharpen the read");
 
       const accent = getSpecimenTone(stash);
+      const stashPhoto = getStashPhoto(stash);
 
       stashDetailBody.innerHTML = `
         <div class="stashDetailCard" style="--specAccent:${accent};">
           <div class="specimenGhostLeaf"></div>
           <div class="detailHeroShell">
             ${
-              stash.photoDataUrl
-              ? `<img class="stashDetailHero" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash.name || "Stash photo")}" />`
+              stashPhoto
+              ? `<img class="stashDetailHero" src="${escapeHtml(stashPhoto)}" alt="${escapeHtml(stash.name || "Stash photo")}" />`
               : `<div class="stashDetailPlaceholder">NO STASH PHOTO YET</div>`
             }
             <div class="detailHeroMeta">
@@ -3605,14 +3624,14 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
               <p class="muted" style="margin:6px 0 0 0;">You can add or replace the stash photo here anytime.</p>
               <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
                 <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                  ${stash.photoDataUrl ? "Replace Photo" : "Add Photo"}
+                  ${stashPhoto ? "Replace Photo" : "Add Photo"}
                   <input id="stashDetailCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
                 </label>
                 <label class="btn btnTiny" style="display:inline-flex; align-items:center; gap:10px;">
                   Choose Existing
                   <input id="stashDetailLibraryInput" type="file" accept="image/*" style="display:none;" />
                 </label>
-                ${stash.photoDataUrl ? `<button id="stashDetailRemovePhotoBtn" class="btn btnTiny btnDanger" type="button">Remove Photo</button>` : ""}
+                ${stashPhoto ? `<button id="stashDetailRemovePhotoBtn" class="btn btnTiny btnDanger" type="button">Remove Photo</button>` : ""}
               </div>
             </div>
 
@@ -3758,9 +3777,10 @@ ${cautionBits.join(" • ")}`
     async function updateStashPhotoById(stashId, dataUrl){
       const items = loadStash();
       const idx = items.findIndex(x => String(x.id) === String(stashId));
-      if (idx < 0) return;
-      items[idx] = { ...items[idx], photoDataUrl: dataUrl || "" };
-      await saveStash(items);
+      if (idx < 0) return false;
+      const saved = await saveStash(items);
+      if (!saved) return false;
+      return setStoredStashPhoto(stashId, dataUrl || "");
     }
 
     async function handleDetailStashPhotoFile(file){
@@ -3801,7 +3821,7 @@ ${cautionBits.join(" • ")}`
           <div class="specimenGhostLeaf"></div>
           <div class="stashRow">
             <div class="stashThumbWrap" style="--specAccent:${accent};">
-              ${stashThumbMarkup(it.photoDataUrl || "", it.name || "Stash photo")}
+              ${stashThumbMarkup(getStashPhoto(it), it.name || "Stash photo")}
             </div>
 
             <div class="stashBody" data-open="${escapeHtml(it.id)}">
@@ -3831,7 +3851,7 @@ ${cautionBits.join(" • ")}`
         const del = el.querySelector('[data-delete]');
 
         body.onclick = () => openStashDetail(it.id);
-        del.onclick = (e) => {
+        del.onclick = async (e) => {
           e.stopPropagation();
           const ok = confirm("Delete this stash item?");
           if (!ok) return;
@@ -3883,6 +3903,7 @@ ${cautionBits.join(" • ")}`
         name = getNextUnknownStashName();
       }
 
+      const pendingStashPhoto = stashPhotoDataUrl.value || "";
       const item = {
         id: uid("stash"),
         name,
@@ -3890,13 +3911,15 @@ ${cautionBits.join(" • ")}`
         notes: (stashNotes.value||"").trim(),
         visuals: Array.from(stashVisualSet),
         visualOther: (stashVisualOther.value || "").trim(),
-        photoDataUrl: stashPhotoDataUrl.value || "",
         createdAt: Date.now()
       };
       const items = loadStash();
       items.unshift(item);
       const stashSaved = await saveStash(items);
       if (!stashSaved) return;
+      if (pendingStashPhoto){
+        await setStoredStashPhoto(item.id, pendingStashPhoto);
+      }
       stashName.value = "";
       stashNotes.value = "";
       stashVisualSet = new Set();
@@ -3920,7 +3943,7 @@ ${cautionBits.join(" • ")}`
 
     // IndexedDB
     const DB_NAME = "stoneyvibes_db_v1";
-    const DB_VERSION = 1;
+    const DB_VERSION = 2;
     const STORE = "sessions";
 
     function openDB(){
@@ -3931,6 +3954,9 @@ ${cautionBits.join(" • ")}`
           if (!db.objectStoreNames.contains(STORE)){
             const store = db.createObjectStore(STORE, { keyPath: "id" });
             store.createIndex("createdAt", "createdAt", { unique:false });
+          }
+          if (!db.objectStoreNames.contains(STASH_PHOTO_STORE)){
+            db.createObjectStore(STASH_PHOTO_STORE, { keyPath: "id" });
           }
         };
         req.onsuccess = () => resolve(req.result);
@@ -3974,6 +4000,91 @@ ${cautionBits.join(" • ")}`
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
+    }
+
+    async function dbPutStashPhoto(id, dataUrl){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STASH_PHOTO_STORE, "readwrite");
+        tx.objectStore(STASH_PHOTO_STORE).put({ id: String(id), dataUrl: String(dataUrl || "") });
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function dbDeleteStashPhoto(id){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STASH_PHOTO_STORE, "readwrite");
+        tx.objectStore(STASH_PHOTO_STORE).delete(String(id));
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function dbGetAllStashPhotos(){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STASH_PHOTO_STORE, "readonly");
+        const req = tx.objectStore(STASH_PHOTO_STORE).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function dbClearStashPhotos(){
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STASH_PHOTO_STORE, "readwrite");
+        tx.objectStore(STASH_PHOTO_STORE).clear();
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function loadStashPhotoCache(){
+      const rows = await dbGetAllStashPhotos();
+      stashPhotoCache = new Map((rows || []).map(row => [String(row.id || ""), String(row.dataUrl || "")]));
+    }
+
+    async function migrateLegacyStashPhotos(){
+      const items = Array.isArray(loadStash()) ? loadStash() : [];
+      let touched = false;
+      for (const item of items){
+        const legacyPhoto = String(item?.photoDataUrl || "");
+        if (!item?.id || !legacyPhoto) continue;
+        const key = String(item.id);
+        if (!stashPhotoCache.has(key)){
+          await dbPutStashPhoto(key, legacyPhoto);
+          stashPhotoCache.set(key, legacyPhoto);
+        }
+        delete item.photoDataUrl;
+        touched = true
+      }
+      if (touched){
+        localStorage.setItem(STASH_KEY, JSON.stringify(sanitizeStashItems(items)));
+      }
+    }
+
+    async function setStoredStashPhoto(stashId, dataUrl, opts = {}){
+      const key = String(stashId || "");
+      if (!key) return false;
+      const nextPhoto = String(dataUrl || "");
+      if (nextPhoto){
+        await dbPutStashPhoto(key, nextPhoto);
+        stashPhotoCache.set(key, nextPhoto);
+      } else {
+        await dbDeleteStashPhoto(key);
+        stashPhotoCache.delete(key);
+      }
+      if (opts.rerender !== false){
+        renderStash();
+        renderAskPatterns();
+        if (selectedStashId && String(selectedStashId) === key){
+          await renderSelectedStashDetail();
+        }
+      }
+      return true;
     }
 
     // Ratings
@@ -4833,8 +4944,17 @@ ${cautionBits.join(" • ")}`
         ? payload.sessions.map((entry, idx) => normalizeImportedSessionEntry(entry, idx))
         : [];
 
-      localStorage.setItem(STASH_KEY, JSON.stringify(importedStash));
+      localStorage.setItem(STASH_KEY, JSON.stringify(sanitizeStashItems(importedStash)));
       await dbClear();
+      await dbClearStashPhotos();
+      stashPhotoCache = new Map();
+
+      for (const item of importedStash){
+        const photo = String(item?.photoDataUrl || "");
+        if (!item?.id || !photo) continue;
+        await dbPutStashPhoto(item.id, photo);
+        stashPhotoCache.set(String(item.id), photo);
+      }
 
       for (const session of importedSessions){
         await dbPut(session);
@@ -5515,8 +5635,9 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       }
       const stash = loadStash().find(x => String(x.id || "") === String(row.stashId || ""));
       const visual = buildTerpDiscSvg(row?.terpeneAverages || {}, 40);
-      const media = stash?.photoDataUrl
-        ? `<img class="patternThumb" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash.name || row.name || "Pattern stash")}" />`
+      const stashPhoto = getStashPhoto(stash);
+      const media = stashPhoto
+        ? `<img class="patternThumb" src="${escapeHtml(stashPhoto)}" alt="${escapeHtml(stash.name || row.name || "Pattern stash")}" />`
         : `<div class="patternThumbPlaceholder">NO PHOTO YET</div>`;
       return `${stackStart}${media}<div class="patternDiscBadge">${visual}</div>${stackEnd}`;
     }
@@ -6606,8 +6727,9 @@ These match scores rank fit for your target. The grams and percentages are the a
 
         const partMarkup = safeParts.map(part => {
           const stash = loadStash().find(x => String(x.id || "") === String(part.stashId || part.id || ""));
-          const photoMarkup = stash?.photoDataUrl
-            ? `<img class="askBlendThumb" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash?.name || part.name || "Blend part")}" />`
+          const stashPhoto = getStashPhoto(stash);
+          const photoMarkup = stashPhoto
+            ? `<img class="askBlendThumb" src="${escapeHtml(stashPhoto)}" alt="${escapeHtml(stash?.name || part.name || "Blend part")}" />`
             : `<div class="askBlendPlaceholder">NO PHOTO YET</div>`;
           return `
             <div class="askBlendItem">
@@ -6780,8 +6902,9 @@ These match scores rank fit for your target. The grams and percentages are the a
         if (!stash) return "";
 
         const reason = buildAskSuggestionReason(suggestion.kind, suggestion.row);
-        const photoMarkup = stash.photoDataUrl
-          ? `<img class="askSuggestionThumb" src="${escapeHtml(stash.photoDataUrl)}" alt="${escapeHtml(stash.name || "Suggested stash")}" />`
+        const stashPhoto = getStashPhoto(stash);
+        const photoMarkup = stashPhoto
+          ? `<img class="askSuggestionThumb" src="${escapeHtml(stashPhoto)}" alt="${escapeHtml(stash.name || "Suggested stash")}" />`
           : `<div class="askSuggestionPlaceholder">NO PHOTO YET</div>`;
 
         return `
@@ -7047,7 +7170,7 @@ Ask me something tighter.`;
     }
 
     exportBtn.onclick = async () => {
-      const stash = loadStash();
+      const stash = loadStash().map(item => ({ ...item, photoDataUrl: getStashPhoto(item) }));
       const sessions = await dbGetAll();
       const safeSessions = sessions.map(s => {
         const { audioBlob, smellAudioBlob, ...rest } = s;
@@ -7077,6 +7200,8 @@ Ask me something tighter.`;
       if (!ok) return;
       localStorage.removeItem(STASH_KEY);
       await dbClear();
+      await dbClearStashPhotos();
+      stashPhotoCache = new Map();
       renderStash();
       renderStashLinkDropdown();
       await renderSessions();
@@ -7100,6 +7225,8 @@ Ask me something tighter.`;
     };
 
     (async function init(){
+      await loadStashPhotoCache();
+      await migrateLegacyStashPhotos();
       renderStash();
       renderStashLinkDropdown();
 
