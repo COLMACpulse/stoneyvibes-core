@@ -113,6 +113,7 @@
       min-width:100%;
       height:100%;
       overflow-y:auto;
+      overflow-x:hidden;
       padding:14px 16px 24px 16px;
     }
 
@@ -777,9 +778,10 @@
     .askSuggestionCard{
       position:relative;
       display:grid;
-      grid-template-columns:92px 1fr;
+      grid-template-columns:92px minmax(0,1fr);
       gap:12px;
       align-items:start;
+      min-width:0;
       border:1px solid rgba(255,255,255,0.18);
       border-radius:16px;
       padding:12px;
@@ -857,7 +859,7 @@
     }
     .askBlendGrid{
       display:grid;
-      grid-template-columns:1fr auto 1fr;
+      grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
       gap:10px;
       align-items:stretch;
     }
@@ -872,9 +874,10 @@
     }
     .askBlendItem{
       display:grid;
-      grid-template-columns:74px 1fr;
+      grid-template-columns:74px minmax(0,1fr);
       gap:10px;
       align-items:start;
+      min-width:0;
       border:1px solid rgba(255,255,255,0.12);
       border-radius:14px;
       padding:10px;
@@ -1139,6 +1142,58 @@
       }
       .blendFingerprintLegend{
         grid-template-columns:repeat(3, minmax(0,1fr));
+      }
+    }
+
+    @media (max-width: 720px){
+      .askSuggestionCard{
+        grid-template-columns:1fr;
+      }
+      .askSuggestionThumb,
+      .askSuggestionPlaceholder{
+        width:100%;
+        height:160px;
+      }
+      .askBlendTop,
+      .askBlendIdentityHead{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .askBlendGrid{
+        grid-template-columns:1fr;
+      }
+      .askBlendPlus{
+        min-height:28px;
+        padding:2px 0;
+      }
+      .askBlendItem{
+        grid-template-columns:64px 1fr;
+        min-width:0;
+      }
+      .askBlendItem > div{
+        min-width:0;
+      }
+      .askBlendThumb,
+      .askBlendPlaceholder{
+        width:64px;
+        height:64px;
+      }
+      .askBlendPartName,
+      .askBlendPartMeta,
+      .askBlendReason,
+      .askSuggestionReason,
+      .askReply,
+      .itemMeta,
+      .linkedSessionMeta{
+        overflow-wrap:anywhere;
+        word-break:break-word;
+      }
+      .askBlendBarLabels,
+      .askBlendInsightLine{
+        grid-template-columns:1fr;
+      }
+      .askBlendIdentityTag{
+        white-space:normal;
       }
     }
 
@@ -2381,14 +2436,10 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
                 <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">PHOTO (OPTIONAL)</h2>
                 <p class="muted" style="margin:6px 0 0 0;">Snap it or pick from your library.</p>
 
-                <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
+                <div class="row topgap">
                   <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                    📷 Take Photo
-                    <input id="photoCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
-                  </label>
-                  <label class="btn btnTiny" style="display:inline-flex; align-items:center; gap:10px;">
-                    🖼️ Choose Existing Photo
-                    <input id="photoLibraryInput" type="file" accept="image/*" style="display:none;" />
+                    📷 Take / Choose Photo
+                    <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;" />
                   </label>
                   <button id="photoClear" class="btn btnTiny" type="button">No photo</button>
                 </div>
@@ -3285,26 +3336,11 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
       }
     }
 
-    function readImageFile(file, onDone){
+    function handleStashPhotoFile(file){
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = String(reader.result || "");
-        if (!dataUrl){
-          alert("Photo failed to load.");
-          return;
-        }
-        const probe = new Image();
-        probe.onload = () => onDone(dataUrl);
-        probe.onerror = () => alert("Photo failed to load.");
-        probe.src = dataUrl;
-      };
-      reader.onerror = () => alert("Photo failed to load.");
+      reader.onload = () => setStashPhoto(String(reader.result || ""));
       reader.readAsDataURL(file);
-    }
-
-    function handleStashPhotoFile(file){
-      readImageFile(file, setStashPhoto);
     }
 
     stashPhotoCameraInput.addEventListener("change", (e) => {
@@ -3578,7 +3614,9 @@ ${cautionBits.join(" • ")}`
 
     function handleDetailStashPhotoFile(file){
       if (!file || !selectedStashId) return;
-      readImageFile(file, (dataUrl) => updateStashPhotoById(selectedStashId, dataUrl));
+      const reader = new FileReader();
+      reader.onload = () => updateStashPhotoById(selectedStashId, String(reader.result || ""));
+      reader.readAsDataURL(file);
     }
 
     function renderStash(){
@@ -3943,8 +3981,7 @@ ${cautionBits.join(" • ")}`
     };
 
     // Photo
-    const photoCameraInput = document.getElementById("photoCameraInput");
-    const photoLibraryInput = document.getElementById("photoLibraryInput");
+    const photoInput = document.getElementById("photoInput");
     const photoThumb = document.getElementById("photoThumb");
     const photoDataUrl = document.getElementById("photoDataUrl");
     const photoClear = document.getElementById("photoClear");
@@ -3953,15 +3990,13 @@ ${cautionBits.join(" • ")}`
       if (dataUrl){ photoThumb.src = dataUrl; photoThumb.style.display = "block"; }
       else { photoThumb.style.display = "none"; photoThumb.removeAttribute("src"); }
     }
-    photoCameraInput.addEventListener("change", (e) => {
+    photoInput.addEventListener("change", (e) => {
       const f = e.target.files && e.target.files[0];
-      readImageFile(f, setPhoto);
-      photoCameraInput.value = "";
-    });
-    photoLibraryInput.addEventListener("change", (e) => {
-      const f = e.target.files && e.target.files[0];
-      readImageFile(f, setPhoto);
-      photoLibraryInput.value = "";
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => setPhoto(String(reader.result||""));
+      reader.readAsDataURL(f);
+      photoInput.value = "";
     });
     photoClear.onclick = () => setPhoto("");
 
