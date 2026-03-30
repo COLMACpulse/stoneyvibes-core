@@ -2311,7 +2311,15 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </div>
 
           <details class="sessionFold topgap">
-            <summary class="sessionFoldSummary">QUICK SNAPSHOT</summary>
+            <summary class="sessionFoldSummary">
+              <span class="sessionFoldSummaryRow">
+                <span>
+                  <span class="sessionFoldTitle">QUICK SNAPSHOT</span>
+                  <span class="sessionFoldHint">Fast check-in: sleep, mood, feeling snapshot, rating.</span>
+                </span>
+                <span class="sessionFoldCaret">›</span>
+              </span>
+            </summary>
             <div class="sessionFoldBody">
 
 
@@ -2422,7 +2430,15 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </details>
 
           <details class="sessionFold topgap">
-            <summary class="sessionFoldSummary">SENSORY</summary>
+            <summary class="sessionFoldSummary">
+              <span class="sessionFoldSummaryRow">
+                <span>
+                  <span class="sessionFoldTitle">SENSORY</span>
+                  <span class="sessionFoldHint">What you saw, smelled, and noticed.</span>
+                </span>
+                <span class="sessionFoldCaret">›</span>
+              </span>
+            </summary>
             <div class="sessionFoldBody">
 
 
@@ -2646,7 +2662,15 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </details>
 
           <details class="sessionFold topgap">
-            <summary class="sessionFoldSummary">CHEMISTRY</summary>
+            <summary class="sessionFoldSummary">
+              <span class="sessionFoldSummaryRow">
+                <span>
+                  <span class="sessionFoldTitle">CHEMISTRY</span>
+                  <span class="sessionFoldHint">Your terpene read, if you want it.</span>
+                </span>
+                <span class="sessionFoldCaret">›</span>
+              </span>
+            </summary>
             <div class="sessionFoldBody">
 
 
@@ -2662,7 +2686,15 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
           </details>
 
           <details class="sessionFold topgap">
-            <summary class="sessionFoldSummary">MEDIA</summary>
+            <summary class="sessionFoldSummary">
+              <span class="sessionFoldSummaryRow">
+                <span>
+                  <span class="sessionFoldTitle">MEDIA</span>
+                  <span class="sessionFoldHint">Photo capture for this session.</span>
+                </span>
+                <span class="sessionFoldCaret">›</span>
+              </span>
+            </summary>
             <div class="sessionFoldBody">
 
 
@@ -2690,13 +2722,22 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 
 
           <!-- SESSION LOG -->
-          <div class="row between">
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">SESSION LOG</h2>
-          </div>
-
-          <div id="sessionList" class="list">
-            <div class="muted">No sessions yet.</div>
-          </div>
+          <details class="sessionFold topgap">
+            <summary class="sessionFoldSummary">
+              <span class="sessionFoldSummaryRow">
+                <span>
+                  <span class="sessionFoldTitle">SESSION LOG</span>
+                  <span class="sessionFoldHint">Past saved sessions on this device.</span>
+                </span>
+                <span class="sessionFoldCaret">›</span>
+              </span>
+            </summary>
+            <div class="sessionFoldBody">
+              <div id="sessionList" class="list">
+                <div class="muted">No sessions yet.</div>
+              </div>
+            </div>
+          </details>
 
           <div class="divider"></div>
           <div class="notice">
