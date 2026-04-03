@@ -2321,6 +2321,141 @@ input.edibleSlider{
 }
 </style>
 
+
+<style>
+/* SCE v1 — stash coverage card */
+.sceCard{
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;
+  padding:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.028));
+  box-shadow:0 10px 24px rgba(0,0,0,0.18);
+}
+.sceTop{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.sceTitle{
+  margin:0;
+  font-size:14px;
+  letter-spacing:0.10em;
+}
+.sceSub{
+  margin:6px 0 0 0;
+  font-size:12px;
+  line-height:1.4;
+  color:var(--muted);
+}
+.scePill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 9px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.06);
+  color:var(--text);
+  font-size:10px;
+  letter-spacing:0.10em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.sceSummary{
+  margin:10px 0 0 0;
+  font-size:13px;
+  line-height:1.45;
+  color:var(--text);
+}
+.sceMetaGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:10px;
+}
+@media (max-width: 720px){
+  .sceMetaGrid{ grid-template-columns:1fr; }
+}
+.sceMetaCard{
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:12px;
+  padding:9px 10px;
+  background:rgba(255,255,255,0.03);
+}
+.sceMetaLabel{
+  font-size:10px;
+  letter-spacing:0.10em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.sceMetaValue{
+  margin-top:5px;
+  font-size:13px;
+  line-height:1.35;
+  color:var(--text);
+}
+.sceLaneBars{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+}
+.sceLaneRow{
+  display:grid;
+  grid-template-columns:72px 1fr 42px;
+  gap:10px;
+  align-items:center;
+}
+.sceLaneLabel{
+  font-size:11px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.sceLaneTrack{
+  position:relative;
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.10);
+}
+.sceLaneFill{
+  position:absolute;
+  inset:0 auto 0 0;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(255,214,74,0.70), rgba(90,255,170,0.46));
+  box-shadow:0 0 18px rgba(255,214,74,0.10);
+}
+.sceLanePct{
+  font-size:12px;
+  color:var(--text);
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.sceBulletList{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+}
+.sceBullet{
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:12px;
+  padding:8px 10px;
+  background:rgba(255,255,255,0.03);
+  color:var(--text);
+  font-size:12px;
+  line-height:1.4;
+}
+.sceEmpty{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+}
+</style>
+
 </head>
 
 <body>
@@ -2454,6 +2589,11 @@ input.edibleSlider{
             <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH LIST</h2>
             <div id="stashList" class="list">
               <div class="muted">No stash items yet.</div>
+            </div>
+
+            <div class="divider"></div>
+            <div id="sceCard" class="sceCard">
+              <div class="sceEmpty">Stash coverage will appear here once the system has something to read.</div>
             </div>
           </div>
         </div>
@@ -3842,6 +3982,7 @@ input.edibleSlider{
     const stashPhotoThumb = document.getElementById("stashPhotoThumb");
     const stashPhotoDataUrl = document.getElementById("stashPhotoDataUrl");
     const stashPhotoClear = document.getElementById("stashPhotoClear");
+    const sceCard = document.getElementById("sceCard");
 
     let stashVisualSet = new Set();
     let selectedStashId = "";
@@ -3971,6 +4112,7 @@ input.edibleSlider{
       renderStash();
       renderStashLinkDropdown();
       renderAskPatterns();
+      renderSCECard();
       if (selectedStashId){
         renderSelectedStashDetail();
       }
@@ -4463,6 +4605,372 @@ ${cautionBits.join(" • ")}`
       renderStashVisual();
       closeStashDetail();
     };
+
+
+    // SCE — STASH COVERAGE ENGINE (embedded, pure math + safe card render)
+    const SCE_LANES = ["lift", "calm", "heavy", "clarity", "steady"];
+    const SCE_LABELS = {
+      lift: "Lift",
+      calm: "Calm",
+      heavy: "Heavy",
+      clarity: "Clarity",
+      steady: "Steady"
+    };
+    const SCE_ROLE_LIBRARY = {
+      lift: "brighter lift partner",
+      calm: "softer calming partner",
+      heavy: "heavier downshift partner",
+      clarity: "clean clarity partner",
+      steady: "stable all-around partner"
+    };
+
+    function sceClamp01(n){
+      const x = Number(n);
+      if (!Number.isFinite(x)) return 0;
+      return Math.max(0, Math.min(1, x));
+    }
+
+    function sceAvg(arr){
+      const xs = (arr || []).filter(v => Number.isFinite(v));
+      if (!xs.length) return 0;
+      return xs.reduce((a,b) => a + b, 0) / xs.length;
+    }
+
+    function sceEntropy01(probabilities){
+      const probs = (probabilities || []).map(sceClamp01);
+      const total = probs.reduce((a,b)=>a+b,0);
+      if (total <= 0) return 0;
+      const normalized = probs.map(p => p / total).filter(p => p > 0);
+      const h = -normalized.reduce((acc, p) => acc + p * Math.log2(p), 0);
+      const hMax = Math.log2(normalized.length || 1);
+      if (hMax <= 0) return 0;
+      return h / hMax;
+    }
+
+    function sceStddev(arr){
+      const xs = (arr || []).filter(v => Number.isFinite(v));
+      if (!xs.length) return 0;
+      const m = sceAvg(xs);
+      const variance = sceAvg(xs.map(v => Math.pow(v - m, 2)));
+      return Math.sqrt(variance);
+    }
+
+    function scePresenceTo01(val){
+      const s = String(val || "").toUpperCase();
+      if (!s || s === "NOT_PRESENT") return 0;
+      if (s === "BACKGROUND") return 0.33;
+      if (s === "NOTICEABLE") return 0.66;
+      if (s === "DOMINANT") return 1;
+      return 0;
+    }
+
+    function sceRateTo01(rate){
+      const r = Number(rate);
+      if (!Number.isFinite(r) || r <= 0) return 0.5;
+      return sceClamp01((r - 1) / 4);
+    }
+
+    function sceSnapshotTo01(raw){
+      const v = Number(raw);
+      if (!Number.isFinite(v)) return 0.5;
+      return sceClamp01((v + 5) / 10);
+    }
+
+    function sceSmellLevelTo01(raw){
+      const s = String(raw || "").toUpperCase();
+      const map = {
+        "": 0,
+        "NONE": 0,
+        "LIGHT": 0.25,
+        "NOTICEABLE": 0.5,
+        "STRONG": 0.75,
+        "HEAVY": 1,
+        "LOUD": 1
+      };
+      return map[s] ?? 0;
+    }
+
+    function sceNormalizeVector(vector){
+      const total = SCE_LANES.reduce((acc, k) => acc + Math.max(0, Number(vector?.[k] || 0)), 0);
+      if (total <= 0){
+        const even = 1 / SCE_LANES.length;
+        return Object.fromEntries(SCE_LANES.map(k => [k, even]));
+      }
+      return Object.fromEntries(
+        SCE_LANES.map(k => [k, sceClamp01((Number(vector?.[k] || 0)) / total)])
+      );
+    }
+
+    function sceExtractSessionVector(session){
+      const terp = (session && session.terpenes) ? session.terpenes : {};
+      const myrcene = scePresenceTo01(terp.MYRCENE);
+      const caryo = scePresenceTo01(terp.CARYOPHYLLENE);
+      const limonene = scePresenceTo01(terp.LIMONENE);
+      const pinene = scePresenceTo01(terp.PINENE);
+      const linalool = scePresenceTo01(terp.LINALOOL);
+      const terpinolene = scePresenceTo01(terp.TERPINOLENE);
+
+      const calmWired = sceSnapshotTo01(session?.feelingSnapshot?.calmWired ?? 0);
+      const clearFoggy = sceSnapshotTo01(session?.feelingSnapshot?.clearFoggy ?? 0);
+      const socialSolo = sceSnapshotTo01(session?.feelingSnapshot?.socialSolo ?? 0);
+
+      const passive = sceSmellLevelTo01(session?.passiveSmellIntensity);
+      const activated = sceSmellLevelTo01(session?.activatedSmellIntensity);
+      const rating = sceRateTo01(session?.rate);
+
+      const calmFromSnapshot = sceClamp01(1 - calmWired);
+      const liftFromSnapshot = sceClamp01(calmWired);
+      const clarityFromSnapshot = sceClamp01(1 - clearFoggy);
+      const heavyFromFog = sceClamp01(clearFoggy);
+      const socialBias = sceClamp01(1 - socialSolo);
+      const soloBias = sceClamp01(socialSolo);
+
+      return sceNormalizeVector({
+        lift:
+          0.34 * limonene +
+          0.22 * pinene +
+          0.16 * terpinolene +
+          0.20 * liftFromSnapshot +
+          0.08 * socialBias,
+        calm:
+          0.28 * linalool +
+          0.24 * caryo +
+          0.22 * myrcene +
+          0.18 * calmFromSnapshot +
+          0.08 * soloBias,
+        heavy:
+          0.42 * myrcene +
+          0.18 * linalool +
+          0.16 * heavyFromFog +
+          0.12 * (1 - rating) +
+          0.12 * activated,
+        clarity:
+          0.34 * pinene +
+          0.20 * limonene +
+          0.24 * clarityFromSnapshot +
+          0.10 * rating +
+          0.12 * passive,
+        steady:
+          0.26 * caryo +
+          0.18 * linalool +
+          0.16 * rating +
+          0.16 * (1 - Math.abs(calmWired - 0.5) * 2) +
+          0.12 * (1 - Math.abs(clearFoggy - 0.5) * 2) +
+          0.12 * (1 - Math.abs(socialSolo - 0.5) * 2)
+      });
+    }
+
+    function sceBuildSessionsByStashId(sessions){
+      const map = new Map();
+      (sessions || []).forEach(session => {
+        const key = String(session?.stashId || "");
+        if (!key) return;
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(session);
+      });
+      return map;
+    }
+
+    function sceBuildItemProfiles(stashItems, sessions){
+      const sessionsByStashId = sceBuildSessionsByStashId(sessions);
+      return (stashItems || []).map(item => {
+        const linked = sessionsByStashId.get(String(item?.id || "")) || [];
+        const vectors = linked.map(sceExtractSessionVector);
+        const vector = linked.length
+          ? sceNormalizeVector({
+              lift: sceAvg(vectors.map(v => v.lift)),
+              calm: sceAvg(vectors.map(v => v.calm)),
+              heavy: sceAvg(vectors.map(v => v.heavy)),
+              clarity: sceAvg(vectors.map(v => v.clarity)),
+              steady: sceAvg(vectors.map(v => v.steady))
+            })
+          : sceNormalizeVector({});
+        const dominantLane = SCE_LANES.slice().sort((a,b) => vector[b] - vector[a])[0] || "steady";
+        return {
+          id: item.id,
+          name: item.name || "Unnamed",
+          sessions: linked.length,
+          vector,
+          dominantLane
+        };
+      });
+    }
+
+    function analyzeStashCoverage(stashItems, sessions){
+      const items = Array.isArray(stashItems) ? stashItems : [];
+      const itemProfiles = sceBuildItemProfiles(items, sessions || []);
+      const count = itemProfiles.length;
+
+      if (!count){
+        return {
+          itemProfiles: [],
+          strong: [],
+          weak: [],
+          missing: null,
+          diversity: 0,
+          redundancy: [],
+          normalizedStash: sceNormalizeVector({}),
+          confidence: "none",
+          coverageMessage: "No stash data yet.",
+          suggestions: [],
+          whyItMatters: [],
+          unlocks: []
+        };
+      }
+
+      const laneMeans = Object.fromEntries(
+        SCE_LANES.map(k => [k, sceAvg(itemProfiles.map(p => p.vector[k]))])
+      );
+      const normalizedStash = sceNormalizeVector(laneMeans);
+      const meanOfMeans = sceAvg(SCE_LANES.map(k => normalizedStash[k]));
+
+      const strong = SCE_LANES.filter(k => normalizedStash[k] >= meanOfMeans + 0.12)
+        .sort((a,b) => normalizedStash[b] - normalizedStash[a]);
+
+      const weak = SCE_LANES.filter(k => normalizedStash[k] <= meanOfMeans - 0.12)
+        .sort((a,b) => normalizedStash[a] - normalizedStash[b]);
+
+      const laneVariances = Object.fromEntries(
+        SCE_LANES.map(k => [k, sceStddev(itemProfiles.map(p => p.vector[k]))])
+      );
+
+      const missing = SCE_LANES.slice().sort((a,b) => {
+        if (normalizedStash[a] !== normalizedStash[b]) return normalizedStash[a] - normalizedStash[b];
+        return laneVariances[a] - laneVariances[b];
+      })[0];
+
+      const dominantCounts = Object.fromEntries(SCE_LANES.map(k => [k, 0]));
+      itemProfiles.forEach(p => { dominantCounts[p.dominantLane] += 1; });
+
+      const redundancy = Object.entries(dominantCounts)
+        .filter(([,n]) => n >= Math.max(2, Math.ceil(count * 0.45)))
+        .sort((a,b) => b[1] - a[1])
+        .map(([lane, n]) => ({ lane, label: SCE_LABELS[lane], count: n }));
+
+      const diversity = sceEntropy01(SCE_LANES.map(k => normalizedStash[k]));
+      const confidence = count >= 3 ? "strong" : count >= 2 ? "medium" : "early";
+
+      const suggestions = [];
+      if (missing) suggestions.push(`Consider a ${SCE_ROLE_LIBRARY[missing]}.`);
+      if (redundancy.length) suggestions.push(`Your stash repeats ${redundancy.map(r => r.label.toLowerCase()).join(" + ")} more than once.`);
+      if (weak.includes("clarity") && weak.includes("lift")) suggestions.push("A brighter daytime partner could open cleaner blends.");
+      else if (weak.includes("heavy")) suggestions.push("A deeper downshift option could improve night coverage.");
+      else if (weak.includes("steady")) suggestions.push("A more balanced all-around piece could reduce overcorrection.");
+
+      let coverageMessage = "";
+      if (count <= 1){
+        coverageMessage = "Early read. One item is not enough to map stash coverage yet.";
+      } else if (!weak.length){
+        coverageMessage = `Your stash is relatively rounded. Strongest lane: ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "none yet"}.`;
+      } else {
+        coverageMessage = `Your stash leans ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "without a dominant lane"} and looks thinner in ${weak.map(k => SCE_LABELS[k].toLowerCase()).join(" + ")}. Missing lane: ${SCE_LABELS[missing]}.`;
+      }
+
+      const whyItMatters = [];
+      if (redundancy.length) whyItMatters.push("Repeated lane overlap can cause same-feel sessions.");
+      if (weak.includes("lift") || weak.includes("clarity")) whyItMatters.push("Thin lift/clarity coverage can limit daytime flexibility.");
+      if (weak.includes("heavy")) whyItMatters.push("Thin heavy coverage can limit deeper settle/downshift options.");
+      if (diversity < 0.72) whyItMatters.push("Low stash diversity reduces blend range.");
+
+      const unlocks = [];
+      if (missing === "clarity" || missing === "lift") unlocks.push("Could unlock cleaner balancing blends.");
+      if (missing === "heavy") unlocks.push("Could unlock stronger night/downshift blends.");
+      if (missing === "steady") unlocks.push("Could unlock more neutral all-around use.");
+      if (strong.includes("calm") && missing === "clarity") unlocks.push("Could stop calm-heavy blends from turning muddy.");
+
+      return {
+        itemProfiles,
+        strong,
+        weak,
+        missing,
+        diversity,
+        redundancy,
+        normalizedStash,
+        confidence,
+        coverageMessage,
+        suggestions,
+        whyItMatters,
+        unlocks
+      };
+    }
+
+    function renderSCELaneRow(key, value){
+      const pct = Math.max(0, Math.min(100, Math.round((Number(value || 0)) * 100)));
+      return `
+        <div class="sceLaneRow">
+          <div class="sceLaneLabel">${escapeHtml(SCE_LABELS[key])}</div>
+          <div class="sceLaneTrack"><div class="sceLaneFill" style="width:${pct}%;"></div></div>
+          <div class="sceLanePct">${pct}%</div>
+        </div>
+      `;
+    }
+
+    function sceConfidenceLabel(conf){
+      if (conf === "strong") return "STRONG READ";
+      if (conf === "medium") return "MEDIUM READ";
+      if (conf === "early") return "EARLY READ";
+      return "NO READ";
+    }
+
+    async function renderSCECard(){
+      if (!sceCard) return;
+      const stashItems = loadStash();
+      const sessions = await dbGetAll();
+      const result = analyzeStashCoverage(stashItems, sessions);
+
+      if (!stashItems.length){
+        sceCard.innerHTML = `<div class="sceEmpty">Stash coverage will appear here once the system has something to read.</div>`;
+        return;
+      }
+
+      const strongText = result.strong.length ? result.strong.map(k => SCE_LABELS[k]).join(", ") : "None obvious";
+      const weakText = result.weak.length ? result.weak.map(k => SCE_LABELS[k]).join(", ") : "None obvious";
+      const missingText = result.missing ? SCE_LABELS[result.missing] : "None";
+      const diversityPct = Math.round(result.diversity * 100);
+
+      sceCard.innerHTML = `
+        <div class="sceTop">
+          <div>
+            <h2 class="sceTitle">STASH COVERAGE</h2>
+            <p class="sceSub">What your stash does well, what it lacks, and what could round it out.</p>
+          </div>
+          <span class="scePill">${escapeHtml(sceConfidenceLabel(result.confidence))}</span>
+        </div>
+
+        <p class="sceSummary">${escapeHtml(result.coverageMessage)}</p>
+
+        <div class="sceMetaGrid">
+          <div class="sceMetaCard">
+            <div class="sceMetaLabel">Strong lanes</div>
+            <div class="sceMetaValue">${escapeHtml(strongText)}</div>
+          </div>
+          <div class="sceMetaCard">
+            <div class="sceMetaLabel">Weak lanes</div>
+            <div class="sceMetaValue">${escapeHtml(weakText)}</div>
+          </div>
+          <div class="sceMetaCard">
+            <div class="sceMetaLabel">Missing lane</div>
+            <div class="sceMetaValue">${escapeHtml(missingText)} · ${diversityPct}% diversity</div>
+          </div>
+        </div>
+
+        <div class="sceLaneBars">
+          ${SCE_LANES.map(k => renderSCELaneRow(k, result.normalizedStash[k])).join("")}
+        </div>
+
+        ${
+          result.suggestions.length || result.whyItMatters.length || result.unlocks.length
+          ? `
+          <div class="sceBulletList">
+            ${result.suggestions.map(line => `<div class="sceBullet"><strong>Consider:</strong> ${escapeHtml(line)}</div>`).join("")}
+            ${result.whyItMatters.map(line => `<div class="sceBullet"><strong>Why it matters:</strong> ${escapeHtml(line)}</div>`).join("")}
+            ${result.unlocks.map(line => `<div class="sceBullet"><strong>Unlock:</strong> ${escapeHtml(line)}</div>`).join("")}
+          </div>`
+          : ""
+        }
+      `;
+    }
+
 
     // IndexedDB
     const DB_NAME = "stoneyvibes_db_v1";
@@ -6520,6 +7028,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       wirePatternButton(patternFocusOpen, stats.bestFocus);
       wirePatternButton(patternFunOpen, stats.bestFun);
       wirePatternButton(patternConsistentOpen, stats.mostConsistent);
+      await renderSCECard();
     }
 
     function positiveBlendScore(n){
