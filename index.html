@@ -2328,7 +2328,7 @@ input.edibleSlider{
   <div class="shell">
     <header>
       <h1 class="title">StoneyVibes — VOLUME 1</h1>
-      <p class="sub">Private, local-only logging. Swipe left/right or tap.</p>
+      <p class="sub">Private session logging. Swipe or tap.</p>
 
       <div class="nav">
         <button class="tab active" id="tabStash" type="button">STASH</button>
@@ -2344,7 +2344,8 @@ input.edibleSlider{
       <section class="page" id="pageStash">
         <div class="card specimenPanel">
           <h2>STASH</h2>
-          <p class="muted" style="margin:0;">Your sample library: what you like, what you’ve tried, what you want to remember.</p>
+          <p class="muted" style="margin:0;">Your stash — what you have
+This is the sample itself — not a session</p>
 
           <div class="row topgap">
             <label class="field">
@@ -2380,16 +2381,16 @@ input.edibleSlider{
 
           <!-- STASH PHOTO -->
           <div class="photoBox">
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH PHOTO (OPTIONAL)</h2>
-            <p class="muted" style="margin:6px 0 0 0;">This is the visual anchor for the stash entry itself.</p>
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH PHOTO</h2>
+            <p class="muted" style="margin:6px 0 0 0;">Just helps you remember</p>
 
             <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
               <label class="btn btnOk" style="display:inline-flex; align-items:center; gap:10px;">
-                📷 Take Stash Photo
+                📷 Take photo
                 <input id="stashPhotoCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
               </label>
               <label class="btn btnTiny" style="display:inline-flex; align-items:center; gap:10px;">
-                🖼️ Choose Existing Photo
+                🖼️ Choose photo
                 <input id="stashPhotoLibraryInput" type="file" accept="image/*" style="display:none;" />
               </label>
               <button id="stashPhotoClear" class="btn btnTiny" type="button">No photo</button>
@@ -2403,8 +2404,8 @@ input.edibleSlider{
 
           <!-- STASH VISUAL TRAITS -->
           <div class="terpRow">
-            <p class="terpName">Visual traits (stash identity)</p>
-            <p class="terpHint">Fast specimen tags + optional one-word “Other”.</p>
+            <p class="terpName">Static traits</p>
+            <p class="terpHint">Fast tags + one-word Other if needed</p>
 
             <div class="row topgap" style="gap:8px;">
               <button class="btn btnTiny chip" type="button" data-stash-visual="FROSTY">FROSTY</button>
@@ -2417,7 +2418,7 @@ input.edibleSlider{
 
             <div class="row topgap">
               <label class="field" style="min-width:220px;">
-                <span class="label">Other (one word, optional)</span>
+                <span class="label">Other (one word)</span>
                 <input id="stashVisualOther" class="input" type="text" placeholder="e.g., chunky / wiry / glittery" />
               </label>
               <button id="stashVisualReset" class="btn btnTiny" type="button">Reset</button>
@@ -2428,7 +2429,7 @@ input.edibleSlider{
 
           <div class="row topgap">
             <label class="field">
-              <span class="label">Notes (optional)</span>
+              <span class="label">Baseline notes</span>
               <input id="stashNotes" class="input" type="text" placeholder="One line. Keep it human." />
             </label>
           </div>
@@ -2451,9 +2452,9 @@ input.edibleSlider{
 
           <div id="stashListWrap">
             <div class="divider"></div>
-            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH LIST</h2>
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">YOUR STASH</h2>
             <div id="stashList" class="list">
-              <div class="muted">No stash items yet.</div>
+              <div class="muted">Add your first stash item</div>
             </div>
           </div>
         </div>
@@ -2462,19 +2463,20 @@ input.edibleSlider{
       <section class="page" id="pageSessions">
         <div class="card">
           <h2>SESSION</h2>
-          <p class="muted" style="margin:0;">Capture what you tried, what it smelled like, and how it landed.</p>
+          <p class="muted" style="margin:0;">Log a session — what happened
+One use, one outcome</p>
 
           <!-- SESSION (stash + tag) -->
           <div class="row topgap">
             <label class="field">
-              <span class="label">Pick from stash (optional)</span>
+              <span class="label">Pick from stash</span>
               <select id="sessionStashLink" class="select">
                 <option value="">— none —</option>
               </select>
             </label>
 
             <label class="field">
-              <span class="label">Sample name (optional)</span>
+              <span class="label">Sample name</span>
               <input id="sessionTag" class="input" type="text" placeholder="If it’s not in stash yet." />
             </label>
           </div>
@@ -2486,13 +2488,13 @@ input.edibleSlider{
           <div class="divider"></div>
 
           <div class="sessionPrimaryCapture">
-            <h2 class="sessionPrimaryTitle">AUDIO NOTE (PARAMOUNT)</h2>
-            <p class="muted" style="margin:6px 0 0 0;">One-button session path: start session, talk, stop session, save.</p>
+            <h2 class="sessionPrimaryTitle">AUDIO NOTE</h2>
+            <p class="muted" style="margin:6px 0 0 0;">Start. Talk. Finish. Save.</p>
 
             <div class="row topgap">
-              <button id="recBtn" class="btn btnPrimary" type="button">▶️ Start Session</button>
+              <button id="recBtn" class="btn btnPrimary" type="button">▶️ START</button>
               <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
-              <button id="stopBtn" class="btn btnOk" type="button" disabled>■ Stop Session</button>
+              <button id="stopBtn" class="btn btnOk" type="button" disabled>■ FINISH</button>
               <span id="statusPill" class="pill"><span class="okDot"></span><span id="statusText">Idle</span></span>
             </div>
 
@@ -2510,23 +2512,23 @@ input.edibleSlider{
 
             <div class="divider"></div>
 
-            <h2 class="sessionPrimaryTitle">TRANSCRIPT</h2>
-            <p class="muted" style="margin:6px 0 0 0;">Default path: Start Session kicks off audio and, when supported, live transcript automatically.</p>
+            <h2 class="sessionPrimaryTitle">WHAT YOU SAID</h2>
+            <p class="muted" style="margin:6px 0 0 0;">Default path: START kicks off audio and, when supported, live transcript automatically.</p>
 
             <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
-              <button id="transcriptLiveBtn" class="btn btnPrimary" type="button">Live Transcript</button>
+              <button id="transcriptLiveBtn" class="btn btnPrimary" type="button">Live Session note</button>
               <button id="transcriptStopBtn" class="btn" type="button" disabled>Stop</button>
               <button id="transcriptResetBtn" class="btn btnTiny" type="button">Reset</button>
               <span id="transcriptStatusPill" class="pill"><span class="okDot"></span><span id="transcriptStatusText">Idle</span></span>
             </div>
 
             <div class="notice topgap">
-              Start Session will try to fill this box automatically while you talk. If live transcript is not supported here, audio still records normally and you can paste or type raw text later.
+              START will try to fill this box automatically while you talk. If live transcript is not supported here, audio still records normally and you can paste or type raw text later.
             </div>
 
             <div class="row topgap">
               <label class="field">
-                <span class="label">Transcript</span>
+                <span class="label">Session note</span>
                 <textarea id="transcriptText" class="input" rows="7" placeholder="Live transcript appears here when available. You can also paste or edit it manually."></textarea>
               </label>
             </div>
@@ -2566,7 +2568,7 @@ input.edibleSlider{
                   </div>
                   <div class="row topgap">
                     <label class="field" style="min-width:220px;">
-                      <span class="label">Other (one word, optional)</span>
+                      <span class="label">Other (one word)</span>
                       <input id="moodOther" class="input" type="text" placeholder="e.g., anxious / happy / ashamed" />
                     </label>
                     <button id="moodReset" class="btn btnTiny" type="button">Reset</button>
@@ -2746,7 +2748,7 @@ input.edibleSlider{
 
                 <div class="row topgap">
                   <label class="field" style="min-width:220px;">
-                    <span class="label">Other (one word, optional)</span>
+                    <span class="label">Other (one word)</span>
                     <input id="visualOther" class="input" type="text" placeholder="e.g., glittery / wiry / chunky" />
                   </label>
                   <button id="visualReset" class="btn btnTiny" type="button">Reset</button>
@@ -2830,7 +2832,7 @@ input.edibleSlider{
 
                 <div class="row topgap">
                   <label class="field" style="min-width:220px;">
-                    <span class="label">Other (one word, optional)</span>
+                    <span class="label">Other (one word)</span>
                     <input id="smellOther" class="input" type="text" placeholder="e.g., gym / raisins / metal" />
                   </label>
                   <button id="smellReset" class="btn btnTiny" type="button">Reset</button>
@@ -2866,9 +2868,10 @@ input.edibleSlider{
           </details>
 
           <details class="sessionFold">
-            <summary>CHEMISTRY — Terpene presence read</summary>
+            <summary>CHEMISTRY</summary>
             <div class="sessionFoldBody">
-              <p class="muted" style="margin-top:-6px; margin-bottom:10px;">your perception (NP / BG / N / D), not lab data</p>
+              <p class="muted" style="margin-top:-6px; margin-bottom:10px;">What you actually tasted
+Your perception — not lab data</p>
             <div class="sessionFoldBody">
               <div class="terpRow">
                 <p class="terpName">Terpene presence</p>
@@ -2884,7 +2887,7 @@ input.edibleSlider{
               <p class="muted" style="margin-top:-6px; margin-bottom:10px;">saved entries, patterns, and recall</p>
             <div class="sessionFoldBody">
               <div id="sessionList" class="list">
-                <div class="muted">No sessions yet.</div>
+                <div class="muted">Run one session — this fills itself</div>
               </div>
             </div>
           </details>
@@ -3093,7 +3096,7 @@ input.edibleSlider{
           </details>
           <div class="divider"></div>
           <div class="notice">
-            Stored locally on this device only. Nothing leaves the system unless you export it.
+            Everything stays on this device unless you export it.
           </div>
         </div>
       </section>
@@ -3117,7 +3120,7 @@ input.edibleSlider{
             <button id="askPromptSleep" class="btn btnTiny askQuick" type="button">Sleep</button>
             <button id="askPromptConsistent" class="btn btnTiny askQuick" type="button">Steady</button>
             <button id="askPromptWeird" class="btn btnTiny askQuick" type="button">Different</button>
-            <button id="askPromptTranscript" class="btn btnTiny askQuick" type="button">All Lanes</button>
+            <button id="askPromptSession note" class="btn btnTiny askQuick" type="button">All Lanes</button>
           </div>
 
           <div class="row topgap">
@@ -3134,7 +3137,7 @@ input.edibleSlider{
           <div class="divider"></div>
 
           <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">ANSWER</h2>
-          <div id="askReply" class="askReply topgap muted">No answer yet.</div>
+          <div id="askReply" class="askReply topgap muted">Ask something — I’ll read your patterns</div>
           <div id="askSuggestionMount" class="askSuggestionMount"></div>
 
           <div class="divider"></div>
@@ -4344,7 +4347,7 @@ ${cautionBits.join(" • ")}`
     function renderStash(){
       const allItems = getStashDisplayOrder(loadStash());
       if (!allItems.length){
-        stashList.innerHTML = '<div class="muted">No stash items yet.</div>';
+        stashList.innerHTML = '<div class="muted">Add your first stash item</div>';
         return;
       }
 
@@ -5017,8 +5020,8 @@ ${cautionBits.join(" • ")}`
       return "";
     }
 
-    function maybeStartAutoTranscript(){
-      const engine = ensureTranscriptEngine();
+    function maybeStartAutoSession note(){
+      const engine = ensureSession noteEngine();
       if (!engine || !engine.supported()) return false;
       try{
         engine.start(transcriptText.value || "");
@@ -5028,7 +5031,7 @@ ${cautionBits.join(" • ")}`
       }
     }
 
-    function maybeStopAutoTranscript(){
+    function maybeStopAutoSession note(){
       if (!transcriptEngine) return;
       try{
         transcriptEngine.stop();
@@ -5083,7 +5086,7 @@ ${cautionBits.join(" • ")}`
           preview.style.display = "block";
           setStatus("idle","Session ready to save");
         } finally {
-          maybeStopAutoTranscript();
+          maybeStopAutoSession note();
           if (mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
           mediaRecorder = null;
           chunks = [];
@@ -5106,12 +5109,12 @@ ${cautionBits.join(" • ")}`
       preview.removeAttribute("src");
       setStatus("rec","Session recording…");
 
-      maybeStartAutoTranscript();
+      maybeStartAutoSession note();
     }
 
     function stopRecording(){
       if (!mediaRecorder) return;
-      maybeStopAutoTranscript();
+      maybeStopAutoSession note();
       try{ mediaRecorder.stop(); } catch(e){}
       recBtn.disabled = false;
       stopBtn.disabled = true;
@@ -5252,7 +5255,7 @@ ${cautionBits.join(" • ")}`
       setSmellStatus("idle","Ready");
     });
 
-    function setTranscriptStatus(mode, text){
+    function setSession noteStatus(mode, text){
       transcriptStatusText.textContent = text;
       const dot = transcriptStatusPill.querySelector("span");
       dot.className = (mode === "rec") ? "recDot" : "okDot";
@@ -5269,11 +5272,11 @@ ${cautionBits.join(" • ")}`
       }
     }
 
-    function normalizeTranscriptSeed(str){
+    function normalizeSession noteSeed(str){
       return String(str || "").replace(/\s+/g, " ").trim();
     }
 
-    function createTranscriptEngine(onUpdate, onStatus){
+    function createSession noteEngine(onUpdate, onStatus){
       let recognition = null;
       let isRecording = false;
       let shouldRestart = false;
@@ -5302,7 +5305,7 @@ ${cautionBits.join(" • ")}`
 
         if (isRecording) return;
 
-        finalText = normalizeTranscriptSeed(seedText);
+        finalText = normalizeSession noteSeed(seedText);
         interimText = "";
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -5390,10 +5393,10 @@ ${cautionBits.join(" • ")}`
       return { start, stop, reset, supported };
     }
 
-    function ensureTranscriptEngine(){
+    function ensureSession noteEngine(){
       if (transcriptEngine) return transcriptEngine;
 
-      transcriptEngine = createTranscriptEngine((data) => {
+      transcriptEngine = createSession noteEngine((data) => {
         transcriptText.value = data.fullText || "";
       }, (status) => {
         const map = {
@@ -5409,20 +5412,20 @@ ${cautionBits.join(" • ")}`
           "error:start-failed": ["idle", "Start failed"]
         };
         const pair = map[status] || (String(status).startsWith("error:") ? ["idle", status.replace("error:", "Error: ")] : ["idle", status]);
-        setTranscriptStatus(pair[0], pair[1]);
+        setSession noteStatus(pair[0], pair[1]);
       });
 
       if (!transcriptEngine.supported()){
-        setTranscriptStatus("unsupported", "Unsupported here");
+        setSession noteStatus("unsupported", "Unsupported here");
       }
 
       return transcriptEngine;
     }
 
     transcriptLiveBtn.onclick = () => {
-      const engine = ensureTranscriptEngine();
+      const engine = ensureSession noteEngine();
       if (!engine.supported()){
-        setTranscriptStatus("unsupported", "Unsupported here");
+        setSession noteStatus("unsupported", "Unsupported here");
         return;
       }
 
@@ -5437,7 +5440,7 @@ ${cautionBits.join(" • ")}`
     transcriptResetBtn.onclick = () => {
       if (transcriptEngine) transcriptEngine.reset();
       transcriptText.value = "";
-      setTranscriptStatus("idle", "Idle");
+      setSession noteStatus("idle", "Idle");
     };
 
     function normalizeImportedStashEntry(raw, fallbackIndex){
@@ -5490,7 +5493,7 @@ ${cautionBits.join(" • ")}`
         smellOther: String(raw.smellOther || ""),
         terpenes: (raw.terpenes && typeof raw.terpenes === "object") ? raw.terpenes : {},
         photoDataUrl: String(raw.photoDataUrl || ""),
-        transcriptMode: String(raw.transcriptMode || "AUDIO_PLUS_TRANSCRIPT"),
+        transcriptMode: String(raw.transcriptMode || "AUDIO_PLUS_WHAT YOU SAID"),
         transcriptText: String(raw.transcriptText || ""),
         mimeType: "",
         audioBlob: null,
@@ -5606,7 +5609,7 @@ ${cautionBits.join(" • ")}`
         smellOther: (smellOther.value || "").trim(),
         terpenes: readTerpenePresence(),
         photoDataUrl: photoDataUrl.value || "",
-        transcriptMode: readTranscriptMode(),
+        transcriptMode: readSession noteMode(),
         transcriptText: (transcriptText?.value || "").trim(),
         mimeType: pendingAudioBlob.type || "audio/*",
         audioBlob: pendingAudioBlob,
@@ -5673,7 +5676,7 @@ ${cautionBits.join(" • ")}`
       const sessions = await dbGetAll();
       sessions.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
       if (!sessions.length){
-        sessionList.innerHTML = '<div class="muted">No sessions yet.</div>';
+        sessionList.innerHTML = '<div class="muted">Run one session — this fills itself</div>';
         return;
       }
       sessionList.innerHTML = "";
@@ -5737,7 +5740,7 @@ ${cautionBits.join(" • ")}`
           ${
             (s.transcriptText)
             ? `<div class="terpRow topgap">
-                <p class="terpName">Transcript memory</p>
+                <p class="terpName">Session note memory</p>
                 <p class="terpHint">Saved raw transcript</p>
                 ${s.transcriptText ? `<div class="itemMeta" style="margin-top:8px; color:var(--text);">${escapeHtml(s.transcriptText)}</div>` : ""}
               </div>`
@@ -6099,7 +6102,7 @@ ${cautionBits.join(" • ")}`
     const askPromptSleep = document.getElementById("askPromptSleep");
     const askPromptConsistent = document.getElementById("askPromptConsistent");
     const askPromptWeird = document.getElementById("askPromptWeird");
-    const askPromptTranscript = document.getElementById("askPromptTranscript");
+    const askPromptSession note = document.getElementById("askPromptSession note");
 const askPromptBlend = document.getElementById("askPromptBlend");
 
     function parseSleepValue(v){
@@ -6112,8 +6115,8 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       return Number.isFinite(n) ? n : 0;
     }
 
-    function readTranscriptMode(){
-      return "AUDIO_PLUS_TRANSCRIPT";
+    function readSession noteMode(){
+      return "AUDIO_PLUS_WHAT YOU SAID";
     }
 
 
@@ -7877,7 +7880,7 @@ Other likely contributors: dose overshoot, bad starting mood, or fast-delivery f
         const latest = sessionsWithText.sort((a,b) => (b.createdAt||0) - (a.createdAt||0))[0];
         return `Latest transcript-backed session: ${latest.tag || "Session"}.
 
-${latest.transcriptText ? "Transcript: " + latest.transcriptText.slice(0, 280) + (latest.transcriptText.length > 280 ? "…" : "") : ""}`;
+${latest.transcriptText ? "Session note: " + latest.transcriptText.slice(0, 280) + (latest.transcriptText.length > 280 ? "…" : "") : ""}`;
       }
 
       return `Clean read right now:
@@ -7892,7 +7895,7 @@ ${latest.transcriptText ? "Transcript: " + latest.transcriptText.slice(0, 280) +
 Ask me something tighter.`;
     }
 
-        const askQuickButtons = [askPromptGuide, askPromptSleep, askPromptConsistent, askPromptWeird, askPromptTranscript, askPromptBlend].filter(Boolean);
+        const askQuickButtons = [askPromptGuide, askPromptSleep, askPromptConsistent, askPromptWeird, askPromptSession note, askPromptBlend].filter(Boolean);
     function setAskQuickActive(btn){
       askQuickButtons.forEach(x => x.classList.toggle("active", x === btn));
     }
@@ -7901,7 +7904,7 @@ Ask me something tighter.`;
     askPromptSleep.onclick = () => { setAskQuickActive(askPromptSleep); askInput.value = "What helps me sleep?"; };
     askPromptConsistent.onclick = () => { setAskQuickActive(askPromptConsistent); askInput.value = "What has been most consistent for me?"; };
     askPromptWeird.onclick = () => { setAskQuickActive(askPromptWeird); askInput.value = "I want something different."; };
-    if (askPromptTranscript) askPromptTranscript.onclick = () => { setAskQuickActive(askPromptTranscript); askInput.value = "Show me all lanes."; };
+    if (askPromptSession note) askPromptSession note.onclick = () => { setAskQuickActive(askPromptSession note); askInput.value = "Show me all lanes."; };
 
     async function runAskFlow(rawQueryOverride){
       askReply.textContent = "Thinking…";
@@ -8087,7 +8090,7 @@ Ask me something tighter.`;
 
       if (!("MediaRecorder" in window)){
         iphoneFallback.style.display = "flex";
-        recBtn.textContent = "▶️ Start Session (Browser unavailable)";
+        recBtn.textContent = "▶️ START (Browser unavailable)";
         stopBtn.disabled = true;
         pauseBtn.disabled = true;
 
@@ -8102,8 +8105,8 @@ Ask me something tighter.`;
 
       setStatus("idle","Idle");
       setSmellStatus("idle","Idle");
-      setTranscriptStatus("idle","Idle");
-      ensureTranscriptEngine();
+      setSession noteStatus("idle","Idle");
+      ensureSession noteEngine();
 
       renderStashVisual();
       renderMood();
