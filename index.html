@@ -588,6 +588,57 @@
       opacity:0.9;
     }
 
+    .stashSection{
+      margin-top:14px;
+    }
+    .stashSectionHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .stashSectionTitle{
+      margin:0;
+      font-size:12px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .stashSectionCount{
+      font-size:11px;
+      color:var(--muted);
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+    }
+    .stashCardControls{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      align-items:flex-end;
+      justify-content:center;
+      flex:0 0 auto;
+    }
+    .stashMiniBtn{
+      min-width:36px;
+      padding:5px 8px;
+      font-size:11px;
+      border-radius:10px;
+    }
+    .stashDeleteBtn{
+      padding:5px 8px;
+      font-size:11px;
+      border-radius:10px;
+    }
+    .statusCurrent{
+      border-color:rgba(90,255,170,0.34);
+      background:rgba(90,255,170,0.12);
+    }
+    .statusSampled{
+      border-color:rgba(255,214,74,0.28);
+      background:rgba(255,214,74,0.10);
+    }
+
     .stashDetail{
       display:none;
       margin-top:12px;
@@ -2119,6 +2170,157 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
 }
 </style>
 
+
+<style>
+/* v6 — edible logging lane */
+.edibleGrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+@media (min-width: 820px){
+  .edibleGrid{ grid-template-columns:1fr 1fr; }
+}
+.edibleDoseRow,.edibleTimerRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.edibleDoseBtn.active,
+.edibleTimerBtn.active{
+  color:#fff;
+  border-color:rgba(255,214,74,0.92);
+  background:linear-gradient(180deg, rgba(255,214,74,0.28), rgba(255,170,70,0.20));
+  box-shadow:0 0 0 1px rgba(255,214,74,0.10) inset, 0 0 20px rgba(255,190,74,0.14);
+}
+.edibleTimerPanel{
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;
+  padding:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.028));
+}
+.edibleTimerReadout{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+.edibleTimerPill{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.06);
+  color:var(--text);
+  font-size:12px;
+  line-height:1.2;
+}
+.edibleLaneGrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+@media (min-width: 820px){
+  .edibleLaneGrid{ grid-template-columns:1fr 1fr; }
+}
+.edibleLaneCard{
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(255,255,255,0.03);
+}
+.edibleLaneTrack{
+  position:relative;
+  height:12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.06);
+  overflow:hidden;
+  margin-top:8px;
+}
+.edibleLaneFill{
+  position:absolute;
+  inset:0 auto 0 0;
+  width:0%;
+  background:linear-gradient(90deg, rgba(255,214,74,0.76), rgba(255,170,70,0.34));
+}
+.edibleLaneMeta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-top:6px;
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+}
+input.edibleSlider{
+  width:100%;
+  margin-top:8px;
+}
+.edibleLogCard{
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:14px;
+  padding:10px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.024));
+}
+.edibleLogTop{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+.edibleLogTitle{
+  margin:0;
+  font-size:14px;
+  font-weight:700;
+  line-height:1.25;
+}
+.edibleLogMeta{
+  margin:4px 0 0 0;
+  font-size:12px;
+  line-height:1.4;
+  color:var(--muted);
+  white-space:pre-wrap;
+}
+.edibleStatGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-top:10px;
+}
+@media (min-width: 720px){
+  .edibleStatGrid{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+.edibleStat{
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:12px;
+  padding:8px;
+  background:rgba(255,255,255,0.03);
+}
+.edibleStatLabel{
+  font-size:10px;
+  letter-spacing:0.10em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.edibleStatValue{
+  margin-top:4px;
+  font-size:13px;
+  color:var(--text);
+}
+.edibleBodyHeadGrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+@media (min-width: 820px){
+  .edibleBodyHeadGrid{ grid-template-columns:1fr 1fr; }
+}
+</style>
+
 </head>
 
 <body>
@@ -2158,6 +2360,14 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
                 <option value="EDIBLE">EDIBLE</option>
                 <option value="CONCENTRATE">CONCENTRATE</option>
                 <option value="OTHER">OTHER</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="label">Status</span>
+              <select id="stashStatus" class="select">
+                <option value="CURRENT">IN STASH NOW</option>
+                <option value="SAMPLED">SAMPLED / ARCHIVE</option>
               </select>
             </label>
           </div>
@@ -2679,6 +2889,208 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
             </div>
           </details>
 
+
+
+          <details class="sessionFold" id="edibleLaneFold">
+            <summary>EDIBLE LOG — State builder</summary>
+            <div class="sessionFoldBody">
+              <p class="muted" style="margin-top:-6px; margin-bottom:10px;">slow lane / steady lane / ingestion-based state capture</p>
+
+              <div class="edibleGrid">
+                <label class="field">
+                  <span class="label">Source</span>
+                  <select id="edibleSource" class="select">
+                    <option value="DISPENSARY">Dispensary edible</option>
+                    <option value="HOMEMADE">Homemade infusion</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="label">Strain link</span>
+                  <select id="edibleStashLink" class="select">
+                    <option value="">— unknown / mixed —</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="label">Name / tag (optional)</span>
+                  <input id="edibleTag" class="input" type="text" placeholder="e.g., Larry OG gummy / mixed coconut oil" />
+                </label>
+
+                <label class="field">
+                  <span class="label">Form</span>
+                  <select id="edibleForm" class="select">
+                    <option value="GUMMY">Gummy</option>
+                    <option value="CHOCOLATE">Chocolate</option>
+                    <option value="DRINK">Drink</option>
+                    <option value="OIL">Oil</option>
+                    <option value="CAPSULE">Capsule</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="terpRow">
+                <p class="terpName">Dose</p>
+                <p class="terpHint">Fast mg capture. Micro first. Custom if needed.</p>
+                <div class="edibleDoseRow topgap" id="edibleDoseRow">
+                  <button class="btn btnTiny edibleDoseBtn" type="button" data-edible-dose="2.5">2.5mg</button>
+                  <button class="btn btnTiny edibleDoseBtn" type="button" data-edible-dose="5">5mg</button>
+                  <button class="btn btnTiny edibleDoseBtn" type="button" data-edible-dose="10">10mg</button>
+                  <button class="btn btnTiny edibleDoseBtn" type="button" data-edible-dose="20">20mg</button>
+                </div>
+                <div class="edibleGrid topgap">
+                  <label class="field">
+                    <span class="label">Custom THC dose (mg)</span>
+                    <input id="edibleDoseCustom" class="input" type="number" min="0" step="0.5" placeholder="e.g., 7.5" />
+                  </label>
+                  <label class="field">
+                    <span class="label">CBD present (optional)</span>
+                    <select id="edibleCBD" class="select">
+                      <option value="">Unknown / none</option>
+                      <option value="YES">Yes</option>
+                      <option value="NO">No</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="edibleGrid">
+                <label class="field">
+                  <span class="label">Stomach</span>
+                  <select id="edibleStomach" class="select">
+                    <option value="EMPTY">Empty</option>
+                    <option value="LIGHT">Light food</option>
+                    <option value="FULL">Full</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="label">Time context</span>
+                  <select id="edibleTimeContext" class="select">
+                    <option value="MORNING">Morning</option>
+                    <option value="AFTERNOON">Afternoon</option>
+                    <option value="NIGHT">Night</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="edibleTimerPanel">
+                <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">LIVE TIMER</h2>
+                <p class="muted" style="margin:6px 0 0 0;">Start ingestion, then tap the moments when you actually feel them.</p>
+                <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
+                  <button id="edibleStartBtn" class="btn btnPrimary" type="button">Start edible log</button>
+                  <button id="edibleResetBtn" class="btn btnDanger" type="button">Reset edible log</button>
+                  <span id="edibleStatusPill" class="pill"><span class="okDot"></span><span id="edibleStatusText">Idle</span></span>
+                </div>
+                <div class="edibleTimerRow topgap">
+                  <button id="edibleFirstFeelBtn" class="btn btnTiny edibleTimerBtn" type="button">Mark first feel</button>
+                  <button id="ediblePeakBtn" class="btn btnTiny edibleTimerBtn" type="button">Mark peak</button>
+                  <button id="edibleComedownBtn" class="btn btnTiny edibleTimerBtn" type="button">Mark come down</button>
+                </div>
+                <div class="edibleTimerReadout">
+                  <span class="edibleTimerPill">Elapsed: <strong id="edibleElapsed" style="margin-left:6px;">0:00</strong></span>
+                  <span class="edibleTimerPill">First feel: <strong id="edibleFirstFeelValue" style="margin-left:6px;">—</strong></span>
+                  <span class="edibleTimerPill">Peak: <strong id="ediblePeakValue" style="margin-left:6px;">—</strong></span>
+                  <span class="edibleTimerPill">Come down: <strong id="edibleComedownValue" style="margin-left:6px;">—</strong></span>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="terpRow">
+                <p class="terpName">Lane read</p>
+                <p class="terpHint">How the edible actually drove the state. Same language, different vehicle.</p>
+                <div class="edibleLaneGrid topgap">
+                  <div class="edibleLaneCard">
+                    <p class="terpName">Uplift</p>
+                    <input id="edibleUplift" class="edibleSlider" type="range" min="0" max="5" step="1" value="0" />
+                    <div class="edibleLaneTrack"><div id="edibleUpliftFill" class="edibleLaneFill" style="width:0%;"></div></div>
+                    <div class="edibleLaneMeta"><span>Low</span><span id="edibleUpliftLabel">0 / 5</span><span>High</span></div>
+                  </div>
+                  <div class="edibleLaneCard">
+                    <p class="terpName">Calm</p>
+                    <input id="edibleCalm" class="edibleSlider" type="range" min="0" max="5" step="1" value="0" />
+                    <div class="edibleLaneTrack"><div id="edibleCalmFill" class="edibleLaneFill" style="width:0%;"></div></div>
+                    <div class="edibleLaneMeta"><span>Low</span><span id="edibleCalmLabel">0 / 5</span><span>High</span></div>
+                  </div>
+                  <div class="edibleLaneCard">
+                    <p class="terpName">Sedation</p>
+                    <input id="edibleSedation" class="edibleSlider" type="range" min="0" max="5" step="1" value="0" />
+                    <div class="edibleLaneTrack"><div id="edibleSedationFill" class="edibleLaneFill" style="width:0%;"></div></div>
+                    <div class="edibleLaneMeta"><span>Low</span><span id="edibleSedationLabel">0 / 5</span><span>High</span></div>
+                  </div>
+                  <div class="edibleLaneCard">
+                    <p class="terpName">Clarity</p>
+                    <input id="edibleClarity" class="edibleSlider" type="range" min="0" max="5" step="1" value="0" />
+                    <div class="edibleLaneTrack"><div id="edibleClarityFill" class="edibleLaneFill" style="width:0%;"></div></div>
+                    <div class="edibleLaneMeta"><span>Low</span><span id="edibleClarityLabel">0 / 5</span><span>High</span></div>
+                  </div>
+                  <div class="edibleLaneCard">
+                    <p class="terpName">Steady</p>
+                    <input id="edibleSteady" class="edibleSlider" type="range" min="0" max="5" step="1" value="0" />
+                    <div class="edibleLaneTrack"><div id="edibleSteadyFill" class="edibleLaneFill" style="width:0%;"></div></div>
+                    <div class="edibleLaneMeta"><span>Low</span><span id="edibleSteadyLabel">0 / 5</span><span>High</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="edibleBodyHeadGrid">
+                <label class="field">
+                  <span class="label">Body feel</span>
+                  <select id="edibleBodyFeel" class="select">
+                    <option value="LIGHT">Light</option>
+                    <option value="WARM">Warm</option>
+                    <option value="HEAVY">Heavy</option>
+                    <option value="COUCH">Couch</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="label">Headspace</span>
+                  <select id="edibleHeadspace" class="select">
+                    <option value="CLEAR">Clear</option>
+                    <option value="FLOATY">Floaty</option>
+                    <option value="FOGGY">Foggy</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="label">Intent match</span>
+                  <select id="edibleIntentMatch" class="select">
+                    <option value="YES">Yes</option>
+                    <option value="CLOSE">Close</option>
+                    <option value="MISS">Miss</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="label">Free note (optional)</span>
+                  <textarea id="edibleNotes" class="input" rows="4" placeholder="Short note only. What actually happened?"></textarea>
+                </label>
+              </div>
+
+              <div class="row topgap">
+                <button id="saveEdibleBtn" class="btn btnOk" type="button">Save edible log</button>
+                <button id="clearEdibleBtn" class="btn btnDanger" type="button">Clear edible fields</button>
+              </div>
+
+              <div class="divider"></div>
+
+              <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">EDIBLE LOG</h2>
+              <div id="edibleLogList" class="list topgap">
+                <div class="muted">No edible logs yet.</div>
+              </div>
+            </div>
+          </details>
           <div class="divider"></div>
           <div class="notice">
             Stored locally on this device only. Nothing leaves the system unless you export it.
@@ -3409,6 +3821,7 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
     const STASH_PHOTO_STORE = "stashPhotos";
     const stashName = document.getElementById("stashName");
     const stashCategory = document.getElementById("stashCategory");
+    const stashStatus = document.getElementById("stashStatus");
     const stashNotes = document.getElementById("stashNotes");
     const addStashBtn = document.getElementById("addStashBtn");
     const clearStashBtn = document.getElementById("clearStashBtn");
@@ -3434,12 +3847,39 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
     let selectedStashId = "";
     let stashPhotoCache = new Map();
 
+    function normalizeStashStatus(value){
+      return String(value || "CURRENT").toUpperCase() === "SAMPLED" ? "SAMPLED" : "CURRENT";
+    }
+
     function sanitizeStashItems(items){
-      return (Array.isArray(items) ? items : []).map(item => {
+      return (Array.isArray(items) ? items : []).map((item, idx) => {
         const next = { ...(item || {}) };
         delete next.photoDataUrl;
+        next.status = normalizeStashStatus(next.status);
+        next.sortOrder = Number.isFinite(Number(next.sortOrder)) ? Number(next.sortOrder) : idx;
         return next;
       });
+    }
+
+    function getStashDisplayOrder(items){
+      return sanitizeStashItems(items).slice().sort((a,b) => {
+        const statusDelta = (a.status === b.status) ? 0 : (a.status === "CURRENT" ? -1 : 1);
+        if (statusDelta) return statusDelta;
+        const orderDelta = Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+        if (orderDelta) return orderDelta;
+        return Number(a.createdAt || 0) - Number(b.createdAt || 0);
+      });
+    }
+
+    function normalizeStashSortOrders(items){
+      const ordered = getStashDisplayOrder(items);
+      let currentRank = 0;
+      let sampledRank = 0;
+      ordered.forEach(item => {
+        if (item.status === "CURRENT") item.sortOrder = currentRank++;
+        else item.sortOrder = sampledRank++;
+      });
+      return ordered;
     }
 
     function getCachedStashPhoto(stashId, fallback = ""){
@@ -3617,6 +4057,11 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
               <span class="stashStat">Sessions: ${linked.length}</span>
               <span class="stashStat">Last session: ${escapeHtml(lastSession)}</span>
               <span class="stashStat">Avg rating: ${avgRate || "—"}</span>
+              <span class="stashStat">Status: ${stash.status === "CURRENT" ? "IN STASH NOW" : "SAMPLED / ARCHIVE"}</span>
+            </div>
+
+            <div class="row topgap" style="gap:8px; flex-wrap:wrap;">
+              <button id="stashDetailToggleStatusBtn" class="btn btnTiny ${stash.status === "CURRENT" ? "statusCurrent" : "statusSampled"}" type="button">${stash.status === "CURRENT" ? "Move to sampled / archive" : "Move to current stash"}</button>
             </div>
 
             <div class="topgap">
@@ -3737,6 +4182,13 @@ button.chip[data-stash-visual="ORANGE_HAIRS"].active{
         stashDetailRemovePhotoBtn.onclick = () => updateStashPhotoById(stash.id, "");
       }
 
+      const stashDetailToggleStatusBtn = stashDetailBody.querySelector("#stashDetailToggleStatusBtn");
+      if (stashDetailToggleStatusBtn){
+        stashDetailToggleStatusBtn.onclick = async () => {
+          await toggleStashStatus(stash.id);
+        };
+      }
+
       stashDetailBody.querySelectorAll("[data-ask-stash]").forEach(btn => {
         btn.onclick = () => {
           goToPage(2);
@@ -3800,23 +4252,34 @@ ${cautionBits.join(" • ")}`
       }
     }
 
-    function renderStash(){
-      const items = loadStash();
-      if (!items.length){
-        stashList.innerHTML = '<div class="muted">No stash items yet.</div>';
-        return;
-      }
-      stashList.innerHTML = "";
-      items.forEach((it, i) => {
-        const el = document.createElement("div");
-        const accent = getSpecimenTone(it);
-        el.className = "item specimenCard";
-        el.style.setProperty("--specAccent", accent);
+    function renderStashSection(sectionTitle, items, emptyText){
+      const section = document.createElement("div");
+      section.className = "stashSection";
+      section.innerHTML = `
+        <div class="stashSectionHead">
+          <h3 class="stashSectionTitle">${escapeHtml(sectionTitle)}</h3>
+          <div class="stashSectionCount">${items.length}</div>
+        </div>
+      `;
 
+      const mount = document.createElement("div");
+      mount.className = "list";
+
+      if (!items.length){
+        mount.innerHTML = `<div class="muted">${escapeHtml(emptyText)}</div>`;
+        section.appendChild(mount);
+        return section;
+      }
+
+      items.forEach((it, idx) => {
+        const accent = getSpecimenTone(it);
         const tagBits = [];
         if (Array.isArray(it.visuals) && it.visuals.length) tagBits.push(...it.visuals);
         if (it.visualOther) tagBits.push(it.visualOther);
 
+        const el = document.createElement("div");
+        el.className = "item specimenCard";
+        el.style.setProperty("--specAccent", accent);
         el.innerHTML = `
           <div class="specimenGhostLeaf"></div>
           <div class="stashRow">
@@ -3827,47 +4290,102 @@ ${cautionBits.join(" • ")}`
             <div class="stashBody" data-open="${escapeHtml(it.id)}">
               <div class="specimenTopline">
                 ${categoryBadge(it)}
+                <span class="specimenLabel ${it.status === "CURRENT" ? "statusCurrent" : "statusSampled"}">${it.status === "CURRENT" ? "IN STASH" : "SAMPLED"}</span>
                 ${tagBits.length ? `<span class="specimenLabel">${escapeHtml(String(tagBits[0]).replaceAll("_"," "))}</span>` : ""}
               </div>
               <p class="specimenName">${escapeHtml(it.name || "Unnamed")}</p>
               <div class="specimenRule" style="--specAccent:${accent};"></div>
               <p class="itemMeta">${escapeHtml(it.category || "FLOWER")}${it.notes ? " — " + escapeHtml(it.notes) : ""}</p>
-              ${
-                tagBits.length
-                ? `<div class="miniTags">
-                    ${tagBits.slice(0,6).map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}
-                  </div>`
-                : ""
-              }
+              ${tagBits.length ? `<div class="miniTags">${tagBits.slice(0,6).map(tag => `<span class="miniTag">${escapeHtml(String(tag).replaceAll("_"," "))}</span>`).join("")}</div>` : ""}
             </div>
 
-            <div class="itemBtns">
-              <button class="btn btnDanger" data-delete="${escapeHtml(it.id)}">Delete</button>
+            <div class="stashCardControls">
+              <button class="btn btnTiny stashMiniBtn" type="button" data-move-up="${escapeHtml(it.id)}" ${idx === 0 ? "disabled" : ""}>↑</button>
+              <button class="btn btnTiny stashMiniBtn" type="button" data-move-down="${escapeHtml(it.id)}" ${idx === items.length - 1 ? "disabled" : ""}>↓</button>
+              <button class="btn btnTiny stashMiniBtn ${it.status === "CURRENT" ? "statusCurrent" : "statusSampled"}" type="button" data-toggle-status="${escapeHtml(it.id)}">${it.status === "CURRENT" ? "Archive" : "Current"}</button>
+              <button class="btn btnDanger stashDeleteBtn" type="button" data-delete="${escapeHtml(it.id)}">Delete</button>
             </div>
           </div>
         `;
 
-        const body = el.querySelector('[data-open]');
-        const del = el.querySelector('[data-delete]');
-
-        body.onclick = () => openStashDetail(it.id);
-        del.onclick = async (e) => {
+        el.querySelector('[data-open]').onclick = () => openStashDetail(it.id);
+        el.querySelector('[data-delete]').onclick = async (e) => {
           e.stopPropagation();
           const ok = confirm("Delete this stash item?");
           if (!ok) return;
-          const updated = loadStash();
-          updated.splice(i,1);
-          if (selectedStashId === it.id){
-            selectedStashId = "";
-          }
-          await saveStash(updated);
-          if (!selectedStashId){
-            closeStashDetail();
-          }
+          await deleteStashItemById(it.id);
         };
 
-        stashList.appendChild(el);
+        const upBtn = el.querySelector('[data-move-up]');
+        if (upBtn) upBtn.onclick = async (e) => {
+          e.stopPropagation();
+          await moveStashItem(it.id, -1);
+        };
+
+        const downBtn = el.querySelector('[data-move-down]');
+        if (downBtn) downBtn.onclick = async (e) => {
+          e.stopPropagation();
+          await moveStashItem(it.id, 1);
+        };
+
+        const toggleBtn = el.querySelector('[data-toggle-status]');
+        if (toggleBtn) toggleBtn.onclick = async (e) => {
+          e.stopPropagation();
+          await toggleStashStatus(it.id);
+        };
+
+        mount.appendChild(el);
       });
+
+      section.appendChild(mount);
+      return section;
+    }
+
+    function renderStash(){
+      const allItems = getStashDisplayOrder(loadStash());
+      if (!allItems.length){
+        stashList.innerHTML = '<div class="muted">No stash items yet.</div>';
+        return;
+      }
+
+      const currentItems = allItems.filter(it => it.status === "CURRENT");
+      const sampledItems = allItems.filter(it => it.status === "SAMPLED");
+
+      stashList.innerHTML = "";
+      stashList.appendChild(renderStashSection("Current stash", currentItems, "Nothing marked as currently in stash."));
+      stashList.appendChild(renderStashSection("Sampled / archive", sampledItems, "Nothing parked in sampled / archive yet."));
+    }
+
+    async function deleteStashItemById(stashId){
+      const updated = loadStash().filter(x => String(x.id) !== String(stashId));
+      if (selectedStashId === stashId) selectedStashId = "";
+      await saveStash(updated);
+      await setStoredStashPhoto(stashId, "", { rerender:false });
+      renderStash();
+      renderAskPatterns();
+      renderStashLinkDropdown();
+      if (!selectedStashId) closeStashDetail();
+    }
+
+    async function moveStashItem(stashId, direction){
+      const items = getStashDisplayOrder(loadStash());
+      const idx = items.findIndex(x => String(x.id) === String(stashId));
+      if (idx < 0) return;
+      const target = idx + Number(direction || 0);
+      if (target < 0 || target >= items.length) return;
+      if (items[idx].status !== items[target].status) return;
+      const tmp = items[idx];
+      items[idx] = items[target];
+      items[target] = tmp;
+      await saveStash(normalizeStashSortOrders(items));
+    }
+
+    async function toggleStashStatus(stashId){
+      const items = loadStash();
+      const idx = items.findIndex(x => String(x.id) === String(stashId));
+      if (idx < 0) return;
+      items[idx] = { ...items[idx], status: items[idx].status === "CURRENT" ? "SAMPLED" : "CURRENT" };
+      await saveStash(normalizeStashSortOrders(items));
     }
 
     function renderStashLinkDropdown(){
@@ -3881,6 +4399,7 @@ ${cautionBits.join(" • ")}`
         sessionStashLink.appendChild(opt);
       });
       sessionStashLink.value = current;
+      renderEdibleStashDropdown();
     }
 
     stashUnknownBtn.onclick = () => {
@@ -3904,23 +4423,27 @@ ${cautionBits.join(" • ")}`
       }
 
       const pendingStashPhoto = stashPhotoDataUrl.value || "";
+      const items = loadStash();
+      const sectionCount = items.filter(x => normalizeStashStatus(x.status) === normalizeStashStatus(stashStatus.value)).length;
       const item = {
         id: uid("stash"),
         name,
         category: stashCategory.value,
+        status: normalizeStashStatus(stashStatus.value),
+        sortOrder: sectionCount,
         notes: (stashNotes.value||"").trim(),
         visuals: Array.from(stashVisualSet),
         visualOther: (stashVisualOther.value || "").trim(),
         createdAt: Date.now()
       };
-      const items = loadStash();
-      items.unshift(item);
-      const stashSaved = await saveStash(items);
+      items.push(item);
+      const stashSaved = await saveStash(normalizeStashSortOrders(items));
       if (!stashSaved) return;
       if (pendingStashPhoto){
         await setStoredStashPhoto(item.id, pendingStashPhoto);
       }
       stashName.value = "";
+      stashStatus.value = "CURRENT";
       stashNotes.value = "";
       stashVisualSet = new Set();
       stashVisualOther.value = "";
@@ -4428,6 +4951,45 @@ ${cautionBits.join(" • ")}`
     const saveSessionBtn = document.getElementById("saveSessionBtn");
     const clearSessionsBtn = document.getElementById("clearSessionsBtn");
     const sessionList = document.getElementById("sessionList");
+
+    // EDIBLE LOG
+    const EDIBLE_KEY = "sv_edibles_v1";
+    const edibleSource = document.getElementById("edibleSource");
+    const edibleStashLink = document.getElementById("edibleStashLink");
+    const edibleTag = document.getElementById("edibleTag");
+    const edibleForm = document.getElementById("edibleForm");
+    const edibleDoseRow = document.getElementById("edibleDoseRow");
+    const edibleDoseButtons = Array.from(document.querySelectorAll("[data-edible-dose]"));
+    const edibleDoseCustom = document.getElementById("edibleDoseCustom");
+    const edibleCBD = document.getElementById("edibleCBD");
+    const edibleStomach = document.getElementById("edibleStomach");
+    const edibleTimeContext = document.getElementById("edibleTimeContext");
+    const edibleStartBtn = document.getElementById("edibleStartBtn");
+    const edibleResetBtn = document.getElementById("edibleResetBtn");
+    const edibleFirstFeelBtn = document.getElementById("edibleFirstFeelBtn");
+    const ediblePeakBtn = document.getElementById("ediblePeakBtn");
+    const edibleComedownBtn = document.getElementById("edibleComedownBtn");
+    const edibleStatusText = document.getElementById("edibleStatusText");
+    const edibleElapsed = document.getElementById("edibleElapsed");
+    const edibleFirstFeelValue = document.getElementById("edibleFirstFeelValue");
+    const ediblePeakValue = document.getElementById("ediblePeakValue");
+    const edibleComedownValue = document.getElementById("edibleComedownValue");
+    const saveEdibleBtn = document.getElementById("saveEdibleBtn");
+    const clearEdibleBtn = document.getElementById("clearEdibleBtn");
+    const edibleBodyFeel = document.getElementById("edibleBodyFeel");
+    const edibleHeadspace = document.getElementById("edibleHeadspace");
+    const edibleIntentMatch = document.getElementById("edibleIntentMatch");
+    const edibleNotes = document.getElementById("edibleNotes");
+    const edibleLogList = document.getElementById("edibleLogList");
+    const edibleLaneConfig = [
+      { key:"uplift", input:document.getElementById("edibleUplift"), fill:document.getElementById("edibleUpliftFill"), label:document.getElementById("edibleUpliftLabel"), name:"UPLIFT" },
+      { key:"calm", input:document.getElementById("edibleCalm"), fill:document.getElementById("edibleCalmFill"), label:document.getElementById("edibleCalmLabel"), name:"CALM" },
+      { key:"sedation", input:document.getElementById("edibleSedation"), fill:document.getElementById("edibleSedationFill"), label:document.getElementById("edibleSedationLabel"), name:"SEDATION" },
+      { key:"clarity", input:document.getElementById("edibleClarity"), fill:document.getElementById("edibleClarityFill"), label:document.getElementById("edibleClarityLabel"), name:"CLARITY" },
+      { key:"steady", input:document.getElementById("edibleSteady"), fill:document.getElementById("edibleSteadyFill"), label:document.getElementById("edibleSteadyLabel"), name:"STEADY" }
+    ];
+    let edibleState = { startedAt:null, firstFeelAt:null, peakAt:null, comedownAt:null, interval:null, doseMg:"" };
+
     const transcriptText = document.getElementById("transcriptText");
     const transcriptSummary = null;
     const transcriptLiveBtn = document.getElementById("transcriptLiveBtn");
@@ -4883,6 +5445,8 @@ ${cautionBits.join(" • ")}`
         id: String(raw.id || uid("stash")),
         name: String(raw.name || `IMPORTED ${fallbackIndex + 1}`),
         category: String(raw.category || "FLOWER"),
+        status: normalizeStashStatus(raw.status || "CURRENT"),
+        sortOrder: Number.isFinite(Number(raw.sortOrder)) ? Number(raw.sortOrder) : fallbackIndex,
         notes: String(raw.notes || ""),
         visuals: Array.isArray(raw.visuals) ? raw.visuals.map(v => String(v)) : [],
         visualOther: String(raw.visualOther || ""),
@@ -4944,7 +5508,7 @@ ${cautionBits.join(" • ")}`
         ? payload.sessions.map((entry, idx) => normalizeImportedSessionEntry(entry, idx))
         : [];
 
-      localStorage.setItem(STASH_KEY, JSON.stringify(sanitizeStashItems(importedStash)));
+      localStorage.setItem(STASH_KEY, JSON.stringify(normalizeStashSortOrders(sanitizeStashItems(importedStash))));
       await dbClear();
       await dbClearStashPhotos();
       stashPhotoCache = new Map();
@@ -4963,6 +5527,7 @@ ${cautionBits.join(" • ")}`
       selectedStashId = "";
       renderStash();
       renderStashLinkDropdown();
+      renderEdibleLogs();
       await renderSessions();
       await renderAskPatterns();
       await renderSessionJournal();
@@ -5219,6 +5784,292 @@ ${cautionBits.join(" • ")}`
       setStatus("idle","Idle");
     };
 
+
+
+
+    function loadEdibles(){
+      try { return JSON.parse(localStorage.getItem(EDIBLE_KEY) || "[]"); } catch { return []; }
+    }
+
+    function saveEdibles(items){
+      localStorage.setItem(EDIBLE_KEY, JSON.stringify(items));
+      renderEdibleLogs();
+    }
+
+    function normalizeImportedEdibleEntry(raw, fallbackIndex){
+      const lanes = (raw.lanes && typeof raw.lanes === "object") ? raw.lanes : {};
+      return {
+        id: String(raw.id || uid("edible")),
+        createdAt: Number(raw.createdAt || Date.now()),
+        startedAt: Number(raw.startedAt || 0),
+        firstFeelAt: Number(raw.firstFeelAt || 0),
+        peakAt: Number(raw.peakAt || 0),
+        comedownAt: Number(raw.comedownAt || 0),
+        source: String(raw.source || "DISPENSARY"),
+        stashId: String(raw.stashId || ""),
+        stashName: String(raw.stashName || ""),
+        tag: String(raw.tag || `Imported edible ${fallbackIndex + 1}`),
+        form: String(raw.form || "GUMMY"),
+        doseMg: String(raw.doseMg || ""),
+        cbd: String(raw.cbd || ""),
+        stomach: String(raw.stomach || "EMPTY"),
+        timeContext: String(raw.timeContext || "NIGHT"),
+        bodyFeel: String(raw.bodyFeel || "LIGHT"),
+        headspace: String(raw.headspace || "CLEAR"),
+        intentMatch: String(raw.intentMatch || "CLOSE"),
+        notes: String(raw.notes || ""),
+        lanes: {
+          uplift: Number(lanes.uplift || 0),
+          calm: Number(lanes.calm || 0),
+          sedation: Number(lanes.sedation || 0),
+          clarity: Number(lanes.clarity || 0),
+          steady: Number(lanes.steady || 0)
+        }
+      };
+    }
+
+    function renderEdibleStashDropdown(){
+      if (!edibleStashLink) return;
+      const items = loadStash();
+      const current = edibleStashLink.value || "";
+      edibleStashLink.innerHTML = '<option value="">— unknown / mixed —</option>';
+      items.forEach(it => {
+        const opt = document.createElement("option");
+        opt.value = it.id;
+        opt.textContent = `${it.name} (${it.category})`;
+        edibleStashLink.appendChild(opt);
+      });
+      edibleStashLink.value = current;
+    }
+
+    function edibleFmtDelta(ms){
+      if (!Number.isFinite(ms) || ms <= 0) return "—";
+      return formatClock(Math.floor(ms / 1000));
+    }
+
+    function currentEdibleDose(){
+      const custom = String(edibleDoseCustom?.value || "").trim();
+      if (custom) return custom;
+      return String(edibleState.doseMg || "").trim();
+    }
+
+    function setEdibleStatus(text, rec=false){
+      if (edibleStatusText) edibleStatusText.textContent = text;
+      const dot = document.querySelector('#edibleStatusPill span');
+      if (dot) dot.className = rec ? 'recDot' : 'okDot';
+    }
+
+    function updateEdibleTimerDisplay(){
+      const now = Date.now();
+      edibleElapsed.textContent = edibleState.startedAt ? edibleFmtDelta(now - edibleState.startedAt) : '0:00';
+      edibleFirstFeelValue.textContent = edibleState.startedAt && edibleState.firstFeelAt ? edibleFmtDelta(edibleState.firstFeelAt - edibleState.startedAt) : '—';
+      ediblePeakValue.textContent = edibleState.startedAt && edibleState.peakAt ? edibleFmtDelta(edibleState.peakAt - edibleState.startedAt) : '—';
+      edibleComedownValue.textContent = edibleState.startedAt && edibleState.comedownAt ? edibleFmtDelta(edibleState.comedownAt - edibleState.startedAt) : '—';
+      edibleFirstFeelBtn.classList.toggle('active', Boolean(edibleState.firstFeelAt));
+      ediblePeakBtn.classList.toggle('active', Boolean(edibleState.peakAt));
+      edibleComedownBtn.classList.toggle('active', Boolean(edibleState.comedownAt));
+    }
+
+    function clearEdibleInterval(){
+      if (edibleState.interval){
+        clearInterval(edibleState.interval);
+        edibleState.interval = null;
+      }
+    }
+
+    function startEdibleTimer(){
+      clearEdibleInterval();
+      if (!edibleState.startedAt) return;
+      edibleState.interval = setInterval(updateEdibleTimerDisplay, 1000);
+      updateEdibleTimerDisplay();
+    }
+
+    function resetEdibleState(keepDose=false){
+      clearEdibleInterval();
+      edibleState.startedAt = null;
+      edibleState.firstFeelAt = null;
+      edibleState.peakAt = null;
+      edibleState.comedownAt = null;
+      if (!keepDose) edibleState.doseMg = "";
+      edibleDoseButtons.forEach(btn => btn.classList.toggle('active', false));
+      if (!keepDose && edibleDoseCustom) edibleDoseCustom.value = "";
+      if (!keepDose && edibleTag) edibleTag.value = "";
+      if (edibleSource) edibleSource.value = "DISPENSARY";
+      if (edibleForm) edibleForm.value = "GUMMY";
+      if (edibleCBD) edibleCBD.value = "";
+      if (edibleStomach) edibleStomach.value = "EMPTY";
+      if (edibleTimeContext) edibleTimeContext.value = "NIGHT";
+      if (edibleBodyFeel) edibleBodyFeel.value = "LIGHT";
+      if (edibleHeadspace) edibleHeadspace.value = "CLEAR";
+      if (edibleIntentMatch) edibleIntentMatch.value = "YES";
+      if (edibleNotes) edibleNotes.value = "";
+      if (edibleStashLink) edibleStashLink.value = "";
+      edibleLaneConfig.forEach(lane => {
+        if (lane.input) lane.input.value = '0';
+      });
+      syncEdibleLaneUI();
+      updateEdibleTimerDisplay();
+      setEdibleStatus('Idle', false);
+    }
+
+    function syncEdibleDoseButtons(){
+      const dose = edibleState.doseMg;
+      edibleDoseButtons.forEach(btn => btn.classList.toggle('active', String(btn.getAttribute('data-edible-dose')) === String(dose || '')));
+    }
+
+    function syncEdibleLaneUI(){
+      edibleLaneConfig.forEach(lane => {
+        const val = Math.max(0, Math.min(5, Number(lane.input?.value || 0)));
+        if (lane.fill) lane.fill.style.width = `${(val / 5) * 100}%`;
+        if (lane.label) lane.label.textContent = `${val} / 5`;
+      });
+    }
+
+    function readEdibleLanes(){
+      const out = {};
+      edibleLaneConfig.forEach(lane => out[lane.key] = Math.max(0, Math.min(5, Number(lane.input?.value || 0))));
+      return out;
+    }
+
+    function topEdibleLanes(lanes){
+      return Object.entries(lanes || {})
+        .sort((a,b) => Number(b[1] || 0) - Number(a[1] || 0))
+        .filter(([,v]) => Number(v || 0) > 0)
+        .slice(0,2)
+        .map(([k,v]) => `${k.toUpperCase()} ${v}/5`);
+    }
+
+    function renderEdibleLogs(){
+      if (!edibleLogList) return;
+      const items = loadEdibles().sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+      if (!items.length){
+        edibleLogList.innerHTML = '<div class="muted">No edible logs yet.</div>';
+        return;
+      }
+      edibleLogList.innerHTML = items.map(item => {
+        const bits = [];
+        bits.push(fmtTime(item.createdAt));
+        bits.push(item.source);
+        if (item.form) bits.push(item.form);
+        if (item.stomach) bits.push(`STOMACH:${item.stomach}`);
+        if (item.timeContext) bits.push(`TIME:${item.timeContext}`);
+        if (item.cbd) bits.push(`CBD:${item.cbd}`);
+        const title = item.stashName || item.tag || 'Edible log';
+        const top = topEdibleLanes(item.lanes || {});
+        return `
+          <div class="edibleLogCard">
+            <div class="edibleLogTop">
+              <div style="min-width:0; flex:1;">
+                <p class="edibleLogTitle">${escapeHtml(title)}</p>
+                <p class="edibleLogMeta">${escapeHtml(bits.join(' — '))}</p>
+              </div>
+              <div class="itemBtns"><button class="btn btnDanger" type="button" data-delete-edible="${escapeHtml(item.id)}">Delete</button></div>
+            </div>
+            <div class="edibleStatGrid">
+              <div class="edibleStat"><div class="edibleStatLabel">Dose</div><div class="edibleStatValue">${escapeHtml(String(item.doseMg || '—') + (item.doseMg ? ' mg' : ''))}</div></div>
+              <div class="edibleStat"><div class="edibleStatLabel">First feel</div><div class="edibleStatValue">${escapeHtml(edibleFmtDelta((item.firstFeelAt || 0) - (item.startedAt || 0)))}</div></div>
+              <div class="edibleStat"><div class="edibleStatLabel">Peak</div><div class="edibleStatValue">${escapeHtml(edibleFmtDelta((item.peakAt || 0) - (item.startedAt || 0)))}</div></div>
+              <div class="edibleStat"><div class="edibleStatLabel">Come down</div><div class="edibleStatValue">${escapeHtml(edibleFmtDelta((item.comedownAt || 0) - (item.startedAt || 0)))}</div></div>
+            </div>
+            <div class="miniTags topgap">
+              ${top.length ? top.map(x => `<span class="miniTag">${escapeHtml(x)}</span>`).join('') : '<span class="miniTag">No lane read yet</span>'}
+              <span class="miniTag">BODY ${escapeHtml(item.bodyFeel || '—')}</span>
+              <span class="miniTag">HEAD ${escapeHtml(item.headspace || '—')}</span>
+              <span class="miniTag">MATCH ${escapeHtml(item.intentMatch || '—')}</span>
+            </div>
+            ${item.notes ? `<div class="itemMeta topgap">${escapeHtml(item.notes)}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+      edibleLogList.querySelectorAll('[data-delete-edible]').forEach(btn => {
+        btn.onclick = () => {
+          const ok = confirm('Delete this edible log?');
+          if (!ok) return;
+          const target = btn.getAttribute('data-delete-edible');
+          saveEdibles(loadEdibles().filter(x => String(x.id) !== String(target)));
+        };
+      });
+    }
+
+    edibleDoseButtons.forEach(btn => {
+      btn.onclick = () => {
+        edibleState.doseMg = String(btn.getAttribute('data-edible-dose') || '');
+        if (edibleDoseCustom) edibleDoseCustom.value = '';
+        syncEdibleDoseButtons();
+      };
+    });
+    if (edibleDoseCustom){
+      edibleDoseCustom.addEventListener('input', () => {
+        edibleState.doseMg = '';
+        syncEdibleDoseButtons();
+      });
+    }
+    edibleLaneConfig.forEach(lane => lane.input?.addEventListener('input', syncEdibleLaneUI));
+    edibleStartBtn.onclick = () => {
+      const dose = currentEdibleDose();
+      if (!dose){
+        alert('Set a dose first.');
+        return;
+      }
+      edibleState.doseMg = dose;
+      edibleState.startedAt = Date.now();
+      edibleState.firstFeelAt = null;
+      edibleState.peakAt = null;
+      edibleState.comedownAt = null;
+      syncEdibleDoseButtons();
+      startEdibleTimer();
+      setEdibleStatus('Running', true);
+    };
+    edibleResetBtn.onclick = () => resetEdibleState(false);
+    edibleFirstFeelBtn.onclick = () => {
+      if (!edibleState.startedAt) return alert('Start the edible log first.');
+      edibleState.firstFeelAt = Date.now();
+      updateEdibleTimerDisplay();
+    };
+    ediblePeakBtn.onclick = () => {
+      if (!edibleState.startedAt) return alert('Start the edible log first.');
+      edibleState.peakAt = Date.now();
+      updateEdibleTimerDisplay();
+    };
+    edibleComedownBtn.onclick = () => {
+      if (!edibleState.startedAt) return alert('Start the edible log first.');
+      edibleState.comedownAt = Date.now();
+      updateEdibleTimerDisplay();
+    };
+    clearEdibleBtn.onclick = () => resetEdibleState(false);
+    saveEdibleBtn.onclick = () => {
+      const dose = currentEdibleDose();
+      if (!dose) return alert('Dose is required.');
+      if (!edibleState.startedAt) return alert('Start the edible log first so timing data is real.');
+      const stashId = edibleStashLink.value || '';
+      const stashItem = loadStash().find(x => String(x.id) === String(stashId));
+      const entry = {
+        id: uid('edible'),
+        createdAt: Date.now(),
+        startedAt: edibleState.startedAt,
+        firstFeelAt: edibleState.firstFeelAt || 0,
+        peakAt: edibleState.peakAt || 0,
+        comedownAt: edibleState.comedownAt || 0,
+        source: edibleSource.value,
+        stashId,
+        stashName: stashItem ? stashItem.name : '',
+        tag: String(edibleTag.value || '').trim(),
+        form: edibleForm.value,
+        doseMg: String(dose),
+        cbd: edibleCBD.value,
+        stomach: edibleStomach.value,
+        timeContext: edibleTimeContext.value,
+        bodyFeel: edibleBodyFeel.value,
+        headspace: edibleHeadspace.value,
+        intentMatch: edibleIntentMatch.value,
+        notes: String(edibleNotes.value || '').trim(),
+        lanes: readEdibleLanes()
+      };
+      const items = loadEdibles();
+      items.unshift(entry);
+      saveEdibles(items);
+      resetEdibleState(false);
+    };
 
     // ASK / LAYER 1
     const askInput = document.getElementById("askInput");
@@ -7177,7 +8028,8 @@ Ask me something tighter.`;
         return rest;
       });
 
-      const payload = { exportedAt: new Date().toISOString(), version:"V1", stash, sessions: safeSessions };
+      const edibles = loadEdibles();
+      const payload = { exportedAt: new Date().toISOString(), version:"V1", stash, sessions: safeSessions, edibles };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
 
       const a = document.createElement("a");
@@ -7199,11 +8051,14 @@ Ask me something tighter.`;
       const ok = confirm("Wipe ALL local data (stash + sessions) on this device? This is irreversible.");
       if (!ok) return;
       localStorage.removeItem(STASH_KEY);
+      localStorage.removeItem(EDIBLE_KEY);
       await dbClear();
       await dbClearStashPhotos();
       stashPhotoCache = new Map();
       renderStash();
       renderStashLinkDropdown();
+      renderEdibleLogs();
+      syncEdibleLaneUI();
       await renderSessions();
       await renderAskPatterns();
       await renderSessionJournal();
