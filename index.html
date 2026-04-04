@@ -4786,13 +4786,6 @@ ${cautionBits.join(" • ")}`
       clarity: "Clarity",
       steady: "Steady"
     };
-    const SCE_ROLE_LIBRARY = {
-      lift: "brighter lift partner",
-      calm: "softer calming partner",
-      heavy: "heavier downshift partner",
-      clarity: "clean clarity partner",
-      steady: "stable all-around partner"
-    };
 
     function sceClamp01(n){
       const x = Number(n);
@@ -5021,11 +5014,6 @@ ${cautionBits.join(" • ")}`
       const confidence = count >= 3 ? "strong" : count >= 2 ? "medium" : "early";
 
       const suggestions = [];
-      if (missing) suggestions.push(`Add a ${SCE_ROLE_LIBRARY[missing]}.`);
-      if (redundancy.length) suggestions.push(`You are doubled up in ${redundancy.map(r => r.label.toLowerCase()).join(" + ")}.`);
-      if (weak.includes("clarity") && weak.includes("lift")) suggestions.push("A brighter daytime partner would open cleaner blends.");
-      else if (weak.includes("heavy")) suggestions.push("A deeper downshift piece would improve night coverage.");
-      else if (weak.includes("steady")) suggestions.push("A more balanced all-around piece would reduce overcorrection.");
 
       let coverageMessage = "";
       if (count <= 1){
@@ -5033,20 +5021,20 @@ ${cautionBits.join(" • ")}`
       } else if (!weak.length){
         coverageMessage = `Your stash is fairly rounded. Strongest lane: ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "none yet"}.`;
       } else {
-        coverageMessage = `Your stash leans ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "without a dominant lane"} and gets thin in ${weak.map(k => SCE_LABELS[k].toLowerCase()).join(" + ")}. GAP: ${SCE_LABELS[missing]}.`;
+        coverageMessage = `Your stash leans ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "without a dominant lane"} and gets thin in ${weak.map(k => SCE_LABELS[k].toLowerCase()).join(" + ")}. Missing lane: ${SCE_LABELS[missing]}.`;
       }
 
       const whyItMatters = [];
-      if (redundancy.length) whyItMatters.push("You’re getting the same type of session over and over.");
-      if (weak.includes("lift") || weak.includes("clarity")) whyItMatters.push("Thin lift / clarity coverage limits daytime flexibility.");
-      if (weak.includes("heavy")) whyItMatters.push("Thin heavy coverage limits deeper settle / downshift options.");
-      if (diversity < 0.72) whyItMatters.push("Low stash diversity reduces your blend range.");
+      if (redundancy.length) whyItMatters.push("You are getting the same type of session over and over.");
+      if (weak.includes("lift") || weak.includes("clarity")) whyItMatters.push("You do not have a clean way to shift gears upward.");
+      if (weak.includes("heavy")) whyItMatters.push("You do not have a real downshift when you want one.");
+      if (diversity < 0.72) whyItMatters.push("Everything here pulls more or less the same way.");
 
       const unlocks = [];
       if (missing === "clarity" || missing === "lift") unlocks.push("Lets you balance instead of overcorrect.");
-      if (missing === "heavy") unlocks.push("Would unlock stronger night / downshift blends.");
-      if (missing === "steady") unlocks.push("Would unlock more neutral all-around use.");
-      if (strong.includes("calm") && missing === "clarity") unlocks.push("Would stop calm-heavy blends from turning muddy.");
+      if (missing === "heavy") unlocks.push("Gives you a true downshift when you want one.");
+      if (missing === "steady") unlocks.push("Gives you a true middle lane instead of swinging past it.");
+      if (strong.includes("calm") && missing === "clarity") unlocks.push("Keeps calmer blends from turning muddy.");
 
       return {
         itemProfiles,
@@ -5088,12 +5076,36 @@ ${cautionBits.join(" • ")}`
 
     function scePrimaryHit(result){
       if (!result || result.confidence === "early") return "Needs more than one real piece before the read gets sharp.";
-      if (result.weak.includes("lift") && result.weak.includes("clarity")) return "You're stacked on the downshift. You do not really have a clean up lane.";
+      if (result.weak.includes("lift") && result.weak.includes("clarity")) return "You’re stacked on the downshift. You do not really have a clean up lane.";
       if (result.weak.includes("heavy")) return "You can steer lighter, but your stash does not go deep enough for a true downshift.";
       if (result.weak.includes("steady")) return "Your stash can hit states, but it does not have a real all-around stabilizer yet.";
-      if (result.redundancy.length) return `You have overlap in ${result.redundancy.map(r => r.label.toLowerCase()).join(" + ")}. A complement piece would do more than another similar one.`;
+      if (result.redundancy.length) return "Most of what you have pulls in the same direction.";
       if (!result.weak.length) return "This stash is rounded enough to work in more than one direction.";
-      return `GAP: ${SCE_LABELS[result.missing]}. That is the cleanest round-out move.`;
+      return `Gap: ${SCE_LABELS[result.missing]}. That is the cleanest round-out move.`;
+    }
+
+    function sceRangeLabel(diversity){
+      const pct = Math.round((Number(diversity || 0)) * 100);
+      if (pct < 40) return "Narrow";
+      if (pct < 70) return "Decent";
+      return "Wide";
+    }
+
+    function sceLaneAddBlock(missing){
+      switch (String(missing || "").toLowerCase()){
+        case "lift":
+          return `You’re missing a clean lift piece — a light, clear “up” profile.<br>Think Blue Dream, or similar lanes like Jack Herer or Super Lemon Haze.<br>Brighter, a bit citrus-forward, and stays up without turning heavy or foggy.`;
+        case "heavy":
+          return `You’re missing a true downshift piece — a slow, settling profile.<br>Think Granddaddy Purple, or similar lanes like Northern Lights or Bubba Kush.<br>Darker, more body-forward, and eases you down without needing a second push.`;
+        case "steady":
+          return `You’re missing a steady piece — a balanced, middle-ground profile.<br>Think OG Kush, or similar lanes like Wedding Cake or MAC.<br>Sits in the middle, takes the edge off without pushing too far either way.`;
+        case "clarity":
+          return `You’re missing a clean clarity piece — a sharper, more usable profile.<br>Think Jack Herer, or similar lanes like Durban Poison or Super Silver Haze.<br>Brighter, a little pine / citrus forward, and keeps the head cleaner without getting muddy.`;
+        case "calm":
+          return `You’re missing a softer calm piece — a smoother, easing profile.<br>Think Northern Lights, or similar lanes like Bubba Kush or LA Confidential.<br>Settling, body-friendly, and takes the edge off without needing to knock you out.`;
+        default:
+          return `You’re fairly balanced — nothing obvious to fill right now.`;
+      }
     }
 
     async function renderSCECard(){
@@ -5110,7 +5122,8 @@ ${cautionBits.join(" • ")}`
       const strongText = result.strong.length ? result.strong.map(k => SCE_LABELS[k]).join(", ") : "None obvious";
       const weakText = result.weak.length ? result.weak.map(k => SCE_LABELS[k]).join(", ") : "None obvious";
       const missingText = result.missing ? SCE_LABELS[result.missing] : "None";
-      const diversityPct = Math.round(result.diversity * 100);
+      const rangeText = sceRangeLabel(result.diversity);
+      const addBlock = sceLaneAddBlock(result.missing);
 
       sceCard.innerHTML = `
         <div class="sceTop">
@@ -5130,16 +5143,16 @@ ${cautionBits.join(" • ")}`
 
         <div class="sceMetaGrid">
           <div class="sceMetaCard">
-            <div class="sceMetaLabel">Strong lanes</div>
+            <div class="sceMetaLabel">What you have</div>
             <div class="sceMetaValue"><strong>${escapeHtml(strongText)}</strong></div>
           </div>
           <div class="sceMetaCard">
-            <div class="sceMetaLabel">Thin lanes</div>
+            <div class="sceMetaLabel">What you don’t really have</div>
             <div class="sceMetaValue"><strong>${escapeHtml(weakText)}</strong></div>
           </div>
           <div class="sceMetaCard">
-            <div class="sceMetaLabel">GAP</div>
-            <div class="sceMetaValue"><strong>${escapeHtml(missingText)}</strong> · ${diversityPct}% diversity</div>
+            <div class="sceMetaLabel">Gap</div>
+            <div class="sceMetaValue"><strong>${escapeHtml(missingText)}</strong> · ${escapeHtml(rangeText)} range</div>
           </div>
         </div>
 
@@ -5148,12 +5161,12 @@ ${cautionBits.join(" • ")}`
         </div>
 
         ${
-          result.suggestions.length || result.whyItMatters.length || result.unlocks.length
+          addBlock || result.whyItMatters.length || result.unlocks.length
           ? `
           <div class="sceBulletList">
-            ${result.suggestions.slice(0,1).map(line => `<div class="sceBullet"><strong>Roundout move:</strong> ${escapeHtml(line)}</div>`).join("")}
-            ${result.whyItMatters.slice(0,2).map(line => `<div class="sceBullet"><strong>Why it matters:</strong> ${escapeHtml(line)}</div>`).join("")}
-            ${result.unlocks.slice(0,2).map(line => `<div class="sceBullet"><strong>Unlock:</strong> ${escapeHtml(line)}</div>`).join("")}
+            ${addBlock ? `<div class="sceBullet"><strong>ADD</strong><br>${addBlock}</div>` : ""}
+            ${result.whyItMatters.slice(0,2).map(line => `<div class="sceBullet"><strong>WHY IT MATTERS</strong><br>${escapeHtml(line)}</div>`).join("")}
+            ${result.unlocks.slice(0,2).map(line => `<div class="sceBullet"><strong>UNLOCK</strong><br>${escapeHtml(line)}</div>`).join("")}
           </div>`
           : ""
         }
@@ -9108,42 +9121,5 @@ function forceRenderFingerprint(elId, blend){
   ]);
 }
 
-</script>
-<!-- SCE VOICE PASS APPLIED -->
-<div class="sce-card">
-  <div class="sce-main">
-    You’re stacked on the downshift.<br>
-    Most of what you have pulls you the same way.
-  </div>
-  <div class="sce-section">
-    <strong>WHAT YOU HAVE</strong><br>
-    Calm, Heavy
-  </div>
-  <div class="sce-section">
-    <strong>WHAT YOU DON’T REALLY HAVE</strong><br>
-    Lift, Clarity
-  </div>
-  <div class="sce-section">
-    <strong>GAP</strong><br>
-    No clean lift option
-  </div>
-  <div class="sce-section">
-    <strong>RANGE</strong><br>
-    Narrow
-  </div>
-  <div class="sce-section">
-    <strong>ADD</strong><br>
-    Something that lifts without getting foggy
-  </div>
-  <div class="sce-section">
-    <strong>WHY IT MATTERS</strong><br>
-    You don’t have a way to shift gears
-  </div>
-  <div class="sce-section">
-    <strong>UNLOCK</strong><br>
-    Lets you balance instead of overcorrect
-  </div>
-</div>
-
-</body>
+</script></body>
 </html>
