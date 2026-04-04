@@ -2522,6 +2522,21 @@ input.edibleSlider{
 }
 </style>
 
+
+<style>
+.blendExplain{margin-top:12px;border:1px solid rgba(255,255,255,0.14);border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));overflow:hidden;}
+.blendExplain summary{list-style:none;cursor:pointer;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);user-select:none;}
+.blendExplain summary::-webkit-details-marker{display:none;}
+.blendExplain summary::after{content:"Tap to open";font-size:10px;letter-spacing:0.10em;color:var(--muted);text-transform:uppercase;}
+.blendExplain[open] summary::after{content:"Tap to close";}
+.blendExplainBody{padding:0 12px 12px 12px;border-top:1px solid rgba(255,255,255,0.10);}
+.blendExplainLead{margin:10px 0 0 0;font-size:15px;line-height:1.35;color:var(--text);font-weight:700;}
+.blendExplainCopy{margin:10px 0 0 0;font-size:13px;line-height:1.45;color:var(--muted);}
+.blendExplainBullets{display:grid;gap:8px;margin-top:10px;}
+.blendExplainBullet{border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:8px 10px;background:rgba(255,255,255,0.03);font-size:12px;line-height:1.4;color:var(--text);}
+.blendExplainHint{margin:8px 0 0 0;font-size:11px;line-height:1.35;color:var(--muted);}
+</style>
+
 </head>
 
 <body>
@@ -4997,10 +5012,12 @@ ${cautionBits.join(" • ")}`
         SCE_LANES.map(k => [k, sceStddev(itemProfiles.map(p => p.vector[k]))])
       );
 
-      const missing = SCE_LANES.slice().sort((a,b) => {
+      let missing = SCE_LANES.slice().sort((a,b) => {
         if (normalizedStash[a] !== normalizedStash[b]) return normalizedStash[a] - normalizedStash[b];
         return laneVariances[a] - laneVariances[b];
       })[0];
+
+      if (!strong.length && !weak.length) missing = null;
 
       const dominantCounts = Object.fromEntries(SCE_LANES.map(k => [k, 0]));
       itemProfiles.forEach(p => { dominantCounts[p.dominantLane] += 1; });
@@ -5018,10 +5035,12 @@ ${cautionBits.join(" • ")}`
       let coverageMessage = "";
       if (count <= 1){
         coverageMessage = "Early read. One item is not enough to map your stash yet.";
+      } else if (!strong.length && !weak.length){
+        coverageMessage = "Your stash is fairly rounded, but no lane is standing out yet.";
       } else if (!weak.length){
-        coverageMessage = `Your stash is fairly rounded. Strongest lane: ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "none yet"}.`;
+        coverageMessage = `Your stash is fairly rounded. Strongest lane: ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "still forming"}.`;
       } else {
-        coverageMessage = `Your stash leans ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "without a dominant lane"} and gets thin in ${weak.map(k => SCE_LABELS[k].toLowerCase()).join(" + ")}. Missing lane: ${SCE_LABELS[missing]}.`;
+        coverageMessage = `Your stash leans ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "without a dominant lane"} and gets thin in ${weak.map(k => SCE_LABELS[k].toLowerCase()).join(" + ")}. Missing lane: ${missing ? SCE_LABELS[missing] : "none"}.`;
       }
 
       const whyItMatters = [];
@@ -5076,12 +5095,13 @@ ${cautionBits.join(" • ")}`
 
     function scePrimaryHit(result){
       if (!result || result.confidence === "early") return "Needs more than one real piece before the read gets sharp.";
+      if (!result.strong.length && !result.weak.length) return "This stash is covering ground, but no lane is standing out yet.";
       if (result.weak.includes("lift") && result.weak.includes("clarity")) return "You’re stacked on the downshift. You do not really have a clean up lane.";
       if (result.weak.includes("heavy")) return "You can steer lighter, but your stash does not go deep enough for a true downshift.";
       if (result.weak.includes("steady")) return "Your stash can hit states, but it does not have a real all-around stabilizer yet.";
       if (result.redundancy.length) return "Most of what you have pulls in the same direction.";
       if (!result.weak.length) return "This stash is rounded enough to work in more than one direction.";
-      return `Gap: ${SCE_LABELS[result.missing]}. That is the cleanest round-out move.`;
+      return result.missing ? `Gap: ${SCE_LABELS[result.missing]}. That is the cleanest round-out move.` : "Nothing obvious is missing yet.";
     }
 
     function sceRangeLabel(diversity){
@@ -5119,11 +5139,11 @@ ${cautionBits.join(" • ")}`
         return;
       }
 
-      const strongText = result.strong.length ? result.strong.map(k => SCE_LABELS[k]).join(", ") : "None obvious";
-      const weakText = result.weak.length ? result.weak.map(k => SCE_LABELS[k]).join(", ") : "None obvious";
+      const strongText = result.strong.length ? result.strong.map(k => SCE_LABELS[k]).join(", ") : "Still forming";
+      const weakText = result.weak.length ? result.weak.map(k => SCE_LABELS[k]).join(", ") : "Still forming";
       const missingText = result.missing ? SCE_LABELS[result.missing] : "None";
       const rangeText = sceRangeLabel(result.diversity);
-      const addBlock = sceLaneAddBlock(result.missing);
+      const addBlock = result.missing ? sceLaneAddBlock(result.missing) : "";
 
       sceCard.innerHTML = `
         <div class="sceTop">
@@ -7163,6 +7183,63 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       `;
     }
 
+
+    function blendReadHead(metrics){
+      const sorted = (metrics || []).slice().sort((a,b) => safeNum(b.value) - safeNum(a.value));
+      const first = sorted[0] || null;
+      const second = sorted[1] || null;
+      if (!first) return "This blend is still too early to explain cleanly.";
+      const lead = String(first.label || "").toLowerCase();
+      const support = second ? String(second.label || "").toLowerCase() : "";
+      if (first.key === "uplift" && second && second.key === "calm") return "This blend leans uplifting, with a calm backbone.";
+      if (first.key === "calm" && second && second.key === "uplift") return "This blend leans calm first, but it still keeps some lift in it.";
+      if (first.key === "sedation" && second && second.key === "calm") return "This blend leans heavier, with calm doing most of the support work.";
+      if (first.key === "clarity" && second && second.key === "steady") return "This blend leans clear and usable, with enough steadiness underneath it.";
+      if (first.key === "steady") return support ? `This blend stays mostly steady, with ${support} underneath it.` : "This blend stays mostly steady.";
+      return support ? `This blend leans ${lead}, with ${support} underneath it.` : `This blend leans ${lead}.`;
+    }
+
+    function buildBlendExplainMarkup(parts){
+      const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
+      if (!safeParts.length) return "";
+      const { metrics } = getBlendFingerprintMetrics(safeParts);
+      const sorted = metrics.slice().sort((a,b) => safeNum(b.value) - safeNum(a.value));
+      const first = sorted[0] || null;
+      const second = sorted[1] || null;
+      const third = sorted[2] || null;
+      const leadLine = blendReadHead(metrics);
+      const bullets = [];
+      if (first){
+        if (first.key === "uplift") bullets.push("Uplift is doing the first push here, so this should feel more active than flat.");
+        if (first.key === "calm") bullets.push("Calm is leading, so this should take the edge off before it does anything flashy.");
+        if (first.key === "sedation") bullets.push("Sedation is leading, so this should feel heavier and more downshift than playful.");
+        if (first.key === "clarity") bullets.push("Clarity is leading, so this should stay more usable than muddy.");
+        if (first.key === "steady") bullets.push("Steady is leading, so this should sit in the middle instead of swinging too hard either way.");
+      }
+      if (second){
+        if (second.key === "calm" && first?.key === "uplift") bullets.push("Calm underneath the lift should help keep it from getting too sharp or jittery.");
+        else if (second.key === "uplift" && first?.key === "calm") bullets.push("The lift underneath the calm should keep this from feeling too flat.");
+        else if (second.key === "clarity") bullets.push("There is enough clarity in the mix to help it stay cleaner in the head.");
+        else if (second.key === "sedation") bullets.push("There is some weight underneath it, so watch for it turning heavier if you push the dose.");
+        else if (second.key === "steady") bullets.push("There is a steady base underneath it, which should keep the blend from overcorrecting.");
+      }
+      if (third && safeNum(third.value) < 0.18) bullets.push(`${third.label} is not doing much here, so do not expect that lane to carry the experience.`);
+      const ratio = describeBlendRatio(safeParts);
+      return `
+        <details class="blendExplain">
+          <summary>Blend position — tap for read</summary>
+          <div class="blendExplainBody">
+            <p class="blendExplainLead">${escapeHtml(leadLine)}</p>
+            <p class="blendExplainCopy">${escapeHtml(ratio)}</p>
+            <div class="blendExplainBullets">
+              ${bullets.slice(0,3).map(line => `<div class="blendExplainBullet">${escapeHtml(line)}</div>`).join("")}
+            </div>
+            <p class="blendExplainHint">This is a plain-language read of the exact blend sitting above — same numbers, less translation work.</p>
+          </div>
+        </details>
+      `;
+    }
+
     function buildBlendFingerprintMarkup(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
       if (!safeParts.length) return "";
@@ -7184,6 +7261,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
               }).join("")}
             </div>
           </div>
+          ${buildBlendExplainMarkup(safeParts)}
         </div>
       `;
     }
