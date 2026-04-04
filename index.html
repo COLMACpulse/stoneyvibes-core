@@ -2542,13 +2542,13 @@ input.edibleSlider{
 .blendField{margin-top:12px;border:1px solid rgba(255,255,255,0.14);border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.03));overflow:hidden;}
 .blendField summary{list-style:none;cursor:pointer;padding:12px 14px;user-select:none;}
 .blendField summary::-webkit-details-marker{display:none;}
-.blendFieldSummaryNote{margin:8px 0 0 0;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.blendFieldSummaryNote{margin:10px 0 0 0;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
 .blendField[open] .blendFieldSummaryNote{color:var(--text);}
 .blendFingerprintWrapLarge{margin-top:0;border:0;background:transparent;padding:0;}
 .blendFingerprintWrapLarge .blendFingerprintHead{margin:0 0 10px 0;font-size:12px;letter-spacing:0.16em;}
-.blendFingerprintWrapLarge .blendFingerprintBody{grid-template-columns:220px 1fr;gap:18px;align-items:start;}
-.blendFingerprintWrapLarge .blendFingerprintDisc{width:220px;height:220px;border-radius:22px;display:flex;align-items:center;justify-content:center;transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;}
-.blendFingerprintWrapLarge .blendFingerprintDisc:hover{transform:translateY(-1px);border-color:rgba(255,255,255,0.24);box-shadow:0 10px 24px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.05);}
+.blendFingerprintWrapLarge .blendFingerprintBody{grid-template-columns:260px 1fr;gap:20px;align-items:start;}
+.blendFingerprintWrapLarge .blendFingerprintDisc{width:260px;height:260px;border-radius:24px;display:flex;align-items:center;justify-content:center;transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;background:radial-gradient(circle at 50% 42%, rgba(255,255,255,0.05), rgba(255,255,255,0.015) 58%, rgba(0,0,0,0.05) 100%);}
+.blendFingerprintWrapLarge .blendFingerprintDisc:hover{transform:translateY(-1px) scale(1.01);border-color:rgba(255,255,255,0.28);box-shadow:0 14px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 24px rgba(255,255,255,0.05);}
 .blendFingerprintWrapLarge .blendFingerprintLegend{grid-template-columns:1fr;gap:10px;}
 .blendFingerprintWrapLarge .blendFingerprintMetric{display:grid;grid-template-columns:120px 1fr 48px;gap:12px;align-items:center;}
 .blendFingerprintWrapLarge .blendFingerprintLabel{margin-bottom:0;font-size:11px;letter-spacing:0.12em;}
@@ -7131,10 +7131,10 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       if (!safeParts.length) return buildTerpDiscSvg({}, size);
 
       const s = Math.max(84, Number(size || 84));
-      const pad = 10;
-      const top = { x: s / 2, y: pad + 4 };
-      const left = { x: pad + 6, y: s - pad - 6 };
-      const right = { x: s - pad - 6, y: s - pad - 6 };
+      const pad = s * 0.10;
+      const top = { x: s / 2, y: pad + 6 };
+      const left = { x: pad + 10, y: s - pad - 10 };
+      const right = { x: s - pad - 10, y: s - pad - 10 };
       const centroid = {
         x: (top.x + left.x + right.x) / 3,
         y: (top.y + left.y + right.y) / 3
@@ -7159,50 +7159,70 @@ const askPromptBlend = document.getElementById("askPromptBlend");
 
       const presence = Math.max(0, Math.min(1, sum / 300));
       const dominance = Math.max(0, Math.min(1, (Math.max(uplift, calm, sed) - Math.min(uplift, calm, sed)) / 100));
-      const stretch = Math.max(0.86, Math.min(1.28, 0.62 + (presence * 1.05) + (dominance * 0.52)));
+      const stretch = Math.max(0.92, Math.min(1.34, 0.72 + (presence * 0.90) + (dominance * 0.42)));
 
       const point = {
         x: centroid.x + ((bary.x - centroid.x) * stretch),
         y: centroid.y + ((bary.y - centroid.y) * stretch)
       };
 
-      const guideColor = "rgba(255,255,255,0.12)";
-      const triangleStroke = "rgba(255,255,255,0.24)";
-      const fillAlpha = 0.04 + (presence * 0.08);
+      const haloR = 14 + (steady * 0.08);
+      const coreR = 6 + (clarity * 0.03);
+      const ringR = 10 + (clarity * 0.05);
 
       return `
-        <svg class="visualDisc" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-label="Blend position triangle" role="img">
+        <svg class="visualDisc" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" aria-label="Blend position field" role="img">
           <defs>
-            <radialGradient id="blendTriangleGlow" cx="50%" cy="50%" r="65%">
-              <stop offset="0%" stop-color="rgba(255,255,255,0.22)"/>
-              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-            </radialGradient>
-            <filter id="blendTrianglePointGlow" x="-60%" y="-60%" width="220%" height="220%">
-              <feGaussianBlur stdDeviation="2.2" result="blur"/>
+            <linearGradient id="blendUZone" x1="50%" y1="0%" x2="50%" y2="100%">
+              <stop offset="0%" stop-color="rgba(255,214,74,0.34)"/>
+              <stop offset="100%" stop-color="rgba(255,214,74,0.02)"/>
+            </linearGradient>
+            <linearGradient id="blendCZone" x1="0%" y1="100%" x2="50%" y2="50%">
+              <stop offset="0%" stop-color="rgba(124,196,255,0.30)"/>
+              <stop offset="100%" stop-color="rgba(124,196,255,0.03)"/>
+            </linearGradient>
+            <linearGradient id="blendSZone" x1="100%" y1="100%" x2="50%" y2="50%">
+              <stop offset="0%" stop-color="rgba(168,112,255,0.30)"/>
+              <stop offset="100%" stop-color="rgba(168,112,255,0.03)"/>
+            </linearGradient>
+            <filter id="blendFieldPointGlow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="4.4" result="blur"/>
               <feMerge>
                 <feMergeNode in="blur"/>
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
           </defs>
-          <rect x="1" y="1" width="${s - 2}" height="${s - 2}" rx="18" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-          <polygon points="${top.x},${top.y} ${left.x},${left.y} ${right.x},${right.y}" fill="rgba(255,255,255,${fillAlpha.toFixed(3)})" stroke="${triangleStroke}" stroke-width="1.4"/>
-          <line x1="${top.x}" y1="${top.y}" x2="${centroid.x}" y2="${centroid.y}" stroke="${guideColor}" stroke-width="1"/>
-          <line x1="${left.x}" y1="${left.y}" x2="${centroid.x}" y2="${centroid.y}" stroke="${guideColor}" stroke-width="1"/>
-          <line x1="${right.x}" y1="${right.y}" x2="${centroid.x}" y2="${centroid.y}" stroke="${guideColor}" stroke-width="1"/>
-          <circle cx="${centroid.x}" cy="${centroid.y}" r="3.6" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
-          <line x1="${point.x}" y1="${point.y}" x2="${top.x}" y2="${top.y}" stroke="rgba(255,214,74,0.18)" stroke-width="1"/>
-          <line x1="${point.x}" y1="${point.y}" x2="${left.x}" y2="${left.y}" stroke="rgba(124,196,255,0.18)" stroke-width="1"/>
-          <line x1="${point.x}" y1="${point.y}" x2="${right.x}" y2="${right.y}" stroke="rgba(168,112,255,0.18)" stroke-width="1"/>
-          <circle cx="${point.x}" cy="${point.y}" r="${5.4 + (steady * 0.01)}" fill="rgba(255,255,255,0.10)" filter="url(#blendTrianglePointGlow)"/>
-          <circle cx="${point.x}" cy="${point.y}" r="${3.2 + (clarity * 0.012)}" fill="rgba(255,255,255,0.96)" stroke="rgba(12,14,16,0.72)" stroke-width="1.2"/>
-          <circle cx="${point.x}" cy="${point.y}" r="${5.2 + (clarity * 0.012)}" fill="none" stroke="rgba(255,255,255,${(0.12 + clarity/700).toFixed(3)})" stroke-width="1"/>
-          <circle cx="${top.x}" cy="${top.y}" r="2.4" fill="rgba(255,214,74,0.92)"/>
-          <circle cx="${left.x}" cy="${left.y}" r="2.4" fill="rgba(124,196,255,0.92)"/>
-          <circle cx="${right.x}" cy="${right.y}" r="2.4" fill="rgba(168,112,255,0.92)"/>
-          <text x="${top.x}" y="${top.y - 6}" text-anchor="middle" font-size="6.8" letter-spacing="0.12em" fill="rgba(255,255,255,0.76)">UPLIFT</text>
-          <text x="${left.x - 2}" y="${left.y + 10}" text-anchor="start" font-size="6.4" letter-spacing="0.10em" fill="rgba(255,255,255,0.70)">CALM</text>
-          <text x="${right.x + 2}" y="${right.y + 10}" text-anchor="end" font-size="6.4" letter-spacing="0.10em" fill="rgba(255,255,255,0.70)">SED</text>
+
+          <rect x="1.5" y="1.5" width="${s - 3}" height="${s - 3}" rx="24" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+
+          <polygon points="${top.x},${top.y} ${centroid.x},${centroid.y} ${left.x},${left.y}" fill="url(#blendCZone)"/>
+          <polygon points="${top.x},${top.y} ${centroid.x},${centroid.y} ${right.x},${right.y}" fill="url(#blendUZone)"/>
+          <polygon points="${left.x},${left.y} ${centroid.x},${centroid.y} ${right.x},${right.y}" fill="url(#blendSZone)"/>
+
+          <polygon points="${top.x},${top.y} ${left.x},${left.y} ${right.x},${right.y}" fill="rgba(255,255,255,${(0.03 + presence * 0.06).toFixed(3)})" stroke="rgba(255,255,255,0.26)" stroke-width="2"/>
+
+          <line x1="${top.x}" y1="${top.y}" x2="${centroid.x}" y2="${centroid.y}" stroke="rgba(255,255,255,0.14)" stroke-width="1.2"/>
+          <line x1="${left.x}" y1="${left.y}" x2="${centroid.x}" y2="${centroid.y}" stroke="rgba(255,255,255,0.14)" stroke-width="1.2"/>
+          <line x1="${right.x}" y1="${right.y}" x2="${centroid.x}" y2="${centroid.y}" stroke="rgba(255,255,255,0.14)" stroke-width="1.2"/>
+
+          <circle cx="${centroid.x}" cy="${centroid.y}" r="5" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
+
+          <line x1="${point.x}" y1="${point.y}" x2="${top.x}" y2="${top.y}" stroke="rgba(255,214,74,0.22)" stroke-width="1.4"/>
+          <line x1="${point.x}" y1="${point.y}" x2="${left.x}" y2="${left.y}" stroke="rgba(124,196,255,0.22)" stroke-width="1.4"/>
+          <line x1="${point.x}" y1="${point.y}" x2="${right.x}" y2="${right.y}" stroke="rgba(168,112,255,0.22)" stroke-width="1.4"/>
+
+          <circle cx="${point.x}" cy="${point.y}" r="${haloR}" fill="rgba(255,255,255,0.12)" filter="url(#blendFieldPointGlow)"/>
+          <circle cx="${point.x}" cy="${point.y}" r="${ringR}" fill="none" stroke="rgba(255,255,255,${(0.16 + clarity/600).toFixed(3)})" stroke-width="1.6"/>
+          <circle cx="${point.x}" cy="${point.y}" r="${coreR}" fill="rgba(255,255,255,0.96)" stroke="rgba(12,14,16,0.72)" stroke-width="1.6"/>
+
+          <circle cx="${top.x}" cy="${top.y}" r="4.2" fill="rgba(255,214,74,0.96)"/>
+          <circle cx="${left.x}" cy="${left.y}" r="4.2" fill="rgba(124,196,255,0.96)"/>
+          <circle cx="${right.x}" cy="${right.y}" r="4.2" fill="rgba(168,112,255,0.96)"/>
+
+          <text x="${top.x}" y="${top.y - 12}" text-anchor="middle" font-size="${Math.max(10, s * 0.05)}" letter-spacing="0.16em" fill="rgba(255,255,255,0.82)">UPLIFT</text>
+          <text x="${left.x - 2}" y="${left.y + 18}" text-anchor="start" font-size="${Math.max(9, s * 0.045)}" letter-spacing="0.12em" fill="rgba(255,255,255,0.78)">CALM</text>
+          <text x="${right.x + 2}" y="${right.y + 18}" text-anchor="end" font-size="${Math.max(9, s * 0.045)}" letter-spacing="0.12em" fill="rgba(255,255,255,0.78)">HEAVY</text>
         </svg>
       `;
     }
@@ -7284,7 +7304,7 @@ const askPromptBlend = document.getElementById("askPromptBlend");
                       `;
                     }).join("")}
                   </div>
-                  <p class="blendFieldSummaryNote">Tap the graph to open the read.</p>
+                  <p class="blendFieldSummaryNote">Tap the field to open the read.</p>
                 </div>
               </div>
             </div>
