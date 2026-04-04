@@ -2684,6 +2684,55 @@ input.edibleSlider{
 }
 </style>
 
+
+<style>
+.consumptionPanel{
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;
+  padding:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+}
+.consumptionModeHint{
+  margin:8px 0 0 0;
+  font-size:12px;
+  line-height:1.4;
+  color:var(--muted);
+}
+.vapeFields{
+  display:none;
+  margin-top:10px;
+}
+.vapeFields.active{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+@media (min-width: 820px){
+  .vapeFields.active{
+    grid-template-columns:1fr 1fr;
+  }
+}
+.modePillRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+.modePill{
+  display:inline-flex;
+  align-items:center;
+  padding:5px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.06);
+  color:var(--text);
+  font-size:11px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+</style>
+
 </head>
 
 <body>
@@ -2855,6 +2904,53 @@ input.edibleSlider{
 
           <div class="row topgap">
             <button id="sessionUnknownBtn" class="btn btnTiny" type="button">Unknown +</button>
+          </div>
+
+          <div class="consumptionPanel">
+            <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">CONSUMPTION</h2>
+            <div class="row topgap">
+              <label class="field">
+                <span class="label">Mode</span>
+                <select id="sessionMode" class="select">
+                  <option value="FLOWER">Flower</option>
+                  <option value="VAPE">Vape</option>
+                  <option value="EDIBLE">Edible</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span class="label">Session angle</span>
+                <input id="sessionModeNote" class="input" type="text" placeholder="e.g., two pulls / one bowl / slow build" />
+              </label>
+            </div>
+
+            <p id="consumptionModeHint" class="consumptionModeHint">Flower is the baseline lane. Smooth ramp, fuller body, longer arc.</p>
+
+            <div id="vapeFields" class="vapeFields">
+              <label class="field">
+                <span class="label">Vape profile</span>
+                <select id="vapeProfile" class="select">
+                  <option value="">— choose if known —</option>
+                  <option value="LIVE_ROSIN">Live rosin</option>
+                  <option value="LIVE_RESIN">Live resin</option>
+                  <option value="DISTILLATE">Distillate</option>
+                  <option value="FULL_SPECTRUM">Full spectrum</option>
+                  <option value="CO2">CO2</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span class="label">Brand / cart / hardware</span>
+                <input id="vapeHardware" class="input" type="text" placeholder="e.g., Raw Garden / 510 / disposable" />
+              </label>
+            </div>
+
+            <div class="modePillRow">
+              <span class="modePill">Flower = fuller arc</span>
+              <span class="modePill">Vape = quicker hit</span>
+              <span class="modePill">Edible = delayed build</span>
+            </div>
           </div>
 
           <div class="divider"></div>
@@ -4212,6 +4308,12 @@ input.edibleSlider{
     const sessionStashLink = document.getElementById("sessionStashLink");
     const sessionTag = document.getElementById("sessionTag");
     const sessionUnknownBtn = document.getElementById("sessionUnknownBtn");
+    const sessionMode = document.getElementById("sessionMode");
+    const sessionModeNote = document.getElementById("sessionModeNote");
+    const consumptionModeHint = document.getElementById("consumptionModeHint");
+    const vapeFields = document.getElementById("vapeFields");
+    const vapeProfile = document.getElementById("vapeProfile");
+    const vapeHardware = document.getElementById("vapeHardware");
     const stashVisualChips = Array.from(document.querySelectorAll("[data-stash-visual]"));
     const stashVisualOther = document.getElementById("stashVisualOther");
     const stashVisualReset = document.getElementById("stashVisualReset");
@@ -4542,6 +4644,10 @@ input.edibleSlider{
                     );
                     const bits = [];
                     bits.push(fmtTime(s.createdAt));
+                    if (s.consumptionMode) bits.push("MODE:" + s.consumptionMode);
+                    if (s.vapeProfile) bits.push("VAPE:" + s.vapeProfile);
+                    if (s.vapeHardware) bits.push("DEVICE:" + s.vapeHardware);
+                    if (s.consumptionNote) bits.push("ANGLE:" + s.consumptionNote);
                     if (s.rate) bits.push("RATE:" + s.rate);
                     if (s.visualGaugeFrost) bits.push("FROST:" + s.visualGaugeFrost);
                     if (s.visualGaugeDensity) bits.push("DENSITY:" + s.visualGaugeDensity);
@@ -4557,6 +4663,8 @@ input.edibleSlider{
                         <p class="linkedSessionTitle">${escapeHtml((s.tag && s.tag.trim()) ? s.tag.trim() : "Session")}</p>
                         <p class="linkedSessionMeta">${escapeHtml(bits.join(" — "))}</p>
                         ${buildSignalMarkup(s)}
+              ${s.consumptionMode === "VAPE" ? `<div class="notice topgap">Vape note: quicker hit, shorter arc. Keep that in mind when comparing it to flower.</div>` : ""}
+              ${s.consumptionMode === "EDIBLE" ? `<div class="notice topgap">Edible note: slower onset, longer arc. Do not read it like flower.</div>` : ""}
                       </div>
                     `;
                   }).join("")
@@ -4876,6 +4984,37 @@ ${cautionBits.join(" • ")}`
       renderEdibleStashDropdown();
     }
 
+
+    function consumptionModeCopy(mode){
+      const m = String(mode || "FLOWER").toUpperCase();
+      if (m === "VAPE") return "Vape usually hits quicker, sharper, and shorter. Log the profile if you know it.";
+      if (m === "EDIBLE") return "Edible is a different vehicle. Slower onset, longer arc, easier to overshoot.";
+      return "Flower is the baseline lane. Smooth ramp, fuller body, longer arc.";
+    }
+
+    function syncConsumptionModeUI(){
+      const mode = String(sessionMode?.value || "FLOWER").toUpperCase();
+      if (consumptionModeHint) consumptionModeHint.textContent = consumptionModeCopy(mode);
+      if (vapeFields) vapeFields.classList.toggle("active", mode === "VAPE");
+      if (sessionModeNote){
+        if (mode === "VAPE" && !sessionModeNote.value) sessionModeNote.placeholder = "e.g., one pull / two pulls / quick spike";
+        else if (mode === "EDIBLE" && !sessionModeNote.value) sessionModeNote.placeholder = "e.g., 45 min onset / slow climb / long tail";
+        else if (!sessionModeNote.value) sessionModeNote.placeholder = "e.g., two pulls / one bowl / slow build";
+      }
+    }
+
+    function autoSetModeFromLinkedStash(){
+      const stashId = sessionStashLink?.value || "";
+      const stashItems = loadStash();
+      const item = stashItems.find(x => String(x.id) === String(stashId));
+      if (!item || !sessionMode) return;
+      const category = String(item.category || "").toUpperCase();
+      if (category === "VAPE") sessionMode.value = "VAPE";
+      else if (category === "EDIBLE") sessionMode.value = "EDIBLE";
+      else sessionMode.value = "FLOWER";
+      syncConsumptionModeUI();
+    }
+
     stashUnknownBtn.onclick = () => {
       stashName.value = getNextUnknownStashName();
       stashName.focus();
@@ -4887,6 +5026,9 @@ ${cautionBits.join(" • ")}`
       sessionTag.focus();
       sessionTag.setSelectionRange(sessionTag.value.length, sessionTag.value.length);
     };
+
+    if (sessionMode) sessionMode.addEventListener("change", syncConsumptionModeUI);
+    if (sessionStashLink) sessionStashLink.addEventListener("change", autoSetModeFromLinkedStash);
 
     addStashBtn.onclick = async () => {
       let name = (stashName.value || "").trim();
@@ -6465,6 +6607,10 @@ ${cautionBits.join(" • ")}`
         stashId: stashItem ? stashItem.id : "",
         stashName: stashItem ? `${stashItem.name} (${stashItem.category})` : "",
         tag,
+        consumptionMode: String(sessionMode?.value || "FLOWER").toUpperCase(),
+        consumptionNote: (sessionModeNote?.value || "").trim(),
+        vapeProfile: String(vapeProfile?.value || "").toUpperCase(),
+        vapeHardware: (vapeHardware?.value || "").trim(),
         sleep: sleepScore.value || "",
         mood: Array.from(moodSet),
         moodOther: (moodOther.value || "").trim(),
@@ -6535,6 +6681,11 @@ ${cautionBits.join(" • ")}`
 
       sessionTag.value = "";
       sessionStashLink.value = "";
+      if (sessionMode) sessionMode.value = "FLOWER";
+      if (sessionModeNote) sessionModeNote.value = "";
+      if (vapeProfile) vapeProfile.value = "";
+      if (vapeHardware) vapeHardware.value = "";
+      syncConsumptionModeUI();
       if (transcriptText) transcriptText.value = "";
 
       await renderSessions();
@@ -6568,6 +6719,10 @@ ${cautionBits.join(" • ")}`
         const bits = [];
         bits.push(when);
         if (s.stashName) bits.push(s.stashName);
+        if (s.consumptionMode) bits.push("MODE:" + s.consumptionMode);
+        if (s.vapeProfile) bits.push("VAPE:" + s.vapeProfile);
+        if (s.vapeHardware) bits.push("DEVICE:" + s.vapeHardware);
+        if (s.consumptionNote) bits.push("ANGLE:" + s.consumptionNote);
         if (s.sleep) bits.push("SLEEP:"+s.sleep);
         if (s.visualGaugeFrost) bits.push("FROST:"+s.visualGaugeFrost);
         if (s.visualGaugeDensity) bits.push("DENSITY:"+s.visualGaugeDensity);
