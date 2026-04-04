@@ -2454,6 +2454,34 @@ input.edibleSlider{
   font-size:13px;
   line-height:1.45;
 }
+
+.stashOrderBar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:10px;
+}
+.stashOrderBtns{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.stashOrderBtn.active{
+  border-color:rgba(255,255,255,0.34);
+  background:rgba(255,255,255,0.14);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.05) inset;
+}
+.stashOrderHint{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.35;
+}
+.stashMiniBtn[disabled]{
+  opacity:0.35;
+  cursor:not-allowed;
+}
 </style>
 
 </head>
@@ -2587,6 +2615,13 @@ input.edibleSlider{
           <div id="stashListWrap">
             <div class="divider"></div>
             <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH LIST</h2>
+            <div id="stashOrderBar" class="stashOrderBar">
+              <div class="stashOrderBtns">
+                <button id="stashOrderManualBtn" class="btn btnTiny stashOrderBtn" type="button">Manual Order</button>
+                <button id="stashOrderSmartBtn" class="btn btnTiny stashOrderBtn" type="button">Smart Order</button>
+              </div>
+              <div id="stashOrderHint" class="stashOrderHint">Manual order keeps your lineup exactly where you put it.</div>
+            </div>
             <div id="stashList" class="list">
               <div class="muted">No stash items yet.</div>
             </div>
@@ -3968,6 +4003,10 @@ input.edibleSlider{
     const stashUnknownBtn = document.getElementById("stashUnknownBtn");
     const stashList = document.getElementById("stashList");
     const stashListWrap = document.getElementById("stashListWrap");
+    const STASH_ORDER_MODE_KEY = "sv_stash_order_mode_v1";
+    const stashOrderManualBtn = document.getElementById("stashOrderManualBtn");
+    const stashOrderSmartBtn = document.getElementById("stashOrderSmartBtn");
+    const stashOrderHint = document.getElementById("stashOrderHint");
     const stashDetail = document.getElementById("stashDetail");
     const stashDetailBody = document.getElementById("stashDetailBody");
     const stashDetailBackBtn = document.getElementById("stashDetailBackBtn");
@@ -3987,6 +4026,37 @@ input.edibleSlider{
     let stashVisualSet = new Set();
     let selectedStashId = "";
     let stashPhotoCache = new Map();
+
+    function loadStashOrderMode(){
+      try {
+        const mode = String(localStorage.getItem(STASH_ORDER_MODE_KEY) || "MANUAL").toUpperCase();
+        return mode === "SMART" ? "SMART" : "MANUAL";
+      } catch {
+        return "MANUAL";
+      }
+    }
+
+    function saveStashOrderMode(mode){
+      const nextMode = String(mode || "MANUAL").toUpperCase() === "SMART" ? "SMART" : "MANUAL";
+      try { localStorage.setItem(STASH_ORDER_MODE_KEY, nextMode); } catch {}
+      renderStashOrderControls();
+      renderStash();
+      renderStashLinkDropdown();
+    }
+
+    function renderStashOrderControls(){
+      const mode = loadStashOrderMode();
+      if (stashOrderManualBtn) stashOrderManualBtn.classList.toggle("active", mode === "MANUAL");
+      if (stashOrderSmartBtn) stashOrderSmartBtn.classList.toggle("active", mode === "SMART");
+      if (stashOrderHint){
+        stashOrderHint.textContent = mode === "SMART"
+          ? "Smart order floats the strongest, most proven pieces to the top. Switch to Manual to move items yourself."
+          : "Manual order keeps your lineup exactly where you put it. Smart order can sort by proven usefulness.";
+      }
+    }
+
+    if (stashOrderManualBtn) stashOrderManualBtn.onclick = () => saveStashOrderMode("MANUAL");
+    if (stashOrderSmartBtn) stashOrderSmartBtn.onclick = () => saveStashOrderMode("SMART");
 
     function normalizeStashStatus(value){
       return String(value || "CURRENT").toUpperCase() === "SAMPLED" ? "SAMPLED" : "CURRENT";
@@ -4394,7 +4464,67 @@ ${cautionBits.join(" • ")}`
       }
     }
 
-    function renderStashSection(sectionTitle, items, emptyText){
+    function buildStashSmartMetaMap(items, sessions){
+      const byStash = sceBuildSessionsByStashId(sessions || []);
+      const profiles = sceBuildItemProfiles(items || [], sessions || []);
+      const profileMap = new Map(profiles.map(p => [String(p.id || ""), p]));
+      const now = Date.now();
+      const metaMap = new Map();
+
+      (items || []).forEach(item => {
+        const key = String(item?.id || "");
+        const linked = byStash.get(key) || [];
+        const avgRateNum = Number(averageRate(linked) || 0);
+        const latestTs = linked.length
+          ? Math.max(...linked.map(s => Number(s?.createdAt || 0)).filter(Boolean))
+          : Number(item?.createdAt || 0);
+        const ageDays = latestTs ? Math.max(0, (now - latestTs) / 86400000) : 999;
+        const recencyBoost = latestTs ? Math.max(0, 2.25 - Math.min(2.25, ageDays / 18)) : 0;
+        const profile = profileMap.get(key) || null;
+        const dominantStrength = profile ? Math.max(...SCE_LANES.map(k => Number(profile.vector?.[k] || 0))) : 0.2;
+        const confidenceBoost = linked.length >= 3 ? 0.9 : linked.length >= 1 ? 0.35 : 0;
+        const score =
+          (Math.min(linked.length, 6) * 0.9) +
+          (avgRateNum * 1.6) +
+          (dominantStrength * 2.4) +
+          recencyBoost +
+          confidenceBoost;
+
+        metaMap.set(key, {
+          score,
+          linkedCount: linked.length,
+          avgRateNum,
+          latestTs,
+          profile
+        });
+      });
+
+      return metaMap;
+    }
+
+    async function getOrderedStashItems(modeOverride){
+      const items = loadStash();
+      const mode = String(modeOverride || loadStashOrderMode()).toUpperCase();
+      if (mode !== "SMART") return getStashDisplayOrder(items);
+
+      const sessions = await dbGetAll();
+      const metaMap = buildStashSmartMetaMap(items, sessions);
+      const currentItems = items.filter(it => normalizeStashStatus(it.status) === "CURRENT");
+      const sampledItems = items.filter(it => normalizeStashStatus(it.status) === "SAMPLED");
+
+      const sortSmart = (arr) => arr.slice().sort((a,b) => {
+        const aMeta = metaMap.get(String(a.id || "")) || { score: 0, linkedCount: 0, avgRateNum: 0, latestTs: Number(a.createdAt || 0) };
+        const bMeta = metaMap.get(String(b.id || "")) || { score: 0, linkedCount: 0, avgRateNum: 0, latestTs: Number(b.createdAt || 0) };
+        if (bMeta.score !== aMeta.score) return bMeta.score - aMeta.score;
+        if (bMeta.linkedCount !== aMeta.linkedCount) return bMeta.linkedCount - aMeta.linkedCount;
+        if (bMeta.avgRateNum !== aMeta.avgRateNum) return bMeta.avgRateNum - aMeta.avgRateNum;
+        return Number(bMeta.latestTs || 0) - Number(aMeta.latestTs || 0);
+      });
+
+      return [...sortSmart(currentItems), ...sortSmart(sampledItems)];
+    }
+
+    function renderStashSection(sectionTitle, items, emptyText, mode){
       const section = document.createElement("div");
       section.className = "stashSection";
       section.innerHTML = `
@@ -4442,8 +4572,8 @@ ${cautionBits.join(" • ")}`
             </div>
 
             <div class="stashCardControls">
-              <button class="btn btnTiny stashMiniBtn" type="button" data-move-up="${escapeHtml(it.id)}" ${idx === 0 ? "disabled" : ""}>↑</button>
-              <button class="btn btnTiny stashMiniBtn" type="button" data-move-down="${escapeHtml(it.id)}" ${idx === items.length - 1 ? "disabled" : ""}>↓</button>
+              <button class="btn btnTiny stashMiniBtn" type="button" data-move-up="${escapeHtml(it.id)}" ${mode === "SMART" || idx === 0 ? "disabled" : ""} title="${mode === "SMART" ? "Switch to Manual Order to move items" : "Move up"}">↑</button>
+              <button class="btn btnTiny stashMiniBtn" type="button" data-move-down="${escapeHtml(it.id)}" ${mode === "SMART" || idx === items.length - 1 ? "disabled" : ""} title="${mode === "SMART" ? "Switch to Manual Order to move items" : "Move down"}">↓</button>
               <button class="btn btnTiny stashMiniBtn ${it.status === "CURRENT" ? "statusCurrent" : "statusSampled"}" type="button" data-toggle-status="${escapeHtml(it.id)}">${it.status === "CURRENT" ? "Archive" : "Current"}</button>
               <button class="btn btnDanger stashDeleteBtn" type="button" data-delete="${escapeHtml(it.id)}">Delete</button>
             </div>
@@ -4483,8 +4613,10 @@ ${cautionBits.join(" • ")}`
       return section;
     }
 
-    function renderStash(){
-      const allItems = getStashDisplayOrder(loadStash());
+    async function renderStash(){
+      renderStashOrderControls();
+      const mode = loadStashOrderMode();
+      const allItems = await getOrderedStashItems(mode);
       if (!allItems.length){
         stashList.innerHTML = '<div class="muted">No stash items yet.</div>';
         return;
@@ -4494,8 +4626,8 @@ ${cautionBits.join(" • ")}`
       const sampledItems = allItems.filter(it => it.status === "SAMPLED");
 
       stashList.innerHTML = "";
-      stashList.appendChild(renderStashSection("Current stash", currentItems, "Nothing marked as currently in stash."));
-      stashList.appendChild(renderStashSection("Sampled / archive", sampledItems, "Nothing parked in sampled / archive yet."));
+      stashList.appendChild(renderStashSection("Current stash", currentItems, "Nothing marked as currently in stash.", mode));
+      stashList.appendChild(renderStashSection("Sampled / archive", sampledItems, "Nothing parked in sampled / archive yet.", mode));
     }
 
     async function deleteStashItemById(stashId){
@@ -4510,6 +4642,9 @@ ${cautionBits.join(" • ")}`
     }
 
     async function moveStashItem(stashId, direction){
+      if (loadStashOrderMode() !== "MANUAL"){
+        saveStashOrderMode("MANUAL");
+      }
       const items = getStashDisplayOrder(loadStash());
       const idx = items.findIndex(x => String(x.id) === String(stashId));
       if (idx < 0) return;
@@ -4530,8 +4665,8 @@ ${cautionBits.join(" • ")}`
       await saveStash(normalizeStashSortOrders(items));
     }
 
-    function renderStashLinkDropdown(){
-      const items = loadStash();
+    async function renderStashLinkDropdown(){
+      const items = await getOrderedStashItems(loadStashOrderMode());
       const current = sessionStashLink.value || "";
       sessionStashLink.innerHTML = '<option value="">— none —</option>';
       items.forEach(it => {
