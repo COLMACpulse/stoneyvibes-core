@@ -2383,6 +2383,30 @@ input.edibleSlider{
   line-height:1.45;
   color:var(--text);
 }
+.sceHit{
+  margin-top:10px;
+  border:1px solid rgba(255,214,74,0.16);
+  border-radius:14px;
+  padding:10px 12px;
+  background:linear-gradient(180deg, rgba(255,214,74,0.10), rgba(255,255,255,0.03));
+}
+.sceHitLabel{
+  font-size:10px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.sceHitText{
+  margin-top:6px;
+  font-size:15px;
+  line-height:1.3;
+  color:var(--text);
+  font-weight:700;
+}
+.sceMetaValue strong{
+  color:var(--text);
+  font-weight:800;
+}
 .sceMetaGrid{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -4063,8 +4087,8 @@ input.edibleSlider{
       if (stashOrderSmartBtn) stashOrderSmartBtn.classList.toggle("active", mode === "SMART");
       if (stashOrderHint){
         stashOrderHint.textContent = mode === "SMART"
-          ? "Smart order floats the strongest, most proven pieces to the top. Switch to Manual to move items yourself."
-          : "Manual order keeps your lineup exactly where you put it. Smart order can sort by proven usefulness.";
+          ? "Smart order surfaces the strongest pieces first. Switch to Manual if you want to place them yourself."
+          : "Manual order is your exact lineup. Smart order gives you a system-sorted read.";
       }
     }
 
@@ -4997,32 +5021,32 @@ ${cautionBits.join(" • ")}`
       const confidence = count >= 3 ? "strong" : count >= 2 ? "medium" : "early";
 
       const suggestions = [];
-      if (missing) suggestions.push(`Consider a ${SCE_ROLE_LIBRARY[missing]}.`);
-      if (redundancy.length) suggestions.push(`Your stash repeats ${redundancy.map(r => r.label.toLowerCase()).join(" + ")} more than once.`);
-      if (weak.includes("clarity") && weak.includes("lift")) suggestions.push("A brighter daytime partner could open cleaner blends.");
-      else if (weak.includes("heavy")) suggestions.push("A deeper downshift option could improve night coverage.");
-      else if (weak.includes("steady")) suggestions.push("A more balanced all-around piece could reduce overcorrection.");
+      if (missing) suggestions.push(`Add a ${SCE_ROLE_LIBRARY[missing]}.`);
+      if (redundancy.length) suggestions.push(`You are doubled up in ${redundancy.map(r => r.label.toLowerCase()).join(" + ")}.`);
+      if (weak.includes("clarity") && weak.includes("lift")) suggestions.push("A brighter daytime partner would open cleaner blends.");
+      else if (weak.includes("heavy")) suggestions.push("A deeper downshift piece would improve night coverage.");
+      else if (weak.includes("steady")) suggestions.push("A more balanced all-around piece would reduce overcorrection.");
 
       let coverageMessage = "";
       if (count <= 1){
-        coverageMessage = "Early read. One item is not enough to map stash coverage yet.";
+        coverageMessage = "Early read. One item is not enough to map your stash yet.";
       } else if (!weak.length){
-        coverageMessage = `Your stash is relatively rounded. Strongest lane: ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "none yet"}.`;
+        coverageMessage = `Your stash is fairly rounded. Strongest lane: ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "none yet"}.`;
       } else {
-        coverageMessage = `Your stash leans ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "without a dominant lane"} and looks thinner in ${weak.map(k => SCE_LABELS[k].toLowerCase()).join(" + ")}. Missing lane: ${SCE_LABELS[missing]}.`;
+        coverageMessage = `Your stash leans ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "without a dominant lane"} and gets thin in ${weak.map(k => SCE_LABELS[k].toLowerCase()).join(" + ")}. Missing lane: ${SCE_LABELS[missing]}.`;
       }
 
       const whyItMatters = [];
-      if (redundancy.length) whyItMatters.push("Repeated lane overlap can cause same-feel sessions.");
-      if (weak.includes("lift") || weak.includes("clarity")) whyItMatters.push("Thin lift/clarity coverage can limit daytime flexibility.");
-      if (weak.includes("heavy")) whyItMatters.push("Thin heavy coverage can limit deeper settle/downshift options.");
-      if (diversity < 0.72) whyItMatters.push("Low stash diversity reduces blend range.");
+      if (redundancy.length) whyItMatters.push("Too much overlap can make sessions feel samey.");
+      if (weak.includes("lift") || weak.includes("clarity")) whyItMatters.push("Thin lift / clarity coverage limits daytime flexibility.");
+      if (weak.includes("heavy")) whyItMatters.push("Thin heavy coverage limits deeper settle / downshift options.");
+      if (diversity < 0.72) whyItMatters.push("Low stash diversity reduces your blend range.");
 
       const unlocks = [];
-      if (missing === "clarity" || missing === "lift") unlocks.push("Could unlock cleaner balancing blends.");
-      if (missing === "heavy") unlocks.push("Could unlock stronger night/downshift blends.");
-      if (missing === "steady") unlocks.push("Could unlock more neutral all-around use.");
-      if (strong.includes("calm") && missing === "clarity") unlocks.push("Could stop calm-heavy blends from turning muddy.");
+      if (missing === "clarity" || missing === "lift") unlocks.push("Would unlock cleaner balancing blends.");
+      if (missing === "heavy") unlocks.push("Would unlock stronger night / downshift blends.");
+      if (missing === "steady") unlocks.push("Would unlock more neutral all-around use.");
+      if (strong.includes("calm") && missing === "clarity") unlocks.push("Would stop calm-heavy blends from turning muddy.");
 
       return {
         itemProfiles,
@@ -5058,6 +5082,20 @@ ${cautionBits.join(" • ")}`
       return "NO READ";
     }
 
+    function sceJoinLabels(keys){
+      return (keys || []).map(k => SCE_LABELS[k]).join(", ");
+    }
+
+    function scePrimaryHit(result){
+      if (!result || result.confidence === "early") return "Needs more than one real piece before the read gets sharp.";
+      if (result.weak.includes("lift") && result.weak.includes("clarity")) return "You're stacked on the downshift. You do not really have a clean up lane.";
+      if (result.weak.includes("heavy")) return "You can steer lighter, but your stash does not go deep enough for a true downshift.";
+      if (result.weak.includes("steady")) return "Your stash can hit states, but it does not have a real all-around stabilizer yet.";
+      if (result.redundancy.length) return `You have overlap in ${result.redundancy.map(r => r.label.toLowerCase()).join(" + ")}. A complement piece would do more than another similar one.`;
+      if (!result.weak.length) return "This stash is rounded enough to work in more than one direction.";
+      return `Missing lane: ${SCE_LABELS[result.missing]}. That is the cleanest round-out move.`;
+    }
+
     async function renderSCECard(){
       if (!sceCard) return;
       const stashItems = loadStash();
@@ -5078,9 +5116,14 @@ ${cautionBits.join(" • ")}`
         <div class="sceTop">
           <div>
             <h2 class="sceTitle">STASH COVERAGE</h2>
-            <p class="sceSub">What your stash does well, what it lacks, and what could round it out.</p>
+            <p class="sceSub">What your stash is built for, what it is missing, and what would round it out.</p>
           </div>
           <span class="scePill">${escapeHtml(sceConfidenceLabel(result.confidence))}</span>
+        </div>
+
+        <div class="sceHit">
+          <div class="sceHitLabel">Main read</div>
+          <div class="sceHitText">${escapeHtml(scePrimaryHit(result))}</div>
         </div>
 
         <p class="sceSummary">${escapeHtml(result.coverageMessage)}</p>
@@ -5088,15 +5131,15 @@ ${cautionBits.join(" • ")}`
         <div class="sceMetaGrid">
           <div class="sceMetaCard">
             <div class="sceMetaLabel">Strong lanes</div>
-            <div class="sceMetaValue">${escapeHtml(strongText)}</div>
+            <div class="sceMetaValue"><strong>${escapeHtml(strongText)}</strong></div>
           </div>
           <div class="sceMetaCard">
-            <div class="sceMetaLabel">Weak lanes</div>
-            <div class="sceMetaValue">${escapeHtml(weakText)}</div>
+            <div class="sceMetaLabel">Thin lanes</div>
+            <div class="sceMetaValue"><strong>${escapeHtml(weakText)}</strong></div>
           </div>
           <div class="sceMetaCard">
             <div class="sceMetaLabel">Missing lane</div>
-            <div class="sceMetaValue">${escapeHtml(missingText)} · ${diversityPct}% diversity</div>
+            <div class="sceMetaValue"><strong>${escapeHtml(missingText)}</strong> · ${diversityPct}% diversity</div>
           </div>
         </div>
 
@@ -5108,9 +5151,9 @@ ${cautionBits.join(" • ")}`
           result.suggestions.length || result.whyItMatters.length || result.unlocks.length
           ? `
           <div class="sceBulletList">
-            ${result.suggestions.map(line => `<div class="sceBullet"><strong>Consider:</strong> ${escapeHtml(line)}</div>`).join("")}
-            ${result.whyItMatters.map(line => `<div class="sceBullet"><strong>Why it matters:</strong> ${escapeHtml(line)}</div>`).join("")}
-            ${result.unlocks.map(line => `<div class="sceBullet"><strong>Unlock:</strong> ${escapeHtml(line)}</div>`).join("")}
+            ${result.suggestions.slice(0,1).map(line => `<div class="sceBullet"><strong>Roundout move:</strong> ${escapeHtml(line)}</div>`).join("")}
+            ${result.whyItMatters.slice(0,2).map(line => `<div class="sceBullet"><strong>Why it matters:</strong> ${escapeHtml(line)}</div>`).join("")}
+            ${result.unlocks.slice(0,2).map(line => `<div class="sceBullet"><strong>Unlock:</strong> ${escapeHtml(line)}</div>`).join("")}
           </div>`
           : ""
         }
