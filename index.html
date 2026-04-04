@@ -5033,17 +5033,17 @@ ${cautionBits.join(" • ")}`
       } else if (!weak.length){
         coverageMessage = `Your stash is fairly rounded. Strongest lane: ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "none yet"}.`;
       } else {
-        coverageMessage = `Your stash leans ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "without a dominant lane"} and gets thin in ${weak.map(k => SCE_LABELS[k].toLowerCase()).join(" + ")}. Missing lane: ${SCE_LABELS[missing]}.`;
+        coverageMessage = `Your stash leans ${strong.length ? strong.map(k => SCE_LABELS[k].toLowerCase()).join(" + ") : "without a dominant lane"} and gets thin in ${weak.map(k => SCE_LABELS[k].toLowerCase()).join(" + ")}. GAP: ${SCE_LABELS[missing]}.`;
       }
 
       const whyItMatters = [];
-      if (redundancy.length) whyItMatters.push("Too much overlap can make sessions feel samey.");
+      if (redundancy.length) whyItMatters.push("You’re getting the same type of session over and over.");
       if (weak.includes("lift") || weak.includes("clarity")) whyItMatters.push("Thin lift / clarity coverage limits daytime flexibility.");
       if (weak.includes("heavy")) whyItMatters.push("Thin heavy coverage limits deeper settle / downshift options.");
       if (diversity < 0.72) whyItMatters.push("Low stash diversity reduces your blend range.");
 
       const unlocks = [];
-      if (missing === "clarity" || missing === "lift") unlocks.push("Would unlock cleaner balancing blends.");
+      if (missing === "clarity" || missing === "lift") unlocks.push("Lets you balance instead of overcorrect.");
       if (missing === "heavy") unlocks.push("Would unlock stronger night / downshift blends.");
       if (missing === "steady") unlocks.push("Would unlock more neutral all-around use.");
       if (strong.includes("calm") && missing === "clarity") unlocks.push("Would stop calm-heavy blends from turning muddy.");
@@ -5093,7 +5093,7 @@ ${cautionBits.join(" • ")}`
       if (result.weak.includes("steady")) return "Your stash can hit states, but it does not have a real all-around stabilizer yet.";
       if (result.redundancy.length) return `You have overlap in ${result.redundancy.map(r => r.label.toLowerCase()).join(" + ")}. A complement piece would do more than another similar one.`;
       if (!result.weak.length) return "This stash is rounded enough to work in more than one direction.";
-      return `Missing lane: ${SCE_LABELS[result.missing]}. That is the cleanest round-out move.`;
+      return `GAP: ${SCE_LABELS[result.missing]}. That is the cleanest round-out move.`;
     }
 
     async function renderSCECard(){
@@ -5138,7 +5138,7 @@ ${cautionBits.join(" • ")}`
             <div class="sceMetaValue"><strong>${escapeHtml(weakText)}</strong></div>
           </div>
           <div class="sceMetaCard">
-            <div class="sceMetaLabel">Missing lane</div>
+            <div class="sceMetaLabel">GAP</div>
             <div class="sceMetaValue"><strong>${escapeHtml(missingText)}</strong> · ${diversityPct}% diversity</div>
           </div>
         </div>
@@ -9108,5 +9108,42 @@ function forceRenderFingerprint(elId, blend){
   ]);
 }
 
-</script></body>
+</script>
+<!-- SCE VOICE PASS APPLIED -->
+<div class="sce-card">
+  <div class="sce-main">
+    You’re stacked on the downshift.<br>
+    Most of what you have pulls you the same way.
+  </div>
+  <div class="sce-section">
+    <strong>WHAT YOU HAVE</strong><br>
+    Calm, Heavy
+  </div>
+  <div class="sce-section">
+    <strong>WHAT YOU DON’T REALLY HAVE</strong><br>
+    Lift, Clarity
+  </div>
+  <div class="sce-section">
+    <strong>GAP</strong><br>
+    No clean lift option
+  </div>
+  <div class="sce-section">
+    <strong>RANGE</strong><br>
+    Narrow
+  </div>
+  <div class="sce-section">
+    <strong>ADD</strong><br>
+    Something that lifts without getting foggy
+  </div>
+  <div class="sce-section">
+    <strong>WHY IT MATTERS</strong><br>
+    You don’t have a way to shift gears
+  </div>
+  <div class="sce-section">
+    <strong>UNLOCK</strong><br>
+    Lets you balance instead of overcorrect
+  </div>
+</div>
+
+</body>
 </html>
