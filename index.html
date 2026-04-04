@@ -2561,6 +2561,32 @@ input.edibleSlider{
 }
 </style>
 
+
+<style>
+.blendFieldDiscWrap{position:relative;width:260px;height:260px;margin:0 auto;}
+.blendSteerOverlay{position:absolute;inset:0;pointer-events:none;}
+.blendSteerHotspot{
+  position:absolute;pointer-events:auto;border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.03);color:var(--text);border-radius:999px;
+  font-size:10px;letter-spacing:0.10em;text-transform:uppercase;
+  padding:6px 8px;cursor:pointer;backdrop-filter:blur(4px);
+  box-shadow:0 8px 18px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.blendSteerHotspot:hover{transform:translateY(-1px);border-color:rgba(255,255,255,0.24);background:rgba(255,255,255,0.06);}
+.blendSteerHotspot[data-steer-goal="FOCUS"]{top:10px;left:50%;transform:translateX(-50%);}
+.blendSteerHotspot[data-steer-goal="CALM"]{left:8px;bottom:18px;}
+.blendSteerHotspot[data-steer-goal="SLEEP"]{right:8px;bottom:18px;}
+.blendSteerHotspot[data-steer-goal="STEADY"]{
+  left:50%;top:50%;transform:translate(-50%,-50%);
+  background:rgba(11,13,16,0.48);border-color:rgba(255,255,255,0.18);
+}
+.blendSteerHint{margin:10px 0 0 0;font-size:11px;letter-spacing:0.08em;color:var(--muted);line-height:1.35;}
+.blendSteerHint strong{color:var(--text);}
+@media (max-width:900px){
+  .blendFieldDiscWrap{width:min(78vw,260px);height:min(78vw,260px);}
+}
+</style>
+
 </head>
 
 <body>
@@ -7289,9 +7315,20 @@ const askPromptBlend = document.getElementById("askPromptBlend");
         <details class="blendField">
           <summary>
             <div class="blendFingerprintWrap blendFingerprintWrapLarge">
-              <p class="blendFingerprintHead">Blend position</p>
+              <p class="blendFingerprintHead">Blend field</p>
               <div class="blendFingerprintBody">
-                <div class="blendFingerprintDisc">${buildBlendFingerprintSvg(safeParts, 220)}</div>
+                <div>
+                  <div class="blendFieldDiscWrap">
+                    <div class="blendFingerprintDisc">${buildBlendFingerprintSvg(safeParts, 220)}</div>
+                    <div class="blendSteerOverlay">
+                      <button class="blendSteerHotspot" type="button" data-blend-steer="FOCUS" title="Steer toward uplift / focus">Uplift</button>
+                      <button class="blendSteerHotspot" type="button" data-blend-steer="CALM" title="Steer toward calm">Calm</button>
+                      <button class="blendSteerHotspot" type="button" data-blend-steer="SLEEP" title="Steer toward heavy / sleep">Heavy</button>
+                      <button class="blendSteerHotspot" type="button" data-blend-steer="STEADY" title="Steer toward the middle">Middle</button>
+                    </div>
+                  </div>
+                  <p class="blendSteerHint"><strong>Tap a zone to steer the blend.</strong> Uplift, calm, heavy, or middle.</p>
+                </div>
                 <div>
                   <div class="blendFingerprintLegend">
                     ${metrics.map(metric => {
@@ -7666,6 +7703,7 @@ Use this correctly: pick the lane that matches what you want, not the stash with
       if (q.includes("focus") || q.includes("clear")) return "FOCUS";
       if (q.includes("creative") || q.includes("create")) return "CREATIVE";
       if (q.includes("fun") || q.includes("social")) return "FUN";
+      if (q.includes("steady") || q.includes("balanced") || q.includes("middle")) return "STEADY";
       return "CALM";
     }
 
@@ -7676,6 +7714,7 @@ Use this correctly: pick the lane that matches what you want, not the stash with
       if (g === "FOCUS") return "focus";
       if (g === "CREATIVE") return "creative";
       if (g === "FUN") return "fun";
+      if (g === "STEADY") return "calm";
       return "calm";
     }
 
@@ -7686,6 +7725,7 @@ Use this correctly: pick the lane that matches what you want, not the stash with
       if (g === "FOCUS") return ["calm", "creative"];
       if (g === "CREATIVE") return ["fun", "focus"];
       if (g === "FUN") return ["creative", "calm"];
+      if (g === "STEADY") return ["focus", "sleep"];
       return ["sleep"];
     }
 
@@ -7746,6 +7786,7 @@ Use this correctly: pick the lane that matches what you want, not the stash with
       if (goal === "FOCUS") laneBoost += laneRate(row, "focus") * 2.2 + laneRate(row, "calm") * 0.3;
       if (goal === "CREATIVE") laneBoost += laneRate(row, "creative") * 2.2 + laneRate(row, "fun") * 0.3;
       if (goal === "FUN") laneBoost += laneRate(row, "fun") * 2.2 + laneRate(row, "creative") * 0.3;
+      if (goal === "STEADY") laneBoost += laneRate(row, "calm") * 1.15 + laneRate(row, "focus") * 1.05 + laneRate(row, "sleep") * 0.28;
 
       const specialistBonus = rowGoalSpecialistBonus(row, goal);
       const allRounderPenalty = rowAllRounderPenalty(row, goal);
@@ -7965,6 +8006,7 @@ These match scores rank fit for your target. The grams and percentages are the a
       if (g === "FOCUS") return "focus";
       if (g === "CREATIVE") return "creative";
       if (g === "FUN") return "fun";
+      if (g === "STEADY") return "calm";
       return "general";
     }
 
@@ -7983,6 +8025,7 @@ These match scores rank fit for your target. The grams and percentages are the a
       if (family === "focus") return ["clear", "steady", "uplift"];
       if (family === "creative") return ["uplift", "clear", "steady"];
       if (family === "fun") return ["uplift", "steady", "clear"];
+      if (family === "steady") return ["steady", "calm", "clear"];
       return ["steady"];
     }
 
@@ -8465,6 +8508,15 @@ These match scores rank fit for your target. The grams and percentages are the a
           setTimeout(() => openStashDetail(stashId), 180);
         };
       });
+      askSuggestionMount.querySelectorAll('[data-blend-steer]').forEach(btn => {
+        btn.onclick = async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const goal = btn.getAttribute('data-blend-steer') || "";
+          if (!goal) return;
+          await steerBlendGoal(goal);
+        };
+      });
     }
 
     function clearAskSuggestion(){
@@ -8625,6 +8677,15 @@ These match scores rank fit for your target. The grams and percentages are the a
           setTimeout(() => openStashDetail(stashId), 180);
         };
       });
+      askSuggestionMount.querySelectorAll('[data-blend-steer]').forEach(btn => {
+        btn.onclick = async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const goal = btn.getAttribute('data-blend-steer') || "";
+          if (!goal) return;
+          await steerBlendGoal(goal);
+        };
+      });
     }
 
 async function answerAsk(q){
@@ -8740,6 +8801,23 @@ Ask me something tighter.`;
     askPromptWeird.onclick = () => { setAskQuickActive(askPromptWeird); askInput.value = "I want something different."; };
     if (askPromptTranscript) askPromptTranscript.onclick = () => { setAskQuickActive(askPromptTranscript); askInput.value = "Show me all lanes."; };
 
+
+    function buildSteerBlendQuery(goal){
+      const g = String(goal || "").toUpperCase();
+      if (g === "FOCUS") return "Build me an uplifting / focus blend.";
+      if (g === "CALM") return "Build me a calm blend.";
+      if (g === "SLEEP") return "Build me a heavy / sleep blend.";
+      if (g === "STEADY") return "Build me a steady blend.";
+      return "Build me a calm blend.";
+    }
+
+    async function steerBlendGoal(goal){
+      const query = buildSteerBlendQuery(goal);
+      askInput.value = query;
+      setAskQuickActive(askPromptBlend);
+      await runAskFlow(query);
+    }
+
     async function runAskFlow(rawQueryOverride){
       askReply.textContent = "Thinking…";
       clearAskSuggestion();
@@ -8766,6 +8844,7 @@ Ask me something tighter.`;
       if (q.includes("focus") || q.includes("clear")) return "FOCUS";
       if (q.includes("creative") || q.includes("create")) return "CREATIVE";
       if (q.includes("fun") || q.includes("social")) return "FUN";
+      if (q.includes("steady") || q.includes("balanced") || q.includes("middle")) return "STEADY";
       return "";
     }
 
@@ -8775,9 +8854,9 @@ Ask me something tighter.`;
       const pickedGoal = prompt("Blend target? Type one: CALM / SLEEP / FOCUS / CREATIVE / FUN", inferredGoal);
       if (!pickedGoal) return;
       const normalizedGoal = String(pickedGoal || "").trim().toUpperCase();
-      const allowedGoals = ["CALM", "SLEEP", "FOCUS", "CREATIVE", "FUN"];
+      const allowedGoals = ["CALM", "SLEEP", "FOCUS", "CREATIVE", "FUN", "STEADY"];
       if (!allowedGoals.includes(normalizedGoal)){
-        askReply.textContent = "Blend target not recognized. Use: CALM / SLEEP / FOCUS / CREATIVE / FUN.";
+        askReply.textContent = "Blend target not recognized. Use: CALM / SLEEP / FOCUS / CREATIVE / FUN / STEADY.";
         clearAskSuggestion();
         return;
       }
