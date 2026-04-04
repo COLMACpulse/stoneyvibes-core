@@ -2733,22 +2733,6 @@ input.edibleSlider{
 }
 </style>
 
-
-<style>
-.blendModeLine{
-  margin:10px 0 0 0;
-  font-size:12px;
-  line-height:1.4;
-  color:var(--muted);
-}
-.blendModeLine strong{
-  color:var(--text);
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  font-size:10px;
-}
-</style>
-
 </head>
 
 <body>
@@ -7537,22 +7521,6 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       return support ? `This blend leans ${lead}, with ${support} underneath it.` : `This blend leans ${lead}.`;
     }
 
-
-    function getConsumptionModeLine(mode){
-      const m = String(mode || "FLOWER").toUpperCase();
-      if (m === "VAPE"){
-        return "Comes on quicker with a sharper front edge and a shorter arc.";
-      }
-      if (m === "EDIBLE"){
-        return "Takes longer to arrive, builds gradually, and stays around longer.";
-      }
-      return "Comes on smoother, builds through the body, and holds longer.";
-    }
-
-    function getCurrentBlendMode(){
-      return String(sessionMode?.value || "FLOWER").toUpperCase();
-    }
-
     function buildBlendExplainMarkup(parts){
       const safeParts = Array.isArray(parts) ? parts.slice(0,2).filter(Boolean) : [];
       if (!safeParts.length) return "";
@@ -7580,15 +7548,11 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       if (third && safeNum(third.value) < 0.18) bullets.push(`${third.label} is not doing much here, so do not expect that lane to carry the experience.`);
       const ratio = describeBlendRatio(safeParts);
       return `
-                    <div class="blendExplainBody">
+          <div class="blendExplainBody">
             <p class="blendExplainLead">${escapeHtml(leadLine)}</p>
             <p class="blendExplainCopy">${escapeHtml(ratio)}</p>
-            <p class="blendModeLine"><strong>Mode</strong><br>${escapeHtml(getConsumptionModeLine(getCurrentBlendMode()))}</p>
             <div class="blendExplainBullets">
               ${bullets.slice(0,3).map(line => `<div class="blendExplainBullet">${escapeHtml(line)}</div>`).join("")}
-            </div>
-            <p class="blendExplainHint">This is a plain-language read of the exact blend sitting above — same numbers, less translation work.</p>
-          </div>`).join("")}
             </div>
             <p class="blendExplainHint">This is a plain-language read of the exact blend sitting above — same numbers, less translation work.</p>
           </div>
