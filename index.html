@@ -2527,7 +2527,7 @@ input.edibleSlider{
 .blendExplain{margin-top:12px;border:1px solid rgba(255,255,255,0.14);border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));overflow:hidden;}
 .blendExplain summary{list-style:none;cursor:pointer;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);user-select:none;}
 .blendExplain summary::-webkit-details-marker{display:none;}
-.blendExplain summary::after{content:"Tap to open";font-size:10px;letter-spacing:0.10em;color:var(--muted);text-transform:uppercase;}
+.blendExplain summary::after{content:"Tap the graph";font-size:10px;letter-spacing:0.10em;color:var(--muted);text-transform:uppercase;}
 .blendExplain[open] summary::after{content:"Tap to close";}
 .blendExplainBody{padding:0 12px 12px 12px;border-top:1px solid rgba(255,255,255,0.10);}
 .blendExplainLead{margin:10px 0 0 0;font-size:15px;line-height:1.35;color:var(--text);font-weight:700;}
@@ -2539,60 +2539,25 @@ input.edibleSlider{
 
 
 <style>
-.blendField {
-  margin-top:16px;
-  padding:16px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.04);
-}
-
-.triangleWrap {
-  width:220px;
-  height:190px;
-  margin:auto;
-  position:relative;
-}
-
-.triangle {
-  width:0;
-  height:0;
-  border-left:110px solid transparent;
-  border-right:110px solid transparent;
-  border-bottom:190px solid rgba(255,255,255,0.08);
-  position:absolute;
-  top:0;
-}
-
-.triLabel {
-  position:absolute;
-  font-size:11px;
-  opacity:0.7;
-}
-
-.triLabel.top { top:-18px; left:50%; transform:translateX(-50%); }
-.triLabel.left { bottom:-18px; left:0; }
-.triLabel.right { bottom:-18px; right:0; }
-
-.metricBar {
-  margin-top:10px;
-}
-
-.metricBar span {
-  font-size:11px;
-  opacity:0.7;
-}
-
-.metricFill {
-  height:6px;
-  border-radius:4px;
-  background:linear-gradient(to right, #9ae6b4, #68d391);
-  margin-top:4px;
-}
-
-.blendReadLine {
-  margin-top:12px;
-  font-size:13px;
-  opacity:0.9;
+.blendField{margin-top:12px;border:1px solid rgba(255,255,255,0.14);border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.03));overflow:hidden;}
+.blendField summary{list-style:none;cursor:pointer;padding:12px 14px;user-select:none;}
+.blendField summary::-webkit-details-marker{display:none;}
+.blendFieldSummaryNote{margin:8px 0 0 0;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.blendField[open] .blendFieldSummaryNote{color:var(--text);}
+.blendFingerprintWrapLarge{margin-top:0;border:0;background:transparent;padding:0;}
+.blendFingerprintWrapLarge .blendFingerprintHead{margin:0 0 10px 0;font-size:12px;letter-spacing:0.16em;}
+.blendFingerprintWrapLarge .blendFingerprintBody{grid-template-columns:220px 1fr;gap:18px;align-items:start;}
+.blendFingerprintWrapLarge .blendFingerprintDisc{width:220px;height:220px;border-radius:22px;display:flex;align-items:center;justify-content:center;transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;}
+.blendFingerprintWrapLarge .blendFingerprintDisc:hover{transform:translateY(-1px);border-color:rgba(255,255,255,0.24);box-shadow:0 10px 24px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.05);}
+.blendFingerprintWrapLarge .blendFingerprintLegend{grid-template-columns:1fr;gap:10px;}
+.blendFingerprintWrapLarge .blendFingerprintMetric{display:grid;grid-template-columns:120px 1fr 48px;gap:12px;align-items:center;}
+.blendFingerprintWrapLarge .blendFingerprintLabel{margin-bottom:0;font-size:11px;letter-spacing:0.12em;}
+.blendFingerprintWrapLarge .blendFingerprintTrack{height:12px;}
+.blendFingerprintWrapLarge .blendFingerprintPct{margin-top:0;text-align:right;font-size:12px;}
+.blendField .blendExplainBody{padding:0 14px 14px 14px;border-top:1px solid rgba(255,255,255,0.10);}
+@media (max-width: 900px){
+  .blendFingerprintWrapLarge .blendFingerprintBody{grid-template-columns:1fr;}
+  .blendFingerprintWrapLarge .blendFingerprintDisc{margin:0 auto;width:min(78vw,260px);height:min(78vw,260px);}
 }
 </style>
 
@@ -7285,8 +7250,6 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       if (third && safeNum(third.value) < 0.18) bullets.push(`${third.label} is not doing much here, so do not expect that lane to carry the experience.`);
       const ratio = describeBlendRatio(safeParts);
       return `
-        <details class="blendExplain">
-          <summary>Blend position — tap for read</summary>
           <div class="blendExplainBody">
             <p class="blendExplainLead">${escapeHtml(leadLine)}</p>
             <p class="blendExplainCopy">${escapeHtml(ratio)}</p>
@@ -7295,7 +7258,6 @@ const askPromptBlend = document.getElementById("askPromptBlend");
             </div>
             <p class="blendExplainHint">This is a plain-language read of the exact blend sitting above — same numbers, less translation work.</p>
           </div>
-        </details>
       `;
     }
 
@@ -7304,24 +7266,31 @@ const askPromptBlend = document.getElementById("askPromptBlend");
       if (!safeParts.length) return "";
       const { metrics } = getBlendFingerprintMetrics(safeParts);
       return `
-        <div class="blendFingerprintWrap">
-          <p class="blendFingerprintHead">Blend position</p>
-          <div class="blendFingerprintBody">
-            <div class="blendFingerprintDisc">${buildBlendFingerprintSvg(safeParts, 84)}</div>
-            <div class="blendFingerprintLegend">
-              ${metrics.map(metric => {
-                return `
-                  <div class="blendFingerprintMetric">
-                    <div class="blendFingerprintLabel">${escapeHtml(metric.label)}</div>
-                    <div class="blendFingerprintTrack"><div class="blendFingerprintFill" style="width:${metric.pct}%;"></div></div>
-                    <div class="blendFingerprintPct">${metric.pct}%</div>
+        <details class="blendField">
+          <summary>
+            <div class="blendFingerprintWrap blendFingerprintWrapLarge">
+              <p class="blendFingerprintHead">Blend position</p>
+              <div class="blendFingerprintBody">
+                <div class="blendFingerprintDisc">${buildBlendFingerprintSvg(safeParts, 220)}</div>
+                <div>
+                  <div class="blendFingerprintLegend">
+                    ${metrics.map(metric => {
+                      return `
+                        <div class="blendFingerprintMetric">
+                          <div class="blendFingerprintLabel">${escapeHtml(metric.label)}</div>
+                          <div class="blendFingerprintTrack"><div class="blendFingerprintFill" style="width:${metric.pct}%;"></div></div>
+                          <div class="blendFingerprintPct">${metric.pct}%</div>
+                        </div>
+                      `;
+                    }).join("")}
                   </div>
-                `;
-              }).join("")}
+                  <p class="blendFieldSummaryNote">Tap the graph to open the read.</p>
+                </div>
+              </div>
             </div>
-          </div>
+          </summary>
           ${buildBlendExplainMarkup(safeParts)}
-        </div>
+        </details>
       `;
     }
 
@@ -9258,41 +9227,5 @@ function forceRenderFingerprint(elId, blend){
   ]);
 }
 
-</script>
-<script>
-function renderBlendField(metrics){
-  const sorted = Object.entries(metrics).sort((a,b)=>b[1]-a[1]);
-  const primary = sorted[0][0];
-  const secondary = sorted[1][0];
-
-  function line(){
-    return `Leans ${primary} with a ${secondary} backbone.`;
-  }
-
-  return `
-    <div class="blendField">
-      <div class="triangleWrap">
-        <div class="triangle"></div>
-        <div class="triLabel top">Uplift</div>
-        <div class="triLabel left">Calm</div>
-        <div class="triLabel right">Heavy</div>
-      </div>
-
-      <div class="metricBar">
-        <span>Clarity</span>
-        <div class="metricFill" style="width:${metrics.clarity * 100}%"></div>
-      </div>
-
-      <div class="metricBar">
-        <span>Steady</span>
-        <div class="metricFill" style="width:${metrics.steady * 100}%"></div>
-      </div>
-
-      <div class="blendReadLine">${line()}</div>
-    </div>
-  `;
-}
-</script>
-
-</body>
+</script></body>
 </html>
