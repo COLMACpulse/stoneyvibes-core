@@ -174,11 +174,25 @@
       opacity:0.95;
     }
     #stashDetailBackBtn{
-      padding:12px 16px;
-      border-radius:14px;
-      font-size:14px;
-      font-weight:700;
-      letter-spacing:0.02em;
+      width:100%;
+      padding:14px 18px;
+      border-radius:16px;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      border-color:rgba(255,255,255,0.42);
+      background:linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.10));
+      box-shadow:0 10px 24px rgba(0,0,0,0.24), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    }
+    .stashDetailTopBar{
+      position:sticky;
+      top:0;
+      z-index:6;
+      padding-top:8px;
+      padding-bottom:8px;
+      background:linear-gradient(180deg, rgba(11,13,16,0.96), rgba(11,13,16,0.78));
+      backdrop-filter:blur(8px);
     }
     .chip.active{
       color:#fff;
@@ -2604,9 +2618,8 @@ input.edibleSlider{
           <div id="stashDetail" class="stashDetail">
             <div class="divider"></div>
 
-            <div class="row between">
-              <h2 style="margin:0; font-size:14px; letter-spacing:0.10em;">STASH DETAIL</h2>
-              <button id="stashDetailBackBtn" class="btn btnPrimary" type="button">← Back to lineup</button>
+            <div class="stashDetailTopBar">
+              <button id="stashDetailBackBtn" class="btn btnPrimary" type="button">← Back to Stash Lineup</button>
             </div>
 
             <div id="stashDetailBody" class="topgap"></div>
@@ -4083,14 +4096,12 @@ input.edibleSlider{
     }
 
     function normalizeStashSortOrders(items){
-      const ordered = getStashDisplayOrder(items);
-      let currentRank = 0;
-      let sampledRank = 0;
-      ordered.forEach(item => {
-        if (item.status === "CURRENT") item.sortOrder = currentRank++;
-        else item.sortOrder = sampledRank++;
-      });
-      return ordered;
+      const sanitized = sanitizeStashItems(items);
+      const currentItems = sanitized.filter(item => item.status === "CURRENT");
+      const sampledItems = sanitized.filter(item => item.status === "SAMPLED");
+      currentItems.forEach((item, idx) => { item.sortOrder = idx; });
+      sampledItems.forEach((item, idx) => { item.sortOrder = idx; });
+      return [...currentItems, ...sampledItems];
     }
 
     function getCachedStashPhoto(stashId, fallback = ""){
