@@ -2537,6 +2537,65 @@ input.edibleSlider{
 .blendExplainHint{margin:8px 0 0 0;font-size:11px;line-height:1.35;color:var(--muted);}
 </style>
 
+
+<style>
+.blendField {
+  margin-top:16px;
+  padding:16px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.04);
+}
+
+.triangleWrap {
+  width:220px;
+  height:190px;
+  margin:auto;
+  position:relative;
+}
+
+.triangle {
+  width:0;
+  height:0;
+  border-left:110px solid transparent;
+  border-right:110px solid transparent;
+  border-bottom:190px solid rgba(255,255,255,0.08);
+  position:absolute;
+  top:0;
+}
+
+.triLabel {
+  position:absolute;
+  font-size:11px;
+  opacity:0.7;
+}
+
+.triLabel.top { top:-18px; left:50%; transform:translateX(-50%); }
+.triLabel.left { bottom:-18px; left:0; }
+.triLabel.right { bottom:-18px; right:0; }
+
+.metricBar {
+  margin-top:10px;
+}
+
+.metricBar span {
+  font-size:11px;
+  opacity:0.7;
+}
+
+.metricFill {
+  height:6px;
+  border-radius:4px;
+  background:linear-gradient(to right, #9ae6b4, #68d391);
+  margin-top:4px;
+}
+
+.blendReadLine {
+  margin-top:12px;
+  font-size:13px;
+  opacity:0.9;
+}
+</style>
+
 </head>
 
 <body>
@@ -9199,5 +9258,41 @@ function forceRenderFingerprint(elId, blend){
   ]);
 }
 
-</script></body>
+</script>
+<script>
+function renderBlendField(metrics){
+  const sorted = Object.entries(metrics).sort((a,b)=>b[1]-a[1]);
+  const primary = sorted[0][0];
+  const secondary = sorted[1][0];
+
+  function line(){
+    return `Leans ${primary} with a ${secondary} backbone.`;
+  }
+
+  return `
+    <div class="blendField">
+      <div class="triangleWrap">
+        <div class="triangle"></div>
+        <div class="triLabel top">Uplift</div>
+        <div class="triLabel left">Calm</div>
+        <div class="triLabel right">Heavy</div>
+      </div>
+
+      <div class="metricBar">
+        <span>Clarity</span>
+        <div class="metricFill" style="width:${metrics.clarity * 100}%"></div>
+      </div>
+
+      <div class="metricBar">
+        <span>Steady</span>
+        <div class="metricFill" style="width:${metrics.steady * 100}%"></div>
+      </div>
+
+      <div class="blendReadLine">${line()}</div>
+    </div>
+  `;
+}
+</script>
+
+</body>
 </html>
