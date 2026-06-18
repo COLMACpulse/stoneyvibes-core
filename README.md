@@ -1,88 +1,88 @@
-# Lifted States
+# stoneyvibes-core
+Core logic, language, and experiments for # StoneyVibes
 
-**A private instrument for observing how cannabis actually lands for you.**
+**StoneyVibes helps experienced cannabis users feel clear, grounded, and intentional — without shame, paranoia, or bullshit.**
 
-Local-only. No accounts. No servers. No tracking. No bullshit.
+This project is built around one core rule:
+
+> A signal is only considered real if it survives isolation and repeats across parallel, independent branches under comparable conditions.
 
 ---
 
-## What this is
+## What This Is
 
-Lifted States is a personal observation tool for experienced cannabis users — the people who want to know what something actually does for *them*, not what the label claims or what the internet says.
-
-It is **not**:
-
-- a strain database
+StoneyVibes is not:
+- a strain review app
 - a recommendation engine
 - a social feed
 - a marketplace
 
-It **is**:
+StoneyVibes *is*:
+- a personal signal-mapping system
+- a tool for awareness, not consumption
+- a way to separate noise from truth
+- a record of how cannabis actually affects *you*
 
-- a stash library, with photos and notes
-- a fast session log with voice notes and live transcription
-- a pattern-surface that only names a signal once it has *repeated*
-
-## Core rule
-
-> A signal is only real if it survives time and repeats across different conditions.
-
-One strong session is a story. A pattern is a story that keeps coming back.
-
-## How it works
-
-1. **Stash.** Add what you have. Name, category, optional photo and visual traits.
-2. **Log.** Pick from stash, hit record, talk for a minute. Tag what landed.
-3. **Ask.** Once you have data, ask your own system what helps sleep, what runs steady, what makes you anxious. Patterns surface only when they repeat.
-
-## Data and privacy
-
-- Every byte stays on your device.
-- Stash data lives in `localStorage`. Photos and audio live in IndexedDB.
-- No accounts, no servers, no analytics, no tracking, no telemetry, ever.
-- Export gives you a JSON file you fully own. Import restores from one.
-- Wipe removes everything from the device with no remainder.
-
-## Running locally
-
-This is a static site. No build step.
-
-```bash
-# any static file server works
-python3 -m http.server 8000
-# then open http://localhost:8000
-```
-
-## Deploying
-
-Drop these files at the root of any static host (GitHub Pages, Netlify, Vercel, S3+CloudFront, a $5/mo VPS). That's it.
-
-```
-index.html
-styles.css
-app.js
-favicon.svg
-icon-192.png
-icon-512.png
-manifest.webmanifest
-og.png
-og.svg
-```
-
-## Browser support
-
-- **Recording + transcript:** Chrome, Edge, Android. iOS Safari needs the fallback recorder (file upload from the Voice Memos app); transcription on iOS falls back to manual.
-- **Everything else:** any evergreen browser.
-- **Installable as a PWA** on iOS and Android.
-
-## Philosophy
-
-Built for the user who already knows how to handle their own life. Plain language. Scientific thinking. The word "bullshit" used intentionally and sparingly.
-
-Clarity beats novelty. Signal beats story. Grounded beats hype.
+No judgment.  
+No optimization pressure.  
+No performative wellness.
 
 ---
 
-## Version
+## How It Works (At a High Level)
 
-v1.0 · session capture instrument
+1. You log a session (optional, lightweight).
+2. You answer simple questions shortly after.
+3. Patterns are only acknowledged when:
+   - they repeat
+   - they survive time
+   - they appear across different conditions
+
+Nothing is “true” because it felt strong once.
+
+---
+
+## Data Philosophy
+
+- User data belongs to the user.
+- Anonymity is optional.
+- No selling data.
+- No external training use without explicit consent.
+
+Patterns matter more than intensity.
+
+---
+
+## Language Policy
+
+This is a mature product for experienced users.
+
+Plain language is allowed.  
+Scientific thinking is required.  
+The word “bullshit” is used intentionally and sparingly.
+
+---
+
+## Project Status
+
+- Kernel: **Frozen**
+- Rules engine: **In progress**
+- UI/UX: **Pending**
+- Code: **Intentionally minimal (v1)**
+
+---
+
+## Guiding Principle
+
+Clarity beats novelty.  
+Signal beats story.  
+Grounded beats hype.
+# stoneyvibes-core
+
+Core experiments, logic, and vibe research.
+
+This repo contains:
+- index.html — first live prototype
+- README.md — project context
+
+Built mobile-first. More coming.

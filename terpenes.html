@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StoneyVibes v1 — Terpene Presence</title>
+  <link rel="stylesheet" href="./style.css?v=2" />
+</head>
+
+<body>
+  <div class="shell">
+    <header>
+      <h1 class="title">Terpene Presence — V1</h1>
+      <p class="sub">Presence only. Your perception.</p>
+
+      <div class="nav">
+        <button class="tab active" type="button" id="backBtn">← Back</button>
+        <div class="hint">Draft saves locally</div>
+      </div>
+    </header>
+
+    <main class="pages" style="overflow-x:hidden;">
+      <section class="page" style="min-width:100%;">
+
+        <!-- COLLAPSIBLE INFO -->
+        <div class="card">
+          <h2 style="cursor:pointer;" id="infoToggle">HOW IT WORKS ▼</h2>
+
+          <div id="infoBlock" style="display:none;">
+
+            <div class="notice">
+              <strong>NP</strong> = Not Present<br/>
+              <strong>BG</strong> = Background<br/>
+              <strong>N</strong> = Noticeable<br/>
+              <strong>D</strong> = Dominant
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="list" style="margin-top:10px;">
+              <div class="item"><p class="itemTitle">Myrcene</p><p class="itemMeta">Heavy body / earthy</p></div>
+              <div class="item"><p class="itemTitle">Limonene</p><p class="itemMeta">Lift / citrus brightness</p></div>
+              <div class="item"><p class="itemTitle">β-Caryophyllene</p><p class="itemMeta">Pepper / grounded</p></div>
+              <div class="item"><p class="itemTitle">α/β-Pinene</p><p class="itemMeta">Pine / clarity</p></div>
+              <div class="item"><p class="itemTitle">Linalool</p><p class="itemMeta">Floral / soft calm</p></div>
+              <div class="item"><p class="itemTitle">Terpinolene</p><p class="itemMeta">Sweet / airy</p></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- PRESENCE INPUT -->
+        <div class="card">
+          <h2>PRESENCE INPUT</h2>
+          <p class="muted" style="margin:0;">Pick one per terpene.</p>
+
+          <div class="divider"></div>
+
+          <form id="terpForm">
+            <div class="list" id="terpList"></div>
+
+            <div class="row topgap">
+              <button class="btn btnPrimary" type="button" id="saveDraftBtn">Save Draft</button>
+              <button class="btn btnDanger" type="button" id="clearDraftBtn">Clear Draft</button>
+            </div>
+
+            <div class="row topgap">
+              <span class="pillStatus">
+                <span class="okDot"></span>
+                <span id="draftStatus">No draft yet.</span>
+              </span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="notice">
+              Stored locally on this device only.
+            </div>
+          </form>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Collapse toggle
+    const infoToggle = document.getElementById("infoToggle");
+    const infoBlock = document.getElementById("infoBlock");
+
+    infoToggle.onclick = () => {
+      const open = infoBlock.style.display === "block";
+      infoBlock.style.display = open ? "none" : "block";
+      infoToggle.textContent = open ? "HOW IT WORKS ▼" : "HOW IT WORKS ▲";
+    };
+  </script>
+
+  <script src="./terpenes.js"></script>
+</body>
+</html>
